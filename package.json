@@ -19,7 +19,8 @@
     "@capacitor/local-notifications": "^7.0.1",
     "@supabase/supabase-js": "^2.49.8",
     "heic2any": "^0.0.4",
-    "web-push": "^3.6.7"
+    "web-push": "^3.6.7",
+    "ws": "^8.18.1"
   },
   "devDependencies": {
     "@capacitor/android": "^7.2.0",

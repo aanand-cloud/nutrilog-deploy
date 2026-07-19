@@ -1,4 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseAdmin } from '../lib/supabase-admin.mjs';
+import { requireUserAuth } from '../lib/verify-auth.mjs';
+import { jsonResponse, optionsResponse } from '../lib/http-utils.mjs';
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -6,15 +8,12 @@ const cors = {
   'Access-Control-Allow-Methods': 'POST, DELETE, OPTIONS',
 };
 
-const supabase = process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
-  ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
-  : null;
-
 export default async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: cors });
+    return optionsResponse(req);
   }
 
+  const supabase = getSupabaseAdmin();
   if (!supabase) {
     return json({ ok: true, stored: false, reason: 'Supabase not configured' });
   }

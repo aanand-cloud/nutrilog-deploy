@@ -1,10 +1,10 @@
 import { validateVoucherCode } from '../lib/voucher.mjs';
 import { verifyAccessToken, requireAuthInProduction, getAccessToken } from '../lib/verify-auth.mjs';
-import { corsHeaders, jsonResponse } from '../lib/http-utils.mjs';
+import { jsonResponse, optionsResponse } from '../lib/http-utils.mjs';
 
 export default async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('', { status: 204, headers: corsHeaders(req) });
+    return optionsResponse(req);
   }
   if (req.method !== 'POST') {
     return jsonResponse({ error: 'Method not allowed' }, 405, req);

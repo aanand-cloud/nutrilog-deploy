@@ -1,23 +1,18 @@
 import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
 import { isDevEnvironment } from '../lib/is-dev.mjs';
 import { redeemCheckoutSession } from '../lib/redeem-checkout.mjs';
 import { applyTopUpToProfile } from '../lib/scan-enforcement.mjs';
 import { requireUserAuth } from '../lib/verify-auth.mjs';
-import { corsHeaders, jsonResponse } from '../lib/http-utils.mjs';
+import { getSupabaseAdmin } from '../lib/supabase-admin.mjs';
+import { jsonResponse, optionsResponse } from '../lib/http-utils.mjs';
 
 const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' })
   : null;
 
-const supabase =
-  process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
-    ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
-    : null;
-
 export default async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: corsHeaders(req) });
+    return optionsResponse(req);
   }
 
   const url = new URL(req.url);
@@ -33,6 +28,8 @@ export default async (req) => {
     }
     return jsonResponse({ error: 'Payments are not configured' }, 503, req);
   }
+
+  const supabase = getSupabaseAdmin();
 
   try {
     const auth = await requireUserAuth({}, req);

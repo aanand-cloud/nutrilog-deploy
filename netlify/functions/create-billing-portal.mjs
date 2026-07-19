@@ -1,7 +1,7 @@
 import Stripe from 'stripe';
 import { isDevEnvironment } from '../lib/is-dev.mjs';
 import { requireUserAuth } from '../lib/verify-auth.mjs';
-import { corsHeaders, jsonResponse, resolveRedirectOrigin } from '../lib/http-utils.mjs';
+import { jsonResponse, optionsResponse, resolveRedirectOrigin } from '../lib/http-utils.mjs';
 
 const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' })
@@ -9,7 +9,7 @@ const stripe = process.env.STRIPE_SECRET_KEY
 
 export default async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: corsHeaders(req) });
+    return optionsResponse(req);
   }
   if (req.method !== 'POST') {
     return jsonResponse({ error: 'Method not allowed' }, 405, req);

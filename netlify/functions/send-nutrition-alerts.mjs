@@ -1,5 +1,5 @@
 import webpush from 'web-push';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseAdmin } from '../lib/supabase-admin.mjs';
 import {
   weekReportFromMeals,
   buildWeeklyPushMessage,
@@ -8,10 +8,6 @@ import {
 } from './lib/weekly-insights.mjs';
 import { isDevEnvironment } from '../lib/is-dev.mjs';
 import { isCronAuthorized, isScheduledInvocation, jsonResponse } from '../lib/http-utils.mjs';
-
-const supabase = process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
-  ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
-  : null;
 
 const vapidPublic = process.env.VAPID_PUBLIC_KEY;
 const vapidPrivate = process.env.VAPID_PRIVATE_KEY;
@@ -31,6 +27,7 @@ export default async (req) => {
     return jsonResponse({ error: 'Unauthorized' }, 401, req);
   }
 
+  const supabase = getSupabaseAdmin();
   if (!supabase || !vapidPublic || !vapidPrivate) {
     return jsonResponse({ ok: false, reason: 'Push not fully configured' }, 503, req);
   }

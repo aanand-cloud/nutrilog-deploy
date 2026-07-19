@@ -43,6 +43,11 @@ export function jsonResponse(obj, status, req) {
   });
 }
 
+/** Netlify Functions reject status 204 — use empty 200 for CORS preflight. */
+export function optionsResponse(req) {
+  return new Response(null, { status: 200, headers: corsHeaders(req) });
+}
+
 export function isCronAuthorized(req) {
   const secret = process.env.CRON_SECRET;
   if (!secret) return isDevEnvironment();

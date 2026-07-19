@@ -1,14 +1,10 @@
 import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseAdmin } from '../lib/supabase-admin.mjs';
 import { redeemCheckoutSession } from '../lib/redeem-checkout.mjs';
 import { applyTopUpToProfile } from '../lib/scan-enforcement.mjs';
 
 const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' })
-  : null;
-
-const supabase = process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
-  ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
   : null;
 
 function normalizePlan(plan) {
@@ -42,6 +38,7 @@ export default async (req) => {
   }
 
   try {
+    const supabase = getSupabaseAdmin();
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
       if (session.metadata?.product !== 'nutrilog' || !supabase) {

@@ -8,13 +8,13 @@ import {
 } from '../lib/scan-enforcement.mjs';
 import { isDevEnvironment } from '../lib/is-dev.mjs';
 import { getSupabaseAdmin, getAccessToken, verifyAccessToken } from '../lib/verify-auth.mjs';
-import { corsHeaders, jsonResponse } from '../lib/http-utils.mjs';
+import { corsHeaders, jsonResponse, optionsResponse } from '../lib/http-utils.mjs';
 
 const MAX_IMAGE_CHARS = 6_000_000;
 
 export default async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('', { status: 204, headers: corsHeaders(req) });
+    return optionsResponse(req);
   }
   if (req.method !== 'POST') {
     return jsonResponse({ error: 'Method not allowed' }, 405, req);
