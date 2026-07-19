@@ -1,0 +1,81 @@
+NUTRILOG — FRESH START (no confusion)
+=====================================
+
+This folder is your CLEAN app. Use ONLY this folder from now on.
+
+Folder path:
+  C:\Users\user\Projects\nutrilog-deploy
+
+Ignore the old folders (visanova, nutrition-app1, etc).
+
+
+WHY NETLIFY SAID "PAGE NOT FOUND"
+---------------------------------
+The app is fine. Netlify was pointing at the wrong folder or an empty build.
+This fresh folder fixes that.
+
+
+STEP 1 — DELETE OLD NETLIFY SITE (optional but recommended)
+-----------------------------------------------------------
+1. Go to https://app.netlify.com
+2. Click your old broken site
+3. Site configuration → General → Delete site
+4. Type the site name to confirm → Delete
+
+
+STEP 2 — NEW GITHUB REPO (GitHub Desktop)
+-----------------------------------------
+1. Open GitHub Desktop
+2. File → Add local repository
+3. Choose: C:\Users\user\Projects\nutrilog-deploy
+4. If it says "not a git repository" → click CREATE REPOSITORY
+5. Name: nutrilog
+6. Click Create repository
+
+7. You should see MANY files on the left (package.json, src, etc.)
+8. Summary: First upload
+9. Commit to main
+10. Publish repository
+    - Name: nutrilog
+    - Keep private: YES
+    - Publish
+
+11. Repository → View on GitHub
+    At the TOP you must see package.json (NOT a folder inside a folder)
+
+
+STEP 3 — NEW NETLIFY SITE
+-------------------------
+1. https://app.netlify.com → Add new site → Import from GitHub
+2. If nutrilog does not show:
+   - Click "Configure the Netlify app on GitHub"
+   - Allow access to repo "nutrilog"
+   - Save, then refresh Netlify
+
+3. Click repo: aanand-cloud / nutrilog
+
+4. BUILD SETTINGS — copy exactly:
+
+   Base directory:     (EMPTY — nothing in the box)
+   Build command:      npm run build
+   Publish directory:  dist
+
+5. Deploy site → wait 3-5 minutes → status must say "Published" (green)
+
+6. Open the site URL (main link on Netlify dashboard)
+   You should see NutriLog — NOT "page not found"
+
+
+IF STILL "PAGE NOT FOUND"
+-------------------------
+In Netlify → Deploys → click latest deploy:
+- If RED failed → copy error and ask for help
+- If GREEN published → Site configuration → Build settings
+  Publish directory MUST be: dist
+  Base directory MUST be empty
+  Then Trigger deploy → Clear cache and deploy site
+
+
+STEP 4 — STRIPE WEBSITE (after site works)
+------------------------------------------
+Use your Netlify link, e.g. https://nutrilog.netlify.app

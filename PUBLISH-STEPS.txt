@@ -1,0 +1,123 @@
+NUTRILOG — PUBLISH TO GITHUB + NETLIFY
+======================================
+Follow these steps in order. One step at a time.
+
+YOUR APP FOLDER (keep this path):
+  C:\Users\user\Projects\visanova\nutrition-app
+
+Do NOT upload node_modules or .env (already blocked by .gitignore).
+
+
+PART 1 — GITHUB (GitHub Desktop)
+--------------------------------
+
+1. Open GitHub Desktop.
+
+2. File → Add local repository
+   Choose folder: C:\Users\user\Projects\visanova\nutrition-app
+   Click Add.
+
+3. Top left should say a repo name. Use ONE repo only:
+   Best name: nutrition-app
+   (Netlify already sees "nutrition-app" on GitHub.)
+
+4. Left side — you should see changed files OR "No local changes".
+
+   IF YOU SEE FILES:
+   - Tick all files on the left
+   - Summary box: type  Upload NutriLog
+   - Click Commit to main
+   - Click Push origin (top bar)
+
+   IF "NO LOCAL CHANGES":
+   - Click Repository → View on GitHub
+   - If you see package.json and src folder online, GitHub is DONE.
+   - Go to PART 2.
+
+5. If it says Publish repository:
+   - Name: nutrition-app
+   - Tick Keep private
+   - Click Publish repository
+
+6. Check: Repository → View on GitHub
+   You must see at top level:
+   - package.json
+   - index.html
+   - netlify.toml
+   - src folder
+   NOT an extra folder called nutrition-app inside.
+
+
+PART 2 — NETLIFY
+----------------
+
+1. Go to: https://app.netlify.com
+
+2. Add new site → Import an existing project → GitHub
+
+3. Pick repo: aanand-cloud / nutrition-app
+   (If you only see nutrition-app, use that one.)
+
+4. Build settings — MUST be exactly:
+
+   Base directory:     (leave EMPTY — delete anything in the box)
+   Build command:      npm run build
+   Publish directory:  dist
+   Branch:             main
+
+5. Click Deploy site. Wait 3–5 minutes.
+
+6. When green "Published", copy your link, e.g.:
+   https://something.netlify.app
+
+7. Open the link — you should see NutriLog.
+
+
+PART 3 — SECRET KEYS (after site is live)
+-----------------------------------------
+
+Netlify → Site configuration → Environment variables → Add each:
+
+  VITE_SUPABASE_URL
+  VITE_SUPABASE_ANON_KEY
+  SUPABASE_URL
+  SUPABASE_SERVICE_ROLE_KEY
+  GEMINI_API_KEY
+  STRIPE_SECRET_KEY
+  STRIPE_DAILY10_PRICE_ID
+  STRIPE_DAILY10_DISCOUNT_PRICE_ID
+  STRIPE_DAILY25_PRICE_ID
+  STRIPE_DAILY25_DISCOUNT_PRICE_ID
+  STRIPE_TOPUP_PRICE_ID
+  STRIPE_TOPUP_DISCOUNT_PRICE_ID
+  STRIPE_WEBHOOK_SECRET
+  URL  (= your Netlify link, e.g. https://yoursite.netlify.app)
+
+Then: Deploys → Trigger deploy → Clear cache and deploy site.
+
+
+PART 4 — STRIPE WEBSITE
+-----------------------
+
+Stripe → Business / Website field:
+  Paste your Netlify link from Part 2.
+
+Webhook URL (Stripe → Developers → Webhooks):
+  https://YOUR-SITE.netlify.app/api/stripe-webhook
+
+
+IF BUILD FAILS ON NETLIFY
+-------------------------
+
+- Base directory must be EMPTY (not nutrition-app)
+- Repo must have package.json at the top level on GitHub
+- Click failed deploy → copy last lines of error → ask for help
+
+
+NEED HELP?
+----------
+
+Tell your helper:
+  1) GitHub repo name you used
+  2) Netlify error text (if any)
+  3) Your Netlify URL (if any)
