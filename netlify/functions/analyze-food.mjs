@@ -1,224 +1,105 @@
 import { analyzeFoodWithGemini } from '../lib/gemini.mjs';
-
 import { ANALYSIS_PROMPT, CLARIFY_PROMPT } from '../lib/prompts.mjs';
-
-import { createClient } from '@supabase/supabase-js';
-
 import {
-
   checkScanAllowed,
-
+  checkRefinementAllowed,
   consumeMealScan,
-
   isValidRefinementContext,
-
 } from '../lib/scan-enforcement.mjs';
-
 import { isDevEnvironment } from '../lib/is-dev.mjs';
-
-
-
-const CORS = {
-
-  'Access-Control-Allow-Origin': '*',
-
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-
-};
-
-
+import { getSupabaseAdmin, getAccessToken, verifyAccessToken } from '../lib/verify-auth.mjs';
+import { corsHeaders, jsonResponse } from '../lib/http-utils.mjs';
 
 const MAX_IMAGE_CHARS = 6_000_000;
 
-
-
-const supabaseAdmin =
-
-  process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
-
-    ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
-
-    : null;
-
-
-
 export default async (req) => {
-
   if (req.method === 'OPTIONS') {
-
-    return new Response('', { status: 204, headers: CORS });
-
+    return new Response('', { status: 204, headers: corsHeaders(req) });
   }
-
   if (req.method !== 'POST') {
-
-    return json({ error: 'Method not allowed' }, 405);
-
+    return jsonResponse({ error: 'Method not allowed' }, 405, req);
   }
-
-
 
   const apiKey = process.env.GEMINI_API_KEY;
-
   if (!apiKey) {
-
-    return json({ error: 'GEMINI_API_KEY not configured on server' }, 503);
-
+    return jsonResponse({ error: 'GEMINI_API_KEY not configured on server' }, 503, req);
   }
-
-
 
   let body;
-
   try {
-
     body = await req.json();
-
   } catch {
-
-    return json({ error: 'Invalid JSON body' }, 400);
-
+    return jsonResponse({ error: 'Invalid JSON body' }, 400, req);
   }
 
-
-
-  const { image, mimeType = 'image/jpeg', context, userNotes, accessToken, localDayKey } = body;
+  const { image, mimeType = 'image/jpeg', context, userNotes } = body;
 
   if (!image) {
-
-    return json({ error: 'image is required' }, 400);
-
+    return jsonResponse({ error: 'image is required' }, 400, req);
   }
-
   if (typeof image !== 'string' || image.length > MAX_IMAGE_CHARS) {
-
-    return json({ error: 'Image too large' }, 413);
-
+    return jsonResponse({ error: 'Image too large' }, 413, req);
   }
-
-
 
   const isRefinement = isValidRefinementContext(context);
-
   if (context && !isRefinement) {
-
-    return json({ error: 'Invalid refinement context' }, 400);
-
+    return jsonResponse({ error: 'Invalid refinement context' }, 400, req);
   }
 
-
-
-  const requireAuth = Boolean(supabaseAdmin) && !isDevEnvironment();
+  const requireAuth = !isDevEnvironment();
+  const accessToken = getAccessToken(body, req);
+  const supabaseAdmin = getSupabaseAdmin();
 
   if (requireAuth && !accessToken) {
-
-    return json({ error: 'Sign in required to log meals with AI', requiresAuth: true }, 401);
-
+    return jsonResponse({ error: 'Sign in required to log meals with AI', requiresAuth: true }, 401, req);
   }
-
-
+  if (requireAuth && !supabaseAdmin) {
+    return jsonResponse({ error: 'Server configuration incomplete — contact support' }, 503, req);
+  }
 
   let userId = null;
-
   if (accessToken && supabaseAdmin) {
-
-    const { data: userData, error: authErr } = await supabaseAdmin.auth.getUser(accessToken);
-
-    if (authErr || !userData?.user) {
-
-      return json({ error: 'Invalid or expired session — sign in again', requiresAuth: true }, 401);
-
+    const auth = await verifyAccessToken(accessToken);
+    if (!auth.ok) {
+      return jsonResponse({ error: auth.error, requiresAuth: auth.requiresAuth }, auth.status || 401, req);
     }
-
-    userId = userData.user.id;
-
-
-
-    if (!isRefinement) {
-
-      const scanCheck = await checkScanAllowed(supabaseAdmin, userId);
-
-      if (!scanCheck.ok) {
-
-        return json({ error: scanCheck.error || 'Scan limit reached' }, 429);
-
-      }
-
-    }
-
-  } else if (requireAuth) {
-
-    return json({ error: 'Sign in required to log meals with AI', requiresAuth: true }, 401);
-
+    userId = auth.userId;
   }
 
+  let usage = null;
 
+  if (userId && supabaseAdmin) {
+    const scanCheck = isRefinement
+      ? await checkRefinementAllowed(supabaseAdmin, userId)
+      : await checkScanAllowed(supabaseAdmin, userId);
+
+    if (!scanCheck.ok) {
+      return jsonResponse({ error: scanCheck.error || 'Scan limit reached' }, 429, req);
+    }
+
+    if (!isRefinement) {
+      const consumed = await consumeMealScan(supabaseAdmin, userId);
+      if (!consumed.ok) {
+        return jsonResponse({ error: consumed.error || 'Scan limit reached' }, 429, req);
+      }
+      usage = consumed.usage;
+    }
+  }
 
   const prompt = isRefinement ? CLARIFY_PROMPT : ANALYSIS_PROMPT;
 
-
-
   try {
-
     const analysis = await analyzeFoodWithGemini(apiKey, {
-
       image,
-
       mimeType,
-
       prompt,
-
       context: isRefinement ? context : undefined,
-
       userNotes,
-
     });
 
-
-
-    let usage = null;
-
-    if (userId && supabaseAdmin && !isRefinement) {
-
-      const consumed = await consumeMealScan(supabaseAdmin, userId, { localDayKey });
-
-      if (!consumed.ok) {
-
-        return json({ error: consumed.error || 'Scan limit reached' }, 429);
-
-      }
-
-      usage = consumed.usage;
-
-    }
-
-
-
-    return json({ analysis, usage });
-
+    return jsonResponse({ analysis, usage }, 200, req);
   } catch (e) {
-
     console.error(e);
-
-    return json({ error: e.message || 'Server error during analysis' }, 502);
-
+    return jsonResponse({ error: e.message || 'Server error during analysis' }, 502, req);
   }
-
 };
-
-
-
-function json(obj, status = 200) {
-
-  return new Response(JSON.stringify(obj), {
-
-    status,
-
-    headers: { ...CORS, 'Content-Type': 'application/json' },
-
-  });
-
-}
-

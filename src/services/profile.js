@@ -49,7 +49,30 @@ export async function getProfile() {
       .maybeSingle());
   }
 
-  if (error) throw error;
+  if (error && error.code !== 'PGRST116') throw error;
+
+  if (!data) {
+    const displayName =
+      user.user_metadata?.display_name ||
+      getLocalDisplayName() ||
+      firstNameFromEmail(user.email);
+    if (displayName) saveLocalDisplayName(displayName);
+    return {
+      loggedIn: true,
+      displayName,
+      email: user.email,
+      plan: 'free',
+      goals: undefined,
+      unit_prefs: undefined,
+      discount_senior: false,
+      discount_work_email: null,
+      discount_public_sector: isPublicSectorEmail(user.email),
+      discount_voucher_redeemed: false,
+      topup_balance: 0,
+      scan_month: null,
+      scan_used: 0,
+    };
+  }
 
   const displayName =
     data?.display_name ||
@@ -95,6 +118,42 @@ export async function saveDisplayName(name) {
   return trimmed;
 }
 
+/** Create or update cloud profile after sign-in / sign-up. */
+export async function ensureUserProfile(displayName = '') {
+  const user = await getUser();
+  const sb = getSupabase();
+  if (!user || !sb) return null;
+
+  const trimmed = String(
+    displayName || user.user_metadata?.display_name || getLocalDisplayName() || ''
+  ).trim();
+  if (trimmed) saveLocalDisplayName(trimmed);
+
+  const { data: existing, error: readErr } = await sb
+    .from('profiles')
+    .select('id, display_name')
+    .eq('id', user.id)
+    .maybeSingle();
+  if (readErr && readErr.code !== 'PGRST116') throw readErr;
+
+  if (!existing) {
+    const { error } = await sb.from('profiles').insert({
+      id: user.id,
+      email: user.email,
+      display_name: trimmed || null,
+    });
+    if (error && error.code !== '23505') throw error;
+  } else if (trimmed) {
+    const { error } = await sb
+      .from('profiles')
+      .update({ display_name: trimmed, updated_at: new Date().toISOString() })
+      .eq('id', user.id);
+    if (error) throw error;
+  }
+
+  return trimmed || existing?.display_name || null;
+}
+
 export async function saveDiscountPrefs({ senior, workEmail }) {
   const user = await getUser();
   const sb = getSupabase();
@@ -116,19 +175,6 @@ export async function saveDiscountPrefs({ senior, workEmail }) {
 
 export async function saveVoucherRedemption() {
   markVoucherRedeemedLocally();
-
-  const user = await getUser();
-  const sb = getSupabase();
-  if (!user || !sb) return { savedToCloud: false };
-
-  const { error } = await sb
-    .from('profiles')
-    .update({
-      discount_voucher_redeemed: true,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', user.id);
-  if (error) throw error;
   return { savedToCloud: true };
 }
 

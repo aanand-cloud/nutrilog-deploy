@@ -32,8 +32,8 @@ export function onAuthChange(cb) {
   listeners.add(cb);
   const sb = getSupabase();
   if (!sb) return () => listeners.delete(cb);
-  const { data } = sb.auth.onAuthStateChange((_event, session) => {
-    listeners.forEach((fn) => fn(session));
+  const { data } = sb.auth.onAuthStateChange((event, session) => {
+    listeners.forEach((fn) => fn(session, event));
   });
   return () => {
     listeners.delete(cb);
@@ -77,8 +77,28 @@ export async function signOut() {
 export async function resetPassword(email) {
   const sb = getSupabase();
   if (!sb) throw new Error('Cloud sync not configured');
-  const { error } = await sb.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/?reset=1`,
+  const trimmed = String(email || '').trim();
+  if (!trimmed) throw new Error('Enter your email address first');
+  const { error } = await sb.auth.resetPasswordForEmail(trimmed, {
+    redirectTo: `${window.location.origin}/?view=settings&reset=1`,
   });
+  if (error) throw error;
+}
+
+export async function resendConfirmationEmail(email) {
+  const sb = getSupabase();
+  if (!sb) throw new Error('Cloud sync not configured');
+  const trimmed = String(email || '').trim();
+  if (!trimmed) throw new Error('Enter your email address first');
+  const { error } = await sb.auth.resend({ type: 'signup', email: trimmed });
+  if (error) throw error;
+}
+
+export async function updatePassword(newPassword) {
+  const sb = getSupabase();
+  if (!sb) throw new Error('Cloud sync not configured');
+  const trimmed = String(newPassword || '');
+  if (trimmed.length < 6) throw new Error('Password must be at least 6 characters');
+  const { error } = await sb.auth.updateUser({ password: trimmed });
   if (error) throw error;
 }

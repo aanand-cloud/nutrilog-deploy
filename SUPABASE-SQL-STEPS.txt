@@ -1,0 +1,67 @@
+NUTRILOG — SUPABASE SQL SETUP (simple steps)
+============================================
+
+You only need to do this ONCE. Takes about 5 minutes.
+
+YOUR SUPABASE PROJECT
+---------------------
+URL: https://eqyzuqasvamyoiewpepc.supabase.co
+Dashboard: https://supabase.com/dashboard
+
+
+STEP 1 — Open the SQL file on your PC
+--------------------------------------
+1. Open File Explorer
+2. Go to: C:\Users\user\Projects\nutrilog-deploy\supabase
+3. Open: RUN-ALL-MIGRATIONS.sql
+   (opens in Notepad — that's fine)
+
+
+STEP 2 — Copy everything
+-------------------------
+1. Click inside the file
+2. Press Ctrl+A (select all)
+3. Press Ctrl+C (copy)
+
+
+STEP 3 — Paste into Supabase
+-----------------------------
+1. Go to https://supabase.com/dashboard
+2. Click your **nutrilog** project
+3. Left menu → **SQL Editor**
+4. Click **New query**
+5. Click in the big empty box
+6. Press Ctrl+V (paste)
+7. Click **Run** (green button, bottom right)
+   OR press Ctrl+Enter
+
+You should see: **Success. No rows returned**
+(That is normal and means it worked.)
+
+
+STEP 4 — Turn on email login
+-----------------------------
+1. Left menu → **Authentication**
+2. Click **Providers**
+3. Find **Email** → turn it **ON**
+4. (Optional while testing) turn OFF **Confirm email**
+   so you can sign in immediately without checking inbox
+
+
+STEP 5 — Quick check (optional)
+--------------------------------
+1. Left menu → **Table Editor**
+2. You should see tables: profiles, meals, checkout_redemptions, push_subscriptions
+3. Left menu → **Database** → **Functions**
+   You should see: consume_meal_scan
+
+
+IF YOU GET AN ERROR
+-------------------
+- "already exists" on some lines → usually OK, click Run again or ignore
+- "permission denied" → make sure you're in YOUR project, not a demo
+- Copy the error text and ask for help
+
+ALREADY RAN full-setup.sql BEFORE?
+------------------------------------
+Yes — RUN-ALL-MIGRATIONS.sql is safe to run again. It updates missing pieces.

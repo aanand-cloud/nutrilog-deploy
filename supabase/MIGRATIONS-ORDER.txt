@@ -1,0 +1,18 @@
+# Supabase migrations — run in this order (SQL Editor)
+
+Run each file once in your Supabase project → SQL Editor → New query → paste → Run.
+
+1. full-setup.sql              — base tables, RLS, signup trigger, storage bucket notes
+2. migration-pricing-plans.sql — daily10 / daily25 plans, scan columns
+3. migration-voucher.sql       — voucher discount column
+4. migration-checkout-redemptions.sql — idempotent Stripe session redemption
+5. migration-consume-meal-scan.sql    — atomic scan RPC (required for AI limits)
+6. migration-protect-billing.sql      — block client edits to plan/scans/voucher
+7. migration-meal-extras.sql   — meal_type, meal_notes columns
+8. migration-display-name.sql  — display_name column (if missing)
+9. migration-fix-missing-columns.sql  — safety patch for older projects
+10. push-policies.sql          — push notification RLS
+
+After running, enable Email auth in Authentication → Providers.
+
+Required Netlify env vars: see .env.example in project root.

@@ -1,22 +1,12 @@
 import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
 import { isDevEnvironment } from '../lib/is-dev.mjs';
 import { resolveDiscountEligible } from '../lib/discount-server.mjs';
+import { requireUserAuth } from '../lib/verify-auth.mjs';
+import { corsHeaders, jsonResponse, resolveRedirectOrigin } from '../lib/http-utils.mjs';
 
 const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' })
   : null;
-
-const supabase =
-  process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
-    ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
-    : null;
-
-const cors = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
 
 const PRICE_MAP = {
   daily10: {
@@ -31,31 +21,35 @@ const PRICE_MAP = {
 
 export default async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: cors });
+    return new Response(null, { status: 204, headers: corsHeaders(req) });
   }
-
   if (req.method !== 'POST') {
-    return json({ error: 'Method not allowed' }, 405);
+    return jsonResponse({ error: 'Method not allowed' }, 405, req);
   }
 
   if (!stripe) {
     if (isDevEnvironment()) {
       const body = await req.json().catch(() => ({}));
       const plan = body.plan === 'daily25' ? 'daily25' : 'daily10';
-      return json({ mock: true, plan }, 200);
+      return jsonResponse({ mock: true, plan }, 200, req);
     }
-    return json({ error: 'Payments are not configured' }, 503);
+    return jsonResponse({ error: 'Payments are not configured' }, 503, req);
   }
 
   try {
     const body = await req.json();
+    const auth = await requireUserAuth(body, req);
+    if (!auth.ok) {
+      return jsonResponse({ error: auth.error, requiresAuth: auth.requiresAuth }, auth.status || 401, req);
+    }
+
     const plan = body.plan === 'daily10' || body.plan === 'daily25' ? body.plan : 'daily10';
-    const userId = body.userId || null;
+    const userId = auth.userId || null;
     const email = body.email || undefined;
 
     let useDiscount = false;
-    if (userId && supabase) {
-      useDiscount = await resolveDiscountEligible(supabase, { userId, email });
+    if (userId && auth.supabase) {
+      useDiscount = await resolveDiscountEligible(auth.supabase, { userId, email });
     }
 
     const tier = useDiscount ? 'discount' : 'standard';
@@ -63,13 +57,10 @@ export default async (req) => {
     const priceId = process.env[envKey] || process.env.STRIPE_PRO_PRICE_ID;
 
     if (!priceId) {
-      if (isDevEnvironment()) {
-        return json({ mock: true, plan }, 200);
-      }
-      return json({ error: `${envKey} not set in Netlify env` }, 503);
+      return jsonResponse({ error: `${envKey} not set in Netlify env` }, 503, req);
     }
 
-    const origin = body.origin || process.env.URL || 'http://localhost:5173';
+    const origin = resolveRedirectOrigin(body.origin);
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
@@ -85,16 +76,9 @@ export default async (req) => {
       },
     });
 
-    return json({ url: session.url, sessionId: session.id, discountApplied: useDiscount });
+    return jsonResponse({ url: session.url, sessionId: session.id, discountApplied: useDiscount }, 200, req);
   } catch (err) {
     console.error('create-subscription error', err);
-    return json({ error: err.message || 'Checkout failed' }, 500);
+    return jsonResponse({ error: err.message || 'Checkout failed' }, 500, req);
   }
 };
-
-function json(obj, status = 200) {
-  return new Response(JSON.stringify(obj), {
-    status,
-    headers: { ...cors, 'Content-Type': 'application/json' },
-  });
-}

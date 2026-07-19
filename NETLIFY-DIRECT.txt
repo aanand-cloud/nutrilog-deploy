@@ -1,0 +1,53 @@
+DEPLOY TO NETLIFY WITHOUT GITHUB
+================================
+
+Your built site folder (drag this to Netlify):
+
+  C:\Users\user\Projects\nutrilog-deploy\dist
+
+
+METHOD 1 — DRAG AND DROP (EASIEST — 2 MINUTES)
+----------------------------------------------
+
+1. Open File Explorer
+2. Go to: C:\Users\user\Projects\nutrilog-deploy\dist
+3. Open in browser: https://app.netlify.com/drop
+4. Sign in to Netlify
+5. DRAG the whole "dist" folder onto the page
+   (or drag all files inside dist onto the page)
+6. Wait ~30 seconds
+7. Netlify gives you a link like https://random-name.netlify.app
+8. Open that link — NutriLog should appear
+
+WHAT WORKS with drag-and-drop:
+  - App opens, Today screen, food search, barcode
+  - Sign-in may work IF you add env vars in Netlify dashboard later
+
+WHAT DOES NOT WORK with drag-and-drop alone:
+  - AI photo analysis, Stripe payments, webhooks
+  (those need Method 2 or GitHub deploy)
+
+
+METHOD 2 — NETLIFY CLI (FULL APP WITH PAYMENTS + AI)
+----------------------------------------------------
+
+Run these in PowerShell (one line at a time):
+
+  cd C:\Users\user\Projects\nutrilog-deploy
+  npx netlify-cli login
+  npx netlify-cli init
+  npx netlify-cli deploy --prod
+
+- login opens browser — click Authorize
+- init asks questions — choose Create new site, your team, site name nutrilog
+- deploy uploads everything including payment/AI functions
+
+Then add secret keys in Netlify → Site configuration → Environment variables
+
+
+AFTER SITE IS LIVE
+------------------
+
+Netlify → your site → Domain management → change name to nutrilog-app
+Your link: https://nutrilog-app.netlify.app
+Use that link in Stripe as your website.

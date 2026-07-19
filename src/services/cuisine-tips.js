@@ -1,3 +1,4 @@
+import { getSession, isSupabaseConfigured } from './auth.js';
 import { weekReport } from './reports.js';
 import { getGoals } from './goals.js';
 
@@ -16,10 +17,15 @@ export async function getCuisineTips(meals) {
   }
 
   try {
+    const payload = { context, goals: getGoals() };
+    if (isSupabaseConfigured()) {
+      const session = await getSession();
+      if (session?.access_token) payload.accessToken = session.access_token;
+    }
     const res = await fetch('/api/cuisine-tips', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ context, goals: getGoals() }),
+      body: JSON.stringify(payload),
     });
     if (!res.ok) throw new Error('API failed');
     const data = await res.json();

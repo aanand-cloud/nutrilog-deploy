@@ -1,4 +1,4 @@
--- Run in Supabase SQL Editor — prevents users editing plan/scans/top-up via API
+-- Run in Supabase SQL Editor — prevents users editing plan/scans/top-up/voucher via API
 
 create or replace function public.protect_billing_profile_fields()
 returns trigger
@@ -17,7 +17,8 @@ begin
       or new.topup_balance is distinct from old.topup_balance
       or new.scan_used is distinct from old.scan_used
       or new.scan_month is distinct from old.scan_month
-      or new.stripe_customer_id is distinct from old.stripe_customer_id then
+      or new.stripe_customer_id is distinct from old.stripe_customer_id
+      or new.discount_voucher_redeemed is distinct from old.discount_voucher_redeemed then
       raise exception 'Billing fields are managed by NutriLog checkout only';
     end if;
   end if;

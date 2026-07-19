@@ -1,0 +1,61 @@
+# Git + Netlify deploy (one-time setup)
+
+NutriLog needs **Git-linked Netlify** so Stripe, AI photo analysis, and webhooks work.
+Drag-and-drop of `dist/` alone only uploads static files.
+
+## Step 1 — Push this folder to GitHub
+
+1. Open **GitHub Desktop**
+2. **File → Add local repository** → choose `C:\Users\user\Projects\nutrilog-deploy`
+   - If it says "not a git repo", click **create a repository** here
+3. Commit message: `Security hardening + launch-ready Netlify functions`
+4. **Publish repository** (private recommended)
+5. Name it e.g. `nutrilog` or `nutrition-app`
+
+## Step 2 — Connect Netlify to GitHub
+
+1. Go to [app.netlify.com](https://app.netlify.com)
+2. **Add new site → Import an existing project → GitHub**
+3. Pick your new repo
+4. Build settings (should auto-detect from `netlify.toml`):
+   - Build command: `npm run build`
+   - Publish directory: `dist`
+5. Deploy once (will fail AI/Stripe until env vars are set — that's OK)
+
+## Step 3 — Netlify environment variables
+
+Site → **Site configuration → Environment variables** — add everything from `.env.example`:
+
+Required:
+- `GEMINI_API_KEY`
+- `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
+- `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
+- `URL` = your Netlify site URL (e.g. `https://your-site.netlify.app`)
+- `STRIPE_SECRET_KEY`, all price IDs, `STRIPE_WEBHOOK_SECRET`
+- `CRON_SECRET` = long random string (for manual push tests)
+
+Optional: `VOUCHER_CODE`, `VAPID_*`, `VITE_VAPID_PUBLIC_KEY`
+
+Then **Trigger deploy → Clear cache and deploy site**.
+
+## Step 4 — Supabase SQL
+
+Run migrations in order — see `supabase/MIGRATIONS-ORDER.txt`.
+
+## Step 5 — Stripe webhook
+
+Stripe Dashboard → Webhooks → add endpoint:
+`https://YOUR-SITE.netlify.app/api/stripe-webhook`
+
+Events: `checkout.session.completed`, `customer.subscription.deleted`, `customer.subscription.updated`, `invoice.payment_failed`
+
+## Step 6 — Test checklist
+
+- [ ] Sign up / sign in on live site
+- [ ] Log meal via barcode or food search
+- [ ] Photo AI works when signed in
+- [ ] Upgrade plan → Stripe checkout → plan updates
+- [ ] Manage subscription → billing portal opens
+- [ ] Forgot password → set new password form
+
+After Git deploy, you no longer need drag-and-drop — every push to GitHub auto-deploys.

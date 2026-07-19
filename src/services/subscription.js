@@ -13,7 +13,7 @@ import {
   PLANS,
 } from './plans.js';
 import { getDiscountEligibility } from './discount.js';
-import { getUser } from './auth.js';
+import { getUser, getSession } from './auth.js';
 import { getProfile } from './profile.js';
 
 const PLAN_KEY = 'nutrilog_plan';
@@ -218,17 +218,34 @@ async function checkoutIdentity() {
   return { userId: user?.id || '', email: user?.email || '' };
 }
 
+async function checkoutAuthPayload(extra = {}) {
+  const session = await getSession();
+  const identity = await checkoutIdentity();
+  const payload = {
+    origin: window.location.origin,
+    email: identity.email,
+    userId: identity.userId,
+    ...extra,
+  };
+  const headers = { 'Content-Type': 'application/json' };
+  if (session?.access_token) {
+    payload.accessToken = session.access_token;
+    headers.Authorization = `Bearer ${session.access_token}`;
+  }
+  return { payload, headers };
+}
+
 export async function startPlanCheckout(planId, { email = '', userId = '', discount = false } = {}) {
   const identity = await checkoutIdentity();
+  const { payload, headers } = await checkoutAuthPayload({
+    email: email || identity.email,
+    userId: userId || identity.userId,
+    plan: planId,
+  });
   const res = await fetch('/api/create-subscription', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      origin: window.location.origin,
-      email: email || identity.email,
-      userId: userId || identity.userId,
-      plan: planId,
-    }),
+    headers,
+    body: JSON.stringify(payload),
   });
   const data = await res.json();
   if (data.mock) {
@@ -246,14 +263,14 @@ export async function startPlanCheckout(planId, { email = '', userId = '', disco
 
 export async function startTopUpCheckout({ email = '', discount = false } = {}) {
   const identity = await checkoutIdentity();
+  const { payload, headers } = await checkoutAuthPayload({
+    email: email || identity.email,
+    userId: identity.userId,
+  });
   const res = await fetch('/api/create-topup', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      origin: window.location.origin,
-      email: email || identity.email,
-      userId: identity.userId,
-    }),
+    headers,
+    body: JSON.stringify(payload),
   });
   const data = await res.json();
   if (data.mock) {
@@ -275,14 +292,14 @@ export async function openBillingPortal() {
     throw new Error('Sign in to manage your subscription');
   }
 
+  const { payload, headers } = await checkoutAuthPayload({
+    email: identity.email,
+    userId: identity.userId,
+  });
   const res = await fetch('/api/create-billing-portal', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      origin: window.location.origin,
-      email: identity.email,
-      userId: identity.userId,
-    }),
+    headers,
+    body: JSON.stringify(payload),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Could not open billing portal');
@@ -298,7 +315,13 @@ export async function verifyCheckoutSession(sessionId) {
     return { ok: true, alreadyRedeemed: true, sessionId };
   }
 
-  const res = await fetch(`/api/verify-subscription?session_id=${encodeURIComponent(sessionId)}`);
+  const session = await getSession();
+  const params = new URLSearchParams({ session_id: sessionId });
+  if (session?.access_token) params.set('accessToken', session.access_token);
+  const headers = {};
+  if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`;
+
+  const res = await fetch(`/api/verify-subscription?${params}`, { headers });
   const data = await res.json();
   if (data.mock && import.meta.env.PROD) {
     throw new Error('Payments are not configured');

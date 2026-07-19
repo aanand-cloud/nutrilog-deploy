@@ -1,4 +1,4 @@
-import { renderToday, renderSettings, setSettingsTab } from './views/today.js';
+import { renderToday, renderSettings, setSettingsTab, setPasswordResetMode } from './views/today.js';
 import { renderLog, isLogBusy } from './views/log.js';
 import { renderReports } from './views/reports.js';
 import { onAuthChange, getUser, isSupabaseConfigured } from './services/auth.js';
@@ -130,7 +130,12 @@ export function initApp() {
     btn.addEventListener('click', () => openLegalModal(btn.dataset.legal));
   });
 
-  onAuthChange(async (session) => {
+  onAuthChange(async (session, event) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      setPasswordResetMode(true);
+      setSettingsTab('account');
+      setView('settings');
+    }
     if (session && isSupabaseConfigured()) {
       try {
         const result = await fullSync();
@@ -139,6 +144,12 @@ export function initApp() {
     }
     if (currentView === 'settings' || currentView === 'today') refresh();
   });
+
+  const initParams = new URLSearchParams(window.location.search);
+  if (initParams.get('reset') === '1') {
+    setPasswordResetMode(true);
+    setSettingsTab('account');
+  }
 
   handleCheckoutReturn().finally(async () => {
     await runNotificationChecks();
@@ -194,6 +205,17 @@ async function handleCheckoutReturn() {
         toast.hidden = false;
       }
     }
+  } else if (toast) {
+    toast.textContent =
+      'Payment received! If your plan did not update, open Goals → Plans and tap Sync after signing in.';
+    toast.hidden = false;
+    try {
+      const profile = await getProfile();
+      if (profile.loggedIn) {
+        const result = await fullSync();
+        if (result?.plan) setPlan(result.plan);
+      }
+    } catch (_) {}
   }
 
   const url = new URL(window.location.href);

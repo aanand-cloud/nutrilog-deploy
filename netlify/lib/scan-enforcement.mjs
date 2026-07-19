@@ -1,7 +1,7 @@
 const PLAN_MONTHLY = { daily10: 300, daily25: 750, pro: 750 };
 
 const FREE_DAILY = 1;
-
+const PAID_DAILY_SOFT_CAP = 40;
 
 
 function monthKey(date = new Date()) {
@@ -122,7 +122,51 @@ export async function checkScanAllowed(supabase, userId) {
 
   }
 
+  const { count: todayCount, error: countErr } = await supabase
+    .from('meals')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .eq('date', dk);
+
+  if (!countErr && (todayCount || 0) >= PAID_DAILY_SOFT_CAP) {
+    return { ok: false, error: `Daily limit of ${PAID_DAILY_SOFT_CAP} meal logs reached. Try again tomorrow.` };
+  }
+
   return { ok: true, plan, scan_month: mk, scan_used: used, remaining: limit - used, limit };
+
+}
+
+
+
+/** Refinements are free only after today's scan was already consumed (same meal flow). */
+
+export async function checkRefinementAllowed(supabase, userId) {
+
+  if (!supabase || !userId) {
+
+    return { ok: false, error: 'Sign in required to log meals with AI' };
+
+  }
+
+  const state = await getProfileScanState(supabase, userId);
+
+  if (!state) return { ok: false, error: 'Account profile not found' };
+
+  const plan = normalizePlan(state.plan);
+
+  const dk = dayKey();
+
+  if (plan === 'free') {
+
+    const usedToday = state.scan_month === dk ? state.scan_used || 0 : 0;
+
+    if (usedToday >= FREE_DAILY) return { ok: true, plan, refinement: true };
+
+    return checkScanAllowed(supabase, userId);
+
+  }
+
+  return checkScanAllowed(supabase, userId);
 
 }
 
@@ -142,7 +186,7 @@ export async function consumeMealScan(supabase, userId) {
 
   const { data, error } = await supabase.rpc('consume_meal_scan', {
     p_user_id: userId,
-    p_local_day: localDayKey,
+    p_local_day: dayKey(),
   });
 
   if (error) {
@@ -167,7 +211,7 @@ export async function consumeMealScan(supabase, userId) {
 
 /** @deprecated use consumeMealScan */
 
-export async function recordScanUsage(supabase, userId, checkResult) {
+export async function recordScanUsage(supabase, userId) {
 
   return consumeMealScan(supabase, userId);
 

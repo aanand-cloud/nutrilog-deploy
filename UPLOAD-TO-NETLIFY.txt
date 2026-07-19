@@ -1,0 +1,28 @@
+NUTRILOG — FINAL NETLIFY UPLOAD
+================================
+
+UPLOAD THIS FOLDER ONLY:
+  C:\Users\user\Projects\nutrilog-deploy\dist
+
+HOW:
+  1. Netlify → your site → Deploys
+  2. Drag the "dist" folder into "Deploy manually"
+  OR go to https://app.netlify.com/drop
+
+  Same Netlify link — replaces the live site.
+
+AFTER UPLOAD:
+  Close the site tab on your phone and open again (fresh load).
+
+SIGN IN (Settings → Account):
+  - First name
+  - Email
+  - Password
+  - Create account  OR  Sign in
+
+SUPABASE (one-time, in supabase.com dashboard):
+  1. Authentication → URL Configuration
+     Site URL = your Netlify link
+     Redirect URLs = https://YOUR-SITE.netlify.app/**
+  2. Authentication → Providers → Email
+     Turn OFF "Confirm email" for easiest sign-up (optional)

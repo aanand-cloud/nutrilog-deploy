@@ -6,6 +6,8 @@ import {
   mealRowToLocal,
   DEFAULT_GOALS,
 } from './lib/weekly-insights.mjs';
+import { isDevEnvironment } from '../lib/is-dev.mjs';
+import { isCronAuthorized, isScheduledInvocation, jsonResponse } from '../lib/http-utils.mjs';
 
 const supabase = process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
   ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
@@ -19,32 +21,38 @@ if (vapidPublic && vapidPrivate) {
   webpush.setVapidDetails(vapidEmail, vapidPublic, vapidPrivate);
 }
 
-/** Weekly personalised push — Netlify scheduled (Mondays) or manual POST */
+/** Weekly personalised push — Netlify scheduled (Mondays) or manual POST with CRON_SECRET */
 export default async (req) => {
   if (req.method !== 'POST') {
     return new Response('Method not allowed', { status: 405 });
   }
 
+  if (!isDevEnvironment() && !isScheduledInvocation(req) && !isCronAuthorized(req)) {
+    return jsonResponse({ error: 'Unauthorized' }, 401, req);
+  }
+
   if (!supabase || !vapidPublic || !vapidPrivate) {
-    return json({ ok: false, reason: 'Push not fully configured' });
+    return jsonResponse({ ok: false, reason: 'Push not fully configured' }, 503, req);
   }
 
   const override = await req.json().catch(() => ({}));
+  if (!isDevEnvironment() && (override.title || override.body)) {
+    return jsonResponse({ error: 'Custom push content is disabled in production' }, 403, req);
+  }
+
   const weekStart = new Date();
   weekStart.setDate(weekStart.getDate() - 6);
   const startDate = weekStart.toISOString().slice(0, 10);
 
   const { data: subs, error } = await supabase.from('push_subscriptions').select('*');
-  if (error) return json({ error: error.message }, 500);
+  if (error) return jsonResponse({ error: error.message }, 500, req);
 
   let sent = 0;
   let failed = 0;
   const results = [];
 
   for (const sub of subs || []) {
-    let msg = override.title
-      ? { title: override.title, body: override.body, url: override.url || '/?view=reports' }
-      : null;
+    let msg = null;
 
     if (!msg && sub.user_id) {
       msg = await personalisedMessageForUser(sub.user_id, startDate);
@@ -73,7 +81,7 @@ export default async (req) => {
     }
   }
 
-  return json({ ok: true, sent, failed, total: (subs || []).length, samples: results.slice(0, 5) });
+  return jsonResponse({ ok: true, sent, failed, total: (subs || []).length, samples: results.slice(0, 5) }, 200, req);
 };
 
 async function personalisedMessageForUser(userId, startDate) {
@@ -92,13 +100,6 @@ async function personalisedMessageForUser(userId, startDate) {
   const localMeals = (meals || []).map(mealRowToLocal);
   const report = weekReportFromMeals(localMeals, goals);
   return buildWeeklyPushMessage(report, displayName);
-}
-
-function json(obj, status = 200) {
-  return new Response(JSON.stringify(obj), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  });
 }
 
 export const config = {

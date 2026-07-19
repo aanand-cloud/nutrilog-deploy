@@ -3,6 +3,8 @@ import { createClient } from '@supabase/supabase-js';
 import { isDevEnvironment } from '../lib/is-dev.mjs';
 import { redeemCheckoutSession } from '../lib/redeem-checkout.mjs';
 import { applyTopUpToProfile } from '../lib/scan-enforcement.mjs';
+import { requireUserAuth } from '../lib/verify-auth.mjs';
+import { corsHeaders, jsonResponse } from '../lib/http-utils.mjs';
 
 const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' })
@@ -13,32 +15,31 @@ const supabase =
     ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
     : null;
 
-const cors = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
-};
-
 export default async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: cors });
+    return new Response(null, { status: 204, headers: corsHeaders(req) });
   }
 
   const url = new URL(req.url);
   const sessionId = url.searchParams.get('session_id');
 
   if (!sessionId) {
-    return json({ error: 'session_id required' }, 400);
+    return jsonResponse({ error: 'session_id required' }, 400, req);
   }
 
   if (!stripe) {
     if (isDevEnvironment()) {
-      return json({ mock: true, ok: true, type: 'topup', scans: 100, sessionId }, 200);
+      return jsonResponse({ mock: true, ok: true, type: 'topup', scans: 100, sessionId }, 200, req);
     }
-    return json({ error: 'Payments are not configured' }, 503);
+    return jsonResponse({ error: 'Payments are not configured' }, 503, req);
   }
 
   try {
+    const auth = await requireUserAuth({}, req);
+    if (!auth.ok) {
+      return jsonResponse({ error: auth.error, requiresAuth: auth.requiresAuth }, auth.status || 401, req);
+    }
+
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
       expand: ['subscription'],
     });
@@ -50,10 +51,14 @@ export default async (req) => {
       session.subscription?.status === 'trialing';
 
     if (!paid) {
-      return json({ ok: false, status: session.payment_status }, 402);
+      return jsonResponse({ ok: false, status: session.payment_status }, 402, req);
     }
 
     const userId = session.client_reference_id || null;
+    if (auth.userId && userId && auth.userId !== userId) {
+      return jsonResponse({ error: 'This payment belongs to a different account' }, 403, req);
+    }
+
     const metaType = session.metadata?.type;
 
     if (metaType === 'topup') {
@@ -66,21 +71,25 @@ export default async (req) => {
       });
 
       if (!redemption.ok) {
-        return json({ error: redemption.error || 'Could not redeem purchase' }, 500);
+        return jsonResponse({ error: redemption.error || 'Could not redeem purchase' }, 500, req);
       }
 
       if (redemption.fresh && userId && supabase) {
         await applyTopUpToProfile(supabase, userId, scans);
       }
 
-      return json({
-        ok: true,
-        type: 'topup',
-        scans,
-        sessionId: session.id,
-        alreadyRedeemed: Boolean(redemption.alreadyRedeemed),
-        appliedToCloud: Boolean(redemption.fresh && userId && supabase),
-      });
+      return jsonResponse(
+        {
+          ok: true,
+          type: 'topup',
+          scans,
+          sessionId: session.id,
+          alreadyRedeemed: Boolean(redemption.alreadyRedeemed),
+          appliedToCloud: Boolean(redemption.fresh && userId && supabase),
+        },
+        200,
+        req
+      );
     }
 
     await redeemCheckoutSession(supabase, {
@@ -105,23 +114,20 @@ export default async (req) => {
         .eq('id', userId);
     }
 
-    return json({
-      ok: true,
-      type: 'subscription',
-      sessionId: session.id,
-      plan,
-      customerId: session.customer,
-      subscriptionId: session.subscription?.id || session.subscription,
-    });
+    return jsonResponse(
+      {
+        ok: true,
+        type: 'subscription',
+        sessionId: session.id,
+        plan,
+        customerId: session.customer,
+        subscriptionId: session.subscription?.id || session.subscription,
+      },
+      200,
+      req
+    );
   } catch (err) {
     console.error('verify-subscription error', err);
-    return json({ error: err.message || 'Verification failed' }, 500);
+    return jsonResponse({ error: err.message || 'Verification failed' }, 500, req);
   }
 };
-
-function json(obj, status = 200) {
-  return new Response(JSON.stringify(obj), {
-    status,
-    headers: { ...cors, 'Content-Type': 'application/json' },
-  });
-}

@@ -166,7 +166,7 @@ async function uploadPhoto(dataUrl, mealId) {
 async function signedPhotoUrl(path) {
   const sb = getSupabase();
   if (!sb) return null;
-  const { data, error } = await sb.storage.from(BUCKET).createSignedUrl(path, 3600);
+  const { data, error } = await sb.storage.from(BUCKET).createSignedUrl(path, 86400);
   if (error) return null;
   return data.signedUrl;
 }

@@ -2,8 +2,8 @@ import { getGoals, formatEnergy, formatEnergyParts, getUnitPrefs, saveGoals, sav
 import { getMealsForDate, getMealsInRange, sumNutrition, deleteMeal, todayKey, clearAllLocalMeals } from '../services/storage.js';
 import { openMealEditorModal } from '../services/meal-editor.js';
 import { topWeeklyInsight, weekReport } from '../services/reports.js';
-import { getUser, signIn, signUp, signOut, resetPassword, isSupabaseConfigured } from '../services/auth.js';
-import { getProfile, saveDisplayName, saveDiscountPrefs, saveVoucherRedemption } from '../services/profile.js';
+import { getUser, signIn, signUp, signOut, resetPassword, resendConfirmationEmail, updatePassword, isSupabaseConfigured } from '../services/auth.js';
+import { getProfile, saveDisplayName, ensureUserProfile, saveLocalDisplayName, saveDiscountPrefs, saveVoucherRedemption } from '../services/profile.js';
 import { fullSync } from '../services/sync.js';
 import { getCuisineTips } from '../services/cuisine-tips.js';
 import { buildWeeklyPushMessage, buildDailyPushMessage } from '../services/push-messages.js';
@@ -39,6 +39,7 @@ import { openLegalModal } from './legal.js';
 const wizardActivities = activityOptions();
 let activeSettingsTab = 'targets';
 let openDiscountSection = false;
+let passwordResetMode = false;
 
 /** Jump to a specific Goals tab (e.g. plans for NHS discount CTA). */
 export function setSettingsTab(tab, { openDiscount = false } = {}) {
@@ -46,6 +47,11 @@ export function setSettingsTab(tab, { openDiscount = false } = {}) {
     activeSettingsTab = tab;
   }
   openDiscountSection = Boolean(openDiscount);
+}
+
+/** Show the set-new-password form (after email reset link). */
+export function setPasswordResetMode(on = true) {
+  passwordResetMode = Boolean(on);
 }
 
 export async function renderToday(root, { onLog, onRefresh, onReports, onSettings, profile }) {
@@ -83,7 +89,7 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
 
     ${!profile?.loggedIn && isSupabaseConfigured() ? `
       <section class="login-banner">
-        <p><strong>Sign in</strong> to save meals, sync across devices, and get reports personalised to your name.</p>
+        <p><strong>Sign in</strong> to back up meals, sync devices, and use AI photo logging.</p>
         <button type="button" class="btn btn-primary btn-sm" id="goSignIn">Sign in / Create account</button>
       </section>
     ` : ''}
@@ -248,6 +254,8 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
   const discount = getDiscountEligibility(profile, profile.email || user?.email || '');
   const currentPlan = getPlan();
   const initials = (displayName || user?.email || '?').charAt(0).toUpperCase();
+  const showPasswordReset =
+    passwordResetMode || new URLSearchParams(window.location.search).get('reset') === '1';
 
   root.innerHTML = `
     <div class="settings-screen">
@@ -356,50 +364,62 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
           <div class="account-card">
             <div class="account-avatar" aria-hidden="true">${escapeHtml(initials)}</div>
             <div class="account-card-body">
-              <strong>${escapeHtml(displayName || 'Guest')}</strong>
-              <span>${user ? escapeHtml(user.email) : 'Not signed in'}</span>
+              <strong>${escapeHtml(displayName || (user ? 'Your account' : 'Guest'))}</strong>
+              <span>${user ? escapeHtml(user.email) : 'Sign in to back up meals &amp; use AI photo logging'}</span>
               ${user ? `<span class="plan-pill plan-pill--inline">${planLabel()} · ${scansLabel()}</span>` : ''}
             </div>
           </div>
 
-          <p class="settings-group-label">Your name</p>
-          <form id="nameForm" class="auth-form settings-form-compact">
-            <label class="field full">
-              <span>First name</span>
-              <input type="text" name="display_name" value="${escapeHtml(displayName)}" required maxlength="40" autocomplete="given-name" placeholder="Used in greetings &amp; reports"/>
-            </label>
-            <button type="submit" class="btn btn-primary full">Save name</button>
-          </form>
-
-          <p class="settings-group-label">Cloud backup</p>
-          <p class="fine-print">Meal photos are analysed by AI. Signed-in data is stored in your secure cloud account.</p>
           ${!cloudReady ? `
-            <p class="card-desc">Cloud login is not configured on this device.</p>
+            <p class="card-desc">Cloud login is not configured on this site build. Contact support if this persists after an update.</p>
           ` : user ? `
+            ${showPasswordReset ? `
+              <p class="settings-group-label">Set new password</p>
+              <p class="fine-print">Choose a new password for your account.</p>
+              <form id="newPasswordForm" class="auth-form settings-form-compact">
+                <label class="field full">
+                  <span>New password</span>
+                  <input type="password" name="password" id="newPasswordInput" required minlength="6" autocomplete="new-password" placeholder="At least 6 characters"/>
+                </label>
+                <button type="submit" class="btn btn-primary full">Save new password</button>
+              </form>
+            ` : ''}
+            <p class="settings-group-label">First name</p>
+            <p class="fine-print">Used in your greeting and reports.</p>
+            <form id="nameForm" class="auth-form settings-form-compact">
+              <label class="field full">
+                <span>First name</span>
+                <input type="text" name="display_name" value="${escapeHtml(displayName)}" required maxlength="40" autocomplete="given-name" placeholder="e.g. Sarah"/>
+              </label>
+              <button type="submit" class="btn btn-primary full">Save name</button>
+            </form>
             <div class="settings-action-row">
               <button type="button" class="btn btn-ghost" id="syncBtn">Sync now</button>
               <button type="button" class="btn btn-ghost settings-btn-danger" id="signOutBtn">Sign out</button>
             </div>
           ` : `
-            <p class="card-desc">Back up meals and sync across your phone and computer.</p>
-            <form id="authForm" class="auth-form settings-form-compact">
+            <p class="settings-group-label">Create account or sign in</p>
+            <p class="fine-print">Free to start. Your meals sync securely to the cloud when signed in.</p>
+            <form id="authForm" class="auth-form settings-form-compact" novalidate>
               <label class="field full">
                 <span>First name</span>
-                <input type="text" name="display_name" required maxlength="40" autocomplete="given-name" placeholder="e.g. Sarah"/>
+                <input type="text" name="display_name" id="authFirstName" required maxlength="40" autocomplete="given-name" placeholder="e.g. Sarah" value="${escapeHtml(displayName)}"/>
               </label>
               <label class="field full">
                 <span>Email</span>
-                <input type="email" name="email" required autocomplete="email" inputmode="email" placeholder="you@email.com"/>
+                <input type="email" name="email" id="authEmail" required autocomplete="email" inputmode="email" placeholder="you@email.com"/>
               </label>
               <label class="field full">
                 <span>Password</span>
-                <input type="password" name="password" required minlength="6" autocomplete="current-password" placeholder="At least 6 characters"/>
+                <input type="password" name="password" id="authPassword" required minlength="6" autocomplete="current-password" placeholder="At least 6 characters"/>
               </label>
+              <p class="auth-status" id="authStatus" hidden role="status"></p>
               <div class="settings-auth-actions">
-                <button type="button" class="btn btn-ghost" id="signUpBtn">Create account</button>
-                <button type="submit" class="btn btn-primary">Sign in</button>
+                <button type="button" class="btn btn-primary" id="signUpBtn">Create account</button>
+                <button type="button" class="btn btn-ghost" id="signInBtn">Sign in</button>
               </div>
               <button type="button" class="btn btn-ghost btn-sm full" id="forgotPasswordBtn">Forgot password?</button>
+              <button type="button" class="btn btn-ghost btn-sm full" id="resendConfirmBtn" hidden>Resend confirmation email</button>
             </form>
           `}
 
@@ -676,60 +696,171 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
   root.querySelector('#privacyBtn')?.addEventListener('click', () => openLegalModal('privacy'));
   root.querySelector('#termsBtn')?.addEventListener('click', () => openLegalModal('terms'));
 
-  root.querySelector('#authForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    const btn = e.target.querySelector('button[type="submit"]');
-    if (btn) {
-      btn.disabled = true;
-      btn.textContent = 'Signing in…';
+  function readAuthForm() {
+    const form = root.querySelector('#authForm');
+    if (!form) return null;
+    const fd = new FormData(form);
+    return {
+      firstName: String(fd.get('display_name') || '').trim(),
+      email: String(fd.get('email') || '').trim(),
+      password: String(fd.get('password') || ''),
+    };
+  }
+
+  function setAuthStatus(message, { showResend = false, tone = 'info' } = {}) {
+    const el = root.querySelector('#authStatus');
+    const resendBtn = root.querySelector('#resendConfirmBtn');
+    if (!el) return;
+    el.classList.remove('auth-status--error', 'auth-status--success');
+    if (tone === 'error') el.classList.add('auth-status--error');
+    if (tone === 'success') el.classList.add('auth-status--success');
+    if (message) {
+      el.textContent = message;
+      el.hidden = false;
+    } else {
+      el.textContent = '';
+      el.hidden = true;
     }
+    if (resendBtn) resendBtn.hidden = !showResend;
+  }
+
+  function setAuthBusy(busy) {
+    ['#signUpBtn', '#signInBtn', '#forgotPasswordBtn', '#resendConfirmBtn'].forEach((sel) => {
+      const btn = root.querySelector(sel);
+      if (btn) btn.disabled = busy;
+    });
+  }
+
+  async function finishSignedIn(firstName) {
+    await ensureUserProfile(firstName);
     try {
-      await signIn(fd.get('email'), fd.get('password'));
       const result = await fullSync();
       if (result.plan) setPlan(result.plan);
-      showToast?.(`Signed in · ${syncResultMessage(result)}`);
+      const name = firstName || profile.displayName || '';
+      showToast?.(name ? `Welcome, ${name}!` : 'Signed in');
       onSave();
+    } catch (syncErr) {
+      setAuthStatus('Signed in — sync will retry when you tap Sync now.', { tone: 'success' });
+      showToast?.('Signed in — tap Sync now in Account');
+      onSave();
+    }
+  }
+
+  root.querySelector('#authForm')?.addEventListener('submit', (e) => e.preventDefault());
+
+  root.querySelector('#signInBtn')?.addEventListener('click', async () => {
+    const { firstName, email, password } = readAuthForm() || {};
+    if (!email || !password) {
+      setAuthStatus('Enter your email and password.', { tone: 'error' });
+      return;
+    }
+    setAuthBusy(true);
+    setAuthStatus('Signing in…');
+    try {
+      await signIn(email, password);
+      await finishSignedIn(firstName);
+      setAuthStatus('');
     } catch (err) {
-      showToast?.(friendlyAuthError(err.message) || 'Sign in failed');
+      const msg = friendlyAuthError(err.message) || 'Sign in failed';
+      setAuthStatus(msg, { tone: 'error', showResend: /confirm your email/i.test(msg) });
+      showToast?.(msg, 5000);
     } finally {
-      if (btn) {
-        btn.disabled = false;
-        btn.textContent = 'Sign in';
-      }
+      setAuthBusy(false);
     }
   });
 
   root.querySelector('#signUpBtn')?.addEventListener('click', async () => {
-    const form = root.querySelector('#authForm');
-    const fd = new FormData(form);
-    const email = fd.get('email');
-    const password = fd.get('password');
-    const displayName = fd.get('display_name');
-    if (!displayName?.trim()) {
-      showToast?.('Please enter your first name');
+    const { firstName, email, password } = readAuthForm() || {};
+    if (!firstName) {
+      setAuthStatus('Please enter your first name.', { tone: 'error' });
+      root.querySelector('#authFirstName')?.focus();
       return;
     }
+    if (!email || !password) {
+      setAuthStatus('Enter email and password (6+ characters).', { tone: 'error' });
+      return;
+    }
+    if (password.length < 6) {
+      setAuthStatus('Password must be at least 6 characters.', { tone: 'error' });
+      return;
+    }
+    setAuthBusy(true);
+    setAuthStatus('Creating your account…');
     try {
-      const data = await signUp(email, password, displayName);
+      saveLocalDisplayName(firstName);
+      const data = await signUp(email, password, firstName);
       if (data.session) {
-        showToast?.('Account created — welcome!');
-        try {
-          const result = await fullSync();
-          if (result.plan) setPlan(result.plan);
-        } catch (syncErr) {
-          showToast?.(friendlyAuthError(syncErr.message) || 'Signed in — sync will retry later');
-        }
-        onSave();
+        setAuthStatus('Account created!', { tone: 'success' });
+        await finishSignedIn(firstName);
         return;
       }
       if (data.user) {
-        showToast?.('Account created! Check your email to confirm, then tap Sign in.');
+        const msg = 'Account created! Check your email to confirm, then tap Sign in. Check spam too.';
+        setAuthStatus(msg, { tone: 'success', showResend: true });
+        showToast?.(msg, 6000);
         return;
       }
-      showToast?.('Account created — please sign in');
+      setAuthStatus('Account created — tap Sign in.', { tone: 'success' });
     } catch (err) {
-      showToast?.(friendlyAuthError(err.message) || 'Sign up failed');
+      const msg = friendlyAuthError(err.message) || 'Could not create account';
+      setAuthStatus(msg, { tone: 'error' });
+      showToast?.(msg, 5000);
+    } finally {
+      setAuthBusy(false);
+    }
+  });
+
+  root.querySelector('#resendConfirmBtn')?.addEventListener('click', async () => {
+    const email = root.querySelector('#authEmail')?.value?.trim();
+    if (!email) {
+      setAuthStatus('Enter your email first.', { tone: 'error' });
+      return;
+    }
+    setAuthBusy(true);
+    setAuthStatus('Sending confirmation email…');
+    try {
+      await resendConfirmationEmail(email);
+      const msg = 'Confirmation email sent — check inbox and spam.';
+      setAuthStatus(msg, { tone: 'success', showResend: true });
+      showToast?.(msg, 5000);
+    } catch (err) {
+      const msg = friendlyAuthError(err.message) || 'Could not resend email';
+      setAuthStatus(msg, { tone: 'error' });
+      showToast?.(msg, 5000);
+    } finally {
+      setAuthBusy(false);
+    }
+  });
+
+  root.querySelector('#newPasswordForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const input = root.querySelector('#newPasswordInput');
+    const password = input?.value || '';
+    if (password.length < 6) {
+      showToast?.('Password must be at least 6 characters', 4000);
+      input?.focus();
+      return;
+    }
+    const btn = root.querySelector('#newPasswordForm button[type="submit"]');
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Saving…';
+    }
+    try {
+      await updatePassword(password);
+      setPasswordResetMode(false);
+      const url = new URL(window.location.href);
+      url.searchParams.delete('reset');
+      window.history.replaceState({}, '', url.pathname + url.search);
+      showToast?.('Password updated — you can sign in with your new password');
+      onSave();
+    } catch (err) {
+      showToast?.(friendlyAuthError(err.message) || 'Could not update password', 5000);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Save new password';
+      }
     }
   });
 
@@ -749,14 +880,25 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
   });
 
   root.querySelector('#forgotPasswordBtn')?.addEventListener('click', async () => {
-    const emailInput = root.querySelector('#authForm input[name="email"]');
-    const email = emailInput?.value?.trim() || window.prompt('Enter your account email:');
-    if (!email) return;
+    const email = root.querySelector('#authEmail')?.value?.trim();
+    if (!email) {
+      setAuthStatus('Enter your email above, then tap Forgot password.', { tone: 'error' });
+      root.querySelector('#authEmail')?.focus();
+      return;
+    }
+    setAuthBusy(true);
+    setAuthStatus('Sending reset email…');
     try {
       await resetPassword(email);
-      showToast?.('Password reset email sent — check your inbox');
+      const msg = 'Reset email sent — check inbox and spam.';
+      setAuthStatus(msg, { tone: 'success' });
+      showToast?.(msg, 5000);
     } catch (err) {
-      showToast?.(friendlyAuthError(err.message) || 'Could not send reset email');
+      const msg = friendlyAuthError(err.message) || 'Could not send reset email';
+      setAuthStatus(msg, { tone: 'error' });
+      showToast?.(msg, 5000);
+    } finally {
+      setAuthBusy(false);
     }
   });
 
@@ -772,10 +914,18 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
   });
 
   root.querySelectorAll('[data-plan]').forEach((btn) => {
-    btn.addEventListener('click', () => handleUpgrade(root, user?.email, showToast, btn.dataset.plan, discount.eligible));
+    btn.addEventListener('click', () =>
+      handleUpgrade(root, user?.email, showToast, btn.dataset.plan, discount.eligible, profile, onSave)
+    );
   });
 
   root.querySelector('#topUpBtn')?.addEventListener('click', async () => {
+    if (!profile?.loggedIn) {
+      showToast?.('Sign in first — then you can buy top-ups');
+      setSettingsTab('account');
+      onSave();
+      return;
+    }
     try {
       const result = await startTopUpCheckout({ email: user?.email || profile.email || '', discount: discount.eligible });
       if (result.mock) {
@@ -895,9 +1045,15 @@ function notifyPreviewCard(label, msg) {
   `;
 }
 
-async function handleUpgrade(root, email, showToast, planId = 'daily10', discount = false) {
+async function handleUpgrade(root, email, showToast, planId = 'daily10', discount = false, profile = null, onSave) {
+  if (!profile?.loggedIn) {
+    showToast?.('Sign in first — then choose a plan below');
+    setSettingsTab('account');
+    onSave?.();
+    return;
+  }
   try {
-    const data = await startPlanCheckout(planId, { email: email || '', discount });
+    const data = await startPlanCheckout(planId, { email: email || profile.email || '', discount });
     if (data.mock) {
       setPlan(planId);
       showToast?.(import.meta.env.DEV

@@ -53,7 +53,7 @@ export async function saveMeal(meal) {
     ]);
     return pushed;
   } catch (_) {
-    return record;
+    return { ...record, cloudSynced: false };
   }
 }
 

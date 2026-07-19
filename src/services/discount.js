@@ -2,10 +2,8 @@
  * Safe discount eligibility — no ID collection.
  * - Public sector: verified work email domain (or account email domain)
  * - 60+: self-declaration with consent checkbox
- * - Voucher: NUTRIPROMO (validated server-side, stored on profile / device)
+ * - Voucher: validated server-side only (stored on profile at checkout)
  */
-
-import { isVoucherRedeemedLocally } from './voucher.js';
 
 const PUBLIC_SECTOR_SUFFIXES = [
   'nhs.net',
@@ -42,7 +40,7 @@ export function getDiscountEligibility(profile = {}, accountEmail = '') {
   const publicFromAccount = isPublicSectorEmail(accountEmail);
   const publicFromWork = isPublicSectorEmail(workEmail);
   const publicSector = publicFromAccount || publicFromWork || Boolean(profile.discount_public_sector);
-  const voucher = Boolean(profile.discount_voucher_redeemed) || isVoucherRedeemedLocally();
+  const voucher = Boolean(profile.discount_voucher_redeemed);
 
   const eligible = publicSector || senior || voucher;
   const reasons = [];

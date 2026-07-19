@@ -1,6 +1,5 @@
 import { getSession, isSupabaseConfigured } from './auth.js';
 import { syncScanUsageFromServer } from './subscription.js';
-import { todayKey } from './storage.js';
 
 async function authPayload() {
   if (isSupabaseConfigured()) {
@@ -10,12 +9,18 @@ async function authPayload() {
       err.requiresAuth = true;
       throw err;
     }
-    return { accessToken: session.access_token, localDayKey: todayKey() };
+    return { accessToken: session.access_token };
   }
+  return {};
+}
+
+async function authHeaders() {
   const session = await getSession();
-  return session?.access_token
-    ? { accessToken: session.access_token, localDayKey: todayKey() }
-    : { localDayKey: todayKey() };
+  const headers = { 'Content-Type': 'application/json' };
+  if (session?.access_token) {
+    headers.Authorization = `Bearer ${session.access_token}`;
+  }
+  return headers;
 }
 
 export async function analyzeFoodPhoto(imageBase64, mimeType = 'image/jpeg', userNotes = '') {
@@ -24,7 +29,7 @@ export async function analyzeFoodPhoto(imageBase64, mimeType = 'image/jpeg', use
   try {
     const res = await fetch('/api/analyze-food', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: await authHeaders(),
       signal: controller.signal,
       body: JSON.stringify({
         image: imageBase64,
@@ -33,6 +38,14 @@ export async function analyzeFoodPhoto(imageBase64, mimeType = 'image/jpeg', use
         ...(await authPayload()),
       }),
     });
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      throw new Error(
+        import.meta.env.PROD
+          ? 'Photo AI needs a full site deploy — barcode and food search still work.'
+          : 'Server returned an unexpected response — refresh and try again.'
+      );
+    }
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       const message = err.error || `Analysis failed (${res.status})`;
@@ -51,7 +64,11 @@ export async function analyzeFoodPhoto(imageBase64, mimeType = 'image/jpeg', use
       throw new Error('Analysis took too long — try again with a smaller photo');
     }
     if (err instanceof TypeError) {
-      throw new Error('Could not reach the server — check you are on the latest dev URL and refresh');
+      throw new Error(
+        import.meta.env.PROD
+          ? 'Could not reach the server — try barcode or food search, or refresh after an update.'
+          : 'Could not reach the server — check you are on the latest dev URL and refresh'
+      );
     }
     throw err;
   } finally {
@@ -66,7 +83,7 @@ export async function refineWithClarifications(imageBase64, mimeType, previousAn
   };
   const res = await fetch('/api/analyze-food', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: await authHeaders(),
     body: JSON.stringify({
       image: imageBase64,
       mimeType,
@@ -75,6 +92,14 @@ export async function refineWithClarifications(imageBase64, mimeType, previousAn
       ...(await authPayload()),
     }),
   });
+  const contentType = res.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    throw new Error(
+      import.meta.env.PROD
+        ? 'Photo AI needs a full site deploy — barcode and food search still work.'
+        : 'Server returned an unexpected response — refresh and try again.'
+    );
+  }
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     const message = err.error || `Refinement failed (${res.status})`;

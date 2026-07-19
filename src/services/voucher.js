@@ -8,11 +8,21 @@ export function markVoucherRedeemedLocally() {
   localStorage.setItem(VOUCHER_KEY, '1');
 }
 
+import { getSession } from './auth.js';
+
 export async function validateAndRedeemVoucher(code) {
+  const session = await getSession();
+  const headers = { 'Content-Type': 'application/json' };
+  if (session?.access_token) {
+    headers.Authorization = `Bearer ${session.access_token}`;
+  }
   const res = await fetch('/api/validate-voucher', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ code }),
+    headers,
+    body: JSON.stringify({
+      code,
+      accessToken: session?.access_token,
+    }),
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {

@@ -351,9 +351,17 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
         return;
       }
       const needsKey = /GEMINI|OPENAI|503|not configured/i.test(err.message || '');
-      if (needsKey) {
+      if (needsKey && !import.meta.env.PROD) {
         state.analysis = { ...demoAnalysis(), demoEstimate: true };
         state.status = 'Sample estimate only — connect AI for your actual meal';
+      } else if (needsKey) {
+        const msg = 'AI photo logging is unavailable right now. Use barcode or food search, or try again later.';
+        state.status = msg;
+        state.step = 'capture';
+        persist();
+        render();
+        showToast(msg, 6000);
+        return;
       } else {
         const msg = friendlyAnalysisError(err.message);
         state.status = msg;
@@ -526,7 +534,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       btn.disabled = true;
       btn.textContent = 'Saving…';
       try {
-        await saveMeal({
+        const saved = await saveMeal({
           date: todayKey(),
           meal_type: state.mealType,
           meal_notes: state.mealNotes || undefined,
@@ -539,7 +547,11 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
           photoDataUrl: state.image?.external ? undefined : state.image?.dataUrl,
         });
         clearSession();
-        showToast('Meal saved!');
+        if (saved?.cloudSynced === false && profile?.loggedIn) {
+          showToast('Saved on this device — cloud backup failed. Try Sync in Settings.');
+        } else {
+          showToast('Meal saved!');
+        }
         onSaved();
       } catch (err) {
         showToast(err.message || 'Could not save meal');

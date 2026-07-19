@@ -27,7 +27,8 @@ begin
   end;
 
   if v_plan = 'free' then
-    v_period := coalesce(nullif(trim(p_local_day), ''), to_char(now(), 'YYYY-MM-DD'));
+    -- Always use server UTC date (ignore client-supplied day — prevents scan bypass)
+    v_period := to_char((now() at time zone 'utc')::date, 'YYYY-MM-DD');
     v_used := case when v_profile.scan_month = v_period then coalesce(v_profile.scan_used, 0) else 0 end;
     v_limit := 1;
     if v_used >= v_limit then
