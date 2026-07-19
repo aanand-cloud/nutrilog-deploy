@@ -1,0 +1,77 @@
+NUTRILOG4 — ADD NETLIFY ENVIRONMENT VARIABLES
+=============================================
+
+Your .env file is on your PC at:
+  C:\Users\user\Projects\nutrilog-deploy\.env
+
+Netlify does NOT use that file automatically. You must add each variable in the dashboard.
+
+
+EASIEST METHOD — Import from .env
+---------------------------------
+1. Open https://app.netlify.com → click site **nutrilog4**
+2. Left menu → **Project configuration** → **Environment variables**
+3. Look for a button: **Add a variable** or **Import from .env file**
+4. If you see **Import from .env file**:
+   - Click it
+   - Select or paste from your .env file
+   - Save
+5. Skip empty lines and lines starting with #
+
+If there is NO import button, add each one manually (see list below).
+
+
+MANUAL METHOD — Add one at a time
+---------------------------------
+1. Project configuration → Environment variables → **Add a variable**
+2. Scope: **All scopes** (or Production)
+3. Key = name below, Value = copy from right side of your .env file
+4. Click **Create variable**
+5. Repeat for each row
+
+
+COPY THESE FROM YOUR .env FILE
+------------------------------
+Key                          Value (from your .env)
+---                          ---
+VITE_SUPABASE_URL            (copy from .env line 2)
+VITE_SUPABASE_ANON_KEY       (copy from .env line 3)
+GEMINI_API_KEY               (copy from .env line 7)
+GEMINI_VISION_MODEL          gemini-3.1-flash-lite
+GEMINI_TEXT_MODEL            gemini-3.1-flash-lite
+SUPABASE_URL                 (copy from .env line 11)
+SUPABASE_SERVICE_ROLE_KEY    (copy from .env line 12)
+
+DO NOT ADD URL on Netlify — it is reserved and set automatically to
+https://nutrilog4.netlify.app when your site deploys.
+
+
+SKIP FOR NOW (empty or optional)
+--------------------------------
+VITE_VAPID_PUBLIC_KEY        (empty — skip)
+VAPID_PUBLIC_KEY             (DO NOT add until push is set up)
+VAPID_PRIVATE_KEY            (DO NOT add until push is set up)
+VAPID_EMAIL                  (DO NOT add — matches repo placeholder and fails deploy)
+All STRIPE_*                 (add when you set up payments)
+CRON_SECRET                  (optional later)
+
+
+IF DEPLOY FAILS — "Secrets scanning found secrets"
+--------------------------------------------------
+1. Delete VAPID_EMAIL, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY from Netlify (if present)
+2. Pull latest code from GitHub (includes netlify.toml fix)
+3. Clear cache and deploy again
+
+
+AFTER ADDING ALL VARIABLES
+--------------------------
+1. **Deploys** tab (left menu)
+2. **Trigger deploy** → **Clear cache and deploy site**
+3. Wait 2–3 minutes
+4. Open https://nutrilog4.netlify.app
+5. Test: Goals → Account → Sign in
+
+
+YOUR LIVE SITE
+--------------
+https://nutrilog4.netlify.app

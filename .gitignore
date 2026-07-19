@@ -2,4 +2,5 @@ node_modules/
 dist/
 .env
 .env.local
+NETLIFY-IMPORT.env
 .DS_Store

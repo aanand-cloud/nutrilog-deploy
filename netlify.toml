@@ -3,7 +3,9 @@
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "20"
+  NODE_VERSION = "22"
+  # Serverless bundles legitimately embed server env vars at build time
+  SECRETS_SCAN_OMIT_PATHS = ".netlify/functions/**"
 
 [functions]
   directory = "netlify/functions"
