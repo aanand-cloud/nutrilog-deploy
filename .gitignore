@@ -3,4 +3,6 @@ dist/
 .env
 .env.local
 NETLIFY-IMPORT.env
+VERCEL-IMPORT.env
+.vercel
 .DS_Store

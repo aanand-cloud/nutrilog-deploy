@@ -1,7 +1,12 @@
 import { isDevEnvironment } from './is-dev.mjs';
 
 export function siteOrigin() {
-  return (process.env.URL || process.env.DEPLOY_URL || '').replace(/\/$/, '');
+  const vercel =
+    process.env.VERCEL_PROJECT_PRODUCTION_URL ||
+    process.env.VERCEL_URL ||
+    '';
+  const vercelOrigin = vercel ? `https://${vercel.replace(/^https?:\/\//, '')}` : '';
+  return (process.env.URL || process.env.DEPLOY_URL || vercelOrigin || '').replace(/\/$/, '');
 }
 
 /** Only allow redirects back to the deployed site (blocks open-redirect abuse). */

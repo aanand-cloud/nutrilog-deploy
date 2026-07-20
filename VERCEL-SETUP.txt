@@ -1,0 +1,99 @@
+NUTRILOG — MOVE FROM NETLIFY TO VERCEL
+======================================
+
+Your code is ready for Vercel. Follow these steps in order.
+
+
+STEP 1 — PUSH CODE TO GITHUB
+----------------------------
+1. Open GitHub Desktop
+2. You should see new files: vercel.json, api/ folder, etc.
+3. Summary: "Add Vercel hosting support"
+4. Commit to main → Push origin
+
+
+STEP 2 — CREATE VERCEL ACCOUNT
+------------------------------
+1. Go to https://vercel.com/signup
+2. Sign up with the SAME GitHub account you use for nutrilog-deploy
+3. Choose the free Hobby plan (fine for starting out)
+
+
+STEP 3 — IMPORT YOUR PROJECT
+----------------------------
+1. Vercel dashboard → Add New → Project
+2. Find repo: aanand-cloud/nutrilog-deploy (or your repo name)
+3. Click Import
+4. Settings should auto-detect:
+   - Framework: Vite
+   - Build command: npm run build
+   - Output directory: dist
+5. Do NOT deploy yet — add env vars first (Step 4)
+
+
+STEP 4 — ADD ENVIRONMENT VARIABLES
+--------------------------------
+1. On the import screen, open "Environment Variables"
+   (or after import: Project → Settings → Environment Variables)
+2. Import from file OR paste each line from:
+   C:\Users\user\Projects\nutrilog-deploy\VERCEL-IMPORT.env
+3. Add all 7 variables for Production, Preview, and Development:
+   - VITE_SUPABASE_URL
+   - VITE_SUPABASE_ANON_KEY
+   - SUPABASE_URL
+   - SUPABASE_SERVICE_ROLE_KEY
+   - GEMINI_API_KEY
+   - GEMINI_VISION_MODEL
+   - GEMINI_TEXT_MODEL
+4. Do NOT add VAPID_* or STRIPE_* until you set those up later
+5. Click Deploy
+
+
+STEP 5 — WAIT FOR BUILD
+-----------------------
+1. Wait 2–4 minutes until status is "Ready"
+2. Vercel gives you a URL like: https://nutrilog-deploy.vercel.app
+3. Open it and test sign-in + barcode
+
+
+STEP 6 — UPDATE SUPABASE (IMPORTANT)
+------------------------------------
+1. Supabase → Authentication → URL Configuration
+2. Site URL: your new Vercel URL (https://something.vercel.app)
+3. Redirect URLs — ADD (keep old Netlify too if you want):
+   https://YOUR-VERCEL-URL.vercel.app/**
+4. Save
+
+
+STEP 7 — TEST CHECKLIST
+-----------------------
+[ ] Site loads
+[ ] Settings → Account → Sign in works
+[ ] Log → Scan barcode (try number 5000159407236)
+[ ] Log → Photo AI works when signed in
+[ ] Plans page opens (Stripe can wait)
+
+
+OPTIONAL — CUSTOM DOMAIN LATER
+------------------------------
+Vercel → Project → Settings → Domains
+Add your own domain (e.g. nutrilog.com) when you buy one.
+
+
+OPTIONAL — STRIPE WEBHOOK (WHEN READY)
+--------------------------------------
+Stripe webhook URL becomes:
+  https://YOUR-VERCEL-URL.vercel.app/api/stripe-webhook
+
+
+NETLIFY
+-------
+You can leave nutrilog4.netlify.app running as backup, or pause it later.
+Your main site will be Vercel once this works.
+
+
+NEED HELP?
+----------
+Tell your assistant:
+- Your Vercel URL after deploy
+- Any error message from the Vercel build log
