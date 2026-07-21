@@ -47,8 +47,122 @@ body {
   padding: max(16px, env(safe-area-inset-top)) 20px 20px;
 }
 .logo { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; }
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.header-auth-btn {
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 100px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.header-auth-btn:active { background: rgba(255, 255, 255, 0.22); }
 .greeting { font-size: 1.05rem; font-weight: 600; margin-top: 4px; }
 .tagline { font-size: 0.85rem; opacity: 0.9; margin-top: 2px; }
+
+.home-hero {
+  text-align: center;
+  margin-bottom: 16px;
+  padding: 4px 8px 0;
+}
+.home-hero__steps {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--teal);
+  margin: 0;
+}
+.home-hero__tagline {
+  font-size: 0.95rem;
+  color: var(--text3);
+  margin: 6px 0 0;
+}
+
+.guest-prompt {
+  text-align: center;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, #fff, #f0fdfa);
+}
+.guest-prompt__lead {
+  font-size: 0.92rem;
+  font-weight: 600;
+  margin: 0 0 12px;
+  color: var(--text);
+}
+.guest-prompt__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.guest-prompt__actions .btn { min-width: 132px; }
+.guest-prompt__note {
+  margin: 10px 0 0;
+  font-size: 0.78rem;
+  color: var(--text3);
+}
+
+.auth-modal__panel {
+  position: relative;
+  max-width: 400px;
+  padding: 22px 18px 18px;
+}
+.auth-modal__close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  border: none;
+  background: none;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--text3);
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.auth-modal__eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--teal);
+  margin: 0 0 6px;
+}
+.auth-modal__title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: var(--text);
+}
+.auth-modal__sub {
+  font-size: 0.88rem;
+  color: var(--text3);
+  margin: 0 0 16px;
+  line-height: 1.45;
+}
+.auth-modal__switch {
+  margin-top: 8px;
+}
+.auth-modal__fine {
+  margin: 14px 0 0;
+  font-size: 0.75rem;
+  color: var(--text3);
+  text-align: center;
+  line-height: 1.4;
+}
+.auth-modal__panel--signin .field--optional-name {
+  display: none;
+}
 
 .main {
   flex: 1;

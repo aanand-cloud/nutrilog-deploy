@@ -9,6 +9,7 @@ import { getCuisineTips } from './services/cuisine-tips.js';
 import { runPersonalisedNotificationCheck } from './services/notifications.js';
 import { getProfile, getGreeting } from './services/profile.js';
 import { openLegalModal } from './views/legal.js';
+import { openAuthModal } from './services/auth-modal.js';
 
 let currentView = 'today';
 let cachedProfile = null;
@@ -27,6 +28,14 @@ export function initApp() {
     }
 
     headerGreeting.textContent = getGreeting(cachedProfile.displayName);
+    const authBtn = document.getElementById('headerAuthBtn');
+    if (authBtn) {
+      if (cachedProfile.loggedIn || !isSupabaseConfigured()) {
+        authBtn.hidden = true;
+      } else {
+        authBtn.hidden = false;
+      }
+    }
     if (cachedProfile.topup_balance != null) {
       syncTopUpFromCloud(cachedProfile.topup_balance);
     }
@@ -80,6 +89,10 @@ export function initApp() {
     setView('settings');
   }
 
+  function openSignIn(mode = 'signup') {
+    openAuthModal({ mode, showToast, onSuccess: refresh });
+  }
+
   function openSettings(tab, opts) {
     if (tab) setSettingsTab(tab, opts);
     setView('settings');
@@ -96,6 +109,7 @@ export function initApp() {
           onRefresh: refresh,
           onReports: () => setView('reports'),
           onSettings: openSettings,
+          onSignIn: openSignIn,
           profile,
         });
       } else if (currentView === 'log') {
@@ -104,7 +118,7 @@ export function initApp() {
           onCancel: () => setView('today'),
           showToast,
           onUpgrade: handleUpgrade,
-          onSignIn: () => openSettings('account'),
+          onSignIn: () => openSignIn('signin'),
           profile,
         });
       } else if (currentView === 'reports') {
@@ -129,6 +143,8 @@ export function initApp() {
   document.querySelectorAll('[data-legal]').forEach((btn) => {
     btn.addEventListener('click', () => openLegalModal(btn.dataset.legal));
   });
+
+  document.getElementById('headerAuthBtn')?.addEventListener('click', () => openSignIn('signin'));
 
   onAuthChange(async (session, event) => {
     if (event === 'PASSWORD_RECOVERY') {

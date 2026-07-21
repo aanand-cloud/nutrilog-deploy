@@ -34,6 +34,7 @@ import { getDiscountEligibility, validateWorkEmailForDiscount } from '../service
 import { validateAndRedeemVoucher } from '../services/voucher.js';
 import { activityOptions, estimateDailyCalories, suggestMacros } from '../services/calorie-wizard.js';
 import { exportUserDataJson, exportMealsCsv } from '../services/data-export.js';
+import { friendlyAuthError } from '../services/auth-errors.js';
 import { openLegalModal } from './legal.js';
 
 const wizardActivities = activityOptions();
@@ -54,7 +55,7 @@ export function setPasswordResetMode(on = true) {
   passwordResetMode = Boolean(on);
 }
 
-export async function renderToday(root, { onLog, onRefresh, onReports, onSettings, profile }) {
+export async function renderToday(root, { onLog, onRefresh, onReports, onSettings, profile, onSignIn }) {
   const dateKey = todayKey();
   const meals = await getMealsForDate(dateKey);
   const totals = sumNutrition(meals);
@@ -87,10 +88,19 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
     </section>
     ` : ''}
 
+    <section class="home-hero" aria-label="NutriLog">
+      <p class="home-hero__steps">Snap · Analyse · Track</p>
+      <p class="home-hero__tagline">Eat smarter — it's that easy.</p>
+    </section>
+
     ${!profile?.loggedIn && isSupabaseConfigured() ? `
-      <section class="login-banner">
-        <p><strong>Sign in</strong> to back up meals, sync devices, and use AI photo logging.</p>
-        <button type="button" class="btn btn-primary btn-sm" id="goSignIn">Sign in / Create account</button>
+      <section class="guest-prompt card" aria-label="Create your account">
+        <p class="guest-prompt__lead">Free account · cloud backup · AI meal photos</p>
+        <div class="guest-prompt__actions">
+          <button type="button" class="btn btn-primary" id="guestGetStarted">Get started free</button>
+          <button type="button" class="btn btn-ghost" id="guestSignIn">Sign in</button>
+        </div>
+        <p class="guest-prompt__note">Barcode &amp; food search work without signing in.</p>
       </section>
     ` : ''}
 
@@ -163,7 +173,8 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
 
   root.querySelector('#emptyLogBtn')?.addEventListener('click', onLog);
   root.querySelector('#discountHeroBtn')?.addEventListener('click', () => onSettings?.('plans', { openDiscount: true }));
-  root.querySelector('#goSignIn')?.addEventListener('click', () => onSettings?.('account'));
+  root.querySelector('#guestGetStarted')?.addEventListener('click', () => onSignIn?.('signup'));
+  root.querySelector('#guestSignIn')?.addEventListener('click', () => onSignIn?.('signin'));
   root.querySelector('#todayUpgrade')?.addEventListener('click', () => onSettings?.('plans'));
   root.querySelector('#viewReportsBtn')?.addEventListener('click', () => onReports?.());
   root.querySelector('#moreTipsBtn')?.addEventListener('click', () => onReports?.());
@@ -1099,26 +1110,4 @@ function escapeHtml(s) {
   const d = document.createElement('div');
   d.textContent = s;
   return d.innerHTML;
-}
-
-function friendlyAuthError(message = '') {
-  const msg = String(message);
-  if (/fetch|Failed to fetch|NetworkError/i.test(msg)) {
-    return 'Cannot reach the server — check your internet connection and try again';
-  }
-  if (/Email not confirmed/i.test(msg)) {
-    return 'Please confirm your email first — check your inbox, then sign in';
-  }
-  if (/User already registered/i.test(msg)) {
-    return 'That email is already registered — try Sign in instead';
-  }
-  if (/Invalid login credentials/i.test(msg)) {
-    return 'Wrong email or password — double-check and try again';
-  }
-  if (/42703|discount_senior|schema cache/i.test(msg)) {
-    return import.meta.env.DEV
-      ? 'Database needs an update — run supabase/migration-fix-missing-columns.sql in Supabase SQL Editor'
-      : 'Account setup incomplete — please try again in a few minutes';
-  }
-  return msg || 'Something went wrong';
 }
