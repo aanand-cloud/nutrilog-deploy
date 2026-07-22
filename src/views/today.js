@@ -90,21 +90,21 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
     </section>
     ` : ''}
 
-    <section class="home-hero" aria-label="NutriLog">
-      <p class="home-hero__steps">Snap · Analyse · Track</p>
-      <p class="home-hero__tagline">Eat smarter — it's that easy.</p>
-    </section>
-
-    ${!profile?.loggedIn && isSupabaseConfigured() ? `
+    ${!profile?.loggedIn ? `
       <section class="guest-prompt card" aria-label="Create your account">
         <p class="guest-prompt__lead">Free account · cloud backup · AI meal photos</p>
         <div class="guest-prompt__actions">
           <button type="button" class="btn btn-primary" id="guestGetStarted">Get started free</button>
           <button type="button" class="btn btn-ghost" id="guestSignIn">Sign in</button>
         </div>
-        <p class="guest-prompt__note">Barcode &amp; food search work without signing in.</p>
+        <p class="guest-prompt__note">${isSupabaseConfigured() ? 'Barcode &amp; food search work without signing in.' : 'If sign-in fails, refresh after the latest app update.'}</p>
       </section>
     ` : ''}
+
+    <section class="home-hero" aria-label="NutriLog">
+      <p class="home-hero__steps">Snap · Analyse · Track</p>
+      <p class="home-hero__tagline">Eat smarter — it's that easy.</p>
+    </section>
 
     <section class="card hero-card">
       <div class="ring-wrap">

@@ -31,11 +31,7 @@ export function initApp() {
     headerGreeting.textContent = getGreeting(cachedProfile.displayName);
     const authBtn = document.getElementById('headerAuthBtn');
     if (authBtn) {
-      if (cachedProfile.loggedIn || !isSupabaseConfigured()) {
-        authBtn.hidden = true;
-      } else {
-        authBtn.hidden = false;
-      }
+      authBtn.hidden = Boolean(cachedProfile.loggedIn);
     }
     if (cachedProfile.topup_balance != null) {
       syncTopUpFromCloud(cachedProfile.topup_balance);
