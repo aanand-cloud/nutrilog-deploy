@@ -33,6 +33,11 @@ function todayKey(date = new Date()) {
   return `${y}-${m}-${d}`;
 }
 
+/** Local calendar day (YYYY-MM-DD) — resets at midnight on the user's device. */
+export function getLocalDayKey(date = new Date()) {
+  return todayKey(date);
+}
+
 function readJson(key, fallback) {
   try {
     return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
@@ -183,10 +188,14 @@ export function syncScanStateFromProfile(profile) {
 
   const used = Number(profile.scan_used) || 0;
   const period = profile.scan_month || '';
+  const localToday = todayKey();
   if (/^\d{4}-\d{2}-\d{2}$/.test(period)) {
     const daily = readJson(DAILY_KEY, {});
-    daily[period] = used;
-    writeJson(DAILY_KEY, daily);
+    // Only mirror server usage when it matches the user's local today (midnight reset).
+    if (period === localToday) {
+      daily[localToday] = used;
+      writeJson(DAILY_KEY, daily);
+    }
   } else if (/^\d{4}-\d{2}$/.test(period)) {
     const monthly = readJson(USAGE_KEY, {});
     monthly[period] = used;
@@ -359,7 +368,11 @@ export function planLabel(planId = getPlan()) {
 export function scansLabel(planId = getPlan()) {
   const b = getScanBudget(planId);
   if (b.isDaily) {
-    return `${b.used}/${b.limit} meal log today · ${b.remaining} left · resets midnight`;
+    const noun = b.limit === 1 ? 'scan' : 'scans';
+    if (b.remaining <= 0) {
+      return `0/${b.limit} free ${noun} today · resets at midnight`;
+    }
+    return `${b.remaining}/${b.limit} free ${noun} today · resets at midnight`;
   }
   const parts = [`${b.remaining} of ${b.limit} meal logs left`];
   if (b.topUp > 0) parts.push(`${b.topUp} bonus`);

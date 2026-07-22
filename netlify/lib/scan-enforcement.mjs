@@ -18,6 +18,30 @@ function dayKey(date = new Date()) {
 
 }
 
+function parseDayKey(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+  const [y, m, d] = value.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== m - 1 || dt.getUTCDate() !== d) return null;
+  return value;
+}
+
+function dayDiff(a, b) {
+  const da = new Date(`${a}T00:00:00Z`);
+  const db = new Date(`${b}T00:00:00Z`);
+  return Math.round((da - db) / 86400000);
+}
+
+/** Client local day for free-tier reset (midnight on user's device). */
+export function resolveClientLocalDay(clientDay, now = new Date()) {
+  const parsed = parseDayKey(clientDay);
+  const serverDay = dayKey(now);
+  if (!parsed) return serverDay;
+  const diff = dayDiff(parsed, serverDay);
+  if (diff >= -1 && diff <= 1) return parsed;
+  return serverDay;
+}
+
 
 
 function normalizePlan(plan) {
@@ -56,7 +80,7 @@ export function isValidRefinementContext(context) {
 
 /** Read-only check before calling AI (fail fast, save Gemini cost). */
 
-export async function checkScanAllowed(supabase, userId) {
+export async function checkScanAllowed(supabase, userId, clientLocalDay) {
 
   if (!supabase || !userId) {
 
@@ -88,7 +112,7 @@ export async function checkScanAllowed(supabase, userId) {
 
   const mk = monthKey();
 
-  const dk = dayKey();
+  const dk = resolveClientLocalDay(clientLocalDay);
 
 
 
@@ -140,7 +164,7 @@ export async function checkScanAllowed(supabase, userId) {
 
 /** Refinements are free only after today's scan was already consumed (same meal flow). */
 
-export async function checkRefinementAllowed(supabase, userId) {
+export async function checkRefinementAllowed(supabase, userId, clientLocalDay) {
 
   if (!supabase || !userId) {
 
@@ -154,7 +178,7 @@ export async function checkRefinementAllowed(supabase, userId) {
 
   const plan = normalizePlan(state.plan);
 
-  const dk = dayKey();
+  const dk = resolveClientLocalDay(clientLocalDay);
 
   if (plan === 'free') {
 
@@ -162,11 +186,11 @@ export async function checkRefinementAllowed(supabase, userId) {
 
     if (usedToday >= FREE_DAILY) return { ok: true, plan, refinement: true };
 
-    return checkScanAllowed(supabase, userId);
+    return checkScanAllowed(supabase, userId, clientLocalDay);
 
   }
 
-  return checkScanAllowed(supabase, userId);
+  return checkScanAllowed(supabase, userId, clientLocalDay);
 
 }
 
@@ -174,7 +198,7 @@ export async function checkRefinementAllowed(supabase, userId) {
 
 /** Atomic consume after successful AI — uses DB RPC with row lock. */
 
-export async function consumeMealScan(supabase, userId) {
+export async function consumeMealScan(supabase, userId, clientLocalDay) {
 
   if (!supabase || !userId) {
 
@@ -182,11 +206,11 @@ export async function consumeMealScan(supabase, userId) {
 
   }
 
-
+  const dk = resolveClientLocalDay(clientLocalDay);
 
   const { data, error } = await supabase.rpc('consume_meal_scan', {
     p_user_id: userId,
-    p_local_day: dayKey(),
+    p_local_day: dk,
   });
 
   if (error) {

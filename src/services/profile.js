@@ -154,18 +154,24 @@ export async function ensureUserProfile(displayName = '') {
   return trimmed || existing?.display_name || null;
 }
 
-export async function saveDiscountPrefs({ senior, workEmail }) {
+export async function saveDiscountPrefs({ senior, workEmail } = {}) {
   const user = await getUser();
   const sb = getSupabase();
   if (!user || !sb) throw new Error('Sign in to save discount preferences');
 
   const patch = {
-    discount_senior: Boolean(senior),
     updated_at: new Date().toISOString(),
   };
+  if (senior !== undefined) {
+    patch.discount_senior = Boolean(senior);
+  }
   if (workEmail !== undefined) {
     patch.discount_work_email = workEmail || null;
     patch.discount_public_sector = isPublicSectorEmail(workEmail) || isPublicSectorEmail(user.email);
+  }
+
+  if (Object.keys(patch).length <= 1) {
+    throw new Error('Nothing to save');
   }
 
   const { error } = await sb.from('profiles').update(patch).eq('id', user.id);

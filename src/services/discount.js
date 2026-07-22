@@ -67,6 +67,32 @@ export function getDiscountEligibility(profile = {}, accountEmail = '') {
   };
 }
 
+/** Break discount paths apart for settings UI (NHS, 60+, promo). */
+export function getDiscountSections(profile = {}, accountEmail = '') {
+  const base = getDiscountEligibility(profile, accountEmail);
+  return {
+    ...base,
+    publicSector: {
+      active: base.publicSector,
+      title: 'NHS & public sector',
+      blurb: '30% off with a verified NHS, .gov.uk, police, MOD or public-sector work email.',
+      cta: base.publicSector ? 'Discount active' : 'Verify work email',
+    },
+    senior: {
+      active: base.senior,
+      title: '60 and over',
+      blurb: '30% off with a simple age declaration — no ID upload required.',
+      cta: base.senior ? 'Discount active' : 'Confirm eligibility',
+    },
+    voucher: {
+      active: base.voucher,
+      title: 'Promo code',
+      blurb: 'Limited-time offers and campaigns — separate from NHS and senior discounts.',
+      cta: base.voucher ? 'Code applied' : 'Enter promo code',
+    },
+  };
+}
+
 export function validateWorkEmailForDiscount(email) {
   const e = normalizeEmail(email);
   if (!e || !e.includes('@')) return { ok: false, error: 'Enter a valid work email' };

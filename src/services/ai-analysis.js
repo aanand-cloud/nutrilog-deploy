@@ -1,5 +1,5 @@
 import { getSession, isSupabaseConfigured } from './auth.js';
-import { syncScanUsageFromServer } from './subscription.js';
+import { syncScanUsageFromServer, getLocalDayKey } from './subscription.js';
 
 async function authPayload() {
   if (isSupabaseConfigured()) {
@@ -9,9 +9,9 @@ async function authPayload() {
       err.requiresAuth = true;
       throw err;
     }
-    return { accessToken: session.access_token };
+    return { accessToken: session.access_token, localDay: getLocalDayKey() };
   }
-  return {};
+  return { localDay: getLocalDayKey() };
 }
 
 async function authHeaders() {

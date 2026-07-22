@@ -197,7 +197,11 @@ begin
   end;
 
   if v_plan = 'free' then
-    v_period := to_char((now() at time zone 'utc')::date, 'YYYY-MM-DD');
+    if p_local_day is not null and p_local_day ~ '^\d{4}-\d{2}-\d{2}$' then
+      v_period := p_local_day;
+    else
+      v_period := to_char((now() at time zone 'utc')::date, 'YYYY-MM-DD');
+    end if;
     v_used := case when v_profile.scan_month = v_period then coalesce(v_profile.scan_used, 0) else 0 end;
     v_limit := 1;
     if v_used >= v_limit then

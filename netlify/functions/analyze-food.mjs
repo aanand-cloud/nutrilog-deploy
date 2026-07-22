@@ -32,7 +32,7 @@ export default async (req) => {
     return jsonResponse({ error: 'Invalid JSON body' }, 400, req);
   }
 
-  const { image, mimeType = 'image/jpeg', context, userNotes } = body;
+  const { image, mimeType = 'image/jpeg', context, userNotes, localDay } = body;
 
   if (!image) {
     return jsonResponse({ error: 'image is required' }, 400, req);
@@ -70,15 +70,15 @@ export default async (req) => {
 
   if (userId && supabaseAdmin) {
     const scanCheck = isRefinement
-      ? await checkRefinementAllowed(supabaseAdmin, userId)
-      : await checkScanAllowed(supabaseAdmin, userId);
+      ? await checkRefinementAllowed(supabaseAdmin, userId, localDay)
+      : await checkScanAllowed(supabaseAdmin, userId, localDay);
 
     if (!scanCheck.ok) {
       return jsonResponse({ error: scanCheck.error || 'Scan limit reached' }, 429, req);
     }
 
     if (!isRefinement) {
-      const consumed = await consumeMealScan(supabaseAdmin, userId);
+      const consumed = await consumeMealScan(supabaseAdmin, userId, localDay);
       if (!consumed.ok) {
         return jsonResponse({ error: consumed.error || 'Scan limit reached' }, 429, req);
       }

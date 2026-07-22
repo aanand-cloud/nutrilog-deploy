@@ -1429,6 +1429,53 @@ button.camera-zone:active { background: var(--teal-dim); }
 .discount-claim-hint--success {
   color: var(--text);
 }
+.discount-sections {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.discount-sections__title {
+  margin: 0;
+  font-size: 1rem;
+}
+.discount-sections__lead {
+  margin: 6px 0 0;
+}
+.discount-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: #fff;
+}
+.discount-card--active {
+  border-color: var(--teal);
+  background: linear-gradient(135deg, #f0fdfa, #fff);
+}
+.discount-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.discount-card__head h5 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+.discount-card__badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--teal);
+  background: var(--teal-dim);
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+.discount-card .settings-form-compact {
+  margin-top: 12px;
+}
 .settings-sticky-actions {
   display: flex;
   gap: 10px;

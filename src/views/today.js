@@ -30,7 +30,7 @@ import {
   getScanBudget,
 } from '../services/subscription.js';
 import { PLANS, TOPUP_PACK, MAX_TOPUP_CARRY } from '../services/plans.js';
-import { getDiscountEligibility, validateWorkEmailForDiscount } from '../services/discount.js';
+import { getDiscountEligibility, getDiscountSections, validateWorkEmailForDiscount } from '../services/discount.js';
 import { validateAndRedeemVoucher } from '../services/voucher.js';
 import { activityOptions, estimateDailyCalories, suggestMacros } from '../services/calorie-wizard.js';
 import { exportUserDataJson, exportMealsCsv } from '../services/data-export.js';
@@ -76,15 +76,15 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
 
   root.innerHTML = `
     ${showDiscountHero ? `
-    <section class="discount-hero discount-hero--compact" aria-label="NHS and public sector offer">
+    <section class="discount-hero discount-hero--compact" aria-label="Discount offers">
       <div class="discount-hero__inner">
         <p class="discount-hero__line">
-          <strong>30% off</strong> · NHS &amp; public sector
+          <strong>30% off</strong> · NHS, 60+, or promo
           <span class="discount-hero__price">£${PLANS.daily10.priceDiscount.toFixed(2)}–£${PLANS.daily25.priceDiscount.toFixed(2)}/mo</span>
         </p>
-        <button type="button" class="btn btn-primary btn-sm discount-hero__cta" id="discountHeroBtn">Claim →</button>
+        <button type="button" class="btn btn-primary btn-sm discount-hero__cta" id="discountHeroBtn">See offers →</button>
       </div>
-      <p class="discount-hero__legal">Not affiliated with the NHS. Discount for eligible public-sector staff.</p>
+      <p class="discount-hero__legal">Separate paths for NHS/public sector, 60+, and promo codes. Not affiliated with the NHS.</p>
     </section>
     ` : ''}
 
@@ -263,6 +263,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
   }
 
   const discount = getDiscountEligibility(profile, profile.email || user?.email || '');
+  const discountSections = getDiscountSections(profile, profile.email || user?.email || '');
   const currentPlan = getPlan();
   const initials = (displayName || user?.email || '?').charAt(0).toUpperCase();
   const showPasswordReset =
@@ -457,7 +458,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
           <div class="usage-meter-wrap">
             <div class="usage-meter-head">
               <span>${currentPlan === 'free' ? 'Today' : 'This month'}</span>
-              <span>${getScanBudget().remaining} of ${getScanBudget().limit} left</span>
+              <span>${getScanBudget().remaining}/${getScanBudget().limit} available</span>
             </div>
             <div class="usage-meter-track" aria-hidden="true">
               <div class="usage-meter-fill" style="width:${usageMeterRemainingPercent()}%"></div>
@@ -469,11 +470,11 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
           ${openDiscountSection ? `
             <p class="discount-claim-hint" id="discountClaimHint">
               ${discount.eligible
-                ? '✓ Your discount is active — choose a plan below, or update details in the section below.'
-                : '👇 Enter your NHS work email or voucher code below to unlock 30% off'}
+                ? '✓ Your discount is active — choose a plan below, or update details in Ways to save.'
+                : '👇 Pick NHS/public sector, 60+, or a promo code below to unlock 30% off'}
             </p>
           ` : ''}
-          ${discount.label ? `<p class="settings-discount-banner">✓ ${escapeHtml(discount.label)} — 30% off</p>` : ''}
+          ${discount.label ? `<p class="settings-discount-banner">✓ ${escapeHtml(discount.label)} — 30% off paid plans</p>` : ''}
 
           <div class="plan-grid plan-grid--settings">
             <article class="plan-card ${currentPlan === 'daily10' ? 'plan-card--active' : ''}">
@@ -519,38 +520,75 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
             </div>
           ` : ''}
 
-          <details class="settings-details" id="discountSection" ${openDiscountSection ? 'open' : ''}>
-            <summary>Discount eligibility (NHS, public sector, 60+)</summary>
-            <div class="settings-details-body">
-              <p class="fine-print">30% off with a voucher, work email, or age declaration. No ID upload.</p>
-              ${discount.voucher ? `
-                <p class="settings-discount-banner">✓ Voucher applied — 30% off (valid 1 year)</p>
+          <div class="discount-sections" id="discountSection">
+            <h4 class="discount-sections__title">Ways to save</h4>
+            <p class="fine-print discount-sections__lead">NHS/public sector, 60+, and promo codes are separate paths — run offers without mixing them up.</p>
+
+            <article class="discount-card ${discountSections.publicSector.active ? 'discount-card--active' : ''}" id="publicSectorSection">
+              <div class="discount-card__head">
+                <h5>${discountSections.publicSector.title}</h5>
+                ${discountSections.publicSector.active ? '<span class="discount-card__badge">Active</span>' : ''}
+              </div>
+              <p class="fine-print">${discountSections.publicSector.blurb}</p>
+              ${discountSections.publicSector.active ? `
+                <p class="settings-discount-banner">✓ Verified — 30% off Standard &amp; Plus</p>
+              ` : `
+                <form id="publicSectorForm" class="auth-form settings-form-compact">
+                  <label class="field full">
+                    <span>Work email</span>
+                    <input type="email" name="work_email" value="${escapeHtml(profile.discount_work_email || '')}" placeholder="you@nhs.net" inputmode="email" required/>
+                  </label>
+                  <label class="toggle-row settings-toggle">
+                    <span>I confirm this is my current public-sector work email</span>
+                    <input type="checkbox" name="consent" required/>
+                  </label>
+                  <button type="submit" class="btn btn-ghost full">Verify &amp; save</button>
+                </form>
+              `}
+            </article>
+
+            <article class="discount-card ${discountSections.senior.active ? 'discount-card--active' : ''}" id="seniorSection">
+              <div class="discount-card__head">
+                <h5>${discountSections.senior.title}</h5>
+                ${discountSections.senior.active ? '<span class="discount-card__badge">Active</span>' : ''}
+              </div>
+              <p class="fine-print">${discountSections.senior.blurb}</p>
+              ${discountSections.senior.active ? `
+                <p class="settings-discount-banner">✓ Age discount active — 30% off Standard &amp; Plus</p>
+              ` : `
+                <form id="seniorForm" class="auth-form settings-form-compact">
+                  <label class="toggle-row settings-toggle">
+                    <span>I am 60 years of age or over</span>
+                    <input type="checkbox" name="senior" required/>
+                  </label>
+                  <label class="toggle-row settings-toggle">
+                    <span>I confirm this declaration is accurate</span>
+                    <input type="checkbox" name="consent" required/>
+                  </label>
+                  <button type="submit" class="btn btn-ghost full">Confirm &amp; save</button>
+                </form>
+              `}
+            </article>
+
+            <article class="discount-card ${discountSections.voucher.active ? 'discount-card--active' : ''}" id="voucherSection">
+              <div class="discount-card__head">
+                <h5>${discountSections.voucher.title}</h5>
+                ${discountSections.voucher.active ? '<span class="discount-card__badge">Applied</span>' : ''}
+              </div>
+              <p class="fine-print">${discountSections.voucher.blurb}</p>
+              ${discountSections.voucher.active ? `
+                <p class="settings-discount-banner">✓ Promo code applied — 30% off (valid 1 year)</p>
               ` : `
                 <form id="voucherForm" class="auth-form voucher-form settings-form-compact">
                   <label class="field full">
-                    <span>Voucher code</span>
-                    <input type="text" name="code" placeholder="NUTRIPROMO" autocapitalize="characters" autocomplete="off"/>
+                    <span>Promo code</span>
+                    <input type="text" name="code" placeholder="NUTRIPROMO" autocapitalize="characters" autocomplete="off" required/>
                   </label>
-                  <button type="submit" class="btn btn-primary full">Apply voucher</button>
+                  <button type="submit" class="btn btn-primary full">Apply promo code</button>
                 </form>
               `}
-              <form id="discountForm" class="auth-form settings-form-compact">
-                <label class="field full">
-                  <span>Public-sector work email</span>
-                  <input type="email" name="work_email" value="${escapeHtml(profile.discount_work_email || '')}" placeholder="you@nhs.net" inputmode="email"/>
-                </label>
-                <label class="toggle-row settings-toggle">
-                  <span>I am 60 or over</span>
-                  <input type="checkbox" name="senior" ${profile.discount_senior ? 'checked' : ''}/>
-                </label>
-                <label class="toggle-row settings-toggle">
-                  <span>I confirm these details are accurate</span>
-                  <input type="checkbox" name="consent" required/>
-                </label>
-                <button type="submit" class="btn btn-ghost full">Save discount details</button>
-              </form>
-            </div>
-          </details>
+            </article>
+          </div>
         </section>
 
         <section class="settings-panel card" data-panel="alerts" ${panelHidden('alerts', activeSettingsTab)}>
@@ -964,29 +1002,40 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
     try {
       await validateAndRedeemVoucher(code);
       await saveVoucherRedemption();
-      showToast?.('Voucher applied — 30% off prices');
+      showToast?.('Promo code applied — 30% off');
       onSave();
     } catch (err) {
-      showToast?.(err.message || 'Invalid voucher');
+      showToast?.(err.message || 'Invalid promo code');
     }
   });
 
-  root.querySelector('#discountForm')?.addEventListener('submit', async (e) => {
+  root.querySelector('#publicSectorForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);
-    const workRaw = fd.get('work_email');
-    let workEmail = '';
-    if (workRaw) {
-      const check = validateWorkEmailForDiscount(workRaw);
-      if (!check.ok) {
-        showToast?.(check.error);
-        return;
-      }
-      workEmail = check.email;
+    const check = validateWorkEmailForDiscount(fd.get('work_email'));
+    if (!check.ok) {
+      showToast?.(check.error);
+      return;
     }
     try {
-      await saveDiscountPrefs({ senior: fd.get('senior') === 'on', workEmail });
-      showToast?.('Discount details saved');
+      await saveDiscountPrefs({ workEmail: check.email });
+      showToast?.('NHS/public sector discount verified — 30% off');
+      onSave();
+    } catch (err) {
+      showToast?.(err.message || 'Could not save');
+    }
+  });
+
+  root.querySelector('#seniorForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    if (fd.get('senior') !== 'on') {
+      showToast?.('Confirm you are 60 or over to continue');
+      return;
+    }
+    try {
+      await saveDiscountPrefs({ senior: true });
+      showToast?.('60+ discount saved — 30% off');
       onSave();
     } catch (err) {
       showToast?.(err.message || 'Could not save');
