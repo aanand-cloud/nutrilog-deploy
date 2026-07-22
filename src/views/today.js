@@ -452,7 +452,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
           ${currentPlan === 'free' ? `
             <p class="card-desc">Free includes <strong>1 AI meal log per day</strong>, resetting at midnight (12am) on your phone. Paid plans use a flexible monthly allowance.</p>
           ` : `
-            <p class="card-desc">Monthly allowance — use flexibly across the month. Subscription allowance resets on the 1st; purchased top-ups carry over (up to ${MAX_TOPUP_CARRY}). Cancel anytime from Manage subscription below.</p>
+            <p class="card-desc">Monthly allowance — use flexibly across the month. Subscription allowance resets on the 1st; purchased top-ups carry over (up to ${MAX_TOPUP_CARRY}). Manage or cancel anytime in Billing &amp; subscription below.</p>
           `}
 
           <div class="usage-meter-wrap">
@@ -509,16 +509,39 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
             <button type="button" class="btn btn-ghost full" id="topUpBtn" ${currentPlan === 'free' ? 'disabled' : ''}>Buy +${TOPUP_PACK.scans} meal logs</button>
           </div>
 
-          ${currentPlan !== 'free' && profile.loggedIn ? `
-            <div class="manage-sub-card">
+          ${profile.loggedIn ? `
+            <div class="manage-sub-card manage-sub-card--billing ${currentPlan === 'free' ? 'manage-sub-card--free' : 'manage-sub-card--active'}">
               <div class="manage-sub-card-head">
-                <h4>Manage subscription</h4>
-                <p>Cancel or change your plan anytime — no emails or phone calls needed.</p>
+                <div class="billing-status-row">
+                  <h4>Billing &amp; subscription</h4>
+                  <span class="billing-status-pill ${currentPlan === 'free' ? 'billing-status-pill--free' : 'billing-status-pill--active'}">${currentPlan === 'free' ? 'Free plan' : planLabel()}</span>
+                </div>
+                ${currentPlan === 'free' ? `
+                  <p class="billing-status-summary">No active subscription</p>
+                  <p>You're on the free tier — 1 AI meal log per day. Subscribe to Standard or Plus above and this section becomes your billing hub: update payment, switch plan, or cancel anytime through Stripe's secure portal.</p>
+                  <p class="fine-print">If you cancel a paid plan, you keep access until the end of your billing period, then return to the free plan automatically.</p>
+                  <button type="button" class="btn btn-primary full" id="billingViewPlansBtn">Compare paid plans</button>
+                ` : `
+                  <p class="billing-status-summary">Active subscription</p>
+                  <p>Cancel or change your plan anytime — no emails or phone calls needed.</p>
+                  <p class="fine-print">Opens Stripe's secure billing page. Your plan stays active until the end of the current billing period if you cancel.</p>
+                  <button type="button" class="btn btn-ghost full" id="manageSubBtn">Cancel or change plan</button>
+                `}
               </div>
-              <p class="fine-print">Opens Stripe’s secure billing page. Your plan stays active until the end of the current billing period if you cancel.</p>
-              <button type="button" class="btn btn-ghost full" id="manageSubBtn">Cancel or change plan</button>
             </div>
-          ` : ''}
+          ` : `
+            <div class="manage-sub-card manage-sub-card--billing manage-sub-card--guest">
+              <div class="manage-sub-card-head">
+                <div class="billing-status-row">
+                  <h4>Billing &amp; subscription</h4>
+                  <span class="billing-status-pill billing-status-pill--guest">Sign in required</span>
+                </div>
+                <p>Sign in to view your plan status, receipts, and subscription settings.</p>
+                <p class="fine-print">Paid subscribers can cancel or change plan here — self-serve, no support ticket needed.</p>
+                <button type="button" class="btn btn-ghost full" id="billingSignInBtn">Go to Account</button>
+              </div>
+            </div>
+          `}
 
           <div class="discount-sections" id="discountSection">
             <h4 class="discount-sections__title">Ways to save</h4>
@@ -994,6 +1017,15 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
     } catch (err) {
       showToast?.(err.message || 'Could not open billing portal');
     }
+  });
+
+  root.querySelector('#billingViewPlansBtn')?.addEventListener('click', () => {
+    root.querySelector('.plan-grid--settings')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  root.querySelector('#billingSignInBtn')?.addEventListener('click', () => {
+    setSettingsTab('account');
+    onSave();
   });
 
   root.querySelector('#voucherForm')?.addEventListener('submit', async (e) => {

@@ -58,7 +58,7 @@ const TERMS_HTML = `
   <ul>
     <li>Paid plans and top-ups are billed monthly via Stripe.</li>
     <li>Meal-log allowances reset as shown in the app (daily for free, monthly for paid).</li>
-    <li>You can <strong>cancel or change your plan anytime</strong> in Goals → Plans → <em>Cancel or change plan</em> (Stripe billing portal).</li>
+    <li>You can <strong>cancel or change your plan anytime</strong> in Goals → Plans → <em>Billing &amp; subscription</em> → <em>Cancel or change plan</em> (Stripe billing portal).</li>
     <li>If you cancel, you keep access until the end of your current billing period, then return to the free plan.</li>
     <li>Refunds follow Stripe and applicable consumer law.</li>
   </ul>

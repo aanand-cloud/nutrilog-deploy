@@ -1219,6 +1219,54 @@ button.camera-zone:active { background: var(--teal-dim); }
   border: 1px solid var(--border);
   background: var(--surface2);
 }
+.manage-sub-card--billing {
+  background: linear-gradient(180deg, #fafbfc 0%, var(--surface2) 100%);
+}
+.manage-sub-card--active {
+  border-color: rgba(13, 148, 136, 0.35);
+  background: linear-gradient(180deg, #f0fdfa 0%, #fff 100%);
+}
+.manage-sub-card--guest {
+  border-style: dashed;
+}
+.billing-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.billing-status-row h4 {
+  margin: 0;
+}
+.billing-status-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.billing-status-pill--free {
+  color: var(--text2);
+  background: #eef2f6;
+}
+.billing-status-pill--active {
+  color: var(--teal);
+  background: var(--teal-dim);
+}
+.billing-status-pill--guest {
+  color: var(--text3);
+  background: #f1f5f9;
+}
+.billing-status-summary {
+  margin: 0 0 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
 .manage-sub-card-head h4 {
   margin: 0 0 4px;
   font-size: 1rem;
@@ -1227,6 +1275,10 @@ button.camera-zone:active { background: var(--teal-dim); }
   margin: 0 0 8px;
   font-size: 0.88rem;
   color: var(--text2);
+  line-height: 1.45;
+}
+.manage-sub-card-head .btn {
+  margin-top: 12px;
 }
 .meal-editor-panel {
   max-height: 90vh;
