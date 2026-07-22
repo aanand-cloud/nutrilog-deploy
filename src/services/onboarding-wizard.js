@@ -82,7 +82,7 @@ export function openOnboardingWizard({ onComplete } = {}) {
     function stepBody() {
       return `
         <h2 class="barcode-title">Let's set your daily targets</h2>
-        <p class="fine-print onboarding-lead">Step 1 of 3 — we'll estimate calories and macros from your body stats.</p>
+        <p class="fine-print onboarding-lead">Step 1 of 3 — gender and age help us estimate targets. Height and weight are optional.</p>
         <form class="auth-form onboarding-form" id="onboardForm1">
           <label class="field full">
             <span>Gender</span>
@@ -96,7 +96,7 @@ export function openOnboardingWizard({ onComplete } = {}) {
             <input type="number" name="age" min="16" max="100" inputmode="numeric" placeholder="e.g. 34" value="${escapeAttr(state.age)}"/>
           </label>
           <div class="onboarding-unit-toggle">
-            <span>Height</span>
+            <span>Height <em class="optional-tag">optional</em></span>
             <div class="segmented" role="group">
               <button type="button" class="segmented-btn ${state.heightUnit === 'cm' ? 'active' : ''}" data-height-unit="cm">cm</button>
               <button type="button" class="segmented-btn ${state.heightUnit === 'ft' ? 'active' : ''}" data-height-unit="ft">ft/in</button>
@@ -104,8 +104,8 @@ export function openOnboardingWizard({ onComplete } = {}) {
           </div>
           ${state.heightUnit === 'cm' ? `
             <label class="field full">
-              <span>Height (cm)</span>
-              <input type="number" name="heightCm" min="120" max="230" inputmode="decimal" placeholder="e.g. 170" value="${escapeAttr(state.heightCm)}"/>
+              <span>Height (cm) <em class="optional-tag">optional</em></span>
+              <input type="number" name="heightCm" min="120" max="230" inputmode="decimal" placeholder="e.g. 170 — skip if unsure" value="${escapeAttr(state.heightCm)}"/>
             </label>
           ` : `
             <div class="onboarding-split">
@@ -120,15 +120,15 @@ export function openOnboardingWizard({ onComplete } = {}) {
             </div>
           `}
           <div class="onboarding-unit-toggle">
-            <span>Weight</span>
+            <span>Weight <em class="optional-tag">optional</em></span>
             <div class="segmented" role="group">
               <button type="button" class="segmented-btn ${state.weightUnit === 'kg' ? 'active' : ''}" data-weight-unit="kg">kg</button>
               <button type="button" class="segmented-btn ${state.weightUnit === 'lbs' ? 'active' : ''}" data-weight-unit="lbs">lbs</button>
             </div>
           </div>
           <label class="field full">
-            <span>Weight (${state.weightUnit})</span>
-            <input type="number" name="weight" min="1" step="0.1" inputmode="decimal" placeholder="${state.weightUnit === 'kg' ? 'e.g. 72' : 'e.g. 160'}" value="${escapeAttr(state.weightUnit === 'kg' ? state.weightKg : state.weightLbs)}"/>
+            <span>Weight (${state.weightUnit}) <em class="optional-tag">optional</em></span>
+            <input type="number" name="weight" min="1" step="0.1" inputmode="decimal" placeholder="${state.weightUnit === 'kg' ? 'e.g. 72 — skip if unsure' : 'e.g. 160 — skip if unsure'}" value="${escapeAttr(state.weightUnit === 'kg' ? state.weightKg : state.weightLbs)}"/>
           </label>
         </form>
       `;
@@ -166,7 +166,7 @@ export function openOnboardingWizard({ onComplete } = {}) {
           <div class="onboarding-preview">
             <p><strong>Your estimated targets</strong></p>
             <p>${preview.calories_kcal} kcal/day · P ${preview.protein_g}g · C ${preview.carbs_g}g · F ${preview.fat_g}g</p>
-            <p class="fine-print">Maintenance ~${preview.tdee} kcal — wellness estimate, not medical advice.</p>
+            <p class="fine-print">Maintenance ~${preview.tdee} kcal — wellness estimate, not medical advice.${preview.approximate ? ' Add height/weight in step 1 for a more personalised result.' : ''}</p>
           </div>
         ` : ''}
       `;
@@ -235,7 +235,7 @@ export function openOnboardingWizard({ onComplete } = {}) {
       else state.weightLbs = w;
 
       try {
-        resolveBodyMetrics(state);
+        resolveBodyMetrics(state, { strict: showError });
         saveWizardProfile(state);
         return true;
       } catch (err) {
@@ -246,17 +246,22 @@ export function openOnboardingWizard({ onComplete } = {}) {
 
     function buildPreview() {
       try {
-        const { weightKg, heightCm } = resolveBodyMetrics(state);
+        const metrics = resolveBodyMetrics(state, { strict: false });
         const estimate = estimateDailyCalories({
           sex: state.sex,
-          age: state.age,
-          weightKg,
-          heightCm,
+          age: metrics.age,
+          weightKg: metrics.weightKg,
+          heightCm: metrics.heightCm,
           activity: state.activity,
           weightGoal: state.weightGoal,
         });
-        const macros = suggestMacros(estimate.target, weightKg);
-        return { ...macros, calories_kcal: estimate.target, tdee: estimate.tdee };
+        const macros = suggestMacros(estimate.target, metrics.weightKg);
+        return {
+          ...macros,
+          calories_kcal: estimate.target,
+          tdee: estimate.tdee,
+          approximate: metrics.usedDefaults.height || metrics.usedDefaults.weight,
+        };
       } catch {
         return null;
       }
@@ -264,16 +269,16 @@ export function openOnboardingWizard({ onComplete } = {}) {
 
     async function finish() {
       try {
-        const { weightKg, heightCm } = resolveBodyMetrics(state);
+        const metrics = resolveBodyMetrics(state, { strict: false });
         const estimate = estimateDailyCalories({
           sex: state.sex,
-          age: state.age,
-          weightKg,
-          heightCm,
+          age: metrics.age,
+          weightKg: metrics.weightKg,
+          heightCm: metrics.heightCm,
           activity: state.activity,
           weightGoal: state.weightGoal,
         });
-        const macros = suggestMacros(estimate.target, weightKg);
+        const macros = suggestMacros(estimate.target, metrics.weightKg);
         const goals = {
           ...DEFAULT_GOALS,
           calories_kcal: estimate.target,
@@ -282,7 +287,7 @@ export function openOnboardingWizard({ onComplete } = {}) {
           fat_g: macros.fat_g,
         };
         saveGoals(goals);
-        saveWizardProfile({ ...state, weightKg, heightCm });
+        saveWizardProfile({ ...state, weightKg: metrics.weightKg, heightCm: metrics.heightCm });
         markOnboardingComplete();
         try {
           const { syncGoalsToCloud } = await import('./sync.js');
@@ -300,22 +305,49 @@ export function openOnboardingWizard({ onComplete } = {}) {
   });
 }
 
-export function resolveBodyMetrics(state) {
-  const age = Number(state.age);
-  let heightCm = Number(state.heightCm);
-  if (state.heightUnit === 'ft') {
+export function resolveBodyMetrics(state, { strict = true } = {}) {
+  const sex = state.sex || 'female';
+  const ageRaw = Number(state.age);
+  const age = ageRaw || 35;
+
+  let heightCm = null;
+  if (state.heightUnit === 'cm') {
+    heightCm = Number(state.heightCm) || null;
+  } else {
     const ft = Number(state.heightFt);
     const inches = Number(state.heightIn) || 0;
-    heightCm = Math.round((ft * 12 + inches) * 2.54);
+    if (ft) heightCm = Math.round((ft * 12 + inches) * 2.54);
   }
-  let weightKg = Number(state.weightKg);
+
+  let weightKg = null;
   if (state.weightUnit === 'lbs') {
-    weightKg = Math.round((Number(state.weightLbs) / 2.20462) * 10) / 10;
+    const lbs = Number(state.weightLbs);
+    if (lbs) weightKg = Math.round((lbs / 2.20462) * 10) / 10;
+  } else {
+    weightKg = Number(state.weightKg) || null;
   }
-  if (!age || !heightCm || !weightKg) {
-    throw new Error('Enter your age, height, and weight');
+
+  const usedDefaults = { height: !heightCm, weight: !weightKg };
+
+  if (!heightCm) heightCm = sex === 'male' ? 175 : 163;
+  if (!weightKg) weightKg = 70;
+
+  if (strict) {
+    if (ageRaw && (ageRaw < 16 || ageRaw > 100)) {
+      throw new Error('Enter a valid age (16+) or leave age blank');
+    }
+    if (Number(state.heightCm) && (heightCm < 120 || heightCm > 230)) {
+      throw new Error('Enter a valid height or leave it blank');
+    }
+    if (state.weightUnit === 'kg' && Number(state.weightKg) && (weightKg < 30 || weightKg > 300)) {
+      throw new Error('Enter a valid weight or leave it blank');
+    }
+    if (state.weightUnit === 'lbs' && Number(state.weightLbs) && (weightKg < 30 || weightKg > 300)) {
+      throw new Error('Enter a valid weight or leave it blank');
+    }
   }
-  return { weightKg, heightCm, age };
+
+  return { weightKg, heightCm, age, usedDefaults };
 }
 
 function escapeAttr(s) {
