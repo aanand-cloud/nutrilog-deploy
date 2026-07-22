@@ -1823,3 +1823,206 @@ button.camera-zone:active { background: var(--teal-dim); }
     grid-template-columns: 1fr;
   }
 }
+
+/* Image review modal */
+.meal-review-panel {
+  max-height: 92vh;
+  overflow-y: auto;
+}
+.meal-review-head .barcode-title {
+  margin-bottom: 6px;
+}
+.meal-review-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--teal-dim);
+  margin: 12px 0;
+}
+.meal-review-summary .review-kcal {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--teal);
+}
+.meal-review-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.meal-review-item {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+}
+.meal-review-item-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.meal-review-item-controls {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+}
+.meal-review-weight {
+  flex: 1;
+  margin: 0;
+}
+.meal-review-item-kcal {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text2);
+  white-space: nowrap;
+}
+.btn-icon.meal-review-delete {
+  border: none;
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 4px 8px;
+}
+.meal-review-add {
+  margin-top: 14px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.meal-review-add-form {
+  margin-top: 10px;
+}
+.meal-review-add-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.meal-review-actions {
+  margin-top: 16px;
+}
+
+/* Onboarding wizard */
+.onboarding-panel {
+  max-width: 420px;
+}
+.onboarding-progress {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.onboarding-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #dbeafe;
+}
+.onboarding-dot--active {
+  background: var(--teal);
+  width: 24px;
+}
+.onboarding-lead {
+  margin-bottom: 14px;
+}
+.onboarding-form {
+  margin-top: 8px;
+}
+.onboarding-unit-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 12px 0 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.segmented-btn {
+  border: none;
+  background: #fff;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+.segmented-btn.active {
+  background: var(--teal);
+  color: #fff;
+}
+.onboarding-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.onboarding-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.onboarding-option {
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: #fff;
+  cursor: pointer;
+}
+.onboarding-option strong {
+  display: block;
+  margin-bottom: 4px;
+}
+.onboarding-option span {
+  font-size: 0.82rem;
+  color: var(--text2);
+}
+.onboarding-option--active {
+  border-color: var(--teal);
+  background: linear-gradient(135deg, #f0fdfa, #fff);
+}
+.onboarding-preview {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--surface2);
+}
+.onboarding-actions {
+  margin-top: 16px;
+}
+
+/* Freemium paywall */
+.pro-banner--limit {
+  border-color: #fecaca;
+  background: linear-gradient(135deg, #fff5f5, #fff);
+}
+.paywall-inline--prominent {
+  border: 1px solid #fecaca;
+  background: #fff5f5;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+.paywall-inline__title {
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+.link-btn {
+  border: none;
+  background: none;
+  color: var(--teal);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}

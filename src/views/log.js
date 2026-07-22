@@ -2,16 +2,17 @@ import {
   analyzeFoodPhoto,
   refineWithClarifications,
   compressImage,
+  compressDataUrl,
   needsClarification,
   demoAnalysis,
 } from '../services/ai-analysis.js';
+import { openMealReviewModal } from '../services/meal-review-modal.js';
 import { saveMeal, todayKey } from '../services/storage.js';
-import { formatEnergy, formatEnergyParts, getUnitPrefs } from '../services/goals.js';
 import { captureMealPhoto, pickMealPhotoFromGallery, isNativeApp } from '../services/camera.js';
 import { canUseWebCamera, openWebCameraModal } from '../services/web-camera.js';
 import { canScan, recordScan, scansLabel, resetScansForTesting, paywallMessage } from '../services/subscription.js';
 import { isSupabaseConfigured } from '../services/auth.js';
-import { MEAL_TYPES, defaultMealType } from '../services/meal-types.js';
+import { defaultMealType } from '../services/meal-types.js';
 import { lookupBarcodeProduct } from '../services/barcode.js';
 import { openBarcodeScannerModal } from '../services/barcode-scanner.js';
 import { lookupFoodProduct } from '../services/food-search.js';
@@ -70,7 +71,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     else if (state.step === 'paywall') renderPaywall();
     else if (state.step === 'analyzing') renderAnalyzing();
     else if (state.step === 'clarify') renderClarify();
-    else if (state.step === 'review') renderReview();
+    else if (state.step === 'review') showReviewFlow();
   }
 
   function renderCapture() {
@@ -124,9 +125,11 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
             ${needsHttpsHint ? `<p class="fine-print warn-text">${import.meta.env.DEV ? `For phone camera: open <strong>https://${window.location.host}</strong> (not http). Gallery upload works on both.` : 'For phone camera on mobile, open NutriLog over a secure (HTTPS) connection. Gallery upload works either way.'}</p>` : ''}
           `}
         ` : !needsSignIn ? `
-          <div class="paywall-inline">
-            <p>${escapeHtml(paywallMessage(scan))}</p>
-            <button type="button" class="btn btn-primary full" id="upgradeBtn">View plans &amp; top-ups</button>
+          <div class="paywall-inline paywall-inline--prominent">
+          <p class="paywall-inline__title">${scan.isDaily ? "Today's free scan used" : 'Monthly allowance used'}</p>
+          <p>${escapeHtml(paywallMessage(scan))}</p>
+          <button type="button" class="btn btn-primary full" id="upgradeBtn">Upgrade or add logs</button>
+          <p class="fine-print">Barcode scan &amp; food search stay free — no account needed.</p>
             ${import.meta.env.DEV ? `<button type="button" class="btn btn-ghost full" id="resetScansBtn">Reset usage (dev only)</button>` : ''}
           </div>
         ` : ''}
@@ -308,6 +311,13 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     }
     readMealNotesFromDom();
     try {
+      if (image?.dataUrl && !image.external) {
+        try {
+          image = await compressDataUrl(image.dataUrl, image.mimeType);
+        } catch (_) {
+          /* use original if compression fails */
+        }
+      }
       state.image = image;
       state.step = 'analyzing';
       state.status = 'Analysing your meal…';
@@ -454,111 +464,67 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     render();
   }
 
-  function renderReview() {
-    const a = state.analysis;
-    const demo = a.demoEstimate;
-    const n = mealNutritionTotals(a);
-    const fromPackaged = state.source === 'barcode' || state.source === 'food_search' || a.source === 'barcode' || a.source === 'food_search';
-    const packagedLabel = a.source === 'food_search' || state.source === 'food_search' ? 'From food search' : 'From barcode';
-    const prefs = getUnitPrefs();
-    const totalEnergy = formatEnergyParts(a.total_calories_kcal || 0, prefs);
+  async function showReviewFlow() {
     root.innerHTML = `
-      <section class="log-screen">
-        ${state.image?.dataUrl ? `<img src="${state.image.dataUrl}" alt="Your meal" class="preview-img preview-img--small"/>` : ''}
-        ${fromPackaged ? `<p class="fine-print">📦 ${packagedLabel} — check serving size matches what you ate</p>` : ''}
-        ${demo ? `<p class="fine-print warn-text">Sample estimate only — not your actual meal. AI is not connected or unavailable.</p>` : ''}
-        ${!demo ? `<p class="fine-print health-disclaimer">AI estimate only — not medical advice. Check labels if unsure.</p>` : ''}
-        <h2>${escapeHtml(a.meal_summary || 'Your meal')}</h2>
-        <p class="confidence">Estimate confidence: ${Math.round((a.confidence_score || 0) * 100)}% — not a lab test</p>
-        <div class="review-total">
-          <span class="review-kcal">${totalEnergy.value}</span>
-          <span>${totalEnergy.unit} total</span>
-        </div>
-        <div class="macro-row review-macros">
-          ${nutritionChip('Protein', n.protein_g, 'g')}
-          ${nutritionChip('Carbs', n.carbs_g, 'g')}
-          ${nutritionChip('Fat', n.fat_g, 'g')}
-        </div>
-        <p class="review-micros">
-          Fibre ${formatNutrient(n.fibre_g, 'g')}
-          · Sugar ${formatNutrient(n.sugar_g, 'g')}
-          · Salt ${formatNutrient(n.salt_mg, 'mg')}
-        </p>
-        <p class="step-label">Meal type</p>
-        <div class="meal-type-row" id="mealTypeRow">
-          ${MEAL_TYPES.map((t) => `
-            <button type="button" class="meal-type-btn ${state.mealType === t.id ? 'meal-type-btn--active' : ''}" data-type="${t.id}">
-              ${t.icon} ${t.label}
-            </button>
-          `).join('')}
-        </div>
-        <ul class="item-list">
-          ${(a.items || []).map((item) => `
-            <li>
-              <strong>${escapeHtml(item.name)}</strong>
-              <span>${escapeHtml(item.portion_estimate || '')} · ${formatEnergy(item.calories_kcal || 0, prefs)}</span>
-              ${item.nutrition ? `<span class="item-nutrition">P ${formatNutrient(item.nutrition.protein_g, 'g')} · C ${formatNutrient(item.nutrition.carbs_g, 'g')} · F ${formatNutrient(item.nutrition.fat_g, 'g')}</span>` : ''}
-            </li>
-          `).join('')}
-        </ul>
-        <div class="review-actions">
-          <button type="button" class="btn btn-ghost" id="retakeBtn">${fromPackaged ? 'Look up again' : 'Retake'}</button>
-          <button type="button" class="btn btn-primary" id="saveBtn">Save to today</button>
-        </div>
+      <section class="log-screen center">
+        ${state.image?.dataUrl ? `<img src="${state.image.dataUrl}" alt="" class="preview-img preview-img--small"/>` : ''}
+        <div class="spinner" aria-hidden="true"></div>
+        <h2>Review your meal</h2>
+        <p>Check portions and add anything the camera missed.</p>
       </section>
     `;
-    root.querySelectorAll('#mealTypeRow .meal-type-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        state.mealType = btn.dataset.type;
-        render();
-      });
+
+    const result = await openMealReviewModal(state.analysis, {
+      mealType: state.mealType,
+      imageDataUrl: state.image?.dataUrl || null,
     });
-    root.querySelector('#retakeBtn').addEventListener('click', () => {
-      state = {
-        step: 'capture',
-        image: null,
-        analysis: null,
-        answers: [],
-        scanRecorded: false,
-        status: '',
-        mealType: defaultMealType(),
-        mealNotes: state.mealNotes,
-        source: null,
-      };
-      clearSession();
+
+    if (!result) {
+      state.step = 'capture';
+      persist();
       render();
-    });
-    root.querySelector('#saveBtn')?.addEventListener('click', async () => {
-      const btn = root.querySelector('#saveBtn');
-      if (!btn) return;
-      btn.disabled = true;
-      btn.textContent = 'Saving…';
-      try {
-        const saved = await saveMeal({
-          date: todayKey(),
-          meal_type: state.mealType,
-          meal_notes: state.mealNotes || undefined,
-          meal_summary: a.meal_summary,
-          total_calories_kcal: a.total_calories_kcal,
-          total_nutrition: a.total_nutrition,
-          items: a.items,
-          confidence_score: a.confidence_score,
-          clarifications: state.answers,
-          photoDataUrl: state.image?.external ? undefined : state.image?.dataUrl,
-        });
-        clearSession();
-        if (saved?.cloudSynced === false && profile?.loggedIn) {
-          showToast('Saved on this device — cloud backup failed. Try Sync in Settings.');
-        } else {
-          showToast('Meal saved!');
-        }
-        onSaved();
-      } catch (err) {
-        showToast(err.message || 'Could not save meal');
-        btn.disabled = false;
-        btn.textContent = 'Save to today';
+      return;
+    }
+
+    state.analysis = result.analysis;
+    state.mealType = result.mealType;
+    await commitMealSave();
+  }
+
+  async function commitMealSave() {
+    const a = state.analysis;
+    root.innerHTML = `
+      <section class="log-screen center">
+        <div class="spinner" aria-hidden="true"></div>
+        <h2>Saving…</h2>
+      </section>
+    `;
+    try {
+      const saved = await saveMeal({
+        date: todayKey(),
+        meal_type: state.mealType,
+        meal_notes: state.mealNotes || undefined,
+        meal_summary: a.meal_summary,
+        total_calories_kcal: a.total_calories_kcal,
+        total_nutrition: a.total_nutrition,
+        items: a.items,
+        confidence_score: a.confidence_score,
+        clarifications: state.answers,
+        photoDataUrl: state.image?.external ? undefined : state.image?.dataUrl,
+      });
+      clearSession();
+      if (saved?.cloudSynced === false && profile?.loggedIn) {
+        showToast('Saved on this device — cloud backup failed. Try Sync in Settings.');
+      } else {
+        showToast('Meal saved!');
       }
-    });
+      onSaved();
+    } catch (err) {
+      showToast(err.message || 'Could not save meal');
+      state.step = 'review';
+      persist();
+      showReviewFlow();
+    }
   }
 
   function guessOptions(question) {
@@ -573,32 +539,6 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
   }
 
   render();
-}
-
-function mealNutritionTotals(analysis) {
-  const n = { ...(analysis.total_nutrition || {}) };
-  if (n.protein_g != null || n.carbs_g != null) return n;
-  for (const item of analysis.items || []) {
-    const itemN = item.nutrition || {};
-    n.protein_g = (n.protein_g || 0) + (itemN.protein_g || 0);
-    n.carbs_g = (n.carbs_g || 0) + (itemN.carbs_g || 0);
-    n.fat_g = (n.fat_g || 0) + (itemN.fat_g || 0);
-    n.fibre_g = (n.fibre_g || 0) + (itemN.fibre_g || 0);
-    n.sugar_g = (n.sugar_g || 0) + (itemN.sugar_g || 0);
-    n.salt_mg = (n.salt_mg || 0) + (itemN.salt_mg || 0);
-  }
-  return n;
-}
-
-function nutritionChip(label, value, unit) {
-  const v = value == null ? '—' : `${Math.round(value * 10) / 10}${unit}`;
-  return `<div class="macro-chip"><span class="macro-label">${label}</span><span class="macro-value">${v}</span></div>`;
-}
-
-function formatNutrient(value, unit) {
-  if (value == null) return '—';
-  const rounded = unit === 'mg' ? Math.round(value) : Math.round(value * 10) / 10;
-  return `${rounded}${unit}`;
 }
 
 function friendlyAnalysisError(message = '') {

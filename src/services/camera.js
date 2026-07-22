@@ -1,4 +1,5 @@
 import { Capacitor } from '@capacitor/core';
+import { compressDataUrl, IMAGE_MAX_DIMENSION, IMAGE_JPEG_QUALITY } from './image-compress.js';
 
 export function isNativeApp() {
   return Capacitor.isNativePlatform();
@@ -23,22 +24,17 @@ export async function captureMealPhoto() {
     }
 
     const photo = await Camera.getPhoto({
-      quality: 82,
+      quality: 90,
       allowEditing: false,
       resultType: CameraResultType.DataUrl,
       source: CameraSource.Camera,
       correctOrientation: true,
-      width: 1280,
     });
 
     if (!photo.dataUrl) return null;
 
     const mimeType = photo.format === 'png' ? 'image/png' : 'image/jpeg';
-    return {
-      dataUrl: photo.dataUrl,
-      base64: photo.dataUrl.split(',')[1],
-      mimeType,
-    };
+    return compressDataUrl(photo.dataUrl, mimeType, IMAGE_MAX_DIMENSION, IMAGE_JPEG_QUALITY);
   } catch (err) {
     if (err?.message === 'User cancelled photos app') return null;
     throw err;
@@ -50,19 +46,14 @@ export async function pickMealPhotoFromGallery() {
 
   const { Camera, CameraResultType, CameraSource } = await import('@capacitor/camera');
   const photo = await Camera.getPhoto({
-    quality: 82,
+    quality: 90,
     allowEditing: false,
     resultType: CameraResultType.DataUrl,
     source: CameraSource.Photos,
     correctOrientation: true,
-    width: 1280,
   });
 
   if (!photo.dataUrl) return null;
   const mimeType = photo.format === 'png' ? 'image/png' : 'image/jpeg';
-  return {
-    dataUrl: photo.dataUrl,
-    base64: photo.dataUrl.split(',')[1],
-    mimeType,
-  };
+  return compressDataUrl(photo.dataUrl, mimeType, IMAGE_MAX_DIMENSION, IMAGE_JPEG_QUALITY);
 }

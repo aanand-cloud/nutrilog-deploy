@@ -33,8 +33,8 @@ export function estimateDailyCalories({
   const tdee = Math.round(bmr * factor);
 
   let delta = 0;
-  if (weightGoal === 'lose') delta = -500;
-  if (weightGoal === 'gain') delta = 300;
+  if (weightGoal === 'lose') delta = -500; // ~0.5 kg / week
+  if (weightGoal === 'gain') delta = 275; // ~0.25 kg / week
 
   const target = Math.max(1200, Math.min(5000, tdee + delta));
   return { bmr, tdee, target, activity, weightGoal };

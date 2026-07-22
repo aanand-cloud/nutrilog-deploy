@@ -3,13 +3,14 @@ import { renderLog, isLogBusy } from './views/log.js';
 import { renderReports } from './views/reports.js';
 import { onAuthChange, getUser, isSupabaseConfigured } from './services/auth.js';
 import { fullSync } from './services/sync.js';
-import { verifyCheckoutSession, setPlan, startPlanCheckout, isPro, planLabel, syncTopUpFromCloud, syncScanStateFromProfile } from './services/subscription.js';
+import { verifyCheckoutSession, setPlan, isPro, planLabel, syncTopUpFromCloud, syncScanStateFromProfile } from './services/subscription.js';
 import { getMealsInRange, getMealsForDate, todayKey } from './services/storage.js';
 import { getCuisineTips } from './services/cuisine-tips.js';
 import { runPersonalisedNotificationCheck } from './services/notifications.js';
 import { getProfile, getGreeting } from './services/profile.js';
 import { openLegalModal } from './views/legal.js';
 import { openAuthModal } from './services/auth-modal.js';
+import { shouldShowOnboarding, openOnboardingWizard } from './services/onboarding-wizard.js';
 
 let currentView = 'today';
 let cachedProfile = null;
@@ -112,6 +113,9 @@ export function initApp() {
           onSignIn: openSignIn,
           profile,
         });
+        if (shouldShowOnboarding()) {
+          await openOnboardingWizard({ onComplete: () => refresh() });
+        }
       } else if (currentView === 'log') {
         renderLog(main, {
           onSaved: () => setView('today'),

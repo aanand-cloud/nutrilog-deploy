@@ -1,4 +1,5 @@
 /** Live in-app camera using getUserMedia (works on localhost & HTTPS). */
+import { compressDataUrl, IMAGE_MAX_DIMENSION, IMAGE_JPEG_QUALITY } from './image-compress.js';
 
 export function canUseWebCamera() {
   return Boolean(navigator.mediaDevices?.getUserMedia) && window.isSecureContext;
@@ -40,27 +41,22 @@ export function openWebCameraModal() {
       resolve(null);
     });
 
-    overlay.querySelector('#camCapture').addEventListener('click', () => {
+    overlay.querySelector('#camCapture').addEventListener('click', async () => {
       if (!video.videoWidth) return;
-      const maxW = 1280;
-      let w = video.videoWidth;
-      let h = video.videoHeight;
-      if (w > maxW) {
-        h = Math.round((h * maxW) / w);
-        w = maxW;
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const raw = canvas.toDataURL('image/jpeg', IMAGE_JPEG_QUALITY);
+        cleanup();
+        const compressed = await compressDataUrl(raw, 'image/jpeg', IMAGE_MAX_DIMENSION, IMAGE_JPEG_QUALITY);
+        resolve(compressed);
+      } catch (err) {
+        cleanup();
+        reject(err);
       }
-      const canvas = document.createElement('canvas');
-      canvas.width = w;
-      canvas.height = h;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, w, h);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-      cleanup();
-      resolve({
-        dataUrl,
-        base64: dataUrl.split(',')[1],
-        mimeType: 'image/jpeg',
-      });
     });
 
     navigator.mediaDevices

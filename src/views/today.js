@@ -33,6 +33,7 @@ import { PLANS, TOPUP_PACK, MAX_TOPUP_CARRY } from '../services/plans.js';
 import { getDiscountEligibility, getDiscountSections, validateWorkEmailForDiscount } from '../services/discount.js';
 import { validateAndRedeemVoucher } from '../services/voucher.js';
 import { activityOptions, estimateDailyCalories, suggestMacros } from '../services/calorie-wizard.js';
+import { openOnboardingWizard } from '../services/onboarding-wizard.js';
 import { exportUserDataJson, exportMealsCsv } from '../services/data-export.js';
 import { friendlyAuthError } from '../services/auth-errors.js';
 import { openLegalModal } from './legal.js';
@@ -67,6 +68,7 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
   const left = formatEnergyParts(calLeftKcal, prefs);
   const discount = getDiscountEligibility(profile || {}, profile?.email || '');
   const showDiscountHero = !isPro() && !discount.eligible;
+  const scanBudget = getScanBudget();
 
   const weekStart = new Date();
   weekStart.setDate(weekStart.getDate() - 6);
@@ -145,12 +147,12 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
       </section>
     ` : ''}
 
-    <section class="pro-banner">
+    <section class="pro-banner ${!scanBudget.allowed ? 'pro-banner--limit' : ''}">
       <div>
         <strong>${scansLabel()}</strong>
-        <p>${planLabel()} · resets ${getScanBudget().resetsOn}</p>
+        <p>${planLabel()} · resets ${scanBudget.resetsOn}${!scanBudget.allowed ? ' · AI photos paused until reset or upgrade' : ''}</p>
       </div>
-      ${getPlan() === 'free' ? `<button type="button" class="btn btn-primary btn-sm" id="todayUpgrade">Upgrade</button>` : ''}
+      ${getPlan() === 'free' ? `<button type="button" class="btn btn-primary btn-sm" id="todayUpgrade">${scanBudget.allowed ? 'Upgrade' : 'Get more scans'}</button>` : ''}
     </section>
 
     <section class="section">
@@ -291,6 +293,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
             <details class="settings-details calorie-wizard" id="calorieWizard">
               <summary>Personalise calorie target (estimate)</summary>
               <div class="settings-details-body">
+                <p class="fine-print">Prefer a guided flow? <button type="button" class="link-btn" id="runOnboardingWizard">Run 3-step setup wizard</button></p>
                 <p class="fine-print">Uses your age, weight, height and activity — wellness estimate only.</p>
                 <div class="wizard-grid">
                   <label class="field">
@@ -323,7 +326,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
                     <select id="wizGoal" class="settings-select full">
                       <option value="lose">Lose weight (~500 kcal below maintenance)</option>
                       <option value="maintain" selected>Maintain weight</option>
-                      <option value="gain">Gain weight (~300 kcal above maintenance)</option>
+                      <option value="gain">Gain weight (~275 kcal above maintenance)</option>
                     </select>
                   </label>
                 </div>
@@ -718,6 +721,10 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
     saveGoals(DEFAULT_GOALS);
     showToast?.('Goals reset to defaults');
     onSave();
+  });
+
+  root.querySelector('#runOnboardingWizard')?.addEventListener('click', async () => {
+    await openOnboardingWizard({ onComplete: () => onSave() });
   });
 
   root.querySelector('#applyCalorieEstimate')?.addEventListener('click', () => {

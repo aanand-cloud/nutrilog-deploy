@@ -1,5 +1,8 @@
 import { getSession, isSupabaseConfigured } from './auth.js';
 import { syncScanUsageFromServer, getLocalDayKey } from './subscription.js';
+import { compressImage, compressDataUrl } from './image-compress.js';
+
+export { compressImage, compressDataUrl };
 
 async function authPayload() {
   if (isSupabaseConfigured()) {
@@ -135,100 +138,6 @@ export function fileToBase64(file) {
       resolve({ base64, dataUrl, mimeType: file.type || 'image/jpeg' });
     };
     reader.onerror = () => reject(reader.error);
-  });
-}
-
-export async function compressImage(file, maxWidth = 1280, quality = 0.82) {
-  if (!file || file.size === 0) {
-    throw new Error('That file is empty — pick another photo');
-  }
-  if (file.size > 25 * 1024 * 1024) {
-    throw new Error('Photo is too large — try one under 25 MB');
-  }
-
-  let workingFile = file;
-  const name = (file.name || '').toLowerCase();
-  const isHeic =
-    file.type === 'image/heic' ||
-    file.type === 'image/heif' ||
-    name.endsWith('.heic') ||
-    name.endsWith('.heif');
-
-  if (isHeic) {
-    try {
-      const { default: heic2any } = await import('heic2any');
-      const converted = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.85 });
-      const blob = Array.isArray(converted) ? converted[0] : converted;
-      workingFile = new File([blob], name.replace(/\.heic$/i, '.jpg'), { type: 'image/jpeg' });
-    } catch (_) {
-      throw new Error('Could not read iPhone photo — try JPG or PNG instead');
-    }
-  }
-
-  try {
-    const img = await decodeImageFile(workingFile);
-    let { width, height } = img;
-    if (!width || !height) throw new Error('Could not read image dimensions');
-    if (width > maxWidth) {
-      height = Math.round((height * maxWidth) / width);
-      width = maxWidth;
-    }
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('Could not process photo');
-    ctx.drawImage(img, 0, 0, width, height);
-    const outMime = 'image/jpeg';
-    const compressed = canvas.toDataURL(outMime, quality);
-    if (compressed.length < 100) throw new Error('Photo export failed');
-    return {
-      dataUrl: compressed,
-      base64: compressed.split(',')[1],
-      mimeType: outMime,
-    };
-  } catch (_) {
-    const raw = await fileToBase64(workingFile);
-    if (!raw.base64 || raw.base64.length < 100) {
-      throw new Error('Could not read this photo — try JPG or PNG');
-    }
-    return {
-      ...raw,
-      mimeType: raw.mimeType?.startsWith('image/') ? raw.mimeType : 'image/jpeg',
-    };
-  }
-}
-
-async function decodeImageFile(file) {
-  if (typeof createImageBitmap === 'function') {
-    try {
-      const bitmap = await createImageBitmap(file);
-      const img = await bitmapToImage(bitmap);
-      bitmap.close?.();
-      return img;
-    } catch {
-      /* fall through */
-    }
-  }
-  const { dataUrl } = await fileToBase64(file);
-  return loadImage(dataUrl);
-}
-
-function bitmapToImage(bitmap) {
-  const canvas = document.createElement('canvas');
-  canvas.width = bitmap.width;
-  canvas.height = bitmap.height;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(bitmap, 0, 0);
-  return loadImage(canvas.toDataURL('image/jpeg', 0.92));
-}
-
-function loadImage(src) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.src = src;
   });
 }
 

@@ -22,6 +22,20 @@ export function saveGoals(goals) {
   localStorage.setItem(GOALS_KEY, JSON.stringify(goals));
 }
 
+export function isDefaultGoals(goals = getGoals()) {
+  return Object.keys(DEFAULT_GOALS).every((k) => goals[k] === DEFAULT_GOALS[k]);
+}
+
+const ONBOARDING_KEY = 'nutrilog_onboarding_done';
+
+export function hasCompletedOnboarding() {
+  return localStorage.getItem(ONBOARDING_KEY) === '1';
+}
+
+export function markOnboardingComplete() {
+  localStorage.setItem(ONBOARDING_KEY, '1');
+}
+
 export function getUnitPrefs() {
   try {
     const raw = localStorage.getItem('nutrilog_units');
