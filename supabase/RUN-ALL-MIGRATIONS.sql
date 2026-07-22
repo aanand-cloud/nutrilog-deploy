@@ -147,6 +147,9 @@ create trigger profiles_public_sector_discount
 alter table public.profiles
   add column if not exists discount_voucher_redeemed boolean not null default false;
 
+alter table public.profiles
+  add column if not exists trial_until timestamptz;
+
 -- ── 4. Checkout redemptions + scan tracking columns ──
 
 create table if not exists public.checkout_redemptions (
@@ -269,7 +272,8 @@ begin
       or new.scan_used is distinct from old.scan_used
       or new.scan_month is distinct from old.scan_month
       or new.stripe_customer_id is distinct from old.stripe_customer_id
-      or new.discount_voucher_redeemed is distinct from old.discount_voucher_redeemed then
+      or new.discount_voucher_redeemed is distinct from old.discount_voucher_redeemed
+      or new.trial_until is distinct from old.trial_until then
       raise exception 'Billing fields are managed by NutriLog checkout only';
     end if;
   end if;

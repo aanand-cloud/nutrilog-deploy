@@ -1,3 +1,5 @@
+import { expireTrialIfNeeded } from './trial-enforcement.mjs';
+
 const PLAN_MONTHLY = { daily10: 300, daily25: 750, pro: 750 };
 
 const FREE_DAILY = 1;
@@ -88,7 +90,7 @@ export async function checkScanAllowed(supabase, userId, clientLocalDay) {
 
   }
 
-
+  await expireTrialIfNeeded(supabase, userId);
 
   const { data: profile, error } = await supabase
 
@@ -207,6 +209,8 @@ export async function consumeMealScan(supabase, userId, clientLocalDay) {
   }
 
   const dk = resolveClientLocalDay(clientLocalDay);
+
+  await expireTrialIfNeeded(supabase, userId);
 
   const { data, error } = await supabase.rpc('consume_meal_scan', {
     p_user_id: userId,

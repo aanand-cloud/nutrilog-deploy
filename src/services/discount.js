@@ -1,8 +1,11 @@
+import { isTrialActive } from './trial.js';
+
 /**
  * Safe discount eligibility — no ID collection.
  * - Public sector: verified work email domain (or account email domain)
  * - 60+: self-declaration with consent checkbox
  * - Voucher: validated server-side only (stored on profile at checkout)
+ * - Trial codes: separate time-limited plan access (not a 30% discount)
  */
 
 const PUBLIC_SECTOR_SUFFIXES = [
@@ -70,6 +73,7 @@ export function getDiscountEligibility(profile = {}, accountEmail = '') {
 /** Break discount paths apart for settings UI (NHS, 60+, promo). */
 export function getDiscountSections(profile = {}, accountEmail = '') {
   const base = getDiscountEligibility(profile, accountEmail);
+  const trialActive = isTrialActive(profile);
   return {
     ...base,
     publicSector: {
@@ -85,10 +89,11 @@ export function getDiscountSections(profile = {}, accountEmail = '') {
       cta: base.senior ? 'Discount active' : 'Confirm eligibility',
     },
     voucher: {
-      active: base.voucher,
+      active: base.voucher || trialActive,
+      trialActive,
       title: 'Promo code',
-      blurb: 'Limited-time offers and campaigns — separate from NHS and senior discounts.',
-      cta: base.voucher ? 'Code applied' : 'Enter promo code',
+      blurb: '30% off codes or free trial codes (e.g. TRIAL7 for 7-day Standard) — separate from NHS and senior discounts.',
+      cta: trialActive ? 'Trial active' : base.voucher ? 'Code applied' : 'Enter promo code',
     },
   };
 }

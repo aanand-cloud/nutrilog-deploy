@@ -31,7 +31,7 @@ export async function getProfile() {
     };
   }
 
-  const coreSelect = 'display_name, plan, goals, unit_prefs, topup_balance, scan_month, scan_used';
+  const coreSelect = 'display_name, plan, goals, unit_prefs, topup_balance, scan_month, scan_used, trial_until';
   const fullSelect = `${coreSelect}, discount_senior, discount_work_email, discount_public_sector, discount_voucher_redeemed`;
 
   let { data, error } = await sb
@@ -71,6 +71,7 @@ export async function getProfile() {
       topup_balance: 0,
       scan_month: null,
       scan_used: 0,
+      trial_until: null,
     };
   }
 
@@ -96,6 +97,7 @@ export async function getProfile() {
     topup_balance: data?.topup_balance ?? 0,
     scan_month: data?.scan_month ?? null,
     scan_used: data?.scan_used ?? 0,
+    trial_until: data?.trial_until ?? null,
   };
 }
 

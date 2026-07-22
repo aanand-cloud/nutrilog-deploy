@@ -1,5 +1,7 @@
 const VOUCHER_KEY = 'nutrilog_voucher_redeemed';
 
+import { getSession } from './auth.js';
+
 export function isVoucherRedeemedLocally() {
   return localStorage.getItem(VOUCHER_KEY) === '1';
 }
@@ -7,8 +9,6 @@ export function isVoucherRedeemedLocally() {
 export function markVoucherRedeemedLocally() {
   localStorage.setItem(VOUCHER_KEY, '1');
 }
-
-import { getSession } from './auth.js';
 
 export async function validateAndRedeemVoucher(code) {
   const session = await getSession();
@@ -28,6 +28,8 @@ export async function validateAndRedeemVoucher(code) {
   if (!res.ok) {
     throw new Error(data.error || 'Invalid voucher code');
   }
-  markVoucherRedeemedLocally();
+  if (data.type !== 'trial') {
+    markVoucherRedeemedLocally();
+  }
   return data;
 }

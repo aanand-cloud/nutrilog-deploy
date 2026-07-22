@@ -183,7 +183,12 @@ export function syncScanUsageFromServer(usage) {
 /** Mirror cloud profile scan counters into local UI state. */
 export function syncScanStateFromProfile(profile) {
   if (!profile) return;
-  if (profile.plan) setPlan(profile.plan === 'pro' ? 'daily25' : profile.plan);
+
+  let plan = profile.plan;
+  if (profile.trial_until && new Date(profile.trial_until) <= new Date()) {
+    plan = 'free';
+  }
+  if (plan) setPlan(plan === 'pro' ? 'daily25' : plan);
   if (profile.topup_balance != null) syncTopUpFromCloud(profile.topup_balance);
 
   const used = Number(profile.scan_used) || 0;

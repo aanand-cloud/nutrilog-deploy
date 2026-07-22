@@ -32,6 +32,7 @@ import {
 import { PLANS, TOPUP_PACK, MAX_TOPUP_CARRY } from '../services/plans.js';
 import { getDiscountEligibility, getDiscountSections, validateWorkEmailForDiscount } from '../services/discount.js';
 import { validateAndRedeemVoucher } from '../services/voucher.js';
+import { isTrialActive, trialPlanLabel, formatTrialUntil } from '../services/trial.js';
 import { activityOptions, estimateDailyCalories, suggestMacros } from '../services/calorie-wizard.js';
 import { openOnboardingWizard } from '../services/onboarding-wizard.js';
 import { exportUserDataJson, exportMealsCsv } from '../services/data-export.js';
@@ -266,6 +267,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
 
   const discount = getDiscountEligibility(profile, profile.email || user?.email || '');
   const discountSections = getDiscountSections(profile, profile.email || user?.email || '');
+  const trialActive = isTrialActive(profile);
   const currentPlan = getPlan();
   const initials = (displayName || user?.email || '?').charAt(0).toUpperCase();
   const showPasswordReset =
@@ -450,7 +452,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
         <section class="settings-panel card ${currentPlan !== 'free' ? 'muted-card' : 'pro-card'}" data-panel="plans" ${panelHidden('plans', activeSettingsTab)}>
           <div class="settings-panel-head">
             <h3 class="settings-panel-title">Meal log plans</h3>
-            <span class="settings-badge">${currentPlan === 'free' ? 'Free · 1/day' : planLabel()}</span>
+            <span class="settings-badge">${trialActive ? `${planLabel()} trial` : currentPlan === 'free' ? 'Free · 1/day' : planLabel()}</span>
           </div>
           ${currentPlan === 'free' ? `
             <p class="card-desc">Free includes <strong>1 AI meal log per day</strong>, resetting at midnight (12am) on your phone. Paid plans use a flexible monthly allowance.</p>
@@ -513,13 +515,17 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
           </div>
 
           ${profile.loggedIn ? `
-            <div class="manage-sub-card manage-sub-card--billing ${currentPlan === 'free' ? 'manage-sub-card--free' : 'manage-sub-card--active'}">
+            <div class="manage-sub-card manage-sub-card--billing ${trialActive ? 'manage-sub-card--active' : currentPlan === 'free' ? 'manage-sub-card--free' : 'manage-sub-card--active'}">
               <div class="manage-sub-card-head">
                 <div class="billing-status-row">
                   <h4>Billing &amp; subscription</h4>
-                  <span class="billing-status-pill ${currentPlan === 'free' ? 'billing-status-pill--free' : 'billing-status-pill--active'}">${currentPlan === 'free' ? 'Free plan' : planLabel()}</span>
+                  <span class="billing-status-pill ${trialActive ? 'billing-status-pill--active' : currentPlan === 'free' ? 'billing-status-pill--free' : 'billing-status-pill--active'}">${trialActive ? 'Free trial' : currentPlan === 'free' ? 'Free plan' : planLabel()}</span>
                 </div>
-                ${currentPlan === 'free' ? `
+                ${trialActive ? `
+                  <p class="billing-status-summary">Free trial active</p>
+                  <p>You're on a complimentary ${planLabel()} trial until ${formatTrialUntil(profile.trial_until)} — no card required. Subscribe above before it ends to keep your monthly allowance.</p>
+                  <p class="fine-print">When the trial ends, you'll return to the free plan (1 meal log per day) unless you subscribe.</p>
+                ` : currentPlan === 'free' ? `
                   <p class="billing-status-summary">No active subscription</p>
                   <p>You're on the free tier — 1 AI meal log per day. Subscribe to Standard or Plus above and this section becomes your billing hub: update payment, switch plan, or cancel anytime through Stripe's secure portal.</p>
                   <p class="fine-print">If you cancel a paid plan, you keep access until the end of your billing period, then return to the free plan automatically.</p>
@@ -602,13 +608,15 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
                 ${discountSections.voucher.active ? '<span class="discount-card__badge">Applied</span>' : ''}
               </div>
               <p class="fine-print">${discountSections.voucher.blurb}</p>
-              ${discountSections.voucher.active ? `
+              ${discountSections.voucher.trialActive ? `
+                <p class="settings-discount-banner">✓ ${escapeHtml(trialPlanLabel(profile))} — no card required</p>
+              ` : discountSections.voucher.active ? `
                 <p class="settings-discount-banner">✓ Promo code applied — 30% off (valid 1 year)</p>
               ` : `
                 <form id="voucherForm" class="auth-form voucher-form settings-form-compact">
                   <label class="field full">
                     <span>Promo code</span>
-                    <input type="text" name="code" placeholder="NUTRIPROMO" autocapitalize="characters" autocomplete="off" required/>
+                    <input type="text" name="code" placeholder="NUTRIPROMO or TRIAL7" autocapitalize="characters" autocomplete="off" required/>
                   </label>
                   <button type="submit" class="btn btn-primary full">Apply promo code</button>
                 </form>
@@ -1039,9 +1047,14 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
     e.preventDefault();
     const code = new FormData(e.target).get('code');
     try {
-      await validateAndRedeemVoucher(code);
-      await saveVoucherRedemption();
-      showToast?.('Promo code applied — 30% off');
+      const result = await validateAndRedeemVoucher(code);
+      if (result.type === 'trial') {
+        if (result.trialPlan) setPlan(result.trialPlan);
+        showToast?.(result.label ? `${result.label} started` : 'Free trial started');
+      } else {
+        await saveVoucherRedemption();
+        showToast?.('Promo code applied — 30% off');
+      }
       onSave();
     } catch (err) {
       showToast?.(err.message || 'Invalid promo code');
