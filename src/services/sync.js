@@ -1,5 +1,6 @@
 import { getSupabase, getUser } from './auth.js';
 import { getGoals, getUnitPrefs, saveGoals, saveUnitPrefs } from './goals.js';
+import { fetchProfileRow } from './profile-select.js';
 import * as local from './storage.js';
 
 const BUCKET = 'meal-photos';
@@ -94,7 +95,7 @@ export async function pullGoalsFromCloud() {
   const user = await getUser();
   if (!sb || !user) return;
 
-  const { data, error } = await sb.from('profiles').select('display_name, goals, unit_prefs, plan, topup_balance, scan_month, scan_used, trial_until').eq('id', user.id).maybeSingle();
+  const { data, error } = await fetchProfileRow(sb, user.id);
   if (error) throw error;
   if (data?.goals) saveGoals(data.goals);
   if (data?.unit_prefs) saveUnitPrefs(data.unit_prefs);

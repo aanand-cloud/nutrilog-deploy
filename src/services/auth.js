@@ -6,13 +6,25 @@ const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 let client = null;
 const listeners = new Set();
 
+function normalizeEmail(email) {
+  return String(email || '').trim().toLowerCase();
+}
+
 export function isSupabaseConfigured() {
   return Boolean(url && anonKey);
 }
 
 export function getSupabase() {
   if (!isSupabaseConfigured()) return null;
-  if (!client) client = createClient(url, anonKey);
+  if (!client) {
+    client = createClient(url, anonKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+      },
+    });
+  }
   return client;
 }
 
@@ -44,7 +56,7 @@ export function onAuthChange(cb) {
 export async function signUp(email, password, displayName = '') {
   const sb = getSupabase();
   if (!sb) throw new Error('Cloud sync not configured');
-  const trimmedEmail = String(email || '').trim();
+  const trimmedEmail = normalizeEmail(email);
   const trimmedPassword = String(password || '');
   if (!trimmedEmail || !trimmedPassword) throw new Error('Enter email and password');
   if (trimmedPassword.length < 6) throw new Error('Password must be at least 6 characters');
@@ -54,6 +66,7 @@ export async function signUp(email, password, displayName = '') {
     password: trimmedPassword,
     options: {
       data: { display_name: String(displayName || '').trim() },
+      emailRedirectTo: `${window.location.origin}/?view=today`,
     },
   });
   if (error) throw error;
@@ -63,8 +76,18 @@ export async function signUp(email, password, displayName = '') {
 export async function signIn(email, password) {
   const sb = getSupabase();
   if (!sb) throw new Error('Cloud sync not configured');
-  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  const trimmedEmail = normalizeEmail(email);
+  const trimmedPassword = String(password || '');
+  if (!trimmedEmail || !trimmedPassword) throw new Error('Enter email and password');
+
+  const { data, error } = await sb.auth.signInWithPassword({
+    email: trimmedEmail,
+    password: trimmedPassword,
+  });
   if (error) throw error;
+  if (!data.session) {
+    throw new Error('Sign in did not complete — please try again');
+  }
   return data;
 }
 
@@ -77,7 +100,7 @@ export async function signOut() {
 export async function resetPassword(email) {
   const sb = getSupabase();
   if (!sb) throw new Error('Cloud sync not configured');
-  const trimmed = String(email || '').trim();
+  const trimmed = normalizeEmail(email);
   if (!trimmed) throw new Error('Enter your email address first');
   const { error } = await sb.auth.resetPasswordForEmail(trimmed, {
     redirectTo: `${window.location.origin}/?view=settings&reset=1`,
@@ -88,7 +111,7 @@ export async function resetPassword(email) {
 export async function resendConfirmationEmail(email) {
   const sb = getSupabase();
   if (!sb) throw new Error('Cloud sync not configured');
-  const trimmed = String(email || '').trim();
+  const trimmed = normalizeEmail(email);
   if (!trimmed) throw new Error('Enter your email address first');
   const { error } = await sb.auth.resend({ type: 'signup', email: trimmed });
   if (error) throw error;

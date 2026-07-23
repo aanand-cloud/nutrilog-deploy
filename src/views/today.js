@@ -3,7 +3,8 @@ import { getMealsForDate, getMealsInRange, sumNutrition, deleteMeal, todayKey, c
 import { openMealEditorModal } from '../services/meal-editor.js';
 import { topWeeklyInsight, weekReport } from '../services/reports.js';
 import { getUser, signIn, signUp, signOut, resetPassword, resendConfirmationEmail, updatePassword, isSupabaseConfigured } from '../services/auth.js';
-import { getProfile, saveDisplayName, ensureUserProfile, saveLocalDisplayName, saveDiscountPrefs, saveVoucherRedemption } from '../services/profile.js';
+import { getProfile, saveDisplayName, saveLocalDisplayName, getLocalDisplayName, saveDiscountPrefs, saveVoucherRedemption } from '../services/profile.js';
+import { finalizeAuthSession } from '../services/auth-session.js';
 import { fullSync } from '../services/sync.js';
 import { getCuisineTips } from '../services/cuisine-tips.js';
 import { buildWeeklyPushMessage, buildDailyPushMessage } from '../services/push-messages.js';
@@ -420,7 +421,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
             <form id="authForm" class="auth-form settings-form-compact" novalidate>
               <label class="field full">
                 <span>First name</span>
-                <input type="text" name="display_name" id="authFirstName" required maxlength="40" autocomplete="given-name" placeholder="e.g. Sarah" value="${escapeHtml(displayName)}"/>
+                <input type="text" name="display_name" id="authFirstName" maxlength="40" autocomplete="given-name" placeholder="e.g. Sarah" value="${escapeHtml(displayName)}"/>
               </label>
               <label class="field full">
                 <span>Email</span>
@@ -819,21 +820,24 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
   }
 
   async function finishSignedIn(firstName) {
-    await ensureUserProfile(firstName);
-    try {
-      const result = await fullSync();
-      if (result.plan) setPlan(result.plan);
-      const name = firstName || profile.displayName || '';
-      showToast?.(name ? `Welcome, ${name}!` : 'Signed in');
-      onSave();
-    } catch (syncErr) {
-      setAuthStatus('Signed in — sync will retry when you tap Sync now.', { tone: 'success' });
-      showToast?.('Signed in — tap Sync now in Account');
-      onSave();
+    const result = await finalizeAuthSession(firstName);
+    if (!result.ok) {
+      throw new Error('Sign in did not complete — please try again');
     }
+    const name = firstName || profile.displayName || getLocalDisplayName();
+    if (result.syncFailed) {
+      setAuthStatus('Signed in — your data will sync shortly.', { tone: 'success' });
+      showToast?.('Signed in — your data will sync shortly');
+    } else {
+      showToast?.(name ? `Welcome, ${name}!` : 'Signed in');
+    }
+    onSave();
   }
 
-  root.querySelector('#authForm')?.addEventListener('submit', (e) => e.preventDefault());
+  root.querySelector('#authForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    root.querySelector('#signInBtn')?.click();
+  });
 
   root.querySelector('#signInBtn')?.addEventListener('click', async () => {
     const { firstName, email, password } = readAuthForm() || {};

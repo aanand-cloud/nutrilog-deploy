@@ -1,6 +1,7 @@
 import { getSupabase, getUser } from './auth.js';
 import { isPublicSectorEmail } from './discount.js';
 import { markVoucherRedeemedLocally } from './voucher.js';
+import { fetchProfileRow } from './profile-select.js';
 
 const LOCAL_NAME_KEY = 'nutrilog_display_name';
 
@@ -31,23 +32,7 @@ export async function getProfile() {
     };
   }
 
-  const coreSelect = 'display_name, plan, goals, unit_prefs, topup_balance, scan_month, scan_used, trial_until';
-  const fullSelect = `${coreSelect}, discount_senior, discount_work_email, discount_public_sector, discount_voucher_redeemed`;
-
-  let { data, error } = await sb
-    .from('profiles')
-    .select(fullSelect)
-    .eq('id', user.id)
-    .maybeSingle();
-
-  // Older Supabase projects may be missing discount columns — fall back gracefully.
-  if (error?.code === '42703') {
-    ({ data, error } = await sb
-      .from('profiles')
-      .select(coreSelect)
-      .eq('id', user.id)
-      .maybeSingle());
-  }
+  const { data, error } = await fetchProfileRow(sb, user.id);
 
   if (error && error.code !== 'PGRST116') throw error;
 

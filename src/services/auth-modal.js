@@ -5,9 +5,8 @@ import {
   resendConfirmationEmail,
   isSupabaseConfigured,
 } from './auth.js';
-import { ensureUserProfile, saveLocalDisplayName } from './profile.js';
-import { fullSync } from './sync.js';
-import { setPlan } from './subscription.js';
+import { saveLocalDisplayName, getLocalDisplayName } from './profile.js';
+import { finalizeAuthSession } from './auth-session.js';
 import { friendlyAuthError } from './auth-errors.js';
 
 /**
@@ -62,7 +61,7 @@ export function openAuthModal({ mode = 'signup', showToast, onSuccess } = {}) {
               <input type="password" name="password" id="authModalPassword" required minlength="6" autocomplete="${isSignup ? 'new-password' : 'current-password'}" placeholder="At least 6 characters"/>
             </label>
             <p class="auth-status" id="authModalStatus" hidden role="status"></p>
-            <button type="button" class="btn btn-primary full" id="authModalPrimary">${isSignup ? 'Create free account' : 'Sign in'}</button>
+            <button type="submit" class="btn btn-primary full" id="authModalPrimary">${isSignup ? 'Create free account' : 'Sign in'}</button>
             <button type="button" class="btn btn-ghost full auth-modal__switch" id="authModalSwitch">
               ${isSignup ? 'Already have an account? Sign in' : 'New here? Create a free account'}
             </button>
@@ -78,8 +77,8 @@ export function openAuthModal({ mode = 'signup', showToast, onSuccess } = {}) {
         currentMode = isSignup ? 'signin' : 'signup';
         renderPanel();
       });
-      overlay.querySelector('#authModalForm')?.addEventListener('submit', (e) => e.preventDefault());
-      overlay.querySelector('#authModalPrimary')?.addEventListener('click', () => {
+      overlay.querySelector('#authModalForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
         if (currentMode === 'signup') submitSignup();
         else submitSignIn();
       });
@@ -122,14 +121,18 @@ export function openAuthModal({ mode = 'signup', showToast, onSuccess } = {}) {
     }
 
     async function afterAuth(firstName) {
-      await ensureUserProfile(firstName);
-      try {
-        const result = await fullSync();
-        if (result.plan) setPlan(result.plan);
-        showToast?.(firstName ? `Welcome, ${firstName}!` : 'Signed in');
-      } catch (_) {
-        showToast?.('Signed in — open Settings → Account to sync if needed');
+      const result = await finalizeAuthSession(firstName);
+      if (!result.ok) {
+        throw new Error('Sign in did not complete — please try again');
       }
+      const welcomeName = firstName || getLocalDisplayName();
+      showToast?.(
+        result.syncFailed
+          ? 'Signed in — your data will sync shortly'
+          : welcomeName
+            ? `Welcome, ${welcomeName}!`
+            : 'Signed in'
+      );
       onSuccess?.();
       finish(true);
     }

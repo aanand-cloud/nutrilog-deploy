@@ -7,7 +7,7 @@ import { verifyCheckoutSession, setPlan, isPro, planLabel, syncTopUpFromCloud, s
 import { getMealsInRange, getMealsForDate, todayKey } from './services/storage.js';
 import { getCuisineTips } from './services/cuisine-tips.js';
 import { runPersonalisedNotificationCheck } from './services/notifications.js';
-import { getProfile, getGreeting } from './services/profile.js';
+import { getProfile, getGreeting, getLocalDisplayName } from './services/profile.js';
 import { openLegalModal } from './views/legal.js';
 import { openAuthModal } from './services/auth-modal.js';
 import { shouldShowOnboarding, openOnboardingWizard } from './services/onboarding-wizard.js';
@@ -25,7 +25,14 @@ export function initApp() {
     try {
       cachedProfile = await getProfile();
     } catch (_) {
-      cachedProfile = { displayName: '', loggedIn: false };
+      const user = await getUser();
+      cachedProfile = user
+        ? {
+            loggedIn: true,
+            displayName: getLocalDisplayName() || user.email?.split('@')[0] || '',
+            email: user.email,
+          }
+        : { displayName: '', loggedIn: false };
     }
 
     headerGreeting.textContent = getGreeting(cachedProfile.displayName);
@@ -158,7 +165,7 @@ export function initApp() {
         if (result.plan) setPlan(result.plan);
       } catch (_) {}
     }
-    if (currentView === 'settings' || currentView === 'today') refresh();
+    refresh();
   });
 
   const initParams = new URLSearchParams(window.location.search);

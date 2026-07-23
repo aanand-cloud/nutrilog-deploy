@@ -13,10 +13,10 @@ export function friendlyAuthError(message = '') {
   if (/Invalid login credentials/i.test(msg)) {
     return 'Wrong email or password — double-check and try again';
   }
-  if (/42703|discount_senior|schema cache/i.test(msg)) {
+  if (/42703|trial_until|discount_senior|schema cache/i.test(msg)) {
     return import.meta.env.DEV
-      ? 'Database needs an update — run supabase/migration-fix-missing-columns.sql in Supabase SQL Editor'
-      : 'Account setup incomplete — please try again in a few minutes';
+      ? 'Database needs an update — run supabase/migration-trial-vouchers.sql in Supabase SQL Editor'
+      : 'Account setup is still completing — please try signing in again in a moment';
   }
   return msg || 'Something went wrong';
 }
