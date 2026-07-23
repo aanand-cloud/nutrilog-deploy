@@ -2,6 +2,7 @@ import Stripe from 'stripe';
 import { isDevEnvironment } from '../lib/is-dev.mjs';
 import { requireUserAuth } from '../lib/verify-auth.mjs';
 import { jsonResponse, optionsResponse, resolveRedirectOrigin } from '../lib/http-utils.mjs';
+import { reportServerError } from '../lib/sentry.mjs';
 
 const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' })
@@ -76,7 +77,7 @@ export default async (req) => {
 
     return jsonResponse({ url: session.url }, 200, req);
   } catch (err) {
-    console.error('create-billing-portal error', err);
+    await reportServerError(err, { function: 'create-billing-portal' });
     return jsonResponse({ error: err.message || 'Could not open billing portal' }, 500, req);
   }
 };

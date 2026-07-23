@@ -1,5 +1,6 @@
 /** Bridge Vercel Node req/res ↔ Web Request/Response used by NutriLog handlers. */
 
+import { reportServerError } from '../netlify/lib/sentry.mjs';
 function readRawBody(req) {
   return new Promise((resolve, reject) => {
     const chunks = [];
@@ -57,7 +58,11 @@ export function createApiRoute(handler, options = {}) {
     try {
       await runHandler(handler, req, res, options);
     } catch (err) {
-      console.error('API route error', err);
+      await reportServerError(err, {
+        logMessage: 'API route error',
+        route: req.url,
+        function: 'api-route',
+      });
       if (!res.headersSent) {
         res.status(500).json({ error: err.message || 'Server error' });
       }

@@ -1,6 +1,7 @@
 import { generateCuisineTips } from '../lib/cuisine-tips-core.mjs';
 import { verifyAccessToken, requireAuthInProduction, getAccessToken } from '../lib/verify-auth.mjs';
 import { jsonResponse, optionsResponse } from '../lib/http-utils.mjs';
+import { reportServerError } from '../lib/sentry.mjs';
 
 export default async (req) => {
   if (req.method === 'OPTIONS') {
@@ -33,7 +34,7 @@ export default async (req) => {
     const parsed = await generateCuisineTips(apiKey, body);
     return jsonResponse(parsed, 200, req);
   } catch (err) {
-    console.error(err);
+    await reportServerError(err, { function: 'cuisine-tips' });
     return jsonResponse({ error: err.message || 'Failed to generate tips' }, 502, req);
   }
 };

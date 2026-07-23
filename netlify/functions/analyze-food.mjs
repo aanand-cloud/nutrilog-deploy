@@ -9,6 +9,7 @@ import {
 import { isDevEnvironment } from '../lib/is-dev.mjs';
 import { getSupabaseAdmin, getAccessToken, verifyAccessToken } from '../lib/verify-auth.mjs';
 import { corsHeaders, jsonResponse, optionsResponse } from '../lib/http-utils.mjs';
+import { reportServerError } from '../lib/sentry.mjs';
 
 const MAX_IMAGE_CHARS = 6_000_000;
 
@@ -99,7 +100,7 @@ export default async (req) => {
 
     return jsonResponse({ analysis, usage }, 200, req);
   } catch (e) {
-    console.error(e);
+    await reportServerError(e, { function: 'analyze-food' });
     return jsonResponse({ error: e.message || 'Server error during analysis' }, 502, req);
   }
 };

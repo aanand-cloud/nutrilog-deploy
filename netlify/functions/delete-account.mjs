@@ -1,6 +1,7 @@
 import Stripe from 'stripe';
 import { requireUserAuth } from '../lib/verify-auth.mjs';
 import { jsonResponse, optionsResponse } from '../lib/http-utils.mjs';
+import { reportServerError } from '../lib/sentry.mjs';
 
 const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' })
@@ -100,7 +101,7 @@ export default async (req) => {
       subscriptionsCancelled: stripeResult.cancelled,
     }, 200, req);
   } catch (err) {
-    console.error('delete-account error', err);
+    await reportServerError(err, { function: 'delete-account' });
     return jsonResponse({ error: err.message || 'Account deletion failed' }, 500, req);
   }
 };

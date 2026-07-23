@@ -5,6 +5,7 @@ import { applyTopUpToProfile } from '../lib/scan-enforcement.mjs';
 import { requireUserAuth } from '../lib/verify-auth.mjs';
 import { getSupabaseAdmin } from '../lib/supabase-admin.mjs';
 import { jsonResponse, optionsResponse } from '../lib/http-utils.mjs';
+import { reportServerError } from '../lib/sentry.mjs';
 
 const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' })
@@ -124,7 +125,7 @@ export default async (req) => {
       req
     );
   } catch (err) {
-    console.error('verify-subscription error', err);
+    await reportServerError(err, { function: 'verify-subscription' });
     return jsonResponse({ error: err.message || 'Verification failed' }, 500, req);
   }
 };

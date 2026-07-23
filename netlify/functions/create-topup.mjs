@@ -3,6 +3,7 @@ import { isDevEnvironment } from '../lib/is-dev.mjs';
 import { resolveDiscountEligible } from '../lib/discount-server.mjs';
 import { requireUserAuth } from '../lib/verify-auth.mjs';
 import { jsonResponse, optionsResponse, resolveRedirectOrigin } from '../lib/http-utils.mjs';
+import { reportServerError } from '../lib/sentry.mjs';
 
 const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' })
@@ -65,7 +66,7 @@ export default async (req) => {
 
     return jsonResponse({ url: session.url, sessionId: session.id, discountApplied: useDiscount }, 200, req);
   } catch (err) {
-    console.error('create-topup error', err);
+    await reportServerError(err, { function: 'create-topup' });
     return jsonResponse({ error: err.message || 'Checkout failed' }, 500, req);
   }
 };

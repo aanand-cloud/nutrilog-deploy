@@ -2,6 +2,7 @@ import Stripe from 'stripe';
 import { getSupabaseAdmin } from '../lib/supabase-admin.mjs';
 import { redeemCheckoutSession } from '../lib/redeem-checkout.mjs';
 import { applyTopUpToProfile } from '../lib/scan-enforcement.mjs';
+import { reportServerError } from '../lib/sentry.mjs';
 
 const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' })
@@ -33,7 +34,11 @@ export default async (req) => {
     const raw = await req.text();
     event = stripe.webhooks.constructEvent(raw, sig, secret);
   } catch (err) {
-    console.error('Webhook signature error', err.message);
+    await reportServerError(err, {
+      function: 'stripe-webhook',
+      logMessage: 'Webhook signature error',
+      tags: { stage: 'signature' },
+    });
     return new Response(`Webhook Error: ${err.message}`, { status: 400 });
   }
 
@@ -114,7 +119,11 @@ export default async (req) => {
       }
     }
   } catch (err) {
-    console.error('Webhook handler error', err);
+    await reportServerError(err, {
+      function: 'stripe-webhook',
+      logMessage: 'Webhook handler error',
+      tags: { stage: 'handler' },
+    });
     return new Response('Handler failed', { status: 500 });
   }
 

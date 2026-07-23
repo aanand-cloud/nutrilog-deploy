@@ -2,6 +2,7 @@ import { validateVoucherCode } from '../lib/voucher.mjs';
 import { isTrialActive } from '../lib/trial-enforcement.mjs';
 import { verifyAccessToken, requireAuthInProduction, getAccessToken } from '../lib/verify-auth.mjs';
 import { jsonResponse, optionsResponse } from '../lib/http-utils.mjs';
+import { reportServerError } from '../lib/sentry.mjs';
 
 export default async (req) => {
   if (req.method === 'OPTIONS') {
@@ -62,7 +63,10 @@ export default async (req) => {
         .eq('id', auth.userId);
 
       if (error) {
-        console.error('trial voucher profile update failed', error);
+        await reportServerError(error, {
+          function: 'validate-voucher',
+          logMessage: 'trial voucher profile update failed',
+        });
         return jsonResponse({ error: 'Could not start trial — contact support if this persists' }, 500, req);
       }
 
@@ -86,7 +90,10 @@ export default async (req) => {
       .eq('id', auth.userId);
 
     if (error) {
-      console.error('voucher profile update failed', error);
+      await reportServerError(error, {
+        function: 'validate-voucher',
+        logMessage: 'voucher profile update failed',
+      });
       return jsonResponse({ error: 'Could not save voucher to your account' }, 500, req);
     }
   }
