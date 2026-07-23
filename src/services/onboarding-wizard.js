@@ -1,5 +1,6 @@
 import { saveGoals, DEFAULT_GOALS, hasCompletedOnboarding, markOnboardingComplete, isDefaultGoals, getGoals } from './goals.js';
 import { estimateDailyCalories, suggestMacros } from './calorie-wizard.js';
+import { DISCLAIMERS } from './disclaimers.js';
 
 const PROFILE_KEY = 'nutrilog_wizard_profile';
 
@@ -166,7 +167,7 @@ export function openOnboardingWizard({ onComplete } = {}) {
           <div class="onboarding-preview">
             <p><strong>Your estimated targets</strong></p>
             <p>${preview.calories_kcal} kcal/day · P ${preview.protein_g}g · C ${preview.carbs_g}g · F ${preview.fat_g}g</p>
-            <p class="fine-print">Maintenance ~${preview.tdee} kcal — wellness estimate, not medical advice.${preview.approximate ? ' Add height/weight in step 1 for a more personalised result.' : ''}</p>
+            <p class="fine-print health-disclaimer">Maintenance ~${preview.tdee} kcal — ${DISCLAIMERS.wellnessTargets}${preview.approximate ? ' Add height/weight in step 1 for a more personalised result.' : ''}</p>
           </div>
         ` : ''}
       `;

@@ -1,6 +1,7 @@
 import { saveMeal } from './storage.js';
 import { MEAL_TYPES, defaultMealType } from './meal-types.js';
 import { getUnitPrefs } from './goals.js';
+import { DISCLAIMERS } from './disclaimers.js';
 
 /** Edit an existing saved meal or review fields before first save. */
 export function openMealEditorModal(meal, { title = 'Edit meal' } = {}) {
@@ -58,7 +59,7 @@ export function openMealEditorModal(meal, { title = 'Edit meal' } = {}) {
             <span>Salt (mg)</span>
             <input type="number" name="salt_mg" min="0" step="1" value="${n.salt_mg ?? ''}"/>
           </label>
-          <p class="fine-print">Edited values are estimates — check packaging if unsure.</p>
+          <p class="fine-print health-disclaimer">${DISCLAIMERS.nutritionEstimate}</p>
           <div class="camera-modal__actions full">
             <button type="button" class="btn btn-ghost" id="mealEditorCancel">Cancel</button>
             <button type="submit" class="btn btn-primary">Save changes</button>

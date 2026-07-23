@@ -39,6 +39,7 @@ import { openOnboardingWizard } from '../services/onboarding-wizard.js';
 import { exportUserDataJson, exportMealsCsv } from '../services/data-export.js';
 import { friendlyAuthError } from '../services/auth-errors.js';
 import { openLegalModal } from './legal.js';
+import { DISCLAIMERS, disclaimerBlock } from '../services/disclaimers.js';
 
 const wizardActivities = activityOptions();
 let activeSettingsTab = 'targets';
@@ -126,6 +127,7 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
         ${macroChip('Carbs', totals.carbs_g, goals.carbs_g, 'g')}
         ${macroChip('Fat', totals.fat_g, goals.fat_g, 'g')}
       </div>
+      ${disclaimerBlock(DISCLAIMERS.nutritionEstimate, 'fine-print health-disclaimer health-disclaimer--inline')}
     </section>
 
     ${weeklyTip ? `
@@ -134,6 +136,7 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
         <p>${escapeHtml(weeklyTip.message)}</p>
         ${weeklyTip.daysUnderTarget ? `<p class="insight-meta">${weeklyTip.daysUnderTarget} day(s) below target</p>` : ''}
         <button type="button" class="btn btn-ghost btn-sm" id="viewReportsBtn">View full report →</button>
+        ${disclaimerBlock(DISCLAIMERS.goalInsights, 'fine-print health-disclaimer health-disclaimer--inline')}
       </section>
     ` : ''}
 
@@ -146,6 +149,7 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
           <p>${escapeHtml(cuisine.tips[0].body)}</p>
         </article>
         ${cuisine.tips.length > 1 ? `<button type="button" class="btn btn-ghost btn-sm full" id="moreTipsBtn">More tips in Reports →</button>` : ''}
+        ${disclaimerBlock(DISCLAIMERS.aiCoach, 'fine-print health-disclaimer health-disclaimer--inline')}
       </section>
     ` : ''}
 
@@ -291,13 +295,13 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
       <div class="settings-panels">
         <section class="settings-panel card" data-panel="targets" ${panelHidden('targets', activeSettingsTab)}>
           <form id="goalsForm">
-            <p class="card-desc fine-print">Default targets are starting points only — adjust for your needs or ask a health professional.</p>
+            <p class="card-desc fine-print">${DISCLAIMERS.wellnessTargets}</p>
 
             <details class="settings-details calorie-wizard" id="calorieWizard">
               <summary>Personalise calorie target (estimate)</summary>
               <div class="settings-details-body">
                 <p class="fine-print">Prefer a guided flow? <button type="button" class="link-btn" id="runOnboardingWizard">Run 3-step setup wizard</button></p>
-                <p class="fine-print">Uses your age, weight, height and activity — wellness estimate only.</p>
+                <p class="fine-print">Wellness estimate only — not medical advice.</p>
                 <div class="wizard-grid">
                   <label class="field">
                     <span>Sex</span>

@@ -17,6 +17,7 @@ import { lookupBarcodeProduct } from '../services/barcode.js';
 import { openBarcodeScannerModal } from '../services/barcode-scanner.js';
 import { lookupFoodProduct } from '../services/food-search.js';
 import { openFoodSearchModal } from '../services/food-search-modal.js';
+import { DISCLAIMERS, disclaimerBlock } from '../services/disclaimers.js';
 
 const QUICK_ANSWERS = {
   oil: ['Light oil', 'Normal amount', 'Generous / deep-fried'],
@@ -142,6 +143,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
             <textarea id="mealNotesInput" rows="2" maxlength="280" placeholder="Add context the photo may not show — e.g. &quot;homemade biryani, light oil, half portion&quot;">${escapeHtml(state.mealNotes)}</textarea>
           </label>
           ${photoControls}
+          ${disclaimerBlock(DISCLAIMERS.aiPhoto, 'fine-print health-disclaimer log-section__disclaimer')}
         </section>
 
         <section class="log-section log-section--packaged" aria-labelledby="logPackagedHeading">
@@ -155,6 +157,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
             <button type="button" class="btn btn-ghost full" id="barcodeBtn">Scan barcode</button>
             <button type="button" class="btn btn-ghost full" id="foodSearchBtn">Search brand or product</button>
           </div>
+          ${disclaimerBlock(DISCLAIMERS.packagedFood, 'fine-print health-disclaimer log-section__disclaimer')}
         </section>
 
         ${state.status ? `<p class="log-status" id="logStatus">${escapeHtml(state.status)}</p>` : ''}
@@ -444,6 +447,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
         </label>
         <button type="button" class="btn btn-primary full" id="submitAnswer">Continue</button>
         <button type="button" class="btn btn-ghost full" id="skipClarify">Skip — use best guess</button>
+        ${disclaimerBlock(DISCLAIMERS.nutritionEstimate, 'fine-print health-disclaimer')}
       </section>
     `;
 

@@ -521,6 +521,22 @@ body {
 
 .health-disclaimer {
   text-align: center;
+  line-height: 1.45;
+}
+.health-disclaimer--inline {
+  text-align: left;
+  margin-top: 12px;
+  margin-bottom: 0;
+}
+.log-section__disclaimer {
+  text-align: left;
+  margin-top: 14px;
+  margin-bottom: 0;
+}
+.hero-card .health-disclaimer--inline {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
 }
 
 .app-disclaimer {

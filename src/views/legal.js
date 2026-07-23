@@ -37,7 +37,7 @@ const PRIVACY_HTML = `
   <h3>Contact</h3>
   <p>Questions: use the support email shown on your NutriLog website or app store listing.</p>
 
-  <p class="fine-print"><strong>Not medical advice.</strong> NutriLog provides estimates only. Speak to your GP or a dietitian for health concerns.</p>
+  <p class="fine-print"><strong>Not medical advice.</strong> NutriLog provides estimates only. Speak to your GP or a registered dietitian for health concerns.</p>
 `;
 
 const TERMS_HTML = `
@@ -68,6 +68,8 @@ const TERMS_HTML = `
 
   <h3>Acceptable use</h3>
   <p>Do not upload illegal content, harass others, or automate abuse of our APIs, barcode lookups, or food search.</p>
+
+  <p class="fine-print"><strong>Not medical advice.</strong> NutriLog provides AI and database estimates only — not medical or dietary advice. Always check food labels when accuracy matters. Speak to your GP or a registered dietitian for health concerns.</p>
 `;
 
 export function openLegalModal(kind = 'privacy') {

@@ -1,5 +1,6 @@
 import { MEAL_TYPES, defaultMealType } from './meal-types.js';
 import { getUnitPrefs, formatEnergy } from './goals.js';
+import { DISCLAIMERS, disclaimerBlock } from './disclaimers.js';
 
 /** Interactive review before saving an AI scan. */
 export function openMealReviewModal(analysis, { mealType = defaultMealType(), imageDataUrl = null } = {}) {
@@ -67,7 +68,7 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
               <button type="button" class="btn btn-ghost btn-sm full" id="addItemBtn">Add item</button>
             </div>
           </details>
-          <p class="fine-print health-disclaimer">AI estimate only — not medical advice. Check labels if unsure.</p>
+          ${disclaimerBlock(DISCLAIMERS.nutritionEstimate, 'fine-print health-disclaimer')}
           <div class="camera-modal__actions full meal-review-actions">
             <button type="button" class="btn btn-ghost" id="reviewCancel">Cancel</button>
             <button type="button" class="btn btn-primary" id="reviewConfirm">Confirm &amp; save</button>

@@ -2,6 +2,7 @@ import { getMealsInRange } from '../services/storage.js';
 import { weekReport, monthReport } from '../services/reports.js';
 import { getCuisineTips } from '../services/cuisine-tips.js';
 import { formatEnergy, formatEnergyParts, getUnitPrefs } from '../services/goals.js';
+import { DISCLAIMERS, disclaimerBlock } from '../services/disclaimers.js';
 export async function renderReports(root, { profile, onLog } = {}) {
   const displayName = profile?.displayName || '';
   const end = new Date();
@@ -71,6 +72,7 @@ export async function renderReports(root, { profile, onLog } = {}) {
             </article>
           `).join('')}
           ${tips.source === 'demo' ? `<p class="fine-print">${import.meta.env.DEV ? 'Demo tips — add GEMINI_API_KEY for personalised AI coaching.' : 'Log more meals for personalised coaching tips.'}</p>` : ''}
+          ${disclaimerBlock(DISCLAIMERS.aiCoach, 'fine-print health-disclaimer health-disclaimer--inline')}
         </section>
       ` : ''}
 
@@ -114,6 +116,7 @@ export async function renderReports(root, { profile, onLog } = {}) {
             ` : ''}
           </article>
         `).join('')}
+        ${report.daysWithData > 0 ? disclaimerBlock(DISCLAIMERS.goalInsights, 'fine-print health-disclaimer health-disclaimer--inline') : ''}
       </section>
     `;
 
