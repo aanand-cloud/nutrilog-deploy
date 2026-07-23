@@ -80,62 +80,83 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     const liveCamera = !native && canUseWebCamera();
     const needsHttpsHint = !native && !window.isSecureContext;
     const needsSignIn = isSupabaseConfigured() && !profile?.loggedIn;
+    const photoBlocked = !needsSignIn && !scan.allowed;
+
+    const photoControls = needsSignIn ? `
+      <section class="login-banner">
+        <p><strong>Sign in required</strong> for photo-based meal logging. Packaged food options below remain available without an account.</p>
+        <button type="button" class="btn btn-primary btn-sm" id="logSignInBtn">Sign in / Create account</button>
+      </section>
+    ` : photoBlocked ? `
+      <div class="paywall-inline paywall-inline--prominent">
+        <p class="paywall-inline__title">${scan.isDaily ? "Today's photo allowance used" : 'Monthly allowance used'}</p>
+        <p>${escapeHtml(paywallMessage(scan))}</p>
+        <button type="button" class="btn btn-primary full" id="upgradeBtn">Upgrade or add logs</button>
+        ${import.meta.env.DEV ? `<button type="button" class="btn btn-ghost full" id="resetScansBtn">Reset usage (dev only)</button>` : ''}
+      </div>
+    ` : `
+      ${native ? `
+        <button type="button" class="camera-zone" id="cameraZone">
+          <span class="camera-icon">📷</span>
+          <span class="camera-text">Take photo</span>
+          <span class="camera-hint">Include the full plate for the most accurate estimate</span>
+        </button>
+        <button type="button" class="btn btn-ghost full" id="galleryBtn">Choose from gallery</button>
+      ` : `
+        ${liveCamera ? `
+          <button type="button" class="camera-zone" id="liveCameraBtn">
+            <span class="camera-icon">📷</span>
+            <span class="camera-text">Open camera</span>
+            <span class="camera-hint">Live view — recommended for meal photos</span>
+          </button>
+        ` : `
+          <div class="picker-wrap camera-zone">
+            <input type="file" accept="image/*" capture="environment" id="photoInput" class="picker-overlay" aria-label="Take photo"/>
+            <div class="picker-label">
+              <span class="camera-icon">📷</span>
+              <span class="camera-text">Take photo</span>
+              <span class="camera-hint">Opens your device camera</span>
+            </div>
+          </div>
+        `}
+        <input type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/bmp,.jpg,.jpeg,.png,.webp" id="galleryInput" class="file-input-offscreen" aria-hidden="true" tabindex="-1"/>
+        <button type="button" class="btn btn-ghost full" id="galleryBtn">Choose from gallery</button>
+        ${needsHttpsHint ? `<p class="fine-print warn-text log-section__warn">${import.meta.env.DEV ? `For phone camera: open <strong>https://${window.location.host}</strong> (not http). Gallery upload works on both.` : 'For phone camera on mobile, open NutriLog over a secure (HTTPS) connection. Gallery upload works either way.'}</p>` : ''}
+      `}
+      <p class="fine-print log-section__tip">Tip: good lighting and a top-down angle improve portion estimates.</p>
+    `;
+
     root.innerHTML = `
       <section class="log-screen">
         <button type="button" class="back-link" id="cancelLog">← Back</button>
         <h2>Log a meal</h2>
-        <p class="lead">Take a photo of everything on your plate — any cuisine, anywhere.</p>
-        ${needsSignIn ? `
-          <section class="login-banner">
-            <p><strong>Sign in required</strong> for AI photo logging. Barcode scan and food search work without an account.</p>
-            <button type="button" class="btn btn-primary btn-sm" id="logSignInBtn">Sign in / Create account</button>
-          </section>
-        ` : `<p class="scan-badge ${scan.allowed ? '' : 'scan-badge--limit'}">${scansLabel()}</p>`}
-        <label class="field full meal-hints-field">
-          <span>Meal hints <em class="optional-tag">optional</em></span>
-          <textarea id="mealNotesInput" rows="2" maxlength="280" placeholder="Help the AI with what the photo can't show — e.g. &quot;homemade biryani, extra ghee, half portion&quot;">${escapeHtml(state.mealNotes)}</textarea>
-        </label>
-        ${!needsSignIn && scan.allowed ? `
-          ${native ? `
-            <button type="button" class="camera-zone" id="cameraZone">
-              <span class="camera-icon">📷</span>
-              <span class="camera-text">Tap to take photo</span>
-              <span class="camera-hint">Include the full plate for better estimates</span>
-            </button>
-            <button type="button" class="btn btn-ghost full" id="galleryBtn">Choose from gallery</button>
-          ` : `
-            ${liveCamera ? `
-              <button type="button" class="camera-zone" id="liveCameraBtn">
-                <span class="camera-icon">📷</span>
-                <span class="camera-text">Open camera</span>
-                <span class="camera-hint">Live view — best for meal photos</span>
-              </button>
-            ` : `
-              <div class="picker-wrap camera-zone">
-                <input type="file" accept="image/*" capture="environment" id="photoInput" class="picker-overlay" aria-label="Take photo"/>
-                <div class="picker-label">
-                  <span class="camera-icon">📷</span>
-                  <span class="camera-text">Tap to take photo</span>
-                  <span class="camera-hint">Opens your phone camera</span>
-                </div>
-              </div>
-            `}
-            <input type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/bmp,.jpg,.jpeg,.png,.webp" id="galleryInput" class="file-input-offscreen" aria-hidden="true" tabindex="-1"/>
-            <button type="button" class="btn btn-ghost full" id="galleryBtn">Choose from gallery</button>
-            ${needsHttpsHint ? `<p class="fine-print warn-text">${import.meta.env.DEV ? `For phone camera: open <strong>https://${window.location.host}</strong> (not http). Gallery upload works on both.` : 'For phone camera on mobile, open NutriLog over a secure (HTTPS) connection. Gallery upload works either way.'}</p>` : ''}
-          `}
-        ` : !needsSignIn ? `
-          <div class="paywall-inline paywall-inline--prominent">
-          <p class="paywall-inline__title">${scan.isDaily ? "Today's free scan used" : 'Monthly allowance used'}</p>
-          <p>${escapeHtml(paywallMessage(scan))}</p>
-          <button type="button" class="btn btn-primary full" id="upgradeBtn">Upgrade or add logs</button>
-          <p class="fine-print">Barcode scan &amp; food search stay free — no account needed.</p>
-            ${import.meta.env.DEV ? `<button type="button" class="btn btn-ghost full" id="resetScansBtn">Reset usage (dev only)</button>` : ''}
+
+        <section class="log-section log-section--photo" aria-labelledby="logPhotoHeading">
+          <header class="log-section__head">
+            <h3 class="log-section__title" id="logPhotoHeading">Cooked meal</h3>
+            <p class="log-section__desc">Photograph your plate — suitable for any cuisine, including homemade and restaurant meals.</p>
+          </header>
+          ${!needsSignIn ? `<p class="scan-badge ${scan.allowed ? '' : 'scan-badge--limit'}">${scansLabel()}</p>` : ''}
+          <label class="field full meal-hints-field">
+            <span>Meal notes <em class="optional-tag">optional</em></span>
+            <textarea id="mealNotesInput" rows="2" maxlength="280" placeholder="Add context the photo may not show — e.g. &quot;homemade biryani, light oil, half portion&quot;">${escapeHtml(state.mealNotes)}</textarea>
+          </label>
+          ${photoControls}
+        </section>
+
+        <section class="log-section log-section--packaged" aria-labelledby="logPackagedHeading">
+          <header class="log-section__head">
+            <h3 class="log-section__title" id="logPackagedHeading">Packaged food</h3>
+            <p class="log-section__desc">Supermarket items with a barcode or brand name — ready meals, cereals, snacks, and labelled products.</p>
+            <p class="log-section__note">Free to use · No account required · Does not use your photo allowance</p>
+            ${photoBlocked ? `<p class="log-section__highlight">You can still log packaged items here while your photo allowance resets.</p>` : ''}
+          </header>
+          <div class="log-section__actions">
+            <button type="button" class="btn btn-ghost full" id="barcodeBtn">Scan barcode</button>
+            <button type="button" class="btn btn-ghost full" id="foodSearchBtn">Search brand or product</button>
           </div>
-        ` : ''}
-        <button type="button" class="btn btn-ghost full" id="barcodeBtn">📦 Scan barcode (packaged food — free)</button>
-        <button type="button" class="btn btn-ghost full" id="foodSearchBtn">🔍 Search food by name (free)</button>
-        <p class="fine-print">Tip: good lighting and a top-down angle help the AI identify portions.</p>
+        </section>
+
         ${state.status ? `<p class="log-status" id="logStatus">${escapeHtml(state.status)}</p>` : ''}
       </section>
     `;
@@ -365,7 +386,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
         state.analysis = { ...demoAnalysis(), demoEstimate: true };
         state.status = 'Sample estimate only — connect AI for your actual meal';
       } else if (needsKey) {
-        const msg = 'AI photo logging is unavailable right now. Use barcode or food search, or try again later.';
+        const msg = 'Photo logging is temporarily unavailable. You can still log packaged food by barcode or product search.';
         state.status = msg;
         state.step = 'capture';
         persist();

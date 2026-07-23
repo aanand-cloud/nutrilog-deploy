@@ -1,5 +1,7 @@
 /** Lookup packaged food via Open Food Facts (free, no API key). */
 
+import { barcodeNotFoundMessage } from './packaged-food-hints.js';
+
 export async function lookupBarcodeProduct(code) {
   const barcode = String(code || '').replace(/\D/g, '');
   if (barcode.length < 8) {
@@ -11,7 +13,7 @@ export async function lookupBarcodeProduct(code) {
   if (!res.ok) throw new Error('Could not look up product');
   const data = await res.json();
   if (data.status !== 1 || !data.product) {
-    throw new Error('Product not found — try photo logging instead');
+    throw new Error(barcodeNotFoundMessage());
   }
   return productToAnalysis(data.product, barcode);
 }

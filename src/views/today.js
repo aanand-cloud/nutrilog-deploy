@@ -98,7 +98,7 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
           <button type="button" class="btn btn-primary" id="guestGetStarted">Get started free</button>
           <button type="button" class="btn btn-ghost" id="guestSignIn">Sign in</button>
         </div>
-        <p class="guest-prompt__note">${isSupabaseConfigured() ? 'Barcode &amp; food search work without signing in.' : 'If sign-in fails, refresh after the latest app update.'}</p>
+        <p class="guest-prompt__note">${isSupabaseConfigured() ? 'Packaged food logging (barcode and product search) works without signing in.' : 'If sign-in fails, refresh after the latest app update.'}</p>
       </section>
     ` : ''}
 

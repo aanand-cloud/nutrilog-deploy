@@ -373,6 +373,70 @@ body {
 
 .log-screen { padding-bottom: 24px; }
 .log-screen.center { text-align: center; padding-top: 24px; }
+.log-section {
+  margin-bottom: 20px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.log-section--photo {
+  background: linear-gradient(180deg, #f8fcfb 0%, var(--surface) 100%);
+  border-color: rgba(13, 148, 136, 0.18);
+}
+.log-section--packaged {
+  background: var(--surface2);
+}
+.log-section__head {
+  margin-bottom: 14px;
+}
+.log-section__title {
+  margin: 0 0 6px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.log-section__desc {
+  margin: 0 0 8px;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--text3);
+}
+.log-section__note {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--text3);
+}
+.log-section__highlight {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--teal);
+  background: var(--teal-dim);
+  border-radius: var(--radius-sm);
+}
+.log-section__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.log-section__tip,
+.log-section__warn {
+  margin-top: 12px;
+  margin-bottom: 0;
+  text-align: left;
+}
+.log-section .scan-badge {
+  margin-bottom: 12px;
+}
+.log-section .meal-hints-field {
+  margin-bottom: 12px;
+}
+.log-section .paywall-inline {
+  margin-top: 4px;
+}
 .back-link {
   border: none;
   background: none;
@@ -1161,8 +1225,26 @@ button.camera-zone:active { background: var(--teal-dim); }
   margin-bottom: 12px;
 }
 .food-search-empty {
-  text-align: center;
-  padding: 16px 8px;
+  text-align: left;
+  padding: 14px 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.food-search-empty__title {
+  margin: 0 0 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.food-search-empty__line {
+  margin: 0 0 6px;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text3);
+}
+.food-search-empty__line:last-child {
+  margin-bottom: 0;
 }
 .food-search-item {
   display: flex;

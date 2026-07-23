@@ -1,6 +1,7 @@
-/** Manual food name search modal (Open Food Facts). */
+/** Manual packaged-food search modal (Open Food Facts). */
 
 import { searchFoodProducts } from './food-search.js';
+import { packagedSearchEmptyMessage } from './packaged-food-hints.js';
 
 function escapeHtml(s) {
   return String(s || '')
@@ -10,22 +11,32 @@ function escapeHtml(s) {
     .replace(/"/g, '&quot;');
 }
 
+function renderEmptyState(query) {
+  const { title, lines } = packagedSearchEmptyMessage(query);
+  return `
+    <div class="food-search-empty">
+      <p class="food-search-empty__title">${escapeHtml(title)}</p>
+      ${lines.map((line) => `<p class="food-search-empty__line">${escapeHtml(line)}</p>`).join('')}
+    </div>
+  `;
+}
+
 export function openFoodSearchModal() {
   return new Promise((resolve) => {
     const overlay = document.createElement('div');
     overlay.className = 'camera-modal';
     overlay.innerHTML = `
       <div class="camera-modal__panel camera-modal__panel--barcode food-search-panel">
-        <h2 class="barcode-title">Search food</h2>
-        <p class="barcode-hint">Find packaged food by name or brand — free, no AI scan</p>
+        <h2 class="barcode-title">Search packaged food</h2>
+        <p class="barcode-hint">Look up supermarket items by brand or product name. Not for fresh or restaurant dishes.</p>
         <label class="field full">
-          <span>Food name</span>
-          <input type="search" id="foodSearchInput" placeholder="e.g. Weetabix, Heinz baked beans" autocomplete="off"/>
+          <span>Brand or product</span>
+          <input type="search" id="foodSearchInput" placeholder="e.g. Weetabix, MTR, Heinz baked beans" autocomplete="off"/>
         </label>
-        <p class="fine-print food-search-status" id="foodSearchStatus">Type at least 2 characters</p>
+        <p class="fine-print food-search-status" id="foodSearchStatus">Enter at least 2 characters</p>
         <div class="food-search-results" id="foodSearchResults" role="listbox" aria-label="Search results"></div>
         <div class="camera-modal__actions">
-          <button type="button" class="btn btn-ghost" id="foodSearchCancel">Cancel</button>
+          <button type="button" class="btn btn-ghost" id="foodSearchCancel">Close</button>
         </div>
       </div>
     `;
@@ -48,9 +59,9 @@ export function openFoodSearchModal() {
       resolve(code || null);
     }
 
-    function renderResults(items) {
+    function renderResults(items, query) {
       if (!items.length) {
-        resultsEl.innerHTML = `<p class="fine-print food-search-empty">No products found — try different words or scan the barcode.</p>`;
+        resultsEl.innerHTML = renderEmptyState(query);
         return;
       }
 
@@ -83,11 +94,16 @@ export function openFoodSearchModal() {
         const items = await searchFoodProducts(query);
         if (seq !== searchSeq || done) return;
         statusEl.textContent = items.length ? `${items.length} result${items.length === 1 ? '' : 's'}` : 'No matches';
-        renderResults(items);
+        renderResults(items, query);
       } catch (err) {
         if (seq !== searchSeq || done) return;
-        statusEl.textContent = err.message || 'Search failed';
-        resultsEl.innerHTML = '';
+        statusEl.textContent = err.message || 'Search unavailable';
+        resultsEl.innerHTML = `
+          <div class="food-search-empty">
+            <p class="food-search-empty__title">Search unavailable</p>
+            <p class="food-search-empty__line">Please check your connection and try again, or scan the barcode on the packaging.</p>
+          </div>
+        `;
       }
     }
 
@@ -95,7 +111,7 @@ export function openFoodSearchModal() {
       const q = input.value.trim();
       if (searchTimer) clearTimeout(searchTimer);
       if (q.length < 2) {
-        statusEl.textContent = 'Type at least 2 characters';
+        statusEl.textContent = 'Enter at least 2 characters';
         resultsEl.innerHTML = '';
         return;
       }
