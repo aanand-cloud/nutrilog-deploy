@@ -8,6 +8,13 @@ import {
 import { saveLocalDisplayName, getLocalDisplayName } from './profile.js';
 import { finalizeAuthSession } from './auth-session.js';
 import { friendlyAuthError } from './auth-errors.js';
+import {
+  signupConsentFieldsHtml,
+  bindLegalLinks,
+  readSignupConsent,
+  signupConsentError,
+  recordTermsAcceptance,
+} from './privacy-consent.js';
 
 /**
  * Clean sign-in / sign-up modal (used from Today, Log, header).
@@ -60,6 +67,7 @@ export function openAuthModal({ mode = 'signup', showToast, onSuccess } = {}) {
               <span>Password</span>
               <input type="password" name="password" id="authModalPassword" required minlength="6" autocomplete="${isSignup ? 'new-password' : 'current-password'}" placeholder="At least 6 characters"/>
             </label>
+            ${isSignup ? signupConsentFieldsHtml({ idPrefix: 'authModal' }) : ''}
             <p class="auth-status" id="authModalStatus" hidden role="status"></p>
             <button type="submit" class="btn btn-primary full" id="authModalPrimary">${isSignup ? 'Create free account' : 'Sign in'}</button>
             <button type="button" class="btn btn-ghost full auth-modal__switch" id="authModalSwitch">
@@ -82,6 +90,7 @@ export function openAuthModal({ mode = 'signup', showToast, onSuccess } = {}) {
         if (currentMode === 'signup') submitSignup();
         else submitSignIn();
       });
+      bindLegalLinks(overlay.querySelector('#authModalForm'));
       overlay.querySelector('#authModalForgot')?.addEventListener('click', submitForgot);
       overlay.querySelector('#authModalResend')?.addEventListener('click', submitResend);
       overlay.addEventListener('click', (e) => {
@@ -158,7 +167,9 @@ export function openAuthModal({ mode = 'signup', showToast, onSuccess } = {}) {
     }
 
     async function submitSignup() {
+      const form = overlay.querySelector('#authModalForm');
       const { firstName, email, password } = readForm();
+      const consent = readSignupConsent(form);
       if (!firstName) {
         setStatus('Please enter your first name.', { tone: 'error' });
         overlay.querySelector('#authModalFirstName')?.focus();
@@ -172,11 +183,16 @@ export function openAuthModal({ mode = 'signup', showToast, onSuccess } = {}) {
         setStatus('Password must be at least 6 characters.', { tone: 'error' });
         return;
       }
+      if (!consent.ok) {
+        setStatus(signupConsentError(consent), { tone: 'error' });
+        return;
+      }
       setBusy(true);
       setStatus('Creating your account…');
       try {
         saveLocalDisplayName(firstName);
         const data = await signUp(email, password, firstName);
+        await recordTermsAcceptance();
         if (data.session) {
           await afterAuth(firstName);
           return;

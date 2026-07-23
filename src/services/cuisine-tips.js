@@ -1,6 +1,7 @@
 import { getSession, isSupabaseConfigured } from './auth.js';
 import { weekReport } from './reports.js';
 import { getGoals } from './goals.js';
+import { requireAiProcessingConsent } from './privacy-consent.js';
 
 const CACHE_KEY = 'nutrilog_cuisine_tips';
 
@@ -14,6 +15,15 @@ export async function getCuisineTips(meals) {
   const context = buildMealContext(meals);
   if (!context.items.length && !context.summaries.length) {
     return { weekKey, tips: [], patterns: [], source: 'none' };
+  }
+
+  if (isSupabaseConfigured()) {
+    const aiOk = await requireAiProcessingConsent();
+    if (!aiOk) {
+      const fallback = demoCuisineTips(context);
+      writeCache(fallback);
+      return fallback;
+    }
   }
 
   try {

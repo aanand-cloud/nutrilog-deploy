@@ -18,6 +18,7 @@ import { openBarcodeScannerModal } from '../services/barcode-scanner.js';
 import { lookupFoodProduct } from '../services/food-search.js';
 import { openFoodSearchModal } from '../services/food-search-modal.js';
 import { DISCLAIMERS, disclaimerBlock } from '../services/disclaimers.js';
+import { requireAiProcessingConsent } from '../services/privacy-consent.js';
 import {
   photoScanAnalyzingHtml,
   packagedLookupAnalyzingHtml,
@@ -345,6 +346,11 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     if (isSupabaseConfigured() && !profile?.loggedIn) {
       showToast('Sign in to log meals with AI', 4500);
       onSignIn?.();
+      return;
+    }
+    const aiOk = await requireAiProcessingConsent();
+    if (!aiOk) {
+      showToast('AI photo logging needs your consent — try packaged food search instead', 5000);
       return;
     }
     readMealNotesFromDom();

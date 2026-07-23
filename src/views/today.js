@@ -40,6 +40,14 @@ import { exportUserDataJson, exportMealsCsv } from '../services/data-export.js';
 import { friendlyAuthError } from '../services/auth-errors.js';
 import { openLegalModal } from './legal.js';
 import { DISCLAIMERS, disclaimerBlock } from '../services/disclaimers.js';
+import { deleteMyAccount } from '../services/account-delete.js';
+import {
+  signupConsentFieldsHtml,
+  bindLegalLinks,
+  readSignupConsent,
+  signupConsentError,
+  recordTermsAcceptance,
+} from '../services/privacy-consent.js';
 
 const wizardActivities = activityOptions();
 let activeSettingsTab = 'targets';
@@ -419,6 +427,11 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
               <button type="button" class="btn btn-ghost" id="syncBtn">Sync now</button>
               <button type="button" class="btn btn-ghost settings-btn-danger" id="signOutBtn">Sign out</button>
             </div>
+            <div class="settings-danger-zone">
+              <p class="settings-group-label">Delete account</p>
+              <p class="fine-print">Permanently removes your account, cloud meals, photos, and cancels any active subscription. This cannot be undone.</p>
+              <button type="button" class="btn btn-ghost settings-btn-danger full" id="deleteAccountBtn">Delete my account</button>
+            </div>
           ` : `
             <p class="settings-group-label">Create account or sign in</p>
             <p class="fine-print">Free to start. Your meals sync securely to the cloud when signed in.</p>
@@ -435,6 +448,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
                 <span>Password</span>
                 <input type="password" name="password" id="authPassword" required minlength="6" autocomplete="current-password" placeholder="At least 6 characters"/>
               </label>
+              ${signupConsentFieldsHtml({ idPrefix: 'settingsAuth' })}
               <p class="auth-status" id="authStatus" hidden role="status"></p>
               <div class="settings-auth-actions">
                 <button type="button" class="btn btn-primary" id="signUpBtn">Create account</button>
@@ -787,6 +801,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
 
   root.querySelector('#privacyBtn')?.addEventListener('click', () => openLegalModal('privacy'));
   root.querySelector('#termsBtn')?.addEventListener('click', () => openLegalModal('terms'));
+  bindLegalLinks(root.querySelector('#authForm'));
 
   function readAuthForm() {
     const form = root.querySelector('#authForm');
@@ -865,7 +880,9 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
   });
 
   root.querySelector('#signUpBtn')?.addEventListener('click', async () => {
+    const form = root.querySelector('#authForm');
     const { firstName, email, password } = readAuthForm() || {};
+    const consent = readSignupConsent(form);
     if (!firstName) {
       setAuthStatus('Please enter your first name.', { tone: 'error' });
       root.querySelector('#authFirstName')?.focus();
@@ -879,11 +896,16 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
       setAuthStatus('Password must be at least 6 characters.', { tone: 'error' });
       return;
     }
+    if (!consent.ok) {
+      setAuthStatus(signupConsentError(consent), { tone: 'error' });
+      return;
+    }
     setAuthBusy(true);
     setAuthStatus('Creating your account…');
     try {
       saveLocalDisplayName(firstName);
       const data = await signUp(email, password, firstName);
+      await recordTermsAcceptance();
       if (data.session) {
         setAuthStatus('Account created!', { tone: 'success' });
         await finishSignedIn(firstName);
@@ -972,6 +994,25 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
       showToast?.('Signed out');
     }
     onSave();
+  });
+
+  root.querySelector('#deleteAccountBtn')?.addEventListener('click', async () => {
+    if (!window.confirm(
+      'Delete your NutriLog account permanently?\n\nThis removes your profile, cloud meals, photos, and cancels any active subscription.'
+    )) return;
+    const typed = window.prompt('Type DELETE to confirm account deletion');
+    if (typed !== 'DELETE') {
+      showToast?.('Account deletion cancelled');
+      return;
+    }
+    try {
+      await deleteMyAccount();
+      await clearAllLocalMeals();
+      showToast?.('Your account has been deleted');
+      onSave();
+    } catch (err) {
+      showToast?.(err.message || 'Could not delete account', 6000);
+    }
   });
 
   root.querySelector('#forgotPasswordBtn')?.addEventListener('click', async () => {
