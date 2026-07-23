@@ -48,6 +48,7 @@ import {
   signupConsentError,
   recordTermsAcceptance,
 } from '../services/privacy-consent.js';
+import { showSentryTestButton, sendSentryTestError } from '../services/sentry.js';
 
 const wizardActivities = activityOptions();
 let activeSettingsTab = 'targets';
@@ -465,6 +466,10 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
             <button type="button" class="btn btn-ghost full" id="exportCsvBtn">Download meals (CSV)</button>
             <button type="button" class="btn btn-ghost full" id="privacyBtn">Privacy policy</button>
             <button type="button" class="btn btn-ghost full" id="termsBtn">Terms of use</button>
+            ${showSentryTestButton() ? `
+              <button type="button" class="btn btn-ghost full" id="sentryTestBtn">Test Sentry</button>
+              <p class="fine-print">Sends a test error to your Sentry dashboard — safe to ignore there.</p>
+            ` : ''}
           </div>
         </section>
 
@@ -801,6 +806,16 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
 
   root.querySelector('#privacyBtn')?.addEventListener('click', () => openLegalModal('privacy'));
   root.querySelector('#termsBtn')?.addEventListener('click', () => openLegalModal('terms'));
+
+  root.querySelector('#sentryTestBtn')?.addEventListener('click', async () => {
+    try {
+      await sendSentryTestError();
+      showToast?.('Test error sent — check Sentry Issues in ~1 min');
+    } catch (err) {
+      showToast?.(err.message || 'Sentry test failed', 5000);
+    }
+  });
+
   bindLegalLinks(root.querySelector('#authForm'));
 
   function readAuthForm() {

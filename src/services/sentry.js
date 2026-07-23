@@ -25,4 +25,24 @@ export function initSentry() {
   });
 }
 
+export function isSentryConfigured() {
+  return Boolean(import.meta.env.VITE_SENTRY_DSN);
+}
+
+/** Dev builds, or production when VITE_SENTRY_TEST_UI=true (remove after verifying). */
+export function showSentryTestButton() {
+  if (!isSentryConfigured()) return false;
+  return import.meta.env.DEV || import.meta.env.VITE_SENTRY_TEST_UI === 'true';
+}
+
+/** Send a harmless test error — check your Sentry Issues dashboard. */
+export async function sendSentryTestError() {
+  if (!isSentryConfigured()) {
+    throw new Error('VITE_SENTRY_DSN is not configured');
+  }
+  initSentry();
+  Sentry.captureException(new Error('NutriLog Sentry test — safe to ignore'));
+  await Sentry.flush(2000);
+}
+
 export { Sentry };
