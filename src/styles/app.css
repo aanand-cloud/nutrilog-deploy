@@ -746,6 +746,130 @@ body {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* Meal photo — subtle scan overlay while AI analyses */
+.log-screen--analyzing {
+  padding-top: 8px;
+}
+.meal-scan {
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  text-align: center;
+}
+.meal-scan__frame {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  background: #0f172a;
+}
+.meal-scan__photo {
+  display: block;
+  width: 100%;
+  max-height: min(52vh, 320px);
+  object-fit: cover;
+  vertical-align: middle;
+}
+.meal-scan__overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.meal-scan__corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-color: rgba(255, 255, 255, 0.85);
+  border-style: solid;
+  opacity: 0.9;
+}
+.meal-scan__corner--tl {
+  top: 10px;
+  left: 10px;
+  border-width: 2px 0 0 2px;
+  border-radius: 4px 0 0 0;
+}
+.meal-scan__corner--tr {
+  top: 10px;
+  right: 10px;
+  border-width: 2px 2px 0 0;
+  border-radius: 0 4px 0 0;
+}
+.meal-scan__corner--bl {
+  bottom: 10px;
+  left: 10px;
+  border-width: 0 0 2px 2px;
+  border-radius: 0 0 0 4px;
+}
+.meal-scan__corner--br {
+  bottom: 10px;
+  right: 10px;
+  border-width: 0 2px 2px 0;
+  border-radius: 0 0 4px 0;
+}
+.meal-scan__line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(20, 184, 166, 0.15) 20%,
+    rgba(45, 212, 191, 0.95) 50%,
+    rgba(20, 184, 166, 0.15) 80%,
+    transparent 100%
+  );
+  box-shadow: 0 0 12px rgba(45, 212, 191, 0.45);
+  animation: meal-scan-sweep 2.6s ease-in-out infinite;
+}
+@keyframes meal-scan-sweep {
+  0% { top: 8%; opacity: 0.35; }
+  12% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { top: 92%; opacity: 0.35; }
+}
+.meal-scan__title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: var(--text);
+}
+.meal-scan__status {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--teal);
+  margin: 0 0 8px;
+  min-height: 1.35em;
+}
+.meal-scan__note {
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--text3);
+  margin: 0;
+}
+.meal-scan__disclaimer {
+  max-width: 360px;
+  margin: 16px auto 0;
+  text-align: center;
+}
+.meal-scan--no-photo .spinner,
+.meal-scan--lookup .spinner {
+  margin-bottom: 16px;
+}
+.meal-scan__frame--lookup {
+  box-shadow: none;
+  border: 1px solid var(--border);
+}
+@media (prefers-reduced-motion: reduce) {
+  .meal-scan__line {
+    animation: none;
+    top: 50%;
+    opacity: 0.65;
+  }
+}
+
 .step-label { font-size: 0.8rem; color: var(--teal); font-weight: 600; margin-bottom: 8px; }
 .option-grid {
   display: grid;

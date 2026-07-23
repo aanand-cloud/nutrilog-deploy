@@ -18,6 +18,11 @@ import { openBarcodeScannerModal } from '../services/barcode-scanner.js';
 import { lookupFoodProduct } from '../services/food-search.js';
 import { openFoodSearchModal } from '../services/food-search-modal.js';
 import { DISCLAIMERS, disclaimerBlock } from '../services/disclaimers.js';
+import {
+  photoScanAnalyzingHtml,
+  packagedLookupAnalyzingHtml,
+  startPhotoScanStatusCycle,
+} from '../services/analyze-scan-ui.js';
 
 const QUICK_ANSWERS = {
   oil: ['Light oil', 'Normal amount', 'Generous / deep-fried'],
@@ -30,6 +35,7 @@ const QUICK_ANSWERS = {
 
 /** Keeps photo flow alive if the screen re-renders mid-upload */
 let activeLogState = null;
+let analyzeStatusCleanup = null;
 
 export function isLogBusy() {
   return activeLogState?.step === 'analyzing' || activeLogState?.step === 'clarify' || activeLogState?.step === 'review';
@@ -53,6 +59,10 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
   }
 
   function clearSession() {
+    if (analyzeStatusCleanup) {
+      analyzeStatusCleanup();
+      analyzeStatusCleanup = null;
+    }
     activeLogState = null;
   }
 
@@ -67,6 +77,10 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
   }
 
   function render() {
+    if (state.step !== 'analyzing' && analyzeStatusCleanup) {
+      analyzeStatusCleanup();
+      analyzeStatusCleanup = null;
+    }
     if (state.step !== 'capture') persist();
     if (state.step === 'capture') renderCapture();
     else if (state.step === 'paywall') renderPaywall();
@@ -417,14 +431,29 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
   }
 
   function renderAnalyzing() {
+    if (analyzeStatusCleanup) {
+      analyzeStatusCleanup();
+      analyzeStatusCleanup = null;
+    }
+
+    const isLookup = state.source === 'barcode' || state.source === 'food_search';
+    const scanPanel = isLookup
+      ? packagedLookupAnalyzingHtml(state.image?.dataUrl, {
+          title: 'Looking up food…',
+          subtitle: 'Fetching nutrition from product database…',
+        })
+      : photoScanAnalyzingHtml(state.image?.dataUrl);
+
     root.innerHTML = `
-      <section class="log-screen center">
-        ${state.image?.dataUrl ? `<img src="${state.image.dataUrl}" alt="" class="preview-img"/>` : ''}
-        <div class="spinner" aria-hidden="true"></div>
-        <h2>${state.source === 'barcode' || state.source === 'food_search' ? 'Looking up food…' : 'Analysing your meal…'}</h2>
-        <p>${state.source === 'barcode' || state.source === 'food_search' ? 'Fetching nutrition from food database.' : 'Identifying foods, portions, and nutrition.'}</p>
+      <section class="log-screen log-screen--analyzing ${isLookup ? 'center' : ''}">
+        ${scanPanel}
+        ${!isLookup ? disclaimerBlock(DISCLAIMERS.nutritionEstimate, 'fine-print health-disclaimer meal-scan__disclaimer') : ''}
       </section>
     `;
+
+    if (!isLookup) {
+      analyzeStatusCleanup = startPhotoScanStatusCycle(root);
+    }
   }
 
   function renderClarify() {
