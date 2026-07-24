@@ -37,7 +37,7 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
             <span class="review-kcal">${Math.round(t.total_calories_kcal)}</span>
             <span>kcal total · P ${fmt(t.total_nutrition.protein_g)}g · C ${fmt(t.total_nutrition.carbs_g)}g · F ${fmt(t.total_nutrition.fat_g)}g</span>
           </div>
-          <p class="step-label">Meal type</p>
+          <p class="step-label">When did you have this?</p>
           <div class="meal-type-row meal-review-types" id="reviewMealTypes">
             ${MEAL_TYPES.map((mt) => `
               <button type="button" class="meal-type-btn ${currentMealType === mt.id ? 'meal-type-btn--active' : ''}" data-type="${mt.id}">

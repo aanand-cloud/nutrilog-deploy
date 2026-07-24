@@ -23,11 +23,19 @@ import {
   photoScanAnalyzingHtml,
   packagedLookupAnalyzingHtml,
   startPhotoScanStatusCycle,
+  DRINK_ANALYSIS_STEPS,
 } from '../services/analyze-scan-ui.js';
 import {
   normalizeClarificationQuestions,
   getClarificationStepConfig,
 } from '../services/clarification-questions.js';
+import {
+  drinkSubtypeChipsHtml,
+  buildDrinkAnalysisNotes,
+  formatDrinkMealNotes,
+  inferMealTypeForDrink,
+  getDrinkSubtype,
+} from '../services/drink-logging.js';
 
 /** Keeps photo flow alive if the screen re-renders mid-upload */
 let activeLogState = null;
@@ -47,6 +55,8 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     status: '',
     mealType: defaultMealType(),
     mealNotes: '',
+    drinkSubtype: null,
+    drinkNotes: '',
     source: null,
   };
 
@@ -72,17 +82,119 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     if (el) state.mealNotes = el.value.trim();
   }
 
-  function render() {
-    if (state.step !== 'analyzing' && analyzeStatusCleanup) {
-      analyzeStatusCleanup();
-      analyzeStatusCleanup = null;
+  function readDrinkNotesFromDom() {
+    const el = root.querySelector('#drinkNotesInput');
+    if (el) state.drinkNotes = el.value.trim();
+    const active = root.querySelector('.drink-subtype-btn--active');
+    if (active?.dataset.drinkSubtype) {
+      state.drinkSubtype = active.dataset.drinkSubtype;
     }
-    if (state.step !== 'capture') persist();
-    if (state.step === 'capture') renderCapture();
-    else if (state.step === 'paywall') renderPaywall();
-    else if (state.step === 'analyzing') renderAnalyzing();
-    else if (state.step === 'clarify') renderClarify();
-    else if (state.step === 'review') showReviewFlow();
+  }
+
+  function effectiveAnalysisNotes() {
+    if (state.source === 'drink') {
+      return buildDrinkAnalysisNotes(state.drinkSubtype, state.drinkNotes);
+    }
+    return state.mealNotes;
+  }
+
+  function prepareMealPhotoFlow() {
+    state.source = 'meal';
+    state.mealType = defaultMealType();
+    readMealNotesFromDom();
+  }
+
+  function prepareDrinkPhotoFlow() {
+    state.source = 'drink';
+    readDrinkNotesFromDom();
+    state.mealType = inferMealTypeForDrink(state.drinkSubtype);
+  }
+
+  function photoControlsHtml(section, { cameraHint, tipText, needsSignIn, photoBlocked, native, liveCamera, needsHttpsHint }) {
+    const drink = section === 'drink';
+    const camId = drink ? 'drinkCameraZone' : 'cameraZone';
+    const liveId = drink ? 'drinkLiveCameraBtn' : 'liveCameraBtn';
+    const photoInputId = drink ? 'drinkPhotoInput' : 'photoInput';
+    const galleryInputId = drink ? 'drinkGalleryInput' : 'galleryInput';
+    const galleryBtnId = drink ? 'drinkGalleryBtn' : 'galleryBtn';
+
+    if (needsSignIn) {
+      return `
+        <section class="login-banner">
+          <p><strong>Sign in required</strong> for photo-based logging. Packaged food below works without an account.</p>
+          <button type="button" class="btn btn-primary btn-sm" id="logSignInBtn">Sign in / Create account</button>
+        </section>
+      `;
+    }
+    if (photoBlocked) {
+      return `
+        <div class="paywall-inline paywall-inline--prominent">
+          <p class="paywall-inline__title">${canScan().isDaily ? "Today's photo allowance used" : 'Monthly allowance used'}</p>
+          <p>${escapeHtml(paywallMessage(canScan()))}</p>
+          <button type="button" class="btn btn-primary full" id="upgradeBtn">Upgrade or add logs</button>
+          ${import.meta.env.DEV ? `<button type="button" class="btn btn-ghost full" id="resetScansBtn">Reset usage (dev only)</button>` : ''}
+        </div>
+      `;
+    }
+    return `
+      ${native ? `
+        <button type="button" class="camera-zone" id="${camId}">
+          <span class="camera-icon">📷</span>
+          <span class="camera-text">Take photo</span>
+          <span class="camera-hint">${escapeHtml(cameraHint)}</span>
+        </button>
+        <button type="button" class="btn btn-ghost full" id="${galleryBtnId}">Choose from gallery</button>
+      ` : `
+        ${liveCamera ? `
+          <button type="button" class="camera-zone" id="${liveId}">
+            <span class="camera-icon">📷</span>
+            <span class="camera-text">Open camera</span>
+            <span class="camera-hint">${escapeHtml(cameraHint)}</span>
+          </button>
+        ` : `
+          <div class="picker-wrap camera-zone">
+            <input type="file" accept="image/*" capture="environment" id="${photoInputId}" class="picker-overlay" aria-label="Take photo"/>
+            <div class="picker-label">
+              <span class="camera-icon">📷</span>
+              <span class="camera-text">Take photo</span>
+              <span class="camera-hint">${escapeHtml(cameraHint)}</span>
+            </div>
+          </div>
+        `}
+        <input type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/bmp,.jpg,.jpeg,.png,.webp" id="${galleryInputId}" class="file-input-offscreen" aria-hidden="true" tabindex="-1"/>
+        <button type="button" class="btn btn-ghost full" id="${galleryBtnId}">Choose from gallery</button>
+        ${needsHttpsHint ? `<p class="fine-print warn-text log-section__warn">${import.meta.env.DEV ? `For phone camera: open <strong>https://${window.location.host}</strong> (not http). Gallery upload works on both.` : 'For phone camera on mobile, open NutriLog over a secure (HTTPS) connection. Gallery upload works either way.'}</p>` : ''}
+      `}
+      ${tipText ? `<p class="fine-print log-section__tip">${tipText}</p>` : ''}
+    `;
+  }
+
+  function bindPhotoControls(section) {
+    const drink = section === 'drink';
+    const camId = drink ? '#drinkCameraZone' : '#cameraZone';
+    const liveId = drink ? '#drinkLiveCameraBtn' : '#liveCameraBtn';
+    const photoInputId = drink ? '#drinkPhotoInput' : '#photoInput';
+    const galleryInputId = drink ? '#drinkGalleryInput' : '#galleryInput';
+    const galleryBtnId = drink ? '#drinkGalleryBtn' : '#galleryBtn';
+    const onPhoto = drink ? onDrinkPhotoSelected : onMealPhotoSelected;
+    const openCam = drink ? openDrinkCamera : openMealCamera;
+    const openLive = drink ? openDrinkLiveCamera : openMealLiveCamera;
+    const openGal = drink ? openDrinkGallery : openMealGallery;
+
+    root.querySelector(camId)?.addEventListener('click', openCam);
+    root.querySelector(liveId)?.addEventListener('click', openLive);
+    root.querySelector(photoInputId)?.addEventListener('change', onPhoto);
+    const galleryInput = root.querySelector(galleryInputId);
+    const galleryBtn = root.querySelector(galleryBtnId);
+    if (galleryInput && galleryBtn) {
+      galleryBtn.addEventListener('click', () => {
+        galleryInput.value = '';
+        galleryInput.click();
+      });
+      galleryInput.addEventListener('change', onPhoto);
+    } else if (galleryBtn) {
+      galleryBtn.addEventListener('click', openGal);
+    }
   }
 
   function renderCapture() {
@@ -92,67 +204,54 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     const needsHttpsHint = !native && !window.isSecureContext;
     const needsSignIn = isSupabaseConfigured() && !profile?.loggedIn;
     const photoBlocked = !needsSignIn && !scan.allowed;
-
-    const photoControls = needsSignIn ? `
-      <section class="login-banner">
-        <p><strong>Sign in required</strong> for photo-based meal logging. Packaged food options below remain available without an account.</p>
-        <button type="button" class="btn btn-primary btn-sm" id="logSignInBtn">Sign in / Create account</button>
-      </section>
-    ` : photoBlocked ? `
-      <div class="paywall-inline paywall-inline--prominent">
-        <p class="paywall-inline__title">${scan.isDaily ? "Today's photo allowance used" : 'Monthly allowance used'}</p>
-        <p>${escapeHtml(paywallMessage(scan))}</p>
-        <button type="button" class="btn btn-primary full" id="upgradeBtn">Upgrade or add logs</button>
-        ${import.meta.env.DEV ? `<button type="button" class="btn btn-ghost full" id="resetScansBtn">Reset usage (dev only)</button>` : ''}
-      </div>
-    ` : `
-      ${native ? `
-        <button type="button" class="camera-zone" id="cameraZone">
-          <span class="camera-icon">📷</span>
-          <span class="camera-text">Take photo</span>
-          <span class="camera-hint">Include the full plate for the most accurate estimate</span>
-        </button>
-        <button type="button" class="btn btn-ghost full" id="galleryBtn">Choose from gallery</button>
-      ` : `
-        ${liveCamera ? `
-          <button type="button" class="camera-zone" id="liveCameraBtn">
-            <span class="camera-icon">📷</span>
-            <span class="camera-text">Open camera</span>
-            <span class="camera-hint">Live view — recommended for meal photos</span>
-          </button>
-        ` : `
-          <div class="picker-wrap camera-zone">
-            <input type="file" accept="image/*" capture="environment" id="photoInput" class="picker-overlay" aria-label="Take photo"/>
-            <div class="picker-label">
-              <span class="camera-icon">📷</span>
-              <span class="camera-text">Take photo</span>
-              <span class="camera-hint">Opens your device camera</span>
-            </div>
-          </div>
-        `}
-        <input type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/bmp,.jpg,.jpeg,.png,.webp" id="galleryInput" class="file-input-offscreen" aria-hidden="true" tabindex="-1"/>
-        <button type="button" class="btn btn-ghost full" id="galleryBtn">Choose from gallery</button>
-        ${needsHttpsHint ? `<p class="fine-print warn-text log-section__warn">${import.meta.env.DEV ? `For phone camera: open <strong>https://${window.location.host}</strong> (not http). Gallery upload works on both.` : 'For phone camera on mobile, open NutriLog over a secure (HTTPS) connection. Gallery upload works either way.'}</p>` : ''}
-      `}
-      <p class="fine-print log-section__tip">Tip: good lighting and a top-down angle improve portion estimates.</p>
-    `;
+    const photoOpts = { needsSignIn, photoBlocked, native, liveCamera, needsHttpsHint };
+    const drinkSub = getDrinkSubtype(state.drinkSubtype);
+    const drinkPlaceholder = drinkSub?.notesPlaceholder
+      || 'e.g. oat latte no sugar · diet cola · glass of wine';
 
     root.innerHTML = `
       <section class="log-screen">
         <button type="button" class="back-link" id="cancelLog">← Back</button>
-        <h2>Log a meal</h2>
+        <h2>Log food &amp; drinks</h2>
+        <p class="log-screen__lead">Choose what you are logging — meals, packaged products, or beverages.</p>
 
         <section class="log-section log-section--photo" aria-labelledby="logPhotoHeading">
           <header class="log-section__head">
             <h3 class="log-section__title" id="logPhotoHeading">Cooked meal</h3>
-            <p class="log-section__desc">Photograph your plate — suitable for any cuisine, including homemade and restaurant meals.</p>
+            <p class="log-section__desc">Photograph your plate — homemade, restaurant, or any cuisine.</p>
           </header>
           ${!needsSignIn ? `<p class="scan-badge ${scan.allowed ? '' : 'scan-badge--limit'}">${scansLabel()}</p>` : ''}
           <label class="field full meal-hints-field">
             <span>Meal notes <em class="optional-tag">optional</em></span>
             <textarea id="mealNotesInput" rows="2" maxlength="280" placeholder="Add context the photo may not show — e.g. &quot;homemade biryani, light oil, half portion&quot;">${escapeHtml(state.mealNotes)}</textarea>
           </label>
-          ${photoControls}
+          ${photoControlsHtml('meal', {
+            ...photoOpts,
+            cameraHint: 'Include the full plate for the most accurate estimate',
+            tipText: 'Tip: good lighting and a top-down angle improve portion estimates.',
+          })}
+          ${disclaimerBlock(DISCLAIMERS.aiPhoto, 'fine-print health-disclaimer log-section__disclaimer')}
+        </section>
+
+        <section class="log-section log-section--drinks" aria-labelledby="logDrinksHeading">
+          <header class="log-section__head">
+            <h3 class="log-section__title" id="logDrinksHeading">Drinks &amp; beverages</h3>
+            <p class="log-section__desc">Photograph your cup, glass, or bottle — coffee, tea, juice, soft drinks, and alcohol.</p>
+          </header>
+          ${!needsSignIn ? `<p class="scan-badge ${scan.allowed ? '' : 'scan-badge--limit'}">${scansLabel()}</p>` : ''}
+          <p class="step-label drink-subtype-label">What type of drink? <em class="optional-tag">optional</em></p>
+          <div class="drink-subtype-row" role="group" aria-label="Drink type">
+            ${drinkSubtypeChipsHtml(state.drinkSubtype)}
+          </div>
+          <label class="field full meal-hints-field">
+            <span>Drink notes <em class="optional-tag">optional</em></span>
+            <textarea id="drinkNotesInput" rows="2" maxlength="280" placeholder="${escapeAttr(drinkPlaceholder)}">${escapeHtml(state.drinkNotes)}</textarea>
+          </label>
+          ${photoControlsHtml('drink', {
+            ...photoOpts,
+            cameraHint: 'Include the full cup or glass — volume estimates use millilitres (ml)',
+            tipText: 'Tip: we will ask about milk, sugar, or pour size if needed.',
+          })}
           ${disclaimerBlock(DISCLAIMERS.aiPhoto, 'fine-print health-disclaimer log-section__disclaimer')}
         </section>
 
@@ -173,30 +272,39 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
         ${state.status ? `<p class="log-status" id="logStatus">${escapeHtml(state.status)}</p>` : ''}
       </section>
     `;
+
     root.querySelector('#cancelLog')?.addEventListener('click', () => { clearSession(); onCancel(); });
     root.querySelector('#logSignInBtn')?.addEventListener('click', () => onSignIn?.());
-    root.querySelector('#cameraZone')?.addEventListener('click', openCamera);
-    root.querySelector('#liveCameraBtn')?.addEventListener('click', openLiveCamera);
-    root.querySelector('#photoInput')?.addEventListener('change', onPhotoSelected);
-    const galleryInput = root.querySelector('#galleryInput');
-    const galleryBtn = root.querySelector('#galleryBtn');
-    if (galleryInput && galleryBtn) {
-      galleryBtn.addEventListener('click', () => {
-        galleryInput.value = '';
-        galleryInput.click();
+    bindPhotoControls('meal');
+    bindPhotoControls('drink');
+    root.querySelectorAll('[data-drink-subtype]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.drinkSubtype;
+        state.drinkSubtype = state.drinkSubtype === id ? null : id;
+        render();
       });
-      galleryInput.addEventListener('change', onPhotoSelected);
-    } else if (galleryBtn) {
-      galleryBtn.addEventListener('click', openGallery);
-    }
+    });
     root.querySelector('#barcodeBtn')?.addEventListener('click', openBarcode);
     root.querySelector('#foodSearchBtn')?.addEventListener('click', openFoodSearch);
-    root.querySelector('#upgradeBtn')?.addEventListener('click', () => onUpgrade?.());
+    root.querySelectorAll('#upgradeBtn').forEach((btn) => btn.addEventListener('click', () => onUpgrade?.()));
     root.querySelector('#resetScansBtn')?.addEventListener('click', () => {
       resetScansForTesting();
       showToast('Usage reset — try again');
       render();
     });
+  }
+
+  function render() {
+    if (state.step !== 'analyzing' && analyzeStatusCleanup) {
+      analyzeStatusCleanup();
+      analyzeStatusCleanup = null;
+    }
+    if (state.step !== 'capture') persist();
+    if (state.step === 'capture') renderCapture();
+    else if (state.step === 'paywall') renderPaywall();
+    else if (state.step === 'analyzing') renderAnalyzing();
+    else if (state.step === 'clarify') renderClarify();
+    else if (state.step === 'review') showReviewFlow();
   }
 
   async function openBarcode() {
@@ -246,7 +354,17 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     render();
   }
 
-  async function openLiveCamera() {
+  async function openMealLiveCamera() {
+    prepareMealPhotoFlow();
+    return openLiveCameraCore();
+  }
+
+  async function openDrinkLiveCamera() {
+    prepareDrinkPhotoFlow();
+    return openLiveCameraCore();
+  }
+
+  async function openLiveCameraCore() {
     if (!canScan().allowed) {
       state.step = 'paywall';
       render();
@@ -274,7 +392,17 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     root.querySelector('#backCapture').addEventListener('click', () => { state.step = 'capture'; render(); });
   }
 
-  async function openCamera() {
+  async function openMealCamera() {
+    prepareMealPhotoFlow();
+    return openCameraCore();
+  }
+
+  async function openDrinkCamera() {
+    prepareDrinkPhotoFlow();
+    return openCameraCore();
+  }
+
+  async function openCameraCore() {
     if (!canScan().allowed) {
       state.step = 'paywall';
       render();
@@ -288,7 +416,17 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     }
   }
 
-  async function openGallery() {
+  async function openMealGallery() {
+    prepareMealPhotoFlow();
+    return openGalleryCore();
+  }
+
+  async function openDrinkGallery() {
+    prepareDrinkPhotoFlow();
+    return openGalleryCore();
+  }
+
+  async function openGalleryCore() {
     if (!canScan().allowed) {
       state.step = 'paywall';
       render();
@@ -302,7 +440,17 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     }
   }
 
-  async function onPhotoSelected(e) {
+  async function onMealPhotoSelected(e) {
+    prepareMealPhotoFlow();
+    return onPhotoSelectedCore(e);
+  }
+
+  async function onDrinkPhotoSelected(e) {
+    prepareDrinkPhotoFlow();
+    return onPhotoSelectedCore(e);
+  }
+
+  async function onPhotoSelectedCore(e) {
     const input = e.target;
     const file = input.files?.[0];
     if (!file) return;
@@ -348,7 +496,8 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       showToast('AI photo logging needs your consent — try packaged food search instead', 5000);
       return;
     }
-    readMealNotesFromDom();
+    if (state.source === 'drink') readDrinkNotesFromDom();
+    else readMealNotesFromDom();
     try {
       if (image?.dataUrl && !image.external) {
         try {
@@ -359,7 +508,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       }
       state.image = image;
       state.step = 'analyzing';
-      state.status = 'Analysing your meal…';
+      state.status = state.source === 'drink' ? 'Analysing your drink…' : 'Analysing your meal…';
       persist();
       render();
       await runAnalysis();
@@ -372,12 +521,16 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
   }
 
   async function runAnalysis() {
+    const notes = effectiveAnalysisNotes();
     try {
       state.analysis = await analyzeFoodPhoto(
         state.image.base64,
         state.image.mimeType,
-        state.mealNotes
+        notes
       );
+      if (state.source === 'drink') {
+        state.analysis._drinkLogSubtype = state.drinkSubtype || null;
+      }
       if (!isSupabaseConfigured() && !state.scanRecorded) {
         recordScan();
         state.scanRecorded = true;
@@ -402,7 +555,12 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       const needsKey = /GEMINI|OPENAI|503|not configured/i.test(err.message || '');
       if (needsKey && !import.meta.env.PROD) {
         state.analysis = { ...demoAnalysis(), demoEstimate: true };
-        state.status = 'Sample estimate only — connect AI for your actual meal';
+        if (state.source === 'drink') {
+          state.analysis._drinkLogSubtype = state.drinkSubtype || null;
+        }
+        state.status = state.source === 'drink'
+          ? 'Sample estimate only — connect AI for your actual drink'
+          : 'Sample estimate only — connect AI for your actual meal';
       } else if (needsKey) {
         const msg = 'Photo logging is temporarily unavailable. You can still log packaged food by barcode or product search.';
         state.status = msg;
@@ -439,12 +597,17 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     }
 
     const isLookup = state.source === 'barcode' || state.source === 'food_search';
+    const isDrink = state.source === 'drink';
     const scanPanel = isLookup
       ? packagedLookupAnalyzingHtml(state.image?.dataUrl, {
           title: 'Looking up food…',
           subtitle: 'Fetching nutrition from product database…',
         })
-      : photoScanAnalyzingHtml(state.image?.dataUrl);
+      : photoScanAnalyzingHtml(state.image?.dataUrl, isDrink ? {
+          title: 'Analysing your drink…',
+          steps: DRINK_ANALYSIS_STEPS,
+          photoAlt: 'Your drink photo',
+        } : undefined);
 
     root.innerHTML = `
       <section class="log-screen log-screen--analyzing ${isLookup ? 'center' : ''}">
@@ -527,8 +690,11 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
         state.image.mimeType,
         state.analysis,
         state.answers,
-        state.mealNotes
+        effectiveAnalysisNotes()
       );
+      if (state.source === 'drink') {
+        state.analysis._drinkLogSubtype = state.drinkSubtype || null;
+      }
     } catch (_) {
       showToast('Could not refine — showing previous estimate');
     }
@@ -537,12 +703,13 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
   }
 
   async function showReviewFlow() {
+    const isDrink = state.source === 'drink';
     root.innerHTML = `
       <section class="log-screen center">
         ${state.image?.dataUrl ? `<img src="${state.image.dataUrl}" alt="" class="preview-img preview-img--small"/>` : ''}
         <div class="spinner" aria-hidden="true"></div>
-        <h2>Review your meal</h2>
-        <p>Check portions and add anything the camera missed.</p>
+        <h2>${isDrink ? 'Review your drink' : 'Review your meal'}</h2>
+        <p>${isDrink ? 'Check volume and add anything the camera missed.' : 'Check portions and add anything the camera missed.'}</p>
       </section>
     `;
 
@@ -575,7 +742,9 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       const saved = await saveMeal({
         date: todayKey(),
         meal_type: state.mealType,
-        meal_notes: state.mealNotes || undefined,
+        meal_notes: state.source === 'drink'
+          ? formatDrinkMealNotes(state.drinkSubtype, state.drinkNotes) || undefined
+          : state.mealNotes || undefined,
         meal_summary: a.meal_summary,
         total_calories_kcal: a.total_calories_kcal,
         total_nutrition: a.total_nutrition,
@@ -588,7 +757,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       if (saved?.cloudSynced === false && profile?.loggedIn) {
         showToast('Saved on this device — cloud backup failed. Try Sync in Settings.');
       } else {
-        showToast('Meal saved!');
+        showToast(state.source === 'drink' ? 'Drink saved!' : 'Meal saved!');
       }
       onSaved();
     } catch (err) {

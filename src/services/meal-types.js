@@ -17,3 +17,5 @@ export function mealTypeLabel(type) {
   const map = { breakfast: '🌅 Breakfast', lunch: '☀️ Lunch', dinner: '🌙 Dinner', snack: '🍎 Snack' };
   return map[type] || '';
 }
+
+export { inferMealTypeForDrink } from './drink-logging.js';

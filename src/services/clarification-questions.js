@@ -1,3 +1,5 @@
+import { drinkCategoryForSubtype, getDrinkSubtype } from './drink-logging.js';
+
 /** Max quick questions after a photo scan — keeps the flow fast. */
 export const MAX_CLARIFICATION_QUESTIONS = 3;
 
@@ -280,9 +282,21 @@ function mealContext(analysis) {
     .join(' ')
     .toLowerCase();
 
+  const subtypeHint = analysis?._drinkLogSubtype
+    ? getDrinkSubtype(analysis._drinkLogSubtype)?.aiHint || ''
+    : '';
+
+  let drinkCategory = detectDrinkCategory(`${text} ${subtypeHint}`);
+  if (!drinkCategory && analysis?._drinkLogSubtype) {
+    drinkCategory = drinkCategoryForSubtype(analysis._drinkLogSubtype);
+    if (analysis._drinkLogSubtype === 'alcohol') {
+      drinkCategory = detectDrinkCategory(text) || 'generic';
+    }
+  }
+
   return {
     text,
-    drinkCategory: detectDrinkCategory(text),
+    drinkCategory,
     hasDrink: /\b(drink|beverage|coffee|tea|juice|water|soda|cola|beer|wine|whisky|whiskey|spirit|milkshake|smoothie|latte|cappuccino|lassi|chaa|chai|prosecco|champagne|rum|gin|vodka|ml\b|cup of)\b/.test(
       text,
     ),

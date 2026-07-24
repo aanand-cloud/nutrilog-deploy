@@ -434,6 +434,44 @@ body {
 
 .log-screen { padding-bottom: 24px; }
 .log-screen.center { text-align: center; padding-top: 24px; }
+.log-screen__lead {
+  margin: -4px 0 20px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--text3);
+}
+.drink-subtype-label {
+  margin-bottom: 10px;
+}
+.drink-subtype-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.drink-subtype-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface2);
+  color: var(--text2);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.drink-subtype-btn:hover {
+  border-color: rgba(59, 130, 246, 0.35);
+}
+.drink-subtype-btn--active {
+  border-color: rgba(59, 130, 246, 0.55);
+  background: rgba(59, 130, 246, 0.1);
+  color: #1d4ed8;
+}
 .log-section {
   margin-bottom: 20px;
   padding: 16px;
@@ -444,6 +482,10 @@ body {
 .log-section--photo {
   background: linear-gradient(180deg, #f8fcfb 0%, var(--surface) 100%);
   border-color: rgba(13, 148, 136, 0.18);
+}
+.log-section--drinks {
+  background: linear-gradient(180deg, #f7f9ff 0%, var(--surface) 100%);
+  border-color: rgba(59, 130, 246, 0.16);
 }
 .log-section--packaged {
   background: var(--surface2);
