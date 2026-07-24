@@ -956,6 +956,18 @@ body {
 }
 .option-btn:active { border-color: var(--teal); background: var(--teal-dim); }
 
+.log-screen--clarify .clarify-question {
+  font-size: 1.15rem;
+  line-height: 1.35;
+  margin: 0 0 8px;
+}
+.clarify-helper {
+  margin: 0 0 16px;
+  font-size: 0.85rem;
+  color: var(--text2);
+  line-height: 1.45;
+}
+
 .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
 .field span { font-size: 0.85rem; font-weight: 500; color: var(--text3); }
 .field input, .field select {

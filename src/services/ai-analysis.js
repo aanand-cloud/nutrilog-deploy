@@ -1,8 +1,9 @@
 import { getSession, isSupabaseConfigured } from './auth.js';
 import { syncScanUsageFromServer, getLocalDayKey } from './subscription.js';
 import { compressImage, compressDataUrl } from './image-compress.js';
+import { needsClarification } from './clarification-questions.js';
 
-export { compressImage, compressDataUrl };
+export { compressImage, compressDataUrl, needsClarification };
 
 async function authPayload() {
   if (isSupabaseConfigured()) {
@@ -123,11 +124,6 @@ function parseAnalysisResponse(data) {
   return raw;
 }
 
-export function needsClarification(analysis, threshold = 0.72) {
-  const questions = analysis.clarification_questions || [];
-  const lowConfidence = (analysis.confidence_score ?? 1) < threshold;
-  return questions.length > 0 && (lowConfidence || questions.length >= 2);
-}
 
 export function fileToBase64(file) {
   return new Promise((resolve, reject) => {

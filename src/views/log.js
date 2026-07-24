@@ -24,15 +24,10 @@ import {
   packagedLookupAnalyzingHtml,
   startPhotoScanStatusCycle,
 } from '../services/analyze-scan-ui.js';
-
-const QUICK_ANSWERS = {
-  oil: ['Light oil', 'Normal amount', 'Generous / deep-fried'],
-  cooking: ['Grilled', 'Fried', 'Steamed', 'Raw / salad', 'Air-fried'],
-  portion: ['Small portion', 'Medium', 'Large', 'Extra large'],
-  protein: ['Chicken', 'Beef / lamb', 'Fish', 'Vegetarian', 'Paneer / tofu'],
-  sauce: ['No extra sauce', 'Light sauce', 'Heavy sauce / gravy'],
-  drink: ['Water', 'Juice', 'Soft drink', 'Alcohol', 'Coffee / tea'],
-};
+import {
+  normalizeClarificationQuestions,
+  getClarificationStepConfig,
+} from '../services/clarification-questions.js';
 
 /** Keeps photo flow alive if the screen re-renders mid-upload */
 let activeLogState = null;
@@ -427,6 +422,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       }
     }
     if (needsClarification(state.analysis)) {
+      state.clarificationSteps = normalizeClarificationQuestions(state.analysis);
       state.step = 'clarify';
       state.answers = [];
     } else {
@@ -463,22 +459,31 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
   }
 
   function renderClarify() {
-    const questions = (state.analysis.clarification_questions || []).slice(0, 4);
+    const steps = state.clarificationSteps?.length
+      ? state.clarificationSteps
+      : normalizeClarificationQuestions(state.analysis);
     const current = state.answers.length;
-    const q = questions[current];
-    const options = guessOptions(q);
+    const step = steps[current];
+    if (!step) {
+      state.step = 'review';
+      render();
+      return;
+    }
+    const ui = getClarificationStepConfig(step, state.analysis);
+    const total = steps.length;
 
     root.innerHTML = `
-      <section class="log-screen">
+      <section class="log-screen log-screen--clarify">
         ${state.image?.dataUrl ? `<img src="${state.image.dataUrl}" alt="" class="preview-img preview-img--small"/>` : ''}
-        <p class="step-label">Quick question ${current + 1} of ${questions.length}</p>
-        <h2>${escapeHtml(q)}</h2>
+        <p class="step-label">Quick question ${current + 1} of ${total}</p>
+        <h2 class="clarify-question">${escapeHtml(ui.question)}</h2>
+        <p class="clarify-helper">${escapeHtml(ui.helper)}</p>
         <div class="option-grid" id="optionGrid">
-          ${options.map((o) => `<button type="button" class="option-btn" data-answer="${escapeAttr(o)}">${escapeHtml(o)}</button>`).join('')}
+          ${ui.options.map((o) => `<button type="button" class="option-btn" data-answer="${escapeAttr(o)}">${escapeHtml(o)}</button>`).join('')}
         </div>
         <label class="field">
-          <span>Or type your answer</span>
-          <input type="text" id="customAnswer" placeholder="Your answer…"/>
+          <span>${escapeHtml(ui.inputLabel)}</span>
+          <input type="text" id="customAnswer" inputmode="${escapeAttr(ui.inputMode)}" placeholder="${escapeAttr(ui.inputPlaceholder)}"/>
         </label>
         <button type="button" class="btn btn-primary full" id="submitAnswer">Continue</button>
         <button type="button" class="btn btn-ghost full" id="skipClarify">Skip — use best guess</button>
@@ -501,9 +506,16 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
   }
 
   async function submitAnswer(answer) {
-    const questions = state.analysis.clarification_questions.slice(0, 4);
-    state.answers.push({ question: questions[state.answers.length], answer });
-    if (state.answers.length < questions.length) {
+    const steps = state.clarificationSteps?.length
+      ? state.clarificationSteps
+      : normalizeClarificationQuestions(state.analysis);
+    const idx = state.answers.length;
+    state.answers.push({
+      question: steps[idx].question,
+      answer,
+      topic: steps[idx].topic,
+    });
+    if (state.answers.length < steps.length) {
       render();
       return;
     }
@@ -585,17 +597,6 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       persist();
       showReviewFlow();
     }
-  }
-
-  function guessOptions(question) {
-    const q = (question || '').toLowerCase();
-    if (/oil|butter|ghee|fat|fried|deep/.test(q)) return QUICK_ANSWERS.oil;
-    if (/grill|fry|steam|cook|bake|raw/.test(q)) return QUICK_ANSWERS.cooking;
-    if (/portion|size|cup|bowl|serving|how much|rice|pasta/.test(q)) return QUICK_ANSWERS.portion;
-    if (/chicken|meat|fish|veg|paneer|protein|lamb|beef/.test(q)) return QUICK_ANSWERS.protein;
-    if (/sauce|gravy|dressing|curry/.test(q)) return QUICK_ANSWERS.sauce;
-    if (/drink|beverage|alcohol|juice/.test(q)) return QUICK_ANSWERS.drink;
-    return ['Small', 'Medium', 'Large', 'Not sure'];
   }
 
   render();
