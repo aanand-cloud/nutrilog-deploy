@@ -942,6 +942,14 @@ body {
   gap: 10px;
   margin: 16px 0;
 }
+.log-screen--clarify .option-grid {
+  grid-template-columns: 1fr;
+}
+@media (min-width: 400px) {
+  .log-screen--clarify .option-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
 .option-btn {
   border: 2px solid var(--border);
   background: var(--surface);

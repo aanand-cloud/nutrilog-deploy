@@ -10,15 +10,26 @@ Rules:
 7. Ask ONE topic per question. Plain English, under 14 words. No jargon.
 
 When to ask (pick only what applies):
-- DRINKS (tea, coffee, juice, lassi, soda, alcohol): ask volume in ml — NOT grams. Example topic: drink_volume — "How much did you drink?"
-- SNACKS (chips, nuts, biscuits, samosa, chocolate): ask weight in grams. topic: portion_snack
-- RICE / pasta / curry / meat / veg on plate: ask rough grams. topic: portion_solid
-- Roti, naan, bread, dosa, slices: ask piece count. topic: bread_count
-- Oily, fried, or ghee-heavy dishes: ask oil level. topic: oil_fat
-- Curry, gravy, saucy dishes: ask sauce amount. topic: sauce_gravy
-- Mixed dish with unclear protein: ask main protein. topic: protein_type
-- Do NOT ask cooking method AND oil — pick the one that matters more for calories.
-- Do NOT ask if the photo or hints already make it obvious.
+
+DRINKS — use drink-specific topics (ml for volume, g for sugar when relevant):
+- Coffee / tea / chai / latte: drink_coffee_tea_size ("How much coffee/tea?") AND drink_coffee_tea_style ("How prepared? milk & sugar") if milk/sugar unclear
+- Wine / prosecco: drink_wine_size
+- Whisky / vodka / rum / gin / spirits: drink_spirits_size
+- Beer / cider / lager: drink_beer_size
+- Soft drinks / cola / soda: drink_soft_size AND drink_soft_type (regular vs diet) if unclear
+- Juice / smoothie / lassi: drink_juice_size
+- Water: drink_water_size (or skip if obvious)
+- Other drinks: drink_generic_size
+
+FOOD (not drinks):
+- SNACKS: portion_snack (grams)
+- RICE / pasta / curry / meat / veg: portion_solid (grams)
+- Roti / naan / bread / dosa: bread_count
+- Oily / fried dishes: oil_fat
+- Curry / gravy: sauce_gravy
+- Unclear protein: protein_type
+
+Do NOT ask cooking method AND oil. Do NOT ask if photo or hints already answer it.
 
 JSON FORMAT:
 {
@@ -28,7 +39,7 @@ JSON FORMAT:
   "confidence_score": number,
   "items": [{ "name": string, "portion_estimate": string, "calories_kcal": number, "nutrition": { "protein_g": number, "carbs_g": number, "fat_g": number }, "confidence": number }],
   "clarification_questions": [
-    { "topic": "drink_volume|drink_type|portion_snack|portion_solid|bread_count|oil_fat|sauce_gravy|protein_type|cooking_method", "question": "Short plain question?", "about": "optional item name" }
+    { "topic": "drink_coffee_tea_size|drink_coffee_tea_style|drink_wine_size|drink_spirits_size|drink_beer_size|drink_soft_size|drink_soft_type|drink_juice_size|drink_water_size|drink_generic_size|portion_snack|portion_solid|bread_count|oil_fat|sauce_gravy|protein_type", "question": "Short plain question?", "about": "optional item name" }
   ]
 }
 
@@ -39,6 +50,10 @@ export const CLARIFY_PROMPT = `Refine the previous meal estimate using the user'
 Rules:
 1. Return ONLY valid JSON in the same format as the initial analysis.
 2. Set clarification_questions to [].
-3. Apply user answers precisely — if they say "250 ml", "180 g", or "2 roti", use those in portion_estimate and recalculate nutrition.
-4. Drinks must stay in ml; solid food and snacks in grams; bread can be pieces with approximate gram weight.
+3. Apply user answers precisely:
+   - Drink volumes in ml (e.g. "350 ml", "175 ml wine", "25 ml whisky")
+   - Coffee/tea style answers: apply milk type and sugar grams stated (e.g. "2 tsp sugar (~8 g)", "oat milk")
+   - Soft drink: apply regular vs diet/zero sugar
+   - Solid food in grams; bread in pieces with approximate gram weight
+4. Recalculate total_nutrition including sugar_g from stated sugar.
 5. Use USDA / UK reference values.`;
