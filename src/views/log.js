@@ -23,6 +23,7 @@ import {
   photoScanAnalyzingHtml,
   packagedLookupAnalyzingHtml,
   startPhotoScanStatusCycle,
+  PHOTO_ANALYSIS_STEPS,
   DRINK_ANALYSIS_STEPS,
 } from '../services/analyze-scan-ui.js';
 import {
@@ -58,7 +59,22 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     drinkSubtype: null,
     drinkNotes: '',
     source: null,
+    photoLogKind: null,
   };
+
+  function isDrinkLog() {
+    return state.photoLogKind === 'drink';
+  }
+
+  function setPhotoLogKind(kind) {
+    state.photoLogKind = kind === 'drink' ? 'drink' : 'food';
+    state.source = isDrinkLog() ? 'drink' : 'meal';
+  }
+
+  function clearPhotoLogKind() {
+    state.photoLogKind = null;
+    state.source = null;
+  }
 
   function persist() {
     activeLogState = state;
@@ -92,20 +108,20 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
   }
 
   function effectiveAnalysisNotes() {
-    if (state.source === 'drink') {
+    if (isDrinkLog()) {
       return buildDrinkAnalysisNotes(state.drinkSubtype, state.drinkNotes);
     }
     return state.mealNotes;
   }
 
   function prepareMealPhotoFlow() {
-    state.source = 'meal';
+    setPhotoLogKind('food');
     state.mealType = defaultMealType();
     readMealNotesFromDom();
   }
 
   function prepareDrinkPhotoFlow() {
-    state.source = 'drink';
+    setPhotoLogKind('drink');
     readDrinkNotesFromDom();
     state.mealType = inferMealTypeForDrink(state.drinkSubtype);
   }
@@ -356,15 +372,15 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
 
   async function openMealLiveCamera() {
     prepareMealPhotoFlow();
-    return openLiveCameraCore();
+    return openLiveCameraCore('food');
   }
 
   async function openDrinkLiveCamera() {
     prepareDrinkPhotoFlow();
-    return openLiveCameraCore();
+    return openLiveCameraCore('drink');
   }
 
-  async function openLiveCameraCore() {
+  async function openLiveCameraCore(logKind) {
     if (!canScan().allowed) {
       state.step = 'paywall';
       render();
@@ -372,7 +388,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     }
     try {
       const img = await openWebCameraModal();
-      if (img) await useImage(img);
+      if (img) await useImage(img, logKind);
     } catch (err) {
       showToast(err.message || 'Camera failed');
     }
@@ -389,20 +405,24 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       </section>
     `;
     root.querySelector('#upgradeBtn').addEventListener('click', () => onUpgrade?.());
-    root.querySelector('#backCapture').addEventListener('click', () => { state.step = 'capture'; render(); });
+    root.querySelector('#backCapture').addEventListener('click', () => {
+      state.step = 'capture';
+      clearPhotoLogKind();
+      render();
+    });
   }
 
   async function openMealCamera() {
     prepareMealPhotoFlow();
-    return openCameraCore();
+    return openCameraCore('food');
   }
 
   async function openDrinkCamera() {
     prepareDrinkPhotoFlow();
-    return openCameraCore();
+    return openCameraCore('drink');
   }
 
-  async function openCameraCore() {
+  async function openCameraCore(logKind) {
     if (!canScan().allowed) {
       state.step = 'paywall';
       render();
@@ -410,7 +430,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     }
     try {
       const native = await captureMealPhoto();
-      if (native) await useImage(native);
+      if (native) await useImage(native, logKind);
     } catch (err) {
       showToast(err.message || 'Camera failed');
     }
@@ -418,15 +438,15 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
 
   async function openMealGallery() {
     prepareMealPhotoFlow();
-    return openGalleryCore();
+    return openGalleryCore('food');
   }
 
   async function openDrinkGallery() {
     prepareDrinkPhotoFlow();
-    return openGalleryCore();
+    return openGalleryCore('drink');
   }
 
-  async function openGalleryCore() {
+  async function openGalleryCore(logKind) {
     if (!canScan().allowed) {
       state.step = 'paywall';
       render();
@@ -434,7 +454,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     }
     try {
       const img = await pickMealPhotoFromGallery();
-      if (img) await useImage(img);
+      if (img) await useImage(img, logKind);
     } catch (err) {
       showToast(err.message || 'Could not open gallery');
     }
@@ -442,15 +462,16 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
 
   async function onMealPhotoSelected(e) {
     prepareMealPhotoFlow();
-    return onPhotoSelectedCore(e);
+    return onPhotoSelectedCore(e, 'food');
   }
 
   async function onDrinkPhotoSelected(e) {
     prepareDrinkPhotoFlow();
-    return onPhotoSelectedCore(e);
+    return onPhotoSelectedCore(e, 'drink');
   }
 
-  async function onPhotoSelectedCore(e) {
+  async function onPhotoSelectedCore(e, logKind) {
+    setPhotoLogKind(logKind);
     const input = e.target;
     const file = input.files?.[0];
     if (!file) return;
@@ -475,7 +496,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       const compressed = await compressImage(file);
       if (!compressed?.base64) throw new Error('Photo was empty — try another image');
       input.value = '';
-      await useImage(compressed);
+      await useImage(compressed, logKind);
     } catch (err) {
       state.status = err.message || 'Could not read photo — try JPG or PNG';
       state.step = 'capture';
@@ -485,7 +506,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     }
   }
 
-  async function useImage(image) {
+  async function useImage(image, logKind = state.photoLogKind || 'food') {
     if (isSupabaseConfigured() && !profile?.loggedIn) {
       showToast('Sign in to log meals with AI', 4500);
       onSignIn?.();
@@ -496,7 +517,8 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       showToast('AI photo logging needs your consent — try packaged food search instead', 5000);
       return;
     }
-    if (state.source === 'drink') readDrinkNotesFromDom();
+    setPhotoLogKind(logKind);
+    if (isDrinkLog()) readDrinkNotesFromDom();
     else readMealNotesFromDom();
     try {
       if (image?.dataUrl && !image.external) {
@@ -508,7 +530,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       }
       state.image = image;
       state.step = 'analyzing';
-      state.status = state.source === 'drink' ? 'Analysing your drink…' : 'Analysing your meal…';
+      state.status = isDrinkLog() ? 'Analysing your drink…' : 'Analysing your food…';
       persist();
       render();
       await runAnalysis();
@@ -528,7 +550,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
         state.image.mimeType,
         notes
       );
-      if (state.source === 'drink') {
+      if (isDrinkLog()) {
         state.analysis._drinkLogSubtype = state.drinkSubtype || null;
       }
       if (!isSupabaseConfigured() && !state.scanRecorded) {
@@ -555,12 +577,12 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       const needsKey = /GEMINI|OPENAI|503|not configured/i.test(err.message || '');
       if (needsKey && !import.meta.env.PROD) {
         state.analysis = { ...demoAnalysis(), demoEstimate: true };
-        if (state.source === 'drink') {
+        if (isDrinkLog()) {
           state.analysis._drinkLogSubtype = state.drinkSubtype || null;
         }
-        state.status = state.source === 'drink'
+        state.status = isDrinkLog()
           ? 'Sample estimate only — connect AI for your actual drink'
-          : 'Sample estimate only — connect AI for your actual meal';
+          : 'Sample estimate only — connect AI for your actual food';
       } else if (needsKey) {
         const msg = 'Photo logging is temporarily unavailable. You can still log packaged food by barcode or product search.';
         state.status = msg;
@@ -597,7 +619,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     }
 
     const isLookup = state.source === 'barcode' || state.source === 'food_search';
-    const isDrink = state.source === 'drink';
+    const isDrink = isDrinkLog();
     const scanPanel = isLookup
       ? packagedLookupAnalyzingHtml(state.image?.dataUrl, {
           title: 'Looking up food…',
@@ -607,7 +629,11 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
           title: 'Analysing your drink…',
           steps: DRINK_ANALYSIS_STEPS,
           photoAlt: 'Your drink photo',
-        } : undefined);
+        } : {
+          title: 'Analysing your food…',
+          steps: PHOTO_ANALYSIS_STEPS,
+          photoAlt: 'Your food photo',
+        });
 
     root.innerHTML = `
       <section class="log-screen log-screen--analyzing ${isLookup ? 'center' : ''}">
@@ -617,7 +643,8 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     `;
 
     if (!isLookup) {
-      analyzeStatusCleanup = startPhotoScanStatusCycle(root);
+      const steps = isDrink ? DRINK_ANALYSIS_STEPS : PHOTO_ANALYSIS_STEPS;
+      analyzeStatusCleanup = startPhotoScanStatusCycle(root, steps);
     }
   }
 
@@ -692,7 +719,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
         state.answers,
         effectiveAnalysisNotes()
       );
-      if (state.source === 'drink') {
+      if (isDrinkLog()) {
         state.analysis._drinkLogSubtype = state.drinkSubtype || null;
       }
     } catch (_) {
@@ -703,12 +730,12 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
   }
 
   async function showReviewFlow() {
-    const isDrink = state.source === 'drink';
+    const isDrink = isDrinkLog();
     root.innerHTML = `
       <section class="log-screen center">
         ${state.image?.dataUrl ? `<img src="${state.image.dataUrl}" alt="" class="preview-img preview-img--small"/>` : ''}
         <div class="spinner" aria-hidden="true"></div>
-        <h2>${isDrink ? 'Review your drink' : 'Review your meal'}</h2>
+        <h2>${isDrink ? 'Review your drink' : 'Review your food'}</h2>
         <p>${isDrink ? 'Check volume and add anything the camera missed.' : 'Check portions and add anything the camera missed.'}</p>
       </section>
     `;
@@ -720,6 +747,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
 
     if (!result) {
       state.step = 'capture';
+      clearPhotoLogKind();
       persist();
       render();
       return;
@@ -742,7 +770,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       const saved = await saveMeal({
         date: todayKey(),
         meal_type: state.mealType,
-        meal_notes: state.source === 'drink'
+        meal_notes: isDrinkLog()
           ? formatDrinkMealNotes(state.drinkSubtype, state.drinkNotes) || undefined
           : state.mealNotes || undefined,
         meal_summary: a.meal_summary,
@@ -757,7 +785,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       if (saved?.cloudSynced === false && profile?.loggedIn) {
         showToast('Saved on this device — cloud backup failed. Try Sync in Settings.');
       } else {
-        showToast(state.source === 'drink' ? 'Drink saved!' : 'Meal saved!');
+        showToast(isDrinkLog() ? 'Drink saved!' : 'Food saved!');
       }
       onSaved();
     } catch (err) {

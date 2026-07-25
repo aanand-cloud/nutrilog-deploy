@@ -19,7 +19,7 @@ export function escapeAttr(s) {
     .replace(/</g, '&lt;');
 }
 
-export function photoScanAnalyzingHtml(imageDataUrl, { title = 'Analysing your meal', steps = PHOTO_ANALYSIS_STEPS, photoAlt = 'Your meal photo' } = {}) {
+export function photoScanAnalyzingHtml(imageDataUrl, { title = 'Analysing your food', steps = PHOTO_ANALYSIS_STEPS, photoAlt = 'Your food photo' } = {}) {
   if (!imageDataUrl) {
     return `
       <div class="meal-scan meal-scan--no-photo" role="status" aria-live="polite">
