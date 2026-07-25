@@ -1,5 +1,6 @@
 import { validateVoucherCode } from '../lib/voucher.mjs';
 import { isTrialActive } from '../lib/trial-enforcement.mjs';
+import { applyTopUpToProfile } from '../lib/scan-enforcement.mjs';
 import { verifyAccessToken, requireAuthInProduction, getAccessToken } from '../lib/verify-auth.mjs';
 import { jsonResponse, optionsResponse } from '../lib/http-utils.mjs';
 import { reportServerError } from '../lib/sentry.mjs';
@@ -75,6 +76,58 @@ export default async (req) => {
           ...result,
           savedToProfile: true,
           trialUntil: until.toISOString(),
+        },
+        200,
+        req
+      );
+    }
+
+    if (result.type === 'topup') {
+      if (profile?.stripe_customer_id) {
+        return jsonResponse(
+          { error: 'Bonus scan codes are for testers without an active paid subscription.' },
+          400,
+          req
+        );
+      }
+
+      const topup = await applyTopUpToProfile(auth.supabase, auth.userId, result.topupScans);
+      if (!topup.ok) {
+        return jsonResponse({ error: 'Could not add bonus scans — contact support if this persists' }, 500, req);
+      }
+
+      const expiry = result.validUntil ? new Date(`${result.validUntil}T23:59:59`) : new Date();
+      if (Number.isNaN(expiry.getTime())) {
+        expiry.setFullYear(expiry.getFullYear() + 1);
+      }
+      const trialUntil = expiry.toISOString();
+
+      const { error } = await auth.supabase
+        .from('profiles')
+        .update({
+          plan: result.trialPlan || 'daily10',
+          trial_until: trialUntil,
+          scan_month: null,
+          scan_used: 0,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', auth.userId);
+
+      if (error) {
+        await reportServerError(error, {
+          function: 'validate-voucher',
+          logMessage: 'topup voucher profile update failed',
+        });
+        return jsonResponse({ error: 'Could not activate bonus scans — contact support if this persists' }, 500, req);
+      }
+
+      return jsonResponse(
+        {
+          ...result,
+          savedToProfile: true,
+          topupBalance: topup.balance,
+          trialPlan: result.trialPlan || 'daily10',
+          trialUntil,
         },
         200,
         req

@@ -2,9 +2,8 @@ import { getGoals, formatEnergy, formatEnergyParts, getUnitPrefs, saveGoals, sav
 import { getMealsForDate, getMealsInRange, sumNutrition, deleteMeal, todayKey, clearAllLocalMeals } from '../services/storage.js';
 import { openMealEditorModal } from '../services/meal-editor.js';
 import { topWeeklyInsight, weekReport } from '../services/reports.js';
-import { getUser, signIn, signUp, signOut, resetPassword, resendConfirmationEmail, updatePassword, isSupabaseConfigured } from '../services/auth.js';
+import { getUser, signOut, updatePassword, isSupabaseConfigured } from '../services/auth.js';
 import { getProfile, saveDisplayName, saveLocalDisplayName, getLocalDisplayName, saveDiscountPrefs, saveVoucherRedemption } from '../services/profile.js';
-import { finalizeAuthSession } from '../services/auth-session.js';
 import { fullSync } from '../services/sync.js';
 import { getCuisineTips } from '../services/cuisine-tips.js';
 import { buildWeeklyPushMessage, buildDailyPushMessage } from '../services/push-messages.js';
@@ -29,6 +28,7 @@ import {
   usageMeterRemainingPercent,
   getTopUpBalance,
   getScanBudget,
+  syncTopUpFromCloud,
 } from '../services/subscription.js';
 import { PLANS, TOPUP_PACK, MAX_TOPUP_CARRY } from '../services/plans.js';
 import { getDiscountEligibility, getDiscountSections, validateWorkEmailForDiscount } from '../services/discount.js';
@@ -41,13 +41,6 @@ import { friendlyAuthError } from '../services/auth-errors.js';
 import { openLegalModal } from './legal.js';
 import { DISCLAIMERS, disclaimerBlock } from '../services/disclaimers.js';
 import { deleteMyAccount } from '../services/account-delete.js';
-import {
-  signupConsentFieldsHtml,
-  bindLegalLinks,
-  readSignupConsent,
-  signupConsentError,
-  recordTermsAcceptance,
-} from '../services/privacy-consent.js';
 import { showSentryTestButton, sendSentryTestError } from '../services/sentry.js';
 
 const wizardActivities = activityOptions();
@@ -109,9 +102,16 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
           <button type="button" class="btn btn-primary" id="guestGetStarted">Get started free</button>
           <button type="button" class="btn btn-ghost" id="guestSignIn">Sign in</button>
         </div>
-        <p class="guest-prompt__note">${isSupabaseConfigured() ? 'Packaged food logging (barcode and product search) works without signing in.' : 'If sign-in fails, refresh after the latest app update.'}</p>
+        <p class="guest-prompt__note">${isSupabaseConfigured() ? 'No sign-in needed for barcode & product search — always free, unlimited.' : 'If sign-in fails, refresh after the latest app update.'}</p>
       </section>
     ` : ''}
+
+    <section class="home-free-perks card" aria-label="Free barcode logging">
+      <p class="home-free-perks__eyebrow">100% free · no account · no photo limit</p>
+      <h3 class="home-free-perks__title">Got a barcode? You're done in seconds.</h3>
+      <p class="home-free-perks__body">Scan any packaged food — cereals, meal deals, snacks — and log accurate nutrition from the label. No camera allowance used.</p>
+      <button type="button" class="btn btn-ghost btn-sm full" id="homeLogPackagedBtn">Log packaged food →</button>
+    </section>
 
     <section class="home-hero" aria-label="NutriLog">
       <p class="home-hero__steps">Snap · Analyse · Track</p>
@@ -192,6 +192,7 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
   root.querySelector('#discountHeroBtn')?.addEventListener('click', () => onSettings?.('plans', { openDiscount: true }));
   root.querySelector('#guestGetStarted')?.addEventListener('click', () => onSignIn?.('signup'));
   root.querySelector('#guestSignIn')?.addEventListener('click', () => onSignIn?.('signin'));
+  root.querySelector('#homeLogPackagedBtn')?.addEventListener('click', onLog);
   root.querySelector('#todayUpgrade')?.addEventListener('click', () => onSettings?.('plans'));
   root.querySelector('#viewReportsBtn')?.addEventListener('click', () => onReports?.());
   root.querySelector('#moreTipsBtn')?.addEventListener('click', () => onReports?.());
@@ -249,7 +250,7 @@ function mealCard(meal, prefs = getUnitPrefs()) {
   `;
 }
 
-export async function renderSettings(root, { onSave, onGoToday, showToast, profile: profileIn }) {
+export async function renderSettings(root, { onSave, onGoToday, showToast, profile: profileIn, onSignIn }) {
   const goals = getGoals();
   const prefs = getUnitPrefs();
   const notifyPrefs = getNotifyPrefs();
@@ -436,28 +437,10 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
           ` : `
             <p class="settings-group-label">Create account or sign in</p>
             <p class="fine-print">Free to start. Your meals sync securely to the cloud when signed in.</p>
-            <form id="authForm" class="auth-form settings-form-compact" novalidate>
-              <label class="field full">
-                <span>First name</span>
-                <input type="text" name="display_name" id="authFirstName" maxlength="40" autocomplete="given-name" placeholder="e.g. Sarah" value="${escapeHtml(displayName)}"/>
-              </label>
-              <label class="field full">
-                <span>Email</span>
-                <input type="email" name="email" id="authEmail" required autocomplete="email" inputmode="email" placeholder="you@email.com"/>
-              </label>
-              <label class="field full">
-                <span>Password</span>
-                <input type="password" name="password" id="authPassword" required minlength="6" autocomplete="current-password" placeholder="At least 6 characters"/>
-              </label>
-              ${signupConsentFieldsHtml({ idPrefix: 'settingsAuth' })}
-              <p class="auth-status" id="authStatus" hidden role="status"></p>
-              <div class="settings-auth-actions">
-                <button type="button" class="btn btn-primary" id="signUpBtn">Create account</button>
-                <button type="button" class="btn btn-ghost" id="signInBtn">Sign in</button>
-              </div>
-              <button type="button" class="btn btn-ghost btn-sm full" id="forgotPasswordBtn">Forgot password?</button>
-              <button type="button" class="btn btn-ghost btn-sm full" id="resendConfirmBtn" hidden>Resend confirmation email</button>
-            </form>
+            <div class="guest-prompt__actions settings-auth-cta">
+              <button type="button" class="btn btn-primary full" id="settingsGetStarted">Create free account</button>
+              <button type="button" class="btn btn-ghost full" id="settingsSignIn">Sign in</button>
+            </div>
           `}
 
           <p class="settings-group-label">Privacy &amp; data</p>
@@ -571,7 +554,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
                 </div>
                 <p>Sign in to view your plan status, receipts, and subscription settings.</p>
                 <p class="fine-print">Paid subscribers can cancel or change plan here — self-serve, no support ticket needed.</p>
-                <button type="button" class="btn btn-ghost full" id="billingSignInBtn">Go to Account</button>
+                <button type="button" class="btn btn-primary full" id="billingSignInBtn">Sign in</button>
               </div>
             </div>
           `}
@@ -631,18 +614,18 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
                 <h5>${discountSections.voucher.title}</h5>
                 ${discountSections.voucher.active ? '<span class="discount-card__badge">Applied</span>' : ''}
               </div>
-              <p class="fine-print">${discountSections.voucher.blurb}</p>
               ${discountSections.voucher.trialActive ? `
-                <p class="settings-discount-banner">✓ ${escapeHtml(trialPlanLabel(profile))} — no card required</p>
+                <p class="settings-discount-banner">✓ ${escapeHtml(trialPlanLabel(profile))}</p>
               ` : discountSections.voucher.active ? `
-                <p class="settings-discount-banner">✓ Promo code applied — 30% off (valid 1 year)</p>
+                <p class="settings-discount-banner">✓ Promo code applied</p>
               ` : `
+                <p class="fine-print">${discountSections.voucher.blurb}</p>
                 <form id="voucherForm" class="auth-form voucher-form settings-form-compact">
                   <label class="field full">
                     <span>Promo code</span>
-                    <input type="text" name="code" placeholder="NUTRIPROMO or TRIAL7" autocapitalize="characters" autocomplete="off" required/>
+                    <input type="text" name="code" placeholder="Enter your promo code" autocapitalize="characters" autocomplete="off" required/>
                   </label>
-                  <button type="submit" class="btn btn-primary full">Apply promo code</button>
+                  <button type="submit" class="btn btn-primary full">Apply</button>
                 </form>
               `}
             </article>
@@ -816,153 +799,8 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
     }
   });
 
-  bindLegalLinks(root.querySelector('#authForm'));
-
-  function readAuthForm() {
-    const form = root.querySelector('#authForm');
-    if (!form) return null;
-    const fd = new FormData(form);
-    return {
-      firstName: String(fd.get('display_name') || '').trim(),
-      email: String(fd.get('email') || '').trim(),
-      password: String(fd.get('password') || ''),
-    };
-  }
-
-  function setAuthStatus(message, { showResend = false, tone = 'info' } = {}) {
-    const el = root.querySelector('#authStatus');
-    const resendBtn = root.querySelector('#resendConfirmBtn');
-    if (!el) return;
-    el.classList.remove('auth-status--error', 'auth-status--success');
-    if (tone === 'error') el.classList.add('auth-status--error');
-    if (tone === 'success') el.classList.add('auth-status--success');
-    if (message) {
-      el.textContent = message;
-      el.hidden = false;
-    } else {
-      el.textContent = '';
-      el.hidden = true;
-    }
-    if (resendBtn) resendBtn.hidden = !showResend;
-  }
-
-  function setAuthBusy(busy) {
-    ['#signUpBtn', '#signInBtn', '#forgotPasswordBtn', '#resendConfirmBtn'].forEach((sel) => {
-      const btn = root.querySelector(sel);
-      if (btn) btn.disabled = busy;
-    });
-  }
-
-  async function finishSignedIn(firstName) {
-    const result = await finalizeAuthSession(firstName);
-    if (!result.ok) {
-      throw new Error('Sign in did not complete — please try again');
-    }
-    const name = firstName || profile.displayName || getLocalDisplayName();
-    if (result.syncFailed) {
-      setAuthStatus('Signed in — your data will sync shortly.', { tone: 'success' });
-      showToast?.('Signed in — your data will sync shortly');
-    } else {
-      showToast?.(name ? `Welcome, ${name}!` : 'Signed in');
-    }
-    onSave();
-  }
-
-  root.querySelector('#authForm')?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    root.querySelector('#signInBtn')?.click();
-  });
-
-  root.querySelector('#signInBtn')?.addEventListener('click', async () => {
-    const { firstName, email, password } = readAuthForm() || {};
-    if (!email || !password) {
-      setAuthStatus('Enter your email and password.', { tone: 'error' });
-      return;
-    }
-    setAuthBusy(true);
-    setAuthStatus('Signing in…');
-    try {
-      await signIn(email, password);
-      await finishSignedIn(firstName);
-      setAuthStatus('');
-    } catch (err) {
-      const msg = friendlyAuthError(err.message) || 'Sign in failed';
-      setAuthStatus(msg, { tone: 'error', showResend: /confirm your email/i.test(msg) });
-      showToast?.(msg, 5000);
-    } finally {
-      setAuthBusy(false);
-    }
-  });
-
-  root.querySelector('#signUpBtn')?.addEventListener('click', async () => {
-    const form = root.querySelector('#authForm');
-    const { firstName, email, password } = readAuthForm() || {};
-    const consent = readSignupConsent(form);
-    if (!firstName) {
-      setAuthStatus('Please enter your first name.', { tone: 'error' });
-      root.querySelector('#authFirstName')?.focus();
-      return;
-    }
-    if (!email || !password) {
-      setAuthStatus('Enter email and password (6+ characters).', { tone: 'error' });
-      return;
-    }
-    if (password.length < 6) {
-      setAuthStatus('Password must be at least 6 characters.', { tone: 'error' });
-      return;
-    }
-    if (!consent.ok) {
-      setAuthStatus(signupConsentError(consent), { tone: 'error' });
-      return;
-    }
-    setAuthBusy(true);
-    setAuthStatus('Creating your account…');
-    try {
-      saveLocalDisplayName(firstName);
-      const data = await signUp(email, password, firstName);
-      await recordTermsAcceptance();
-      if (data.session) {
-        setAuthStatus('Account created!', { tone: 'success' });
-        await finishSignedIn(firstName);
-        return;
-      }
-      if (data.user) {
-        const msg = 'Account created! Check your email to confirm, then tap Sign in. Check spam too.';
-        setAuthStatus(msg, { tone: 'success', showResend: true });
-        showToast?.(msg, 6000);
-        return;
-      }
-      setAuthStatus('Account created — tap Sign in.', { tone: 'success' });
-    } catch (err) {
-      const msg = friendlyAuthError(err.message) || 'Could not create account';
-      setAuthStatus(msg, { tone: 'error' });
-      showToast?.(msg, 5000);
-    } finally {
-      setAuthBusy(false);
-    }
-  });
-
-  root.querySelector('#resendConfirmBtn')?.addEventListener('click', async () => {
-    const email = root.querySelector('#authEmail')?.value?.trim();
-    if (!email) {
-      setAuthStatus('Enter your email first.', { tone: 'error' });
-      return;
-    }
-    setAuthBusy(true);
-    setAuthStatus('Sending confirmation email…');
-    try {
-      await resendConfirmationEmail(email);
-      const msg = 'Confirmation email sent — check inbox and spam.';
-      setAuthStatus(msg, { tone: 'success', showResend: true });
-      showToast?.(msg, 5000);
-    } catch (err) {
-      const msg = friendlyAuthError(err.message) || 'Could not resend email';
-      setAuthStatus(msg, { tone: 'error' });
-      showToast?.(msg, 5000);
-    } finally {
-      setAuthBusy(false);
-    }
-  });
+  root.querySelector('#settingsGetStarted')?.addEventListener('click', () => onSignIn?.('signup'));
+  root.querySelector('#settingsSignIn')?.addEventListener('click', () => onSignIn?.('signin'));
 
   root.querySelector('#newPasswordForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -1030,29 +868,6 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
     }
   });
 
-  root.querySelector('#forgotPasswordBtn')?.addEventListener('click', async () => {
-    const email = root.querySelector('#authEmail')?.value?.trim();
-    if (!email) {
-      setAuthStatus('Enter your email above, then tap Forgot password.', { tone: 'error' });
-      root.querySelector('#authEmail')?.focus();
-      return;
-    }
-    setAuthBusy(true);
-    setAuthStatus('Sending reset email…');
-    try {
-      await resetPassword(email);
-      const msg = 'Reset email sent — check inbox and spam.';
-      setAuthStatus(msg, { tone: 'success' });
-      showToast?.(msg, 5000);
-    } catch (err) {
-      const msg = friendlyAuthError(err.message) || 'Could not send reset email';
-      setAuthStatus(msg, { tone: 'error' });
-      showToast?.(msg, 5000);
-    } finally {
-      setAuthBusy(false);
-    }
-  });
-
   root.querySelector('#syncBtn')?.addEventListener('click', async () => {
     try {
       const result = await fullSync();
@@ -1066,15 +881,14 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
 
   root.querySelectorAll('[data-plan]').forEach((btn) => {
     btn.addEventListener('click', () =>
-      handleUpgrade(root, user?.email, showToast, btn.dataset.plan, discount.eligible, profile, onSave)
+      handleUpgrade(root, user?.email, showToast, btn.dataset.plan, discount.eligible, profile, onSave, onSignIn)
     );
   });
 
   root.querySelector('#topUpBtn')?.addEventListener('click', async () => {
     if (!profile?.loggedIn) {
-      showToast?.('Sign in first — then you can buy top-ups');
-      setSettingsTab('account');
-      onSave();
+      showToast?.('Sign in to buy top-ups');
+      onSignIn?.('signin');
       return;
     }
     try {
@@ -1102,10 +916,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
     root.querySelector('.plan-grid--settings')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
-  root.querySelector('#billingSignInBtn')?.addEventListener('click', () => {
-    setSettingsTab('account');
-    onSave();
-  });
+  root.querySelector('#billingSignInBtn')?.addEventListener('click', () => onSignIn?.('signin'));
 
   root.querySelector('#voucherForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -1115,9 +926,13 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
       if (result.type === 'trial') {
         if (result.trialPlan) setPlan(result.trialPlan);
         showToast?.(result.label ? `${result.label} started` : 'Free trial started');
+      } else if (result.type === 'topup') {
+        if (result.trialPlan) setPlan(result.trialPlan);
+        if (result.topupBalance != null) syncTopUpFromCloud(result.topupBalance);
+        showToast?.(result.label ? `${result.label} added` : 'Bonus meal logs added');
       } else {
         await saveVoucherRedemption();
-        showToast?.('Promo code applied — 30% off');
+        showToast?.('Promo code applied');
       }
       onSave();
     } catch (err) {
@@ -1221,11 +1036,10 @@ function notifyPreviewCard(label, msg) {
   `;
 }
 
-async function handleUpgrade(root, email, showToast, planId = 'daily10', discount = false, profile = null, onSave) {
+async function handleUpgrade(root, email, showToast, planId = 'daily10', discount = false, profile = null, onSave, onSignIn) {
   if (!profile?.loggedIn) {
-    showToast?.('Sign in first — then choose a plan below');
-    setSettingsTab('account');
-    onSave?.();
+    showToast?.('Sign in to choose a plan');
+    onSignIn?.('signin');
     return;
   }
   try {

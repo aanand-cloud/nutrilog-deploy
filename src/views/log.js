@@ -138,7 +138,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       return `
         <section class="login-banner">
           <p><strong>Sign in required</strong> for photo-based logging. Packaged food below works without an account.</p>
-          <button type="button" class="btn btn-primary btn-sm" id="logSignInBtn">Sign in / Create account</button>
+          <button type="button" class="btn btn-primary btn-sm" id="logSignInBtn">Sign in</button>
         </section>
       `;
     }

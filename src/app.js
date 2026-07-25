@@ -38,7 +38,7 @@ export function initApp() {
     headerGreeting.textContent = getGreeting(cachedProfile.displayName);
     const authBtn = document.getElementById('headerAuthBtn');
     if (authBtn) {
-      authBtn.hidden = Boolean(cachedProfile.loggedIn);
+      authBtn.hidden = Boolean(cachedProfile.loggedIn) || currentView === 'today';
     }
     if (cachedProfile.topup_balance != null) {
       syncTopUpFromCloud(cachedProfile.topup_balance);
@@ -93,7 +93,7 @@ export function initApp() {
     setView('settings');
   }
 
-  function openSignIn(mode = 'signup') {
+  function openSignIn(mode = 'signin') {
     openAuthModal({ mode, showToast, onSuccess: refresh });
   }
 
@@ -116,7 +116,7 @@ export function initApp() {
           onSignIn: openSignIn,
           profile,
         });
-        if (shouldShowOnboarding()) {
+        if (shouldShowOnboarding({ loggedIn: profile?.loggedIn })) {
           await openOnboardingWizard({ onComplete: () => refresh() });
         }
       } else if (currentView === 'log') {
@@ -136,6 +136,7 @@ export function initApp() {
           onGoToday: () => setView('today'),
           showToast,
           profile,
+          onSignIn: openSignIn,
         });
       }
     } finally {

@@ -13,14 +13,20 @@ function parseVoucherEntry(entry, fallbackExpiry) {
   let type = 'discount';
   let trialPlan = 'daily10';
   let trialDays = 7;
+  let topupScans = 100;
 
   if (parts[2]?.toLowerCase() === 'trial') {
     type = 'trial';
     trialPlan = parts[3] === 'daily25' ? 'daily25' : 'daily10';
     trialDays = Math.min(90, Math.max(1, Number(parts[4]) || 7));
+  } else if (parts[2]?.toLowerCase() === 'topup') {
+    type = 'topup';
+    topupScans = Math.min(200, Math.max(1, Number(parts[3]) || 100));
+    trialPlan = 'daily10';
+    trialDays = 365;
   }
 
-  return { code, expires, type, trialPlan, trialDays };
+  return { code, expires, type, trialPlan, trialDays, topupScans };
 }
 
 /** All active codes from env. Supports discount and free-trial codes. */
@@ -39,9 +45,10 @@ export function getVoucherCodes(env = process.env) {
 
   const code = (env.VOUCHER_CODE || 'NUTRIPROMO').trim().toUpperCase();
   return [
-    { code, expires: fallbackExpiry, type: 'discount', trialPlan: 'daily10', trialDays: 7 },
-    { code: 'TRIAL7', expires: '2026-12-31', type: 'trial', trialPlan: 'daily10', trialDays: 7 },
-    { code: 'TRYPLUS', expires: '2026-12-31', type: 'trial', trialPlan: 'daily25', trialDays: 14 },
+    { code, expires: fallbackExpiry, type: 'discount', trialPlan: 'daily10', trialDays: 7, topupScans: 100 },
+    { code: 'TRIAL7', expires: '2026-12-31', type: 'trial', trialPlan: 'daily10', trialDays: 7, topupScans: 100 },
+    { code: 'TRYPLUS', expires: '2026-12-31', type: 'trial', trialPlan: 'daily25', trialDays: 14, topupScans: 100 },
+    { code: 'VIP100', expires: '2027-12-31', type: 'topup', trialPlan: 'daily10', trialDays: 365, topupScans: 100 },
   ];
 }
 
@@ -85,6 +92,18 @@ export function validateVoucherCode(code, env = process.env) {
       trialPlan: valid.trialPlan,
       trialDays: valid.trialDays,
       label: `${valid.trialDays}-day ${planLabel} trial`,
+    };
+  }
+
+  if (valid.type === 'topup') {
+    return {
+      ok: true,
+      type: 'topup',
+      code: valid.code,
+      validUntil: valid.expires,
+      topupScans: valid.topupScans,
+      trialPlan: valid.trialPlan,
+      label: `${valid.topupScans} bonus AI meal logs`,
     };
   }
 

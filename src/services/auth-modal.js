@@ -55,10 +55,12 @@ export function openAuthModal({ mode = 'signup', showToast, onSuccess } = {}) {
             ? 'Sync meals across devices and unlock AI photo logging.'
             : 'Sign in to sync your meals and use AI photo logging.'}</p>
           <form id="authModalForm" class="auth-form" novalidate>
+            ${isSignup ? `
             <label class="field full field--optional-name">
               <span>First name</span>
-              <input type="text" name="display_name" id="authModalFirstName" maxlength="40" autocomplete="given-name" placeholder="e.g. Sarah" ${isSignup ? 'required' : ''}/>
+              <input type="text" name="display_name" id="authModalFirstName" maxlength="40" autocomplete="given-name" placeholder="e.g. Sarah" required/>
             </label>
+            ` : ''}
             <label class="field full">
               <span>Email</span>
               <input type="email" name="email" id="authModalEmail" required autocomplete="email" inputmode="email" placeholder="you@email.com"/>
@@ -82,8 +84,12 @@ export function openAuthModal({ mode = 'signup', showToast, onSuccess } = {}) {
 
       overlay.querySelector('#authModalClose')?.addEventListener('click', () => finish(false));
       overlay.querySelector('#authModalSwitch')?.addEventListener('click', () => {
+        const email = overlay.querySelector('#authModalEmail')?.value?.trim() || '';
         currentMode = isSignup ? 'signin' : 'signup';
         renderPanel();
+        const emailInput = overlay.querySelector('#authModalEmail');
+        if (emailInput && email) emailInput.value = email;
+        emailInput?.focus();
       });
       overlay.querySelector('#authModalForm')?.addEventListener('submit', (e) => {
         e.preventDefault();

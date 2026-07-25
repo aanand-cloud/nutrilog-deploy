@@ -92,8 +92,8 @@ export function getDiscountSections(profile = {}, accountEmail = '') {
       active: base.voucher || trialActive,
       trialActive,
       title: 'Promo code',
-      blurb: '30% off codes or free trial codes (e.g. TRIAL7 for 7-day Standard) — separate from NHS and senior discounts.',
-      cta: trialActive ? 'Trial active' : base.voucher ? 'Code applied' : 'Enter promo code',
+      blurb: 'Please enter your promo code.',
+      cta: trialActive ? 'Active' : base.voucher ? 'Applied' : 'Apply code',
     },
   };
 }

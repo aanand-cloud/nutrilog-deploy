@@ -16,7 +16,8 @@ const ACTIVITY_OPTIONS = [
   { id: 'active', label: 'Very active', detail: 'Hard exercise or physical job' },
 ];
 
-export function shouldShowOnboarding() {
+export function shouldShowOnboarding({ loggedIn = false } = {}) {
+  if (!loggedIn) return false;
   if (hasCompletedOnboarding()) return false;
   return isDefaultGoals(getGoals());
 }
