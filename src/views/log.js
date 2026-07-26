@@ -39,6 +39,7 @@ import {
 import {
   attachSpeechInput,
   isSpeechInputSupported,
+  speechInputUnavailableMessage,
   stopSpeechInput,
 } from '../services/speech-input.js';
 
@@ -48,16 +49,19 @@ let analyzeStatusCleanup = null;
 let speechInputCleanup = null;
 
 function speechMicButton(id, labelIdle = 'Speak your answer') {
-  if (!isSpeechInputSupported()) return '';
+  const supported = isSpeechInputSupported();
+  const title = supported
+    ? 'Tap to speak · tap again to stop'
+    : speechInputUnavailableMessage();
   return `
     <button
       type="button"
-      class="speech-mic-btn"
+      class="speech-mic-btn${supported ? '' : ' speech-mic-btn--unsupported'}"
       id="${id}"
       data-label-idle="${escapeAttr(labelIdle)}"
       aria-label="${escapeAttr(labelIdle)}"
       aria-pressed="false"
-      title="Tap to speak · tap again to stop"
+      title="${escapeAttr(title)}"
     >
       <span class="speech-mic-btn__icon" aria-hidden="true">🎤</span>
       <span class="speech-mic-btn__text">Speak</span>
@@ -66,8 +70,10 @@ function speechMicButton(id, labelIdle = 'Speak your answer') {
 }
 
 function speechHintHtml() {
-  if (!isSpeechInputSupported()) return '';
-  return '<p class="speech-field-hint fine-print">Voice is turned into text on your device — check it before continuing.</p>';
+  if (isSpeechInputSupported()) {
+    return '<p class="speech-field-hint fine-print">Voice is turned into text on your device — check it before continuing.</p>';
+  }
+  return `<p class="speech-field-hint fine-print">${escapeHtml(speechInputUnavailableMessage())}</p>`;
 }
 
 export function isLogBusy() {
@@ -109,7 +115,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     stopSpeechInput();
     const input = root.querySelector(inputSelector);
     const button = root.querySelector(buttonSelector);
-    if (!input || !button || !isSpeechInputSupported()) return;
+    if (!input || !button) return;
     speechInputCleanup = attachSpeechInput({
       input,
       button,

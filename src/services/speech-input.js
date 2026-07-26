@@ -2,8 +2,23 @@
 
 let activeCtrl = null;
 
+export function getSpeechRecognitionCtor() {
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
+
 export function isSpeechInputSupported() {
-  return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+  return !!getSpeechRecognitionCtor();
+}
+
+/** Plain-English reason when the mic button cannot run speech-to-text. */
+export function speechInputUnavailableMessage() {
+  if (!window.isSecureContext) {
+    return 'Voice input needs a secure connection (https). Type your answer instead.';
+  }
+  if (!getSpeechRecognitionCtor()) {
+    return 'Voice works best in Chrome or Edge on phone/desktop. You can still type.';
+  }
+  return 'Voice input is not available here — type your answer instead.';
 }
 
 export function stopSpeechInput() {
@@ -32,11 +47,12 @@ export function attachSpeechInput({
 
   if (!input || !button) return () => {};
   if (!isSpeechInputSupported()) {
-    button.hidden = true;
-    return () => {};
+    const onUnsupported = () => onMessage?.(speechInputUnavailableMessage());
+    button.addEventListener('click', onUnsupported);
+    return () => button.removeEventListener('click', onUnsupported);
   }
 
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const SpeechRecognition = getSpeechRecognitionCtor();
   let recognition = null;
   let listening = false;
   let baseText = '';

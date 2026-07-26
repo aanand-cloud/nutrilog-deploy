@@ -1535,6 +1535,9 @@ button.camera-zone:active { background: var(--teal-dim); }
   border-color: var(--teal);
   background: var(--teal-dim);
 }
+.speech-mic-btn--unsupported {
+  opacity: 0.55;
+}
 .speech-field-hint {
   margin: 6px 0 0;
   color: var(--text3);
