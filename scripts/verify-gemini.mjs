@@ -108,4 +108,7 @@ if (!meal || typeof kcal !== 'number') {
 console.log('SUCCESS: Gemini meal scan works!');
 console.log(`  Meal: ${meal}`);
 console.log(`  Calories: ${kcal} kcal`);
+if (data.geminiUsage) {
+  console.log(`  Tokens: ${data.geminiUsage.promptTokens} in / ${data.geminiUsage.outputTokens} out · ~$${data.geminiUsage.estimatedUsd}`);
+}
 console.log('\nOpen the app → Log tab → snap a meal photo to try it yourself.');

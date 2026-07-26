@@ -1,3 +1,5 @@
+import { extractUsageMetadata } from './gemini-usage.mjs';
+
 const GEMINI_API = 'https://generativelanguage.googleapis.com/v1beta/models';
 
 export function defaultVisionModel() {
@@ -53,7 +55,12 @@ export async function geminiGenerate({
   const data = await res.json();
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!text) throw new Error('Empty response from Gemini model');
-  return parseGeminiJson(text);
+
+  return {
+    result: parseGeminiJson(text),
+    usage: extractUsageMetadata(data),
+    model,
+  };
 }
 
 export async function analyzeFoodWithGemini(apiKey, body, model = defaultVisionModel()) {

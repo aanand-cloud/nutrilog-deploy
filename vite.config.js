@@ -3,6 +3,7 @@ import { defineConfig, loadEnv } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import { analyzeFoodWithGemini } from './netlify/lib/gemini.mjs';
+import { logGeminiUsage, geminiUsageSummary } from './netlify/lib/gemini-usage.mjs';
 import { ANALYSIS_PROMPT, CLARIFY_PROMPT } from './netlify/lib/prompts.mjs';
 import { generateCuisineTips } from './netlify/lib/cuisine-tips-core.mjs';
 import { validateVoucherCode } from './netlify/lib/voucher.mjs';
@@ -123,8 +124,14 @@ function devGeminiApi(geminiKey, env = {}) {
             return;
           }
           const prompt = body.context ? CLARIFY_PROMPT : ANALYSIS_PROMPT;
-          const analysis = await analyzeFoodWithGemini(geminiKey, { ...body, prompt });
-          sendJson(res, 200, { analysis });
+          const { result: analysis, usage, model } = await analyzeFoodWithGemini(geminiKey, { ...body, prompt });
+          logGeminiUsage({
+            operation: body.context ? 'analyze-food-refine' : 'analyze-food',
+            model,
+            usage,
+            extra: { dev: true, imageKb: Math.round((body.image.length * 3) / 4 / 1024) },
+          });
+          sendJson(res, 200, { analysis, geminiUsage: geminiUsageSummary(usage, model) });
         } catch (e) {
           sendJson(res, 502, { error: e.message || 'Analysis failed' });
         }
@@ -147,8 +154,9 @@ function devGeminiApi(geminiKey, env = {}) {
             return;
           }
           const body = await readJsonBody(req);
-          const data = await generateCuisineTips(geminiKey, body);
-          sendJson(res, 200, data);
+          const { result, usage, model } = await generateCuisineTips(geminiKey, body);
+          logGeminiUsage({ operation: 'cuisine-tips', model, usage, extra: { dev: true } });
+          sendJson(res, 200, { ...result, geminiUsage: geminiUsageSummary(usage, model) });
         } catch (e) {
           sendJson(res, 502, { error: e.message || 'Failed to generate tips' });
         }

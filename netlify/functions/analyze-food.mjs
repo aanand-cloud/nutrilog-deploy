@@ -1,4 +1,5 @@
-import { analyzeFoodWithGemini } from '../lib/gemini.mjs';
+import { analyzeFoodWithGemini, defaultVisionModel } from '../lib/gemini.mjs';
+import { logGeminiUsage, geminiUsageSummary } from '../lib/gemini-usage.mjs';
 import { ANALYSIS_PROMPT, CLARIFY_PROMPT } from '../lib/prompts.mjs';
 import {
   checkScanAllowed,
@@ -90,15 +91,28 @@ export default async (req) => {
   const prompt = isRefinement ? CLARIFY_PROMPT : ANALYSIS_PROMPT;
 
   try {
-    const analysis = await analyzeFoodWithGemini(apiKey, {
+    const model = defaultVisionModel();
+    const { result: analysis, usage: geminiUsageRaw } = await analyzeFoodWithGemini(apiKey, {
       image,
       mimeType,
       prompt,
       context: isRefinement ? context : undefined,
       userNotes,
+    }, model);
+
+    logGeminiUsage({
+      operation: isRefinement ? 'analyze-food-refine' : 'analyze-food',
+      model,
+      usage: geminiUsageRaw,
+      extra: {
+        imageKb: Math.round((image.length * 3) / 4 / 1024),
+        refinement: isRefinement,
+      },
     });
 
-    return jsonResponse({ analysis, usage }, 200, req);
+    const geminiUsage = geminiUsageSummary(geminiUsageRaw, model);
+
+    return jsonResponse({ analysis, usage, geminiUsage }, 200, req);
   } catch (e) {
     await reportServerError(e, { function: 'analyze-food' });
     return jsonResponse({ error: e.message || 'Server error during analysis' }, 502, req);

@@ -1,4 +1,5 @@
 import { generateCuisineTips } from '../lib/cuisine-tips-core.mjs';
+import { logGeminiUsage, geminiUsageSummary } from '../lib/gemini-usage.mjs';
 import { verifyAccessToken, requireAuthInProduction, getAccessToken } from '../lib/verify-auth.mjs';
 import { jsonResponse, optionsResponse } from '../lib/http-utils.mjs';
 import { reportServerError } from '../lib/sentry.mjs';
@@ -31,8 +32,9 @@ export default async (req) => {
   }
 
   try {
-    const parsed = await generateCuisineTips(apiKey, body);
-    return jsonResponse(parsed, 200, req);
+    const { result, usage, model } = await generateCuisineTips(apiKey, body);
+    logGeminiUsage({ operation: 'cuisine-tips', model, usage });
+    return jsonResponse({ ...result, geminiUsage: geminiUsageSummary(usage, model) }, 200, req);
   } catch (err) {
     await reportServerError(err, { function: 'cuisine-tips' });
     return jsonResponse({ error: err.message || 'Failed to generate tips' }, 502, req);
