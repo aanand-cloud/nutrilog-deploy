@@ -93,13 +93,14 @@ const TERMS_HTML = `
     <li>You may delete your account at any time in Settings.</li>
   </ul>
 
-  <h3>Subscriptions</h3>
+  <h3>Subscriptions &amp; scan packs</h3>
   <ul>
-    <li>Paid plans and top-ups are billed monthly via Stripe.</li>
-    <li>Meal-log allowances reset at midnight (local time) on free and Pro plans. Scan pack credits never expire until used.</li>
-    <li>Free plan includes unlimited barcode logging with your account; AI photo logs and reports require a paid plan.</li>
-    <li>You can <strong>cancel or change your plan anytime</strong> in Goals → Plans → <em>Billing &amp; subscription</em> → <em>Cancel or change plan</em> (Stripe billing portal).</li>
-    <li>If you cancel, you keep access until the end of your current billing period, then return to the free plan.</li>
+    <li><strong>Free:</strong> 1 AI photo log per day (resets at midnight, local time) and unlimited barcode logging when signed in.</li>
+    <li><strong>Scan packs:</strong> one-off purchases via Stripe — credits never expire until used. The £2.99 pack also raises your free daily allowance to 2 AI photos per day.</li>
+    <li><strong>Pro:</strong> monthly or annual subscription via Stripe — up to 33 AI photo logs per day and ~1,000 per month fair use, plus reports.</li>
+    <li>Daily allowances reset at midnight (local time). Scan pack credits never expire until used.</li>
+    <li>You can <strong>cancel or change Pro anytime</strong> in Goals → Plans → <em>Billing &amp; subscription</em> → <em>Cancel or change plan</em> (Stripe billing portal).</li>
+    <li>If you cancel Pro, you keep access until the end of your current billing period, then return to the free plan (scan pack credits you already bought are kept).</li>
     <li>Refunds follow Stripe and applicable consumer law.</li>
   </ul>
 

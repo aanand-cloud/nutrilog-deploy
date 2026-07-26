@@ -22,6 +22,8 @@ import {
   setPlan,
   planPriceLabel,
   isPro,
+  planSummaryHtml,
+  planBadgeLabel,
   startScanPackCheckout,
   scanPackPriceLabel,
   openBillingPortal,
@@ -29,9 +31,10 @@ import {
   getTopUpBalance,
   getScanBudget,
   syncTopUpFromCloud,
+  syncScanStateFromProfile,
   getDailyFreeCap,
 } from '../services/subscription.js';
-import { PLANS, SCAN_PACKS, FREE_DAILY_SCANS, PRO_DAILY_FAIR_USE } from '../services/plans.js';
+import { PLANS, SCAN_PACKS, FREE_DAILY_SCANS, PRO_DAILY_FAIR_USE, normalizePlanId } from '../services/plans.js';
 import { getDiscountEligibility, getDiscountSections, validateWorkEmailForDiscount } from '../services/discount.js';
 import { validateAndRedeemVoucher } from '../services/voucher.js';
 import { isTrialActive, trialPlanLabel, formatTrialUntil } from '../services/trial.js';
@@ -287,7 +290,13 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
   const discount = getDiscountEligibility(profile, profile.email || user?.email || '');
   const discountSections = getDiscountSections(profile, profile.email || user?.email || '');
   const trialActive = isTrialActive(profile);
-  const currentPlan = getPlan();
+  if (profile?.loggedIn) syncScanStateFromProfile(profile);
+  const currentPlan = profile?.loggedIn
+    ? normalizePlanId(profile.plan)
+    : getPlan();
+  const planBadge = profile?.loggedIn && isTrialActive(profile)
+    ? `${planLabel()} trial`
+    : planBadgeLabel(currentPlan);
   const initials = (displayName || user?.email || '?').charAt(0).toUpperCase();
   const showPasswordReset =
     passwordResetMode || new URLSearchParams(window.location.search).get('reset') === '1';
@@ -460,17 +469,17 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
           </div>
         </section>
 
-        <section class="settings-panel card ${currentPlan !== 'free' ? 'muted-card' : 'pro-card'}" data-panel="plans" ${panelHidden('plans', activeSettingsTab)}>
+        <section class="settings-panel card ${currentPlan === 'pro' ? 'pro-card' : ''}" data-panel="plans" ${panelHidden('plans', activeSettingsTab)}>
           <div class="settings-panel-head">
             <h3 class="settings-panel-title">Plans &amp; pricing</h3>
-            <span class="settings-badge">${trialActive ? `${planLabel()} trial` : currentPlan === 'free' ? 'Free plan' : planLabel()}</span>
+            <span class="settings-badge">${planBadge}</span>
           </div>
-          <p class="settings-panel-lead">Barcode is always free. Get 1 AI photo log every day, buy scan packs, or go Pro.</p>
-          ${currentPlan === 'free' ? `
-            <p class="card-desc"><strong>Free</strong> — ${FREE_DAILY_SCANS} AI photo / day (resets midnight) + unlimited barcode. <strong>Scan packs</strong> — one-off credits, never expire. <strong>Pro</strong> — up to ${PRO_DAILY_FAIR_USE}/day · ~1,000/month fair use.</p>
-          ` : `
-            <p class="card-desc">You're on <strong>Pro</strong> — up to ${PRO_DAILY_FAIR_USE} AI photo logs per day with a monthly fair use cap (~1,000). Barcode logging stays free.</p>
-          `}
+          <p class="settings-panel-lead">Barcode is always free. Every account gets at least ${FREE_DAILY_SCANS} AI photo per day — buy scan packs or Pro when you need more.</p>
+
+          <div class="plan-current-summary ${currentPlan === 'pro' ? 'plan-current-summary--pro' : ''}">
+            <p class="plan-current-summary__label">Your plan</p>
+            <p class="card-desc">${planSummaryHtml(currentPlan)}</p>
+          </div>
 
           <div class="usage-meter-wrap">
             ${currentPlan === 'free' ? `
@@ -501,22 +510,46 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
                 : '👇 Pick NHS/public sector, 60+, or a promo code below to unlock 30% off'}
             </p>
           ` : ''}
-          ${discount.label ? `<p class="settings-discount-banner">✓ ${escapeHtml(discount.label)} — 30% off paid plans</p>` : ''}
+          ${discount.label ? `<p class="settings-discount-banner">✓ ${escapeHtml(discount.label)} — 30% off Pro &amp; scan packs</p>` : ''}
 
-          <div class="plan-grid plan-grid--settings">
-            <article class="plan-card ${currentPlan === 'free' ? 'plan-card--active' : ''}">
-              <h3>${PLANS.free.name}</h3>
-              <p class="plan-tagline">${PLANS.free.tagline}</p>
-              <p class="plan-price">Free</p>
-              <ul class="plan-features-list">
-                <li>${FREE_DAILY_SCANS} AI photo / day</li>
-                <li>Unlimited barcode logging</li>
-                <li>Resets at midnight</li>
-              </ul>
-              ${currentPlan === 'free' ? '<p class="plan-current-tag">Current plan</p>' : ''}
-            </article>
-            <article class="plan-card plan-card--featured ${currentPlan === 'pro' ? 'plan-card--active' : ''}">
-              <span class="plan-featured-tag">Best for daily logging</span>
+          ${currentPlan !== 'pro' ? `
+          <div class="topup-card">
+            <div class="topup-card-head">
+              <h4>Scan packs · one-off</h4>
+              <p>Pay once — credits never expire. Your free daily scan still applies.</p>
+            </div>
+            <div class="scan-pack-grid">
+              <article class="scan-pack-card">
+                <h5>${SCAN_PACKS.pack100.label}</h5>
+                <p class="plan-price">${scanPackPriceLabel('pack100', profile, profile.email || user?.email || '')}</p>
+                <ul class="plan-features-list plan-features-list--compact">
+                  <li>+${SCAN_PACKS.pack100.scans} credits</li>
+                  <li>${SCAN_PACKS.pack100.dailyFreeCap} free / day</li>
+                  <li>Never expires</li>
+                </ul>
+                <button type="button" class="btn btn-ghost full" data-pack="pack100">Buy 100 scans</button>
+              </article>
+              <article class="scan-pack-card scan-pack-card--featured">
+                <span class="plan-featured-tag">Best value</span>
+                <h5>${SCAN_PACKS.pack150.label}</h5>
+                <p class="plan-price">${scanPackPriceLabel('pack150', profile, profile.email || user?.email || '')}</p>
+                <ul class="plan-features-list plan-features-list--compact">
+                  <li>+${SCAN_PACKS.pack150.scans} credits</li>
+                  <li>${SCAN_PACKS.pack150.dailyFreeCap} free / day forever</li>
+                  <li>Never expires</li>
+                </ul>
+                <button type="button" class="btn btn-primary full" data-pack="pack150">Buy 150 scans</button>
+              </article>
+            </div>
+          </div>
+          ` : ''}
+
+          <div class="plan-subscription-block">
+            <div class="topup-card-head">
+              <h4>Pro subscription</h4>
+              <p>For daily photo logging without buying packs.</p>
+            </div>
+            <article class="plan-card plan-card--featured plan-card--solo ${currentPlan === 'pro' ? 'plan-card--active' : ''}">
               <h3>${PLANS.pro.name}</h3>
               <p class="plan-tagline">${PLANS.pro.tagline}</p>
               <p class="plan-price">${planPriceLabel('pro', profile, profile.email)}</p>
@@ -534,44 +567,20 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
             </article>
           </div>
 
-          ${currentPlan !== 'pro' ? `
-          <div class="topup-card">
-            <div class="topup-card-head">
-              <h4>Scan packs · one-off</h4>
-              <p>Credits never expire until used. Free daily scan still applies.</p>
-            </div>
-            <div class="scan-pack-grid">
-              <article class="scan-pack-card">
-                <h5>${SCAN_PACKS.pack100.label}</h5>
-                <p class="plan-price">${scanPackPriceLabel('pack100', profile, profile.email || user?.email || '')}</p>
-                <p class="fine-print">${SCAN_PACKS.pack100.tagline}</p>
-                <button type="button" class="btn btn-ghost full" data-pack="pack100">Buy 100 scans</button>
-              </article>
-              <article class="scan-pack-card scan-pack-card--featured">
-                <span class="plan-featured-tag">Best value</span>
-                <h5>${SCAN_PACKS.pack150.label}</h5>
-                <p class="plan-price">${scanPackPriceLabel('pack150', profile, profile.email || user?.email || '')}</p>
-                <p class="fine-print">${SCAN_PACKS.pack150.tagline}</p>
-                <button type="button" class="btn btn-primary full" data-pack="pack150">Buy 150 scans</button>
-              </article>
-            </div>
-          </div>
-          ` : ''}
-
           ${profile.loggedIn ? `
             <div class="manage-sub-card manage-sub-card--billing ${trialActive ? 'manage-sub-card--active' : currentPlan === 'free' ? 'manage-sub-card--free' : 'manage-sub-card--active'}">
               <div class="manage-sub-card-head">
                 <div class="billing-status-row">
                   <h4>Billing &amp; subscription</h4>
-                  <span class="billing-status-pill ${trialActive ? 'billing-status-pill--active' : currentPlan === 'free' ? 'billing-status-pill--free' : 'billing-status-pill--active'}">${trialActive ? 'Free trial' : currentPlan === 'free' ? 'Free plan' : planLabel()}</span>
+                  <span class="billing-status-pill ${trialActive ? 'billing-status-pill--active' : currentPlan === 'free' ? 'billing-status-pill--free' : 'billing-status-pill--active'}">${trialActive ? 'Pro trial' : planBadgeLabel(currentPlan)}</span>
                 </div>
                 ${trialActive ? `
-                  <p class="billing-status-summary">Free trial active</p>
-                  <p>You're on a complimentary ${planLabel()} trial until ${formatTrialUntil(profile.trial_until)} — no card required. Subscribe above before it ends to keep your monthly allowance.</p>
-                  <p class="fine-print">When the trial ends, you'll return to the free plan (barcode logging only) unless you subscribe.</p>
+                  <p class="billing-status-summary">Pro trial active</p>
+                  <p>You're on a complimentary Pro trial until ${formatTrialUntil(profile.trial_until)} — no card required. Subscribe to Pro before it ends to keep full photo logging and reports.</p>
+                  <p class="fine-print">When the trial ends, you'll return to the free plan (${getDailyFreeCap()} AI photo / day + barcode) unless you subscribe.</p>
                 ` : currentPlan === 'free' ? `
                   <p class="billing-status-summary">No active subscription</p>
-                  <p>You're on the free tier — ${FREE_DAILY_SCANS} AI photo per day + unlimited barcode. Buy scan packs or subscribe to Pro for more.</p>
+                  <p>You're on the free tier — ${getDailyFreeCap()} AI photo${getDailyFreeCap() === 1 ? '' : 's'} per day${getTopUpBalance() ? ` · ${getTopUpBalance()} credits` : ''} + unlimited barcode. Buy scan packs or subscribe to Pro for more.</p>
                   <p class="fine-print">If you cancel a paid plan, you keep access until the end of your billing period, then return to the free plan automatically.</p>
                   <button type="button" class="btn btn-primary full" id="billingViewPlansBtn">Compare paid plans</button>
                 ` : `
@@ -965,7 +974,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
   });
 
   root.querySelector('#billingViewPlansBtn')?.addEventListener('click', () => {
-    root.querySelector('.plan-grid--settings')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    root.querySelector('.topup-card, .plan-subscription-block')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
   root.querySelector('#billingSignInBtn')?.addEventListener('click', () => onSignIn?.('signin'));

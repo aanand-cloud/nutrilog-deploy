@@ -242,7 +242,8 @@ export function syncScanStateFromProfile(profile) {
   if (profile.trial_until && new Date(profile.trial_until) <= new Date()) {
     plan = 'free';
   }
-  if (plan) setPlan(plan);
+  if (profile.daily_free_cap != null) setDailyFreeCap(profile.daily_free_cap);
+  if (plan) setPlan(normalizePlanId(plan));
   if (profile.topup_balance != null) syncTopUpFromCloud(profile.topup_balance);
   if (profile.daily_free_cap != null) setDailyFreeCap(profile.daily_free_cap);
 
@@ -405,6 +406,37 @@ export function planLabel(planId = getPlan()) {
   return getPlanConfig(planId).name;
 }
 
+/** One-line description for Settings → Plans “Your plan”. */
+export function planSummaryHtml(planId = getPlan()) {
+  if (isProPlan(planId)) {
+    return `<strong>Pro</strong> — up to ${proFairUseDailyCap()} AI photos / day · ~${proMonthlyCap()} / month fair use · reports included.`;
+  }
+
+  const dailyCap = getDailyFreeCap();
+  const credits = getTopUpBalance();
+  const dailyLine = `${dailyCap} AI photo${dailyCap === 1 ? '' : 's'} / day`;
+
+  if (dailyCap >= 2 && credits > 0) {
+    return `<strong>Free + scan pack</strong> — ${dailyLine} · ${credits} credits · unlimited barcode.`;
+  }
+  if (dailyCap >= 2) {
+    return `<strong>Free + scan pack</strong> — ${dailyLine} · unlimited barcode.`;
+  }
+  if (credits > 0) {
+    return `<strong>Free + credits</strong> — ${dailyLine} · ${credits} credits · unlimited barcode.`;
+  }
+  return `<strong>Free</strong> — ${dailyLine} · unlimited barcode.`;
+}
+
+export function planBadgeLabel(planId = getPlan()) {
+  if (isProPlan(planId)) return planLabel(planId);
+  const dailyCap = getDailyFreeCap();
+  const credits = getTopUpBalance();
+  if (dailyCap >= 2) return 'Free + scan pack';
+  if (credits > 0) return 'Free + credits';
+  return 'Free plan';
+}
+
 export function scansLabel(planId = getPlan()) {
   const b = getScanBudget(planId);
 
@@ -416,7 +448,8 @@ export function scansLabel(planId = getPlan()) {
       return `${b.dailyFreeRemaining} free photo log${b.dailyFreeRemaining === 1 ? '' : 's'} today · resets at midnight`;
     }
     if (b.creditRemaining > 0) {
-      return `${b.creditRemaining} scan credits left · 1 free tomorrow at midnight`;
+      const cap = getDailyFreeCap();
+      return `${b.creditRemaining} scan credits left · ${cap} free tomorrow at midnight`;
     }
     return 'No AI scans left today · buy a pack or go Pro · barcode still free';
   }

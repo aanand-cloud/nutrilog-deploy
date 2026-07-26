@@ -2,6 +2,7 @@ import { getSupabase, getUser } from './auth.js';
 import { isPublicSectorEmail } from './discount.js';
 import { markVoucherRedeemedLocally } from './voucher.js';
 import { fetchProfileRow } from './profile-select.js';
+import { normalizePlanId } from './plans.js';
 
 const LOCAL_NAME_KEY = 'nutrilog_display_name';
 
@@ -53,10 +54,13 @@ export async function getProfile() {
       discount_work_email: null,
       discount_public_sector: isPublicSectorEmail(user.email),
       discount_voucher_redeemed: false,
-      topup_balance: 0,
-      scan_month: null,
-      scan_used: 0,
-      trial_until: null,
+    topup_balance: 0,
+    daily_free_cap: 1,
+    scan_month: null,
+    scan_used: 0,
+    pro_scans_month: null,
+    pro_scans_month_used: 0,
+    trial_until: null,
     };
   }
 
@@ -72,7 +76,7 @@ export async function getProfile() {
     loggedIn: true,
     displayName,
     email: user.email,
-    plan: data?.plan === 'daily25' || data?.plan === 'daily10' ? 'pro' : (data?.plan || 'free'),
+    plan: normalizePlanId(data?.plan || 'free'),
     goals: data?.goals,
     unit_prefs: data?.unit_prefs,
     discount_senior: data?.discount_senior,
@@ -80,8 +84,11 @@ export async function getProfile() {
     discount_public_sector: data?.discount_public_sector || isPublicSectorEmail(user.email),
     discount_voucher_redeemed: Boolean(data?.discount_voucher_redeemed),
     topup_balance: data?.topup_balance ?? 0,
+    daily_free_cap: data?.daily_free_cap ?? 1,
     scan_month: data?.scan_month ?? null,
     scan_used: data?.scan_used ?? 0,
+    pro_scans_month: data?.pro_scans_month ?? null,
+    pro_scans_month_used: data?.pro_scans_month_used ?? 0,
     trial_until: data?.trial_until ?? null,
   };
 }

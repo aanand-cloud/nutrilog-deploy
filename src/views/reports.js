@@ -16,7 +16,7 @@ export function renderReportsPaywall(root, { onUpgrade, profile } = {}) {
         <li>Goal insights and suggestions</li>
         <li>AI coach tips for your cuisine</li>
       </ul>
-      <p class="fine-print">Free plan includes barcode logging. Upgrade to unlock reports and AI photo logs.</p>
+      <p class="fine-print">Free plan includes 1 AI photo/day and unlimited barcode logging. Pro unlocks reports and higher daily photo limits.</p>
       <button type="button" class="btn btn-primary full" id="reportsUpgradeBtn">View plans</button>
     </section>
   `;

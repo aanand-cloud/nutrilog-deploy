@@ -2291,6 +2291,37 @@ button.camera-zone:active { background: var(--teal-dim); }
   margin-top: -4px;
   margin-bottom: 10px;
 }
+.plan-current-summary {
+  margin: 12px 0 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--teal-dim);
+  border: 1px solid var(--border);
+}
+.plan-current-summary--pro {
+  background: linear-gradient(135deg, rgba(15, 118, 110, 0.12), rgba(20, 184, 166, 0.08));
+}
+.plan-current-summary__label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--teal);
+  margin: 0 0 6px;
+}
+.plan-current-summary .card-desc {
+  margin: 0;
+}
+.plan-subscription-block {
+  margin-top: 20px;
+}
+.plan-card--solo {
+  max-width: 100%;
+}
+.plan-features-list--compact {
+  margin: 8px 0 12px;
+  font-size: 0.85rem;
+}
 
 @media (max-width: 380px) {
   .settings-tabs .tab {
