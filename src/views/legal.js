@@ -95,7 +95,7 @@ const TERMS_HTML = `
   <h3>Paid features</h3>
   <ul>
     <li><strong>Daily Free Scan:</strong> 1 AI photo per day when signed in — resets at midnight (12:00 AM local time). Unlimited barcode logging.</li>
-    <li><strong>Pay as you go:</strong> one-off purchase of 100 scan credits for £1.99 — no subscription. Credits never expire until used. Your Daily Free Scan still resets at midnight.</li>
+    <li><strong>Top up plan:</strong> one-off purchase of 100 scan credits for £1.99 — no subscription. Top up when your allowance runs out; credits never expire until used. Your Daily Free Scan still resets at midnight.</li>
     <li>Additional subscription options may be offered in future. Pricing will be shown in the app before you pay.</li>
   </ul>
 

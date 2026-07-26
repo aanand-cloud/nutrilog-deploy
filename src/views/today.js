@@ -88,9 +88,9 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
     <section class="pro-banner ${!scanBudget.allowed ? 'pro-banner--limit' : ''}">
       <div>
         <strong>${scansLabel()}</strong>
-        <p>${PLANS.free.name} · resets at midnight${getTopUpBalance() ? ` · ${getTopUpBalance()} Pay as you go credits saved` : ''}</p>
+        <p>${PLANS.free.name} · resets at midnight${getTopUpBalance() ? ` · ${getTopUpBalance()} top-up credits saved` : ''}</p>
       </div>
-      ${!scanBudget.allowed ? `<button type="button" class="btn btn-primary btn-sm" id="todayUpgrade">Buy credits</button>` : `<button type="button" class="btn btn-ghost btn-sm" id="todayViewPlans">View plans</button>`}
+      ${!scanBudget.allowed ? `<button type="button" class="btn btn-primary btn-sm" id="todayUpgrade">Top up</button>` : `<button type="button" class="btn btn-ghost btn-sm" id="todayViewPlans">View plans</button>`}
     </section>
     ` : ''}
 
@@ -441,7 +441,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
             <h3 class="settings-panel-title">Plans</h3>
             <span class="settings-badge">${planBadgeLabel()}</span>
           </div>
-          <p class="settings-panel-lead">Barcode logging is always free when signed in. Meal scans use your Daily Free Scan or Pay as you go credits.</p>
+          <p class="settings-panel-lead">Barcode logging is always free when signed in. Meal scans use your Daily Free Scan first, then top-up credits when those run out.</p>
 
           ${profile.loggedIn ? `
           <div class="plan-current-summary">
@@ -457,7 +457,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
             <div class="usage-meter-track" aria-hidden="true">
               <div class="usage-meter-fill" style="width:${usageMeterRemainingPercent()}%"></div>
             </div>
-            <p class="fine-print">Daily Free Scan resets at midnight (12:00 AM) · Pay as you go credits never expire</p>
+            <p class="fine-print">Daily Free Scan resets at midnight (12:00 AM) · Top-up credits never expire until used</p>
           </div>
           ` : `
           <p class="card-desc">Sign in to get ${PLANS.free.name} — ${FREE_DAILY_SCANS} scan per day, resetting at midnight.</p>
@@ -484,7 +484,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
                 ${paygPack.bullets.map((b) => `<li>${escapeHtml(b)}</li>`).join('')}
               </ul>
               ${profile.loggedIn ? `
-                <button type="button" class="btn btn-primary full" data-pack="${PAYG_PACK_ID}">Buy 100 credits</button>
+                <button type="button" class="btn btn-primary full" data-pack="${PAYG_PACK_ID}">Top up 100 credits</button>
               ` : `
                 <button type="button" class="btn btn-ghost full" id="plansSignInPaygBtn">Sign in to buy</button>
               `}

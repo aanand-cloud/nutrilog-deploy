@@ -438,7 +438,7 @@ export function planSummaryHtml(planId = getPlan()) {
   const freeName = PLANS.free.name;
 
   if (credits > 0) {
-    return `<strong>${freeName}</strong> + <strong>Pay as you go</strong> — ${dailyCap} free / day (midnight reset) · ${credits} credits saved · barcode free.`;
+    return `<strong>${freeName}</strong> + <strong>Top up plan</strong> — ${dailyCap} free / day (midnight reset) · ${credits} credits saved · barcode free.`;
   }
   return `<strong>${freeName}</strong> — ${dailyCap} scan / day · resets at midnight · barcode free.`;
 }
@@ -463,7 +463,7 @@ export function scansLabel(planId = getPlan()) {
       const cap = getDailyFreeCap();
       return `${b.creditRemaining} scan credits left · ${cap} free tomorrow at midnight`;
     }
-    return 'No AI scans left today · buy Pay as you go credits or try again after midnight · barcode still free';
+    return 'No scans left today · top up for more credits or try again after midnight · barcode still free';
   }
 
   if (!b.allowed) {
@@ -489,7 +489,7 @@ export function usageMeterRemainingPercent(planId = getPlan()) {
 
 export function paywallMessage(budget = getScanBudget()) {
   if (budget.reason === 'daily_limit') {
-    return 'You have used today\'s Daily Free Scan and any saved credits. Buy Pay as you go credits (never expire), or try again after midnight. Barcode logging stays free.';
+    return 'You have used today\'s Daily Free Scan and any saved credits. Top up for more (credits never expire), or try again after midnight. Barcode logging stays free.';
   }
   if (budget.reason === 'daily_cap') {
     return `You have logged ${proFairUseDailyCap()} meals today — Pro fair use limit. Try again tomorrow.`;
@@ -497,7 +497,7 @@ export function paywallMessage(budget = getScanBudget()) {
   if (budget.reason === 'monthly_cap') {
     return 'You have reached the monthly fair use limit (~1,000 photo logs). Try again next month.';
   }
-  return 'AI photo logging limit reached. Buy Pay as you go credits — barcode scan is still free.';
+  return 'Scan limit reached. Top up for more credits — barcode scan is still free.';
 }
 
 export function planPriceLabel(planId, profile, accountEmail, { annual = false } = {}) {

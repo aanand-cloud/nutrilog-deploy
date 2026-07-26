@@ -181,7 +181,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
         <div class="paywall-inline paywall-inline--prominent">
           <p class="paywall-inline__title">${photoPaywallTitle(budget)}</p>
           <p>${escapeHtml(paywallMessage(budget))}</p>
-          <button type="button" class="btn btn-primary full" id="upgradeBtn">Buy Pay as you go credits</button>
+          <button type="button" class="btn btn-primary full" id="upgradeBtn">Top up credits</button>
         </div>
       `;
     }
@@ -397,7 +397,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       <section class="log-screen center">
         <h2>${photoPaywallTitle(scan)}</h2>
         <p class="lead">${escapeHtml(paywallMessage(scan))}</p>
-        <button type="button" class="btn btn-primary full" id="upgradeBtn">Buy Pay as you go credits</button>
+        <button type="button" class="btn btn-primary full" id="upgradeBtn">Top up credits</button>
         <button type="button" class="btn btn-ghost full" id="backCapture">Back</button>
       </section>
     `;

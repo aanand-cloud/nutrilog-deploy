@@ -87,7 +87,7 @@ function buildFreeScanState(profile, dk) {
     isDaily: true,
     error: allowed
       ? undefined
-      : 'No photo logs left today. Buy Pay as you go credits or try again after midnight.',
+      : 'No photo logs left today. Top up for more credits or try again after midnight.',
   };
 }
 

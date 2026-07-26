@@ -1,4 +1,4 @@
-/** Monetisation — Daily Free Scan + Pay as you go (phase 1). */
+/** Monetisation — Daily Free Scan + Top up plan (phase 1). */
 
 
 
@@ -24,7 +24,7 @@ export const SCAN_PACKS = {
 
     id: 'pack100',
 
-    name: 'Pay as you go',
+    name: 'Top up plan',
 
     scans: 100,
 
@@ -34,19 +34,19 @@ export const SCAN_PACKS = {
 
     priceDiscount: 1.39,
 
-    label: 'Pay as you go',
+    label: 'Top up plan',
 
-    tagline: '100 scan credits · one-off · no subscription',
+    tagline: '100 scan credits · top up anytime · no subscription',
 
     bullets: [
 
       '100 scan credits added instantly',
 
+      'Top up when your scan allowance runs out',
+
       'Credits never expire until used',
 
-      'Daily Free Scan still applies (resets at midnight)',
-
-      'No monthly subscription',
+      'Used after your Daily Free Scan each day (resets at midnight)',
 
     ],
 
@@ -56,7 +56,7 @@ export const SCAN_PACKS = {
 
     id: 'pack150',
 
-    name: 'Pay as you go — 150',
+    name: 'Top up plan — 150',
 
     scans: 150,
 

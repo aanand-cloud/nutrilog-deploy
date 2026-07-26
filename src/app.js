@@ -201,7 +201,7 @@ async function handleCheckoutReturn() {
       const result = await verifyCheckoutSession(sessionId);
       if (result?.type === 'topup') {
         if (toast) {
-          toast.textContent = `+${result.scans || 100} Pay as you go credits added`;
+          toast.textContent = `+${result.scans || 100} top-up credits added`;
           toast.hidden = false;
         }
         const profile = await getProfile();
