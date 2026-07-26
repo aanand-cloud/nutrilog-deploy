@@ -1,8 +1,9 @@
 /** Progressive profile column selects — tolerate older Supabase schemas. */
 
 const PROFILE_SELECTS = [
+  'display_name, plan, goals, unit_prefs, topup_balance, daily_free_cap, scan_month, scan_used, pro_scans_month, pro_scans_month_used, trial_until, discount_senior, discount_work_email, discount_public_sector, discount_voucher_redeemed',
+  'display_name, plan, goals, unit_prefs, topup_balance, daily_free_cap, scan_month, scan_used, trial_until, discount_senior, discount_work_email, discount_public_sector, discount_voucher_redeemed',
   'display_name, plan, goals, unit_prefs, topup_balance, scan_month, scan_used, trial_until, discount_senior, discount_work_email, discount_public_sector, discount_voucher_redeemed',
-  'display_name, plan, goals, unit_prefs, topup_balance, scan_month, scan_used, trial_until',
   'display_name, plan, goals, unit_prefs, topup_balance, scan_month, scan_used',
   'display_name, plan, goals, unit_prefs',
 ];

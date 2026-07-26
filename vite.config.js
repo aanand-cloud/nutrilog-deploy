@@ -45,7 +45,7 @@ function devCheckoutApi() {
         if (req.method !== 'POST') return next();
         try {
           const body = await readJsonBody(req);
-          sendJson(res, 200, { mock: true, plan: body.plan || 'daily10' });
+          sendJson(res, 200, { mock: true, plan: 'pro' });
         } catch (e) {
           sendJson(res, 502, { error: e.message || 'Failed' });
         }
@@ -60,7 +60,16 @@ function devCheckoutApi() {
           return;
         }
         if (req.method !== 'POST') return next();
-        sendJson(res, 200, { mock: true, type: 'topup', scans: 100 });
+        try {
+          const body = await readJsonBody(req);
+          const packId = body.packId === 'pack150' ? 'pack150' : 'pack100';
+          const pack = packId === 'pack150'
+            ? { scans: 150, dailyFreeCap: 2 }
+            : { scans: 100, dailyFreeCap: 1 };
+          sendJson(res, 200, { mock: true, type: 'topup', packId, ...pack });
+        } catch (e) {
+          sendJson(res, 502, { error: e.message || 'Failed' });
+        }
       });
 
       server.middlewares.use('/api/create-billing-portal', async (req, res, next) => {
@@ -86,7 +95,9 @@ function devCheckoutApi() {
           mock: true,
           ok: true,
           type: 'topup',
+          packId: 'pack100',
           scans: 100,
+          dailyFreeCap: 1,
           sessionId,
           alreadyRedeemed: false,
         });

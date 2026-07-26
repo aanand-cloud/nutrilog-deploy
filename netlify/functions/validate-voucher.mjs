@@ -1,6 +1,6 @@
 import { validateVoucherCode } from '../lib/voucher.mjs';
 import { isTrialActive } from '../lib/trial-enforcement.mjs';
-import { applyTopUpToProfile } from '../lib/scan-enforcement.mjs';
+import { applyScanPackToProfile } from '../lib/scan-enforcement.mjs';
 import { verifyAccessToken, requireAuthInProduction, getAccessToken } from '../lib/verify-auth.mjs';
 import { jsonResponse, optionsResponse } from '../lib/http-utils.mjs';
 import { reportServerError } from '../lib/sentry.mjs';
@@ -55,7 +55,7 @@ export default async (req) => {
       const { error } = await auth.supabase
         .from('profiles')
         .update({
-          plan: result.trialPlan,
+          plan: result.trialPlan === 'daily25' || result.trialPlan === 'daily10' ? 'pro' : (result.trialPlan || 'pro'),
           trial_until: until.toISOString(),
           scan_month: null,
           scan_used: 0,
@@ -91,7 +91,10 @@ export default async (req) => {
         );
       }
 
-      const topup = await applyTopUpToProfile(auth.supabase, auth.userId, result.topupScans);
+      const topup = await applyScanPackToProfile(auth.supabase, auth.userId, {
+        scans: result.topupScans,
+        dailyFreeCap: result.topupScans >= 150 ? 2 : 1,
+      });
       if (!topup.ok) {
         return jsonResponse({ error: 'Could not add bonus scans — contact support if this persists' }, 500, req);
       }
@@ -105,7 +108,7 @@ export default async (req) => {
       const { error } = await auth.supabase
         .from('profiles')
         .update({
-          plan: result.trialPlan || 'daily10',
+          plan: 'free',
           trial_until: trialUntil,
           scan_month: null,
           scan_used: 0,
@@ -126,7 +129,7 @@ export default async (req) => {
           ...result,
           savedToProfile: true,
           topupBalance: topup.balance,
-          trialPlan: result.trialPlan || 'daily10',
+          dailyFreeCap: topup.dailyFreeCap,
           trialUntil,
         },
         200,

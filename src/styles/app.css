@@ -2256,6 +2256,41 @@ button.camera-zone:active { background: var(--teal-dim); }
 .topup-card .fine-print {
   margin-bottom: 12px;
 }
+.scan-pack-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+@media (max-width: 520px) {
+  .scan-pack-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.scan-pack-card {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  background: var(--surface);
+}
+.scan-pack-card--featured {
+  border-color: var(--teal2);
+  box-shadow: var(--shadow);
+}
+.scan-pack-card h5 {
+  font-size: 0.95rem;
+  margin: 0 0 6px;
+}
+.scan-pack-card .plan-price {
+  margin-bottom: 6px;
+}
+.plan-price--secondary {
+  font-size: 0.9rem;
+  color: var(--text3);
+  margin-top: -4px;
+  margin-bottom: 10px;
+}
 
 @media (max-width: 380px) {
   .settings-tabs .tab {

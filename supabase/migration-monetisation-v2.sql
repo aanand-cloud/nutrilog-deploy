@@ -1,6 +1,20 @@
--- Atomic meal-scan consumption — monetisation v2
--- Free: 1/day (+ credits) · Pro: 33/day · ~1,000/month
--- Run migration-monetisation-v2.sql in Supabase for full schema updates.
+-- NutriLog monetisation v2 — run in Supabase SQL Editor
+-- Free: 1 AI scan/day · packs add credits · Pro: 33/day + 1000/month
+
+alter table public.profiles
+  add column if not exists daily_free_cap int not null default 1,
+  add column if not exists pro_scans_month text,
+  add column if not exists pro_scans_month_used int not null default 0;
+
+alter table public.profiles drop constraint if exists profiles_plan_check;
+
+update public.profiles
+set plan = 'pro'
+where plan in ('daily10', 'daily25');
+
+alter table public.profiles
+  add constraint profiles_plan_check
+  check (plan in ('free', 'pro'));
 
 create or replace function public.consume_meal_scan(p_user_id uuid, p_local_day text default null)
 returns jsonb
@@ -79,6 +93,7 @@ begin
     );
   end if;
 
+  -- Free + credit pack users (plan stays free; credits on balance)
   if v_used_today < v_daily_cap then
     update public.profiles
     set scan_month = v_day, scan_used = v_used_today + 1, updated_at = now()

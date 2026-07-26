@@ -22,15 +22,16 @@ import {
   setPlan,
   planPriceLabel,
   isPro,
-  startTopUpCheckout,
+  startScanPackCheckout,
+  scanPackPriceLabel,
   openBillingPortal,
-  topUpPriceLabel,
   usageMeterRemainingPercent,
   getTopUpBalance,
   getScanBudget,
   syncTopUpFromCloud,
+  getDailyFreeCap,
 } from '../services/subscription.js';
-import { PLANS, TOPUP_PACK, MAX_TOPUP_CARRY, STANDARD_MONTHLY_SCANS } from '../services/plans.js';
+import { PLANS, SCAN_PACKS, FREE_DAILY_SCANS, PRO_DAILY_FAIR_USE } from '../services/plans.js';
 import { getDiscountEligibility, getDiscountSections, validateWorkEmailForDiscount } from '../services/discount.js';
 import { validateAndRedeemVoucher } from '../services/voucher.js';
 import { isTrialActive, trialPlanLabel, formatTrialUntil } from '../services/trial.js';
@@ -87,7 +88,7 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
       <div class="discount-hero__inner">
         <p class="discount-hero__line">
           <strong>30% off</strong> · NHS, 60+, or promo
-          <span class="discount-hero__price">£${PLANS.daily10.priceDiscount.toFixed(2)}–£${PLANS.daily25.priceDiscount.toFixed(2)}/mo</span>
+          <span class="discount-hero__price">Pro from £${PLANS.pro.priceDiscount.toFixed(2)}/mo</span>
         </p>
         <button type="button" class="btn btn-primary btn-sm discount-hero__cta" id="discountHeroBtn">See offers →</button>
       </div>
@@ -97,7 +98,7 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
 
     ${!profile?.loggedIn ? `
       <section class="guest-prompt card" aria-label="Create your account">
-        <p class="guest-prompt__lead">Free account · barcode logging · upgrade for AI photos &amp; reports</p>
+        <p class="guest-prompt__lead">Free account · 1 AI photo/day · unlimited barcode</p>
         <div class="guest-prompt__actions">
           <button type="button" class="btn btn-primary" id="guestGetStarted">Get started free</button>
           <button type="button" class="btn btn-ghost" id="guestSignIn">Sign in</button>
@@ -464,36 +465,32 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
             <h3 class="settings-panel-title">Plans &amp; pricing</h3>
             <span class="settings-badge">${trialActive ? `${planLabel()} trial` : currentPlan === 'free' ? 'Free plan' : planLabel()}</span>
           </div>
-          <p class="settings-panel-lead">Barcode logging is free with your account. Upgrade for AI photo logs and reports.</p>
+          <p class="settings-panel-lead">Barcode is always free. Get 1 AI photo log every day, buy scan packs, or go Pro.</p>
           ${currentPlan === 'free' ? `
-            <p class="card-desc"><strong>Free</strong> — unlimited barcode scan. <strong>Standard</strong> — 300 AI photo logs per month. <strong>Plus</strong> — unlimited photos, up to 30 per day (fair use).</p>
-          ` : getScanBudget().unlimitedMonthly ? `
-            <p class="card-desc">You're on <strong>Plus</strong> — unlimited AI photo logs each month, with a fair use cap of 30 per day. Barcode logging stays free.</p>
+            <p class="card-desc"><strong>Free</strong> — ${FREE_DAILY_SCANS} AI photo / day (resets midnight) + unlimited barcode. <strong>Scan packs</strong> — one-off credits, never expire. <strong>Pro</strong> — up to ${PRO_DAILY_FAIR_USE}/day · ~1,000/month fair use.</p>
           ` : `
-            <p class="card-desc">You're on <strong>Standard</strong> — ${STANDARD_MONTHLY_SCANS} AI photo logs per month. Barcode logging stays free. Top-ups carry over (up to ${MAX_TOPUP_CARRY}).</p>
+            <p class="card-desc">You're on <strong>Pro</strong> — up to ${PRO_DAILY_FAIR_USE} AI photo logs per day with a monthly fair use cap (~1,000). Barcode logging stays free.</p>
           `}
 
           <div class="usage-meter-wrap">
             ${currentPlan === 'free' ? `
-              <p class="fine-print">Free plan — unlimited barcode logging with your account. Upgrade for AI photo logs and reports.</p>
-            ` : getScanBudget().unlimitedMonthly ? `
               <div class="usage-meter-head">
-                <span>Today · fair use</span>
+                <span>Today</span>
+                <span>${getScanBudget().dailyFreeRemaining}/${getDailyFreeCap()} free · ${getTopUpBalance()} credits</span>
+              </div>
+              <div class="usage-meter-track" aria-hidden="true">
+                <div class="usage-meter-fill" style="width:${usageMeterRemainingPercent()}%"></div>
+              </div>
+              <p class="fine-print">Free scan resets at midnight · credits never expire until used</p>
+            ` : `
+              <div class="usage-meter-head">
+                <span>Today · Pro fair use</span>
                 <span>${getScanBudget().remaining}/${getScanBudget().limit} photo logs left</span>
               </div>
               <div class="usage-meter-track" aria-hidden="true">
                 <div class="usage-meter-fill" style="width:${usageMeterRemainingPercent()}%"></div>
               </div>
-              <p class="fine-print">Unlimited monthly · resets every day at midnight (12am)</p>
-            ` : `
-            <div class="usage-meter-head">
-              <span>This month</span>
-              <span>${getScanBudget().remaining}/${getScanBudget().limit} available</span>
-            </div>
-            <div class="usage-meter-track" aria-hidden="true">
-              <div class="usage-meter-fill" style="width:${usageMeterRemainingPercent()}%"></div>
-            </div>
-            ${getTopUpBalance() > 0 ? `<p class="fine-print">+${getTopUpBalance()} bonus logs carried from top-ups</p>` : ''}
+              <p class="fine-print">Resets every day at midnight · ~1,000/month fair use cap</p>
             `}
           </div>
 
@@ -507,40 +504,59 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
           ${discount.label ? `<p class="settings-discount-banner">✓ ${escapeHtml(discount.label)} — 30% off paid plans</p>` : ''}
 
           <div class="plan-grid plan-grid--settings">
-            <article class="plan-card ${currentPlan === 'daily10' ? 'plan-card--active' : ''}">
-              <h3>${PLANS.daily10.name}</h3>
-              <p class="plan-tagline">${PLANS.daily10.tagline}</p>
-              <p class="plan-price">${planPriceLabel('daily10', profile, profile.email)}</p>
+            <article class="plan-card ${currentPlan === 'free' ? 'plan-card--active' : ''}">
+              <h3>${PLANS.free.name}</h3>
+              <p class="plan-tagline">${PLANS.free.tagline}</p>
+              <p class="plan-price">Free</p>
               <ul class="plan-features-list">
-                <li>300 AI photo logs per month</li>
-                <li>Reports &amp; insights</li>
-                <li>Cloud backup</li>
+                <li>${FREE_DAILY_SCANS} AI photo / day</li>
+                <li>Unlimited barcode logging</li>
+                <li>Resets at midnight</li>
               </ul>
-              ${currentPlan !== 'daily10' ? `<button type="button" class="btn btn-primary full" data-plan="daily10">Choose Standard</button>` : '<p class="plan-current-tag">Current plan</p>'}
+              ${currentPlan === 'free' ? '<p class="plan-current-tag">Current plan</p>' : ''}
             </article>
-            <article class="plan-card plan-card--featured ${currentPlan === 'daily25' ? 'plan-card--active' : ''}">
-              <span class="plan-featured-tag">Most popular</span>
-              <h3>${PLANS.daily25.name}</h3>
-              <p class="plan-tagline">${PLANS.daily25.tagline}</p>
-              <p class="plan-price">${planPriceLabel('daily25', profile, profile.email)}</p>
+            <article class="plan-card plan-card--featured ${currentPlan === 'pro' ? 'plan-card--active' : ''}">
+              <span class="plan-featured-tag">Best for daily logging</span>
+              <h3>${PLANS.pro.name}</h3>
+              <p class="plan-tagline">${PLANS.pro.tagline}</p>
+              <p class="plan-price">${planPriceLabel('pro', profile, profile.email)}</p>
+              <p class="plan-price plan-price--secondary">${planPriceLabel('pro', profile, profile.email, { annual: true })}</p>
               <ul class="plan-features-list">
-                <li>Unlimited AI photo logs</li>
-                <li>30/day fair use policy</li>
+                <li>Up to ${PRO_DAILY_FAIR_USE} AI photos / day</li>
+                <li>~1,000 / month fair use</li>
                 <li>Reports &amp; insights</li>
-                <li>Cloud backup</li>
+                <li>No credit packs needed</li>
               </ul>
-              ${currentPlan !== 'daily25' ? `<button type="button" class="btn btn-primary full" data-plan="daily25">Choose Plus</button>` : '<p class="plan-current-tag">Current plan</p>'}
+              ${currentPlan !== 'pro' ? `
+                <button type="button" class="btn btn-primary full" data-plan="pro">Pro monthly</button>
+                <button type="button" class="btn btn-ghost full" data-plan="pro" data-annual="yes">Pro annual — save more</button>
+              ` : '<p class="plan-current-tag">Current plan</p>'}
             </article>
           </div>
 
+          ${currentPlan !== 'pro' ? `
           <div class="topup-card">
             <div class="topup-card-head">
-              <h4>Need more this month?</h4>
-              <p>Add <strong>${TOPUP_PACK.scans} meal logs</strong> — ${topUpPriceLabel(profile, profile.email || user?.email || '')} one-time</p>
+              <h4>Scan packs · one-off</h4>
+              <p>Credits never expire until used. Free daily scan still applies.</p>
             </div>
-            <p class="fine-print">${currentPlan === 'free' ? 'Top-ups apply to Standard when you need more than 300/month. Upgrade first, then add extra logs if needed.' : currentPlan === 'daily25' ? 'Plus includes unlimited monthly logs — top-ups are for Standard plans.' : `Top-up logs roll over month to month (max ${MAX_TOPUP_CARRY} stored). Used after your monthly allowance.`}</p>
-            <button type="button" class="btn btn-ghost full" id="topUpBtn" ${currentPlan === 'free' || currentPlan === 'daily25' ? 'disabled' : ''}>Buy +${TOPUP_PACK.scans} meal logs</button>
+            <div class="scan-pack-grid">
+              <article class="scan-pack-card">
+                <h5>${SCAN_PACKS.pack100.label}</h5>
+                <p class="plan-price">${scanPackPriceLabel('pack100', profile, profile.email || user?.email || '')}</p>
+                <p class="fine-print">${SCAN_PACKS.pack100.tagline}</p>
+                <button type="button" class="btn btn-ghost full" data-pack="pack100">Buy 100 scans</button>
+              </article>
+              <article class="scan-pack-card scan-pack-card--featured">
+                <span class="plan-featured-tag">Best value</span>
+                <h5>${SCAN_PACKS.pack150.label}</h5>
+                <p class="plan-price">${scanPackPriceLabel('pack150', profile, profile.email || user?.email || '')}</p>
+                <p class="fine-print">${SCAN_PACKS.pack150.tagline}</p>
+                <button type="button" class="btn btn-primary full" data-pack="pack150">Buy 150 scans</button>
+              </article>
+            </div>
           </div>
+          ` : ''}
 
           ${profile.loggedIn ? `
             <div class="manage-sub-card manage-sub-card--billing ${trialActive ? 'manage-sub-card--active' : currentPlan === 'free' ? 'manage-sub-card--free' : 'manage-sub-card--active'}">
@@ -555,7 +571,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
                   <p class="fine-print">When the trial ends, you'll return to the free plan (barcode logging only) unless you subscribe.</p>
                 ` : currentPlan === 'free' ? `
                   <p class="billing-status-summary">No active subscription</p>
-                  <p>You're on the free tier — unlimited barcode logging with your account. Subscribe to Standard or Plus for AI photo logs and reports.</p>
+                  <p>You're on the free tier — ${FREE_DAILY_SCANS} AI photo per day + unlimited barcode. Buy scan packs or subscribe to Pro for more.</p>
                   <p class="fine-print">If you cancel a paid plan, you keep access until the end of your billing period, then return to the free plan automatically.</p>
                   <button type="button" class="btn btn-primary full" id="billingViewPlansBtn">Compare paid plans</button>
                 ` : `
@@ -591,7 +607,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
               </div>
               <p class="fine-print">${discountSections.publicSector.blurb}</p>
               ${discountSections.publicSector.active ? `
-                <p class="settings-discount-banner">✓ Verified — 30% off Standard &amp; Plus</p>
+                <p class="settings-discount-banner">✓ Verified — 30% off Pro &amp; scan packs</p>
               ` : `
                 <form id="publicSectorForm" class="auth-form settings-form-compact">
                   <label class="field full">
@@ -614,7 +630,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
               </div>
               <p class="fine-print">${discountSections.senior.blurb}</p>
               ${discountSections.senior.active ? `
-                <p class="settings-discount-banner">✓ Age discount active — 30% off Standard &amp; Plus</p>
+                <p class="settings-discount-banner">✓ Age discount active — 30% off Pro &amp; scan packs</p>
               ` : `
                 <form id="seniorForm" class="auth-form settings-form-compact">
                   <label class="toggle-row settings-toggle">
@@ -902,27 +918,42 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
 
   root.querySelectorAll('[data-plan]').forEach((btn) => {
     btn.addEventListener('click', () =>
-      handleUpgrade(root, user?.email, showToast, btn.dataset.plan, discount.eligible, profile, onSave, onSignIn)
+      handleUpgrade(
+        root,
+        user?.email,
+        showToast,
+        btn.dataset.plan,
+        btn.dataset.annual === 'yes',
+        discount.eligible,
+        profile,
+        onSave,
+        onSignIn
+      )
     );
   });
 
-  root.querySelector('#topUpBtn')?.addEventListener('click', async () => {
-    if (!profile?.loggedIn) {
-      showToast?.('Sign in to buy top-ups');
-      onSignIn?.('signin');
-      return;
-    }
-    try {
-      const result = await startTopUpCheckout({ email: user?.email || profile.email || '', discount: discount.eligible });
-      if (result.mock) {
-        showToast?.(import.meta.env.DEV
-          ? `+${TOPUP_PACK.scans} meal logs added (demo — add Stripe for real payments)`
-          : `+${TOPUP_PACK.scans} meal logs added`);
-        onSave();
+  root.querySelectorAll('[data-pack]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      if (!profile?.loggedIn) {
+        showToast?.('Sign in to buy scan packs');
+        onSignIn?.('signin');
+        return;
       }
-    } catch (err) {
-      showToast?.(err.message || 'Could not start checkout');
-    }
+      const packId = btn.dataset.pack;
+      const pack = SCAN_PACKS[packId];
+      if (!pack) return;
+      try {
+        const result = await startScanPackCheckout(packId);
+        if (result.mock) {
+          showToast?.(import.meta.env.DEV
+            ? `+${pack.scans} scans added (demo — add Stripe for real payments)`
+            : `+${pack.scans} scans added`);
+          onSave();
+        }
+      } catch (err) {
+        showToast?.(err.message || 'Could not start checkout');
+      }
+    });
   });
 
   root.querySelector('#manageSubBtn')?.addEventListener('click', async () => {
@@ -945,10 +976,10 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
     try {
       const result = await validateAndRedeemVoucher(code);
       if (result.type === 'trial') {
-        if (result.trialPlan) setPlan(result.trialPlan);
+        if (result.trialPlan) setPlan('pro');
         showToast?.(result.label ? `${result.label} started` : 'Free trial started');
       } else if (result.type === 'topup') {
-        if (result.trialPlan) setPlan(result.trialPlan);
+        if (result.trialPlan) setPlan('pro');
         if (result.topupBalance != null) syncTopUpFromCloud(result.topupBalance);
         showToast?.(result.label ? `${result.label} added` : 'Bonus meal logs added');
       } else {
@@ -1057,19 +1088,19 @@ function notifyPreviewCard(label, msg) {
   `;
 }
 
-async function handleUpgrade(root, email, showToast, planId = 'daily10', discount = false, profile = null, onSave, onSignIn) {
+async function handleUpgrade(root, email, showToast, planId = 'pro', annual = false, discount = false, profile = null, onSave, onSignIn) {
   if (!profile?.loggedIn) {
     showToast?.('Sign in to choose a plan');
     onSignIn?.('signin');
     return;
   }
   try {
-    const data = await startPlanCheckout(planId, { email: email || profile.email || '', discount });
+    const data = await startPlanCheckout(planId, { annual });
     if (data.mock) {
-      setPlan(planId);
+      setPlan('pro');
       showToast?.(import.meta.env.DEV
-        ? `${PLANS[planId]?.name || planId} plan enabled (demo — add Stripe price IDs for real billing)`
-        : `${PLANS[planId]?.name || planId} plan enabled`);
+        ? `${PLANS.pro.name} enabled (demo — add Stripe price IDs for real billing)`
+        : `${PLANS.pro.name} enabled`);
       root.dispatchEvent(new CustomEvent('refresh'));
     }
   } catch (err) {

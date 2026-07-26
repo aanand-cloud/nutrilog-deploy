@@ -96,7 +96,7 @@ const TERMS_HTML = `
   <h3>Subscriptions</h3>
   <ul>
     <li>Paid plans and top-ups are billed monthly via Stripe.</li>
-    <li>Meal-log allowances reset as shown in the app (monthly on Standard, daily fair use on Plus).</li>
+    <li>Meal-log allowances reset at midnight (local time) on free and Pro plans. Scan pack credits never expire until used.</li>
     <li>Free plan includes unlimited barcode logging with your account; AI photo logs and reports require a paid plan.</li>
     <li>You can <strong>cancel or change your plan anytime</strong> in Goals → Plans → <em>Billing &amp; subscription</em> → <em>Cancel or change plan</em> (Stripe billing portal).</li>
     <li>If you cancel, you keep access until the end of your current billing period, then return to the free plan.</li>

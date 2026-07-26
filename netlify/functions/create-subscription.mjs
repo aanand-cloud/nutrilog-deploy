@@ -10,13 +10,17 @@ const stripe = process.env.STRIPE_SECRET_KEY
   : null;
 
 const PRICE_MAP = {
-  daily10: {
-    standard: 'STRIPE_DAILY10_PRICE_ID',
-    discount: 'STRIPE_DAILY10_DISCOUNT_PRICE_ID',
-  },
-  daily25: {
-    standard: 'STRIPE_DAILY25_PRICE_ID',
-    discount: 'STRIPE_DAILY25_DISCOUNT_PRICE_ID',
+  pro: {
+    monthly: {
+      standard: 'STRIPE_PRO_MONTHLY_PRICE_ID',
+      discount: 'STRIPE_PRO_MONTHLY_DISCOUNT_PRICE_ID',
+      fallback: 'STRIPE_PRO_PRICE_ID',
+      fallbackDiscount: 'STRIPE_DAILY25_DISCOUNT_PRICE_ID',
+    },
+    annual: {
+      standard: 'STRIPE_PRO_ANNUAL_PRICE_ID',
+      discount: 'STRIPE_PRO_ANNUAL_DISCOUNT_PRICE_ID',
+    },
   },
 };
 
@@ -30,9 +34,7 @@ export default async (req) => {
 
   if (!stripe) {
     if (isDevEnvironment()) {
-      const body = await req.json().catch(() => ({}));
-      const plan = body.plan === 'daily25' ? 'daily25' : 'daily10';
-      return jsonResponse({ mock: true, plan }, 200, req);
+      return jsonResponse({ mock: true, plan: 'pro' }, 200, req);
     }
     return jsonResponse({ error: 'Payments are not configured' }, 503, req);
   }
@@ -44,7 +46,7 @@ export default async (req) => {
       return jsonResponse({ error: auth.error, requiresAuth: auth.requiresAuth }, auth.status || 401, req);
     }
 
-    const plan = body.plan === 'daily10' || body.plan === 'daily25' ? body.plan : 'daily10';
+    const annual = body.annual === 'yes' || body.annual === true;
     const userId = auth.userId || null;
     const email = body.email || undefined;
 
@@ -53,12 +55,17 @@ export default async (req) => {
       useDiscount = await resolveDiscountEligible(auth.supabase, { userId, email });
     }
 
+    const cycle = annual ? 'annual' : 'monthly';
     const tier = useDiscount ? 'discount' : 'standard';
-    const envKey = PRICE_MAP[plan][tier];
-    const priceId = process.env[envKey] || process.env.STRIPE_PRO_PRICE_ID;
+    const map = PRICE_MAP.pro[cycle];
+    const priceId =
+      process.env[map[tier]] ||
+      process.env[map.fallback] ||
+      process.env[map.fallbackDiscount] ||
+      process.env.STRIPE_DAILY25_PRICE_ID;
 
     if (!priceId) {
-      return jsonResponse({ error: `${envKey} not set in Netlify env` }, 503, req);
+      return jsonResponse({ error: `Stripe price not configured for Pro ${cycle}` }, 503, req);
     }
 
     const origin = resolveRedirectOrigin(body.origin);
@@ -71,9 +78,9 @@ export default async (req) => {
       client_reference_id: userId || undefined,
       success_url: `${origin}/?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/?checkout=cancelled`,
-      metadata: { plan, product: 'nutrilog', discount: useDiscount ? 'yes' : 'no' },
+      metadata: { plan: 'pro', product: 'nutrilog', billing: cycle, discount: useDiscount ? 'yes' : 'no' },
       subscription_data: {
-        metadata: { plan, product: 'nutrilog', discount: useDiscount ? 'yes' : 'no' },
+        metadata: { plan: 'pro', product: 'nutrilog', billing: cycle, discount: useDiscount ? 'yes' : 'no' },
       },
     });
 

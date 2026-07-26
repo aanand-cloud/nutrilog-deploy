@@ -1,7 +1,7 @@
 import Stripe from 'stripe';
 import { getSupabaseAdmin } from '../lib/supabase-admin.mjs';
 import { redeemCheckoutSession } from '../lib/redeem-checkout.mjs';
-import { applyTopUpToProfile } from '../lib/scan-enforcement.mjs';
+import { applyScanPackToProfile } from '../lib/scan-enforcement.mjs';
 import { reportServerError } from '../lib/sentry.mjs';
 
 const stripe = process.env.STRIPE_SECRET_KEY
@@ -9,8 +9,7 @@ const stripe = process.env.STRIPE_SECRET_KEY
   : null;
 
 function normalizePlan(plan) {
-  if (plan === 'pro') return 'daily25';
-  if (plan === 'daily10' || plan === 'daily25') return plan;
+  if (plan === 'pro' || plan === 'daily25' || plan === 'daily10') return 'pro';
   return 'free';
 }
 
@@ -55,6 +54,7 @@ export default async (req) => {
 
       if (metaType === 'topup') {
         const scans = Number(session.metadata?.scans) || 100;
+        const dailyFreeCap = Number(session.metadata?.dailyFreeCap) || 1;
         const redemption = await redeemCheckoutSession(supabase, {
           sessionId: session.id,
           userId,
@@ -62,20 +62,20 @@ export default async (req) => {
           scans,
         });
         if (redemption.ok && redemption.fresh && userId) {
-          await applyTopUpToProfile(supabase, userId, scans);
+          await applyScanPackToProfile(supabase, userId, { scans, dailyFreeCap });
         }
         return ok();
       }
 
-      const plan = session.metadata?.plan;
-      if (plan === 'daily10' || plan === 'daily25') {
+      const plan = normalizePlan(session.metadata?.plan);
+      if (plan === 'pro') {
         await redeemCheckoutSession(supabase, {
           sessionId: session.id,
           userId,
           type: 'subscription',
           scans: 0,
         });
-        const patch = { plan, stripe_customer_id: String(session.customer || '') };
+        const patch = { plan: 'pro', stripe_customer_id: String(session.customer || '') };
         if (userId) {
           await supabase.from('profiles').update(patch).eq('id', userId);
         } else if (session.customer_email) {

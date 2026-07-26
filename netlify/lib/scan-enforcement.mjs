@@ -1,9 +1,9 @@
 import { expireTrialIfNeeded } from './trial-enforcement.mjs';
 
-const PLAN_MONTHLY = { daily10: 300, daily25: null, pro: null };
-
-const FREE_DAILY = 0;
-const PLUS_DAILY_FAIR_USE = 30;
+const FREE_DAILY_DEFAULT = 1;
+const PRO_DAILY_FAIR_USE = 33;
+const PRO_MONTHLY_CAP = 1000;
+const MAX_TOPUP_CARRY = 50_000;
 
 function monthKey(date = new Date()) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
@@ -38,13 +38,20 @@ export function resolveClientLocalDay(clientDay, now = new Date()) {
 }
 
 function normalizePlan(plan) {
-  if (plan === 'pro') return 'daily25';
-  if (plan === 'daily10' || plan === 'daily25') return plan;
+  if (plan === 'pro' || plan === 'daily25' || plan === 'daily10') return 'pro';
   return 'free';
 }
 
-function aiScansUsedToday(profile, dk) {
+function dailyFreeCap(profile) {
+  return Math.max(1, Math.min(2, Number(profile?.daily_free_cap) || FREE_DAILY_DEFAULT));
+}
+
+function scansUsedToday(profile, dk) {
   return profile.scan_month === dk ? profile.scan_used || 0 : 0;
+}
+
+function proScansUsedThisMonth(profile, mk) {
+  return profile.pro_scans_month === mk ? profile.pro_scans_month_used || 0 : 0;
 }
 
 /** Validate clarification refinement payload (blocks fake context bypass). */
@@ -58,6 +65,31 @@ export function isValidRefinementContext(context) {
   return true;
 }
 
+function buildFreeScanState(profile, dk) {
+  const cap = dailyFreeCap(profile);
+  const usedToday = scansUsedToday(profile, dk);
+  const credits = profile.topup_balance || 0;
+  const freeRemaining = Math.max(0, cap - usedToday);
+  const allowed = freeRemaining > 0 || credits > 0;
+
+  return {
+    ok: allowed,
+    plan: 'free',
+    scan_month: dk,
+    scan_used: usedToday,
+    dailyFreeCap: cap,
+    dailyFreeRemaining: freeRemaining,
+    topup: credits,
+    creditRemaining: credits,
+    remaining: freeRemaining + credits,
+    limit: cap + credits,
+    isDaily: true,
+    error: allowed
+      ? undefined
+      : 'No photo logs left today. Buy a scan pack or upgrade to Pro — free scans reset at midnight.',
+  };
+}
+
 /** Read-only check before calling AI (fail fast, save Gemini cost). */
 export async function checkScanAllowed(supabase, userId, clientLocalDay) {
   if (!supabase || !userId) {
@@ -68,7 +100,7 @@ export async function checkScanAllowed(supabase, userId, clientLocalDay) {
 
   const { data: profile, error } = await supabase
     .from('profiles')
-    .select('plan, scan_month, scan_used, topup_balance')
+    .select('plan, scan_month, scan_used, topup_balance, daily_free_cap, pro_scans_month, pro_scans_month_used')
     .eq('id', userId)
     .maybeSingle();
 
@@ -76,46 +108,44 @@ export async function checkScanAllowed(supabase, userId, clientLocalDay) {
   if (!profile) return { ok: false, error: 'Account profile not found' };
 
   const plan = normalizePlan(profile.plan);
-  const mk = monthKey();
   const dk = resolveClientLocalDay(clientLocalDay);
+  const mk = dk.slice(0, 7);
 
-  if (plan === 'free') {
-    return {
-      ok: false,
-      error: 'AI photo logging requires a paid plan. Barcode scan is free with your account.',
-    };
-  }
+  if (plan === 'pro') {
+    const usedToday = scansUsedToday(profile, dk);
+    const monthUsed = proScansUsedThisMonth(profile, mk);
 
-  if (plan === 'daily25') {
-    const usedToday = aiScansUsedToday(profile, dk);
-    if (usedToday >= PLUS_DAILY_FAIR_USE) {
+    if (monthUsed >= PRO_MONTHLY_CAP) {
       return {
         ok: false,
-        error: `Fair use limit of ${PLUS_DAILY_FAIR_USE} photo logs per day reached. Try again tomorrow.`,
+        error: 'Monthly fair use limit reached (~1,000 photo logs). Try again next month.',
       };
     }
+    if (usedToday >= PRO_DAILY_FAIR_USE) {
+      return {
+        ok: false,
+        error: `Fair use limit of ${PRO_DAILY_FAIR_USE} photo logs per day reached. Try again tomorrow.`,
+      };
+    }
+
     return {
       ok: true,
       plan,
       scan_month: dk,
       scan_used: usedToday,
-      remaining: PLUS_DAILY_FAIR_USE - usedToday,
-      limit: PLUS_DAILY_FAIR_USE,
+      remaining: PRO_DAILY_FAIR_USE - usedToday,
+      limit: PRO_DAILY_FAIR_USE,
+      monthUsed,
+      monthLimit: PRO_MONTHLY_CAP,
+      monthRemaining: PRO_MONTHLY_CAP - monthUsed,
       unlimited: true,
       isDaily: true,
     };
   }
 
-  const allowance = PLAN_MONTHLY[plan] || 0;
-  const topup = profile.topup_balance || 0;
-  const used = profile.scan_month === mk ? profile.scan_used || 0 : 0;
-  const limit = allowance + topup;
-
-  if (used >= limit) {
-    return { ok: false, error: 'Monthly meal log limit reached.' };
-  }
-
-  return { ok: true, plan, scan_month: mk, scan_used: used, remaining: limit - used, limit };
+  const state = buildFreeScanState(profile, dk);
+  if (!state.ok) return state;
+  return state;
 }
 
 /** Refinements are free only after today's scan was already consumed (same meal flow). */
@@ -130,16 +160,14 @@ export async function checkRefinementAllowed(supabase, userId, clientLocalDay) {
   const plan = normalizePlan(state.plan);
   const dk = resolveClientLocalDay(clientLocalDay);
 
-  if (plan === 'free') {
+  if (plan === 'pro') {
+    const usedToday = scansUsedToday(state, dk);
+    if (usedToday > 0) return { ok: true, plan, refinement: true };
     return checkScanAllowed(supabase, userId, clientLocalDay);
   }
 
-  if (plan === 'daily25') {
-    const usedToday = aiScansUsedToday(state, dk);
-    if (usedToday >= PLUS_DAILY_FAIR_USE) {
-      return { ok: true, plan, refinement: true };
-    }
-    return checkScanAllowed(supabase, userId, clientLocalDay);
+  if (scansUsedToday(state, dk) > 0) {
+    return { ok: true, plan: 'free', refinement: true };
   }
 
   return checkScanAllowed(supabase, userId, clientLocalDay);
@@ -183,23 +211,38 @@ export async function assertScanAllowed(supabase, userId) {
   return consumeMealScan(supabase, userId);
 }
 
-export async function applyTopUpToProfile(supabase, userId, scans = 100) {
+/** Apply a one-off scan pack after Stripe / voucher redemption. */
+export async function applyScanPackToProfile(
+  supabase,
+  userId,
+  { scans = 100, dailyFreeCap = 1 } = {}
+) {
   if (!supabase || !userId) return { ok: false };
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('topup_balance')
+    .select('topup_balance, daily_free_cap')
     .eq('id', userId)
     .maybeSingle();
 
-  const next = Math.min(200, (profile?.topup_balance || 0) + scans);
+  const nextBalance = Math.min(MAX_TOPUP_CARRY, (profile?.topup_balance || 0) + scans);
+  const nextCap = Math.max(dailyFreeCap(profile), Math.min(2, dailyFreeCap));
 
   await supabase
     .from('profiles')
-    .update({ topup_balance: next, updated_at: new Date().toISOString() })
+    .update({
+      topup_balance: nextBalance,
+      daily_free_cap: nextCap,
+      updated_at: new Date().toISOString(),
+    })
     .eq('id', userId);
 
-  return { ok: true, balance: next };
+  return { ok: true, balance: nextBalance, dailyFreeCap: nextCap };
+}
+
+/** @deprecated use applyScanPackToProfile */
+export async function applyTopUpToProfile(supabase, userId, scans = 100) {
+  return applyScanPackToProfile(supabase, userId, { scans, dailyFreeCap: 1 });
 }
 
 export async function getProfileScanState(supabase, userId) {
@@ -207,7 +250,7 @@ export async function getProfileScanState(supabase, userId) {
 
   const { data } = await supabase
     .from('profiles')
-    .select('plan, scan_month, scan_used, topup_balance')
+    .select('plan, scan_month, scan_used, topup_balance, daily_free_cap, pro_scans_month, pro_scans_month_used')
     .eq('id', userId)
     .maybeSingle();
 

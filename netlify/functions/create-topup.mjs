@@ -9,6 +9,23 @@ const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' })
   : null;
 
+const PACKS = {
+  pack100: {
+    scans: 100,
+    dailyFreeCap: 1,
+    standard: 'STRIPE_PACK100_PRICE_ID',
+    discount: 'STRIPE_PACK100_DISCOUNT_PRICE_ID',
+    fallback: 'STRIPE_TOPUP_PRICE_ID',
+    fallbackDiscount: 'STRIPE_TOPUP_DISCOUNT_PRICE_ID',
+  },
+  pack150: {
+    scans: 150,
+    dailyFreeCap: 2,
+    standard: 'STRIPE_PACK150_PRICE_ID',
+    discount: 'STRIPE_PACK150_DISCOUNT_PRICE_ID',
+  },
+};
+
 export default async (req) => {
   if (req.method === 'OPTIONS') {
     return optionsResponse(req);
@@ -19,7 +36,16 @@ export default async (req) => {
 
   if (!stripe) {
     if (isDevEnvironment()) {
-      return jsonResponse({ mock: true, type: 'topup', scans: 100 }, 200, req);
+      const body = await req.json().catch(() => ({}));
+      const packId = body.packId === 'pack150' ? 'pack150' : 'pack100';
+      const pack = PACKS[packId];
+      return jsonResponse({
+        mock: true,
+        type: 'topup',
+        packId,
+        scans: pack.scans,
+        dailyFreeCap: pack.dailyFreeCap,
+      }, 200, req);
     }
     return jsonResponse({ error: 'Payments are not configured' }, 503, req);
   }
@@ -31,6 +57,8 @@ export default async (req) => {
       return jsonResponse({ error: auth.error, requiresAuth: auth.requiresAuth }, auth.status || 401, req);
     }
 
+    const packId = body.packId === 'pack150' ? 'pack150' : 'pack100';
+    const pack = PACKS[packId];
     const userId = auth.userId || null;
     const email = body.email || undefined;
 
@@ -39,8 +67,9 @@ export default async (req) => {
       useDiscount = await resolveDiscountEligible(auth.supabase, { userId, email });
     }
 
-    const envKey = useDiscount ? 'STRIPE_TOPUP_DISCOUNT_PRICE_ID' : 'STRIPE_TOPUP_PRICE_ID';
-    const priceId = process.env[envKey];
+    const tier = useDiscount ? 'discount' : 'standard';
+    const envKey = pack[tier] || pack.fallback || pack.standard;
+    const priceId = process.env[envKey] || (tier === 'discount' ? process.env[pack.fallbackDiscount] : process.env[pack.fallback]);
 
     if (!priceId) {
       return jsonResponse({ error: `${envKey} not set in Netlify env` }, 503, req);
@@ -59,12 +88,19 @@ export default async (req) => {
       metadata: {
         product: 'nutrilog',
         type: 'topup',
-        scans: '100',
+        packId,
+        scans: String(pack.scans),
+        dailyFreeCap: String(pack.dailyFreeCap),
         discount: useDiscount ? 'yes' : 'no',
       },
     });
 
-    return jsonResponse({ url: session.url, sessionId: session.id, discountApplied: useDiscount }, 200, req);
+    return jsonResponse({
+      url: session.url,
+      sessionId: session.id,
+      packId,
+      discountApplied: useDiscount,
+    }, 200, req);
   } catch (err) {
     await reportServerError(err, { function: 'create-topup' });
     return jsonResponse({ error: err.message || 'Checkout failed' }, 500, req);

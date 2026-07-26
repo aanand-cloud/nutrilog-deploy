@@ -11,18 +11,18 @@ function parseVoucherEntry(entry, fallbackExpiry) {
   const code = (parts[0] || '').toUpperCase();
   const expires = parts[1] || fallbackExpiry;
   let type = 'discount';
-  let trialPlan = 'daily10';
+  let trialPlan = 'pro';
   let trialDays = 7;
   let topupScans = 100;
 
   if (parts[2]?.toLowerCase() === 'trial') {
     type = 'trial';
-    trialPlan = parts[3] === 'daily25' ? 'daily25' : 'daily10';
+    trialPlan = parts[3] === 'daily25' || parts[3] === 'pro' ? 'pro' : 'pro';
     trialDays = Math.min(90, Math.max(1, Number(parts[4]) || 7));
   } else if (parts[2]?.toLowerCase() === 'topup') {
     type = 'topup';
     topupScans = Math.min(200, Math.max(1, Number(parts[3]) || 100));
-    trialPlan = 'daily10';
+    trialPlan = 'pro';
     trialDays = 365;
   }
 
@@ -83,7 +83,7 @@ export function validateVoucherCode(code, env = process.env) {
   }
 
   if (valid.type === 'trial') {
-    const planLabel = valid.trialPlan === 'daily25' ? 'Plus' : 'Standard';
+    const planLabel = valid.trialPlan === 'pro' || valid.trialPlan === 'daily25' ? 'Pro' : 'Pro';
     return {
       ok: true,
       type: 'trial',

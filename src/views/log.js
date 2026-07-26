@@ -161,9 +161,10 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
   }
 
   function photoPaywallTitle(budget = canScan()) {
-    if (budget.reason === 'upgrade_required') return 'Upgrade for AI photo logging';
+    if (budget.reason === 'daily_limit') return 'No AI scans left today';
     if (budget.reason === 'daily_cap') return "Today's fair use limit reached";
-    return budget.isDaily ? "Today's photo allowance used" : 'Monthly allowance used';
+    if (budget.reason === 'monthly_cap') return 'Monthly fair use limit reached';
+    return 'Need more AI photo logs?';
   }
 
   function photoControlsHtml({ cameraHint, tipText, needsSignIn, photoBlocked, native, liveCamera, needsHttpsHint }) {

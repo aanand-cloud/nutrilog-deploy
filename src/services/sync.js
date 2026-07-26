@@ -105,7 +105,7 @@ export async function pullGoalsFromCloud() {
   }
   if (data?.plan) {
     const { setPlan } = await import('./subscription.js');
-    setPlan(data.plan === 'pro' ? 'daily25' : data.plan);
+    setPlan(data.plan === 'daily25' || data.plan === 'daily10' ? 'pro' : data.plan);
   }
   if (data?.topup_balance != null) {
     const { syncTopUpFromCloud } = await import('./subscription.js');

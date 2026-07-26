@@ -1,18 +1,19 @@
 import {
   MAX_TOPUP_CARRY,
-  TOPUP_PACK,
+  SCAN_PACKS,
   formatPlanPrice,
-  formatTopUpPrice,
+  formatScanPackPrice,
   getPlanConfig,
+  getScanPack,
+  isProPlan,
   isPaidPlan,
-  isUnlimitedPlan,
   canAccessReports,
-  plusFairUseDailyCap,
+  proFairUseDailyCap,
+  proMonthlyCap,
   LEGACY_PLAN_MAP,
-  monthResetLabel,
-  monthlyScanAllowance,
+  normalizePlanId,
   PLANS,
-  STANDARD_MONTHLY_SCANS,
+  FREE_DAILY_SCANS,
 } from './plans.js';
 import { getDiscountEligibility } from './discount.js';
 import { getUser, getSession, isSupabaseConfigured } from './auth.js';
@@ -22,6 +23,8 @@ const PLAN_KEY = 'nutrilog_plan';
 const USAGE_KEY = 'nutrilog_monthly_usage';
 const TOPUP_KEY = 'nutrilog_topup_balance';
 const DAILY_KEY = 'nutrilog_daily_usage';
+const DAILY_CAP_KEY = 'nutrilog_daily_free_cap';
+const PRO_MONTH_KEY = 'nutrilog_pro_month_usage';
 const REDEEMED_KEY = 'nutrilog_redeemed_checkouts';
 
 function monthKey(date = new Date()) {
@@ -54,17 +57,15 @@ function writeJson(key, value) {
 
 export function getPlan() {
   const p = localStorage.getItem(PLAN_KEY) || 'free';
-  const id = LEGACY_PLAN_MAP[p] || p;
-  return PLANS[id] ? id : 'free';
+  return normalizePlanId(p);
 }
 
 export function setPlan(plan) {
-  const id = LEGACY_PLAN_MAP[plan] || plan;
-  localStorage.setItem(PLAN_KEY, PLANS[id] ? id : 'free');
+  localStorage.setItem(PLAN_KEY, normalizePlanId(plan));
 }
 
 export function isPro() {
-  return isPaidPlan(getPlan());
+  return isProPlan(getPlan());
 }
 
 export { canAccessReports };
@@ -73,92 +74,86 @@ function isDevOfflineMode() {
   return import.meta.env.DEV && !isSupabaseConfigured();
 }
 
+export function getDailyFreeCap() {
+  const stored = Number(localStorage.getItem(DAILY_CAP_KEY));
+  if (stored === 2) return 2;
+  return FREE_DAILY_SCANS;
+}
+
+export function setDailyFreeCap(cap) {
+  localStorage.setItem(DAILY_CAP_KEY, String(cap === 2 ? 2 : 1));
+}
+
 export function getScanBudget(planId = getPlan()) {
   const usedToday = getScansToday();
+  const dailyCap = getDailyFreeCap();
+  const credits = getTopUpBalance();
 
-  if (!isPaidPlan(planId)) {
-    if (isDevOfflineMode()) {
-      const limit = STANDARD_MONTHLY_SCANS;
-      const used = getScansUsedThisMonth();
-      const remaining = Math.max(0, limit - used);
-      return {
-        allowed: remaining > 0,
-        remaining,
-        limit,
-        used,
-        allowance: limit,
-        topUp: 0,
-        topUpStored: 0,
-        usedToday,
-        dailyCapHit: false,
-        reason: remaining <= 0 ? 'monthly_limit' : null,
-        resetsOn: monthResetLabel(),
-        isDaily: false,
-        devOffline: true,
-      };
-    }
+  if (isDevOfflineMode() && !isProPlan(planId)) {
+    const freeRemaining = Math.max(0, dailyCap - usedToday);
+    const remaining = freeRemaining + credits;
     return {
-      allowed: false,
-      remaining: 0,
-      limit: 0,
-      used: 0,
-      allowance: 0,
-      topUp: 0,
-      topUpStored: 0,
-      usedToday,
-      dailyCapHit: false,
-      reason: 'upgrade_required',
-      resetsOn: monthResetLabel(),
-      isDaily: false,
-    };
-  }
-
-  if (isUnlimitedPlan(planId)) {
-    const dailyCap = plusFairUseDailyCap();
-    const dailyCapHit = usedToday >= dailyCap;
-    const remainingToday = Math.max(0, dailyCap - usedToday);
-    return {
-      allowed: !dailyCapHit,
-      remaining: remainingToday,
-      limit: dailyCap,
+      allowed: remaining > 0,
+      remaining,
+      limit: dailyCap + credits,
       used: usedToday,
-      allowance: null,
-      topUp: 0,
-      topUpStored: getTopUpBalance(),
+      dailyFreeCap: dailyCap,
+      dailyFreeRemaining: freeRemaining,
+      creditRemaining: credits,
+      topUpStored: credits,
       usedToday,
-      dailyCapHit,
-      reason: dailyCapHit ? 'daily_cap' : null,
+      reason: remaining <= 0 ? 'daily_limit' : null,
       resetsOn: 'midnight',
       isDaily: true,
-      unlimitedMonthly: true,
+      devOffline: true,
     };
   }
 
-  const allowance = monthlyScanAllowance(planId);
-  const topUpStored = getTopUpBalance();
-  const used = getScansUsedThisMonth();
-  const usedFromTopUp = Math.max(0, used - allowance);
-  const topUpRemaining = Math.max(0, topUpStored - usedFromTopUp);
-  const total = allowance + topUpStored;
-  const remaining = Math.max(0, total - used);
+  if (!isProPlan(planId)) {
+    const freeRemaining = Math.max(0, dailyCap - usedToday);
+    const remaining = freeRemaining + credits;
+    const allowed = remaining > 0;
+    return {
+      allowed,
+      remaining,
+      limit: dailyCap + credits,
+      used: usedToday,
+      dailyFreeCap: dailyCap,
+      dailyFreeRemaining: freeRemaining,
+      creditRemaining: credits,
+      topUp: credits,
+      topUpStored: credits,
+      usedToday,
+      dailyCapHit: allowed ? false : freeRemaining <= 0 && credits <= 0,
+      reason: allowed ? null : 'daily_limit',
+      resetsOn: 'midnight',
+      isDaily: true,
+    };
+  }
 
-  let allowed = remaining > 0;
-  let reason = null;
-  if (remaining <= 0) reason = 'monthly_limit';
+  const dailyCapPro = proFairUseDailyCap();
+  const monthUsed = getProScansThisMonth();
+  const monthCap = proMonthlyCap();
+  const dailyCapHit = usedToday >= dailyCapPro;
+  const monthCapHit = monthUsed >= monthCap;
+  const allowed = !dailyCapHit && !monthCapHit;
 
   return {
     allowed,
-    remaining,
-    limit: total,
-    used,
-    allowance,
-    topUp: topUpRemaining,
-    topUpStored,
+    remaining: Math.max(0, dailyCapPro - usedToday),
+    limit: dailyCapPro,
+    used: usedToday,
+    monthUsed,
+    monthLimit: monthCap,
+    monthRemaining: Math.max(0, monthCap - monthUsed),
+    topUpStored: 0,
     usedToday,
-    dailyCapHit: false,
-    reason,
-    resetsOn: monthResetLabel(),
-    isDaily: false,
+    dailyCapHit,
+    monthCapHit,
+    reason: monthCapHit ? 'monthly_cap' : dailyCapHit ? 'daily_cap' : null,
+    resetsOn: 'midnight',
+    isDaily: true,
+    unlimitedMonthly: true,
   };
 }
 
@@ -166,14 +161,14 @@ export function getTopUpBalance() {
   return Math.min(MAX_TOPUP_CARRY, Number(localStorage.getItem(TOPUP_KEY)) || 0);
 }
 
-export function getScansUsedThisMonth() {
-  const usage = readJson(USAGE_KEY, {});
-  return usage[monthKey()] || 0;
-}
-
 export function getScansToday() {
   const daily = readJson(DAILY_KEY, {});
   return daily[todayKey()] || 0;
+}
+
+export function getProScansThisMonth() {
+  const usage = readJson(PRO_MONTH_KEY, {});
+  return usage[monthKey()] || 0;
 }
 
 export function canScan(planId = getPlan()) {
@@ -186,15 +181,24 @@ export function recordScan() {
   daily[dk] = (daily[dk] || 0) + 1;
   writeJson(DAILY_KEY, daily);
 
-  if (isPaidPlan(getPlan()) && !isUnlimitedPlan(getPlan())) {
-    const usage = readJson(USAGE_KEY, {});
+  if (isProPlan(getPlan())) {
+    const monthly = readJson(PRO_MONTH_KEY, {});
     const mk = monthKey();
-    usage[mk] = (usage[mk] || 0) + 1;
-    writeJson(USAGE_KEY, usage);
+    monthly[mk] = (monthly[mk] || 0) + 1;
+    writeJson(PRO_MONTH_KEY, monthly);
   }
 }
 
-export function addTopUpCredits(amount = TOPUP_PACK.scans) {
+export function addScanPackCredits(packId = 'pack100') {
+  const pack = getScanPack(packId) || SCAN_PACKS.pack100;
+  const next = Math.min(MAX_TOPUP_CARRY, getTopUpBalance() + pack.scans);
+  localStorage.setItem(TOPUP_KEY, String(next));
+  if (pack.dailyFreeCap === 2) setDailyFreeCap(2);
+  return next;
+}
+
+/** @deprecated */
+export function addTopUpCredits(amount = SCAN_PACKS.pack100.scans) {
   const next = Math.min(MAX_TOPUP_CARRY, getTopUpBalance() + amount);
   localStorage.setItem(TOPUP_KEY, String(next));
   return next;
@@ -210,18 +214,23 @@ export function syncScanUsageFromServer(usage) {
   if (!usage?.ok && usage?.used == null) return;
   if (usage.plan) setPlan(usage.plan);
 
-  if (usage.isDaily) {
+  if (usage.dailyFreeCap != null) setDailyFreeCap(usage.dailyFreeCap);
+
+  if (usage.isDaily || usage.plan === 'free' || usage.plan === 'pro') {
     const daily = readJson(DAILY_KEY, {});
     daily[todayKey()] = usage.used ?? 0;
     writeJson(DAILY_KEY, daily);
-    return;
   }
 
-  const monthly = readJson(USAGE_KEY, {});
-  monthly[monthKey()] = usage.used ?? 0;
-  writeJson(USAGE_KEY, monthly);
-  if (usage.topup != null) {
-    localStorage.setItem(TOPUP_KEY, String(Math.min(MAX_TOPUP_CARRY, Number(usage.topup) || 0)));
+  if (usage.monthUsed != null) {
+    const monthly = readJson(PRO_MONTH_KEY, {});
+    monthly[monthKey()] = usage.monthUsed;
+    writeJson(PRO_MONTH_KEY, monthly);
+  }
+
+  if (usage.topup != null || usage.creditRemaining != null) {
+    const bal = usage.creditRemaining ?? usage.topup;
+    localStorage.setItem(TOPUP_KEY, String(Math.min(MAX_TOPUP_CARRY, Number(bal) || 0)));
   }
 }
 
@@ -233,23 +242,23 @@ export function syncScanStateFromProfile(profile) {
   if (profile.trial_until && new Date(profile.trial_until) <= new Date()) {
     plan = 'free';
   }
-  if (plan) setPlan(plan === 'pro' ? 'daily25' : plan);
+  if (plan) setPlan(plan);
   if (profile.topup_balance != null) syncTopUpFromCloud(profile.topup_balance);
+  if (profile.daily_free_cap != null) setDailyFreeCap(profile.daily_free_cap);
 
   const used = Number(profile.scan_used) || 0;
   const period = profile.scan_month || '';
   const localToday = todayKey();
-  if (/^\d{4}-\d{2}-\d{2}$/.test(period)) {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(period) && period === localToday) {
     const daily = readJson(DAILY_KEY, {});
-    // Only mirror server usage when it matches the user's local today (midnight reset).
-    if (period === localToday) {
-      daily[localToday] = used;
-      writeJson(DAILY_KEY, daily);
-    }
-  } else if (/^\d{4}-\d{2}$/.test(period)) {
-    const monthly = readJson(USAGE_KEY, {});
-    monthly[period] = used;
-    writeJson(USAGE_KEY, monthly);
+    daily[localToday] = used;
+    writeJson(DAILY_KEY, daily);
+  }
+
+  if (profile.pro_scans_month && /^\d{4}-\d{2}$/.test(profile.pro_scans_month)) {
+    const monthly = readJson(PRO_MONTH_KEY, {});
+    monthly[profile.pro_scans_month] = Number(profile.pro_scans_month_used) || 0;
+    writeJson(PRO_MONTH_KEY, monthly);
   }
 }
 
@@ -268,22 +277,13 @@ function markSessionRedeemed(sessionId) {
   localStorage.setItem(REDEEMED_KEY, JSON.stringify([...set].slice(-50)));
 }
 
-function isSessionRedeemed(sessionId) {
-  return sessionId && readRedeemedSessions().has(sessionId);
-}
-
-async function checkoutIdentity() {
-  const user = await getUser();
-  return { userId: user?.id || '', email: user?.email || '' };
-}
-
 async function checkoutAuthPayload(extra = {}) {
   const session = await getSession();
-  const identity = await checkoutIdentity();
+  const user = await getUser();
   const payload = {
     origin: window.location.origin,
-    email: identity.email,
-    userId: identity.userId,
+    email: user?.email || '',
+    userId: user?.id || '',
     ...extra,
   };
   const headers = { 'Content-Type': 'application/json' };
@@ -294,13 +294,11 @@ async function checkoutAuthPayload(extra = {}) {
   return { payload, headers };
 }
 
-export async function startPlanCheckout(planId, { email = '', userId = '', discount = false } = {}) {
-  const identity = await checkoutIdentity();
-  const { payload, headers } = await checkoutAuthPayload({
-    email: email || identity.email,
-    userId: userId || identity.userId,
-    plan: planId,
-  });
+export async function startPlanCheckout(planId, { annual = false } = {}) {
+  const id = normalizePlanId(planId);
+  if (id !== 'pro') throw new Error('Unknown plan');
+
+  const { payload, headers } = await checkoutAuthPayload({ plan: 'pro', annual: annual ? 'yes' : 'no' });
   const res = await fetch('/api/create-subscription', {
     method: 'POST',
     headers,
@@ -309,8 +307,8 @@ export async function startPlanCheckout(planId, { email = '', userId = '', disco
   const data = await res.json();
   if (data.mock) {
     if (import.meta.env.PROD) throw new Error('Payments are not configured');
-    setPlan(planId);
-    return { mock: true, plan: planId };
+    setPlan('pro');
+    return { mock: true, plan: 'pro' };
   }
   if (!res.ok) throw new Error(data.error || 'Checkout failed');
   if (data.url) {
@@ -320,12 +318,11 @@ export async function startPlanCheckout(planId, { email = '', userId = '', disco
   throw new Error('No checkout URL returned');
 }
 
-export async function startTopUpCheckout({ email = '', discount = false } = {}) {
-  const identity = await checkoutIdentity();
-  const { payload, headers } = await checkoutAuthPayload({
-    email: email || identity.email,
-    userId: identity.userId,
-  });
+export async function startScanPackCheckout(packId = 'pack100') {
+  const pack = getScanPack(packId);
+  if (!pack) throw new Error('Unknown scan pack');
+
+  const { payload, headers } = await checkoutAuthPayload({ packId: pack.id });
   const res = await fetch('/api/create-topup', {
     method: 'POST',
     headers,
@@ -334,8 +331,8 @@ export async function startTopUpCheckout({ email = '', discount = false } = {}) 
   const data = await res.json();
   if (data.mock) {
     if (import.meta.env.PROD) throw new Error('Payments are not configured');
-    const balance = addTopUpCredits(TOPUP_PACK.scans);
-    return { mock: true, balance };
+    const balance = addScanPackCredits(pack.id);
+    return { mock: true, balance, packId: pack.id };
   }
   if (!res.ok) throw new Error(data.error || 'Checkout failed');
   if (data.url) {
@@ -345,16 +342,16 @@ export async function startTopUpCheckout({ email = '', discount = false } = {}) 
   throw new Error('No checkout URL returned');
 }
 
-export async function openBillingPortal() {
-  const identity = await checkoutIdentity();
-  if (!identity.userId) {
-    throw new Error('Sign in to manage your subscription');
-  }
+/** @deprecated use startScanPackCheckout */
+export async function startTopUpCheckout(opts = {}) {
+  return startScanPackCheckout(opts.packId || 'pack100');
+}
 
-  const { payload, headers } = await checkoutAuthPayload({
-    email: identity.email,
-    userId: identity.userId,
-  });
+export async function openBillingPortal() {
+  const user = await getUser();
+  if (!user?.id) throw new Error('Sign in to manage your subscription');
+
+  const { payload, headers } = await checkoutAuthPayload();
   const res = await fetch('/api/create-billing-portal', {
     method: 'POST',
     headers,
@@ -370,10 +367,6 @@ export async function openBillingPortal() {
 }
 
 export async function verifyCheckoutSession(sessionId) {
-  if (isSessionRedeemed(sessionId)) {
-    return { ok: true, alreadyRedeemed: true, sessionId };
-  }
-
   const session = await getSession();
   const params = new URLSearchParams({ session_id: sessionId });
   if (session?.access_token) params.set('accessToken', session.access_token);
@@ -391,20 +384,17 @@ export async function verifyCheckoutSession(sessionId) {
     if (!data.alreadyRedeemed) {
       if (data.appliedToCloud) {
         const profile = await getProfile();
-        syncTopUpFromCloud(profile.topup_balance);
+        syncScanStateFromProfile(profile);
       } else {
-        addTopUpCredits(data.scans || TOPUP_PACK.scans);
+        addScanPackCredits(data.packId || 'pack100');
       }
     }
     markSessionRedeemed(sessionId);
     return data;
   }
 
-  if ((data.ok || data.mock) && data.plan && PLANS[data.plan]) {
+  if ((data.ok || data.mock) && data.plan) {
     setPlan(data.plan);
-    markSessionRedeemed(sessionId);
-  } else if (data.mock && data.type === 'topup') {
-    if (!data.alreadyRedeemed) addTopUpCredits(TOPUP_PACK.scans);
     markSessionRedeemed(sessionId);
   }
 
@@ -417,24 +407,27 @@ export function planLabel(planId = getPlan()) {
 
 export function scansLabel(planId = getPlan()) {
   const b = getScanBudget(planId);
-  if (!isPaidPlan(planId) && !b.devOffline) {
-    return 'Free plan · barcode logging · upgrade for AI photos & reports';
-  }
-  if (b.unlimitedMonthly) {
-    if (b.remaining <= 0) {
-      return `0/${b.limit} photo logs left today · fair use · resets at midnight`;
+
+  if (!isProPlan(planId)) {
+    if (b.dailyFreeRemaining > 0 && b.creditRemaining > 0) {
+      return `${b.dailyFreeRemaining} free today · ${b.creditRemaining} credits · resets midnight`;
     }
-    return `${b.remaining}/${b.limit} photo logs left today · fair use · resets at midnight`;
+    if (b.dailyFreeRemaining > 0) {
+      return `${b.dailyFreeRemaining} free photo log${b.dailyFreeRemaining === 1 ? '' : 's'} today · resets at midnight`;
+    }
+    if (b.creditRemaining > 0) {
+      return `${b.creditRemaining} scan credits left · 1 free tomorrow at midnight`;
+    }
+    return 'No AI scans left today · buy a pack or go Pro · barcode still free';
   }
-  if (b.isDaily && b.devOffline) {
-    const parts = [`${b.remaining} of ${b.limit} meal logs left`];
-    parts.push(`resets ${b.resetsOn}`);
-    return parts.join(' · ');
+
+  if (!b.allowed) {
+    if (b.reason === 'monthly_cap') {
+      return 'Monthly fair use reached (~1,000) · resets next month';
+    }
+    return `0/${b.limit} photo logs left today · resets at midnight`;
   }
-  const parts = [`${b.remaining} of ${b.limit} meal logs left`];
-  if (b.topUp > 0) parts.push(`${b.topUp} bonus`);
-  parts.push(`resets ${b.resetsOn}`);
-  return parts.join(' · ');
+  return `${b.remaining}/${b.limit} photo logs left today · Pro fair use · resets midnight`;
 }
 
 export function usageMeterPercent(planId = getPlan()) {
@@ -443,7 +436,6 @@ export function usageMeterPercent(planId = getPlan()) {
   return Math.min(100, Math.round((b.used / b.limit) * 100));
 }
 
-/** Bar fill matching “X left” label (remaining allowance). */
 export function usageMeterRemainingPercent(planId = getPlan()) {
   const b = getScanBudget(planId);
   if (!b.limit) return 100;
@@ -451,35 +443,45 @@ export function usageMeterRemainingPercent(planId = getPlan()) {
 }
 
 export function paywallMessage(budget = getScanBudget()) {
-  if (budget.reason === 'upgrade_required') {
-    return 'AI photo logging is on paid plans. Barcode scan is free with your account — upgrade for 300 logs/month or unlimited with a 30/day fair use limit.';
+  if (budget.reason === 'daily_limit') {
+    return 'You have used today\'s free scan and credits. Buy a scan pack (never expires), upgrade to Pro, or try again after midnight. Barcode logging stays free.';
   }
   if (budget.reason === 'daily_cap') {
-    return `You've logged ${plusFairUseDailyCap()} meals today — our fair use limit on the Plus plan. Try again tomorrow.`;
+    return `You have logged ${proFairUseDailyCap()} meals today — Pro fair use limit. Try again tomorrow.`;
   }
-  return `You've used your meal logs for this month. Top up with +100 logs, upgrade your plan, or wait until ${budget.resetsOn}.`;
+  if (budget.reason === 'monthly_cap') {
+    return 'You have reached the monthly fair use limit (~1,000 photo logs). Try again next month.';
+  }
+  return 'AI photo logging limit reached. Buy a scan pack or upgrade to Pro — barcode scan is still free.';
 }
 
-export function planPriceLabel(planId, profile, accountEmail) {
+export function planPriceLabel(planId, profile, accountEmail, { annual = false } = {}) {
   const disc = getDiscountEligibility(profile, accountEmail);
-  return formatPlanPrice(planId, disc.eligible);
+  return formatPlanPrice(planId, disc.eligible, { annual });
 }
 
+export function scanPackPriceLabel(packId, profile, accountEmail) {
+  const disc = getDiscountEligibility(profile, accountEmail);
+  return formatScanPackPrice(packId, disc.eligible);
+}
+
+/** @deprecated */
 export function topUpPriceLabel(profile, accountEmail) {
-  const disc = getDiscountEligibility(profile, accountEmail);
-  return formatTopUpPrice(disc.eligible);
+  return scanPackPriceLabel('pack100', profile, accountEmail);
 }
 
 export function resetScansForTesting() {
-  const usage = readJson(USAGE_KEY, {});
-  delete usage[monthKey()];
-  writeJson(USAGE_KEY, usage);
   const daily = readJson(DAILY_KEY, {});
   delete daily[todayKey()];
   writeJson(DAILY_KEY, daily);
+  const monthly = readJson(PRO_MONTH_KEY, {});
+  delete monthly[monthKey()];
+  writeJson(PRO_MONTH_KEY, monthly);
 }
 
 /** @deprecated */
 export function resetScansToday() {
   resetScansForTesting();
 }
+
+export { SCAN_PACKS, formatScanPackPrice, getScanPack };

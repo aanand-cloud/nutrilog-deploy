@@ -1,7 +1,7 @@
 import Stripe from 'stripe';
 import { isDevEnvironment } from '../lib/is-dev.mjs';
 import { redeemCheckoutSession } from '../lib/redeem-checkout.mjs';
-import { applyTopUpToProfile } from '../lib/scan-enforcement.mjs';
+import { applyScanPackToProfile } from '../lib/scan-enforcement.mjs';
 import { requireUserAuth } from '../lib/verify-auth.mjs';
 import { getSupabaseAdmin } from '../lib/supabase-admin.mjs';
 import { jsonResponse, optionsResponse } from '../lib/http-utils.mjs';
@@ -25,7 +25,15 @@ export default async (req) => {
 
   if (!stripe) {
     if (isDevEnvironment()) {
-      return jsonResponse({ mock: true, ok: true, type: 'topup', scans: 100, sessionId }, 200, req);
+      return jsonResponse({
+        mock: true,
+        ok: true,
+        type: 'topup',
+        packId: 'pack100',
+        scans: 100,
+        dailyFreeCap: 1,
+        sessionId,
+      }, 200, req);
     }
     return jsonResponse({ error: 'Payments are not configured' }, 503, req);
   }
@@ -61,6 +69,8 @@ export default async (req) => {
 
     if (metaType === 'topup') {
       const scans = Number(session.metadata?.scans) || 100;
+      const dailyFreeCap = Number(session.metadata?.dailyFreeCap) || 1;
+      const packId = session.metadata?.packId || (dailyFreeCap === 2 ? 'pack150' : 'pack100');
       const redemption = await redeemCheckoutSession(supabase, {
         sessionId: session.id,
         userId,
@@ -73,14 +83,16 @@ export default async (req) => {
       }
 
       if (redemption.fresh && userId && supabase) {
-        await applyTopUpToProfile(supabase, userId, scans);
+        await applyScanPackToProfile(supabase, userId, { scans, dailyFreeCap });
       }
 
       return jsonResponse(
         {
           ok: true,
           type: 'topup',
+          packId,
           scans,
+          dailyFreeCap,
           sessionId: session.id,
           alreadyRedeemed: Boolean(redemption.alreadyRedeemed),
           appliedToCloud: Boolean(redemption.fresh && userId && supabase),
@@ -97,15 +109,14 @@ export default async (req) => {
       scans: 0,
     });
 
-    const plan = ['daily10', 'daily25'].includes(session.metadata?.plan)
-      ? session.metadata.plan
-      : 'free';
+    const rawPlan = session.metadata?.plan;
+    const plan = rawPlan === 'pro' || rawPlan === 'daily25' || rawPlan === 'daily10' ? 'pro' : 'free';
 
-    if (userId && supabase && plan !== 'free') {
+    if (userId && supabase && plan === 'pro') {
       await supabase
         .from('profiles')
         .update({
-          plan,
+          plan: 'pro',
           stripe_customer_id: String(session.customer || ''),
           updated_at: new Date().toISOString(),
         })

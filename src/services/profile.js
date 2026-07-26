@@ -72,7 +72,7 @@ export async function getProfile() {
     loggedIn: true,
     displayName,
     email: user.email,
-    plan: data?.plan === 'pro' ? 'daily25' : data?.plan,
+    plan: data?.plan === 'daily25' || data?.plan === 'daily10' ? 'pro' : (data?.plan || 'free'),
     goals: data?.goals,
     unit_prefs: data?.unit_prefs,
     discount_senior: data?.discount_senior,

@@ -10,6 +10,6 @@ export function formatTrialUntil(iso) {
 
 export function trialPlanLabel(profile) {
   if (!isTrialActive(profile)) return '';
-  const plan = profile.plan === 'daily25' ? 'Plus' : profile.plan === 'daily10' ? 'Standard' : 'Paid';
+  const plan = profile.plan === 'pro' || profile.plan === 'daily25' || profile.plan === 'daily10' ? 'Pro' : 'Paid';
   return `${plan} trial until ${formatTrialUntil(profile.trial_until)}`;
 }

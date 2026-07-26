@@ -10,7 +10,7 @@ export function renderReportsPaywall(root, { onUpgrade, profile } = {}) {
     <section class="log-screen center reports-paywall">
       <p class="step-label">Paid plans</p>
       <h2>Reports &amp; insights</h2>
-      <p class="lead">Weekly charts, trends, and AI coaching tips are included with Standard and Plus.</p>
+      <p class="lead">Weekly charts, trends, and AI coaching tips are included with Pro.</p>
       <ul class="plan-features-list reports-paywall__list">
         <li>7-day and 30-day nutrition trends</li>
         <li>Goal insights and suggestions</li>
