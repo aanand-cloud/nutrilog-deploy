@@ -1,8 +1,11 @@
-/** Meal-log allowances — free tier is daily; paid tiers are monthly pools. */
+/** Meal-log allowances — free tier is barcode-only; paid tiers unlock AI photos & reports. */
 
 export const MAX_TOPUP_CARRY = 200;
-export const DAILY_SOFT_CAP = 40;
-export const FREE_DAILY_SCANS = 1;
+export const STANDARD_MONTHLY_SCANS = 300;
+export const PLUS_DAILY_FAIR_USE = 30;
+/** @deprecated use PLUS_DAILY_FAIR_USE — Plus tier fair-use cap only */
+export const DAILY_SOFT_CAP = PLUS_DAILY_FAIR_USE;
+export const FREE_DAILY_SCANS = 0;
 
 export const TOPUP_PACK = {
   id: 'topup100',
@@ -16,25 +19,32 @@ export const PLANS = {
   free: {
     id: 'free',
     name: 'Free',
-    tagline: '1 meal log per day',
+    tagline: 'Barcode logging · sign in free',
     dailyScans: FREE_DAILY_SCANS,
     monthlyScans: 0,
+    unlimitedMonthly: false,
+    reportsAccess: false,
     priceStandard: 0,
     priceDiscount: 0,
   },
   daily10: {
     id: 'daily10',
     name: 'Standard',
-    tagline: '300 meal logs / month',
-    monthlyScans: 300,
+    tagline: '300 AI photo logs / month',
+    monthlyScans: STANDARD_MONTHLY_SCANS,
+    unlimitedMonthly: false,
+    reportsAccess: true,
     priceStandard: 2.99,
     priceDiscount: 1.99,
   },
   daily25: {
     id: 'daily25',
     name: 'Plus',
-    tagline: '750 meal logs / month',
-    monthlyScans: 750,
+    tagline: 'Unlimited · 30/day fair use',
+    monthlyScans: 0,
+    unlimitedMonthly: true,
+    fairUseDailyCap: PLUS_DAILY_FAIR_USE,
+    reportsAccess: true,
     priceStandard: 4.99,
     priceDiscount: 3.49,
   },
@@ -51,7 +61,9 @@ export function getPlanConfig(planId) {
 }
 
 export function monthlyScanAllowance(planId) {
-  return getPlanConfig(planId).monthlyScans || 0;
+  const plan = getPlanConfig(planId);
+  if (plan.unlimitedMonthly) return null;
+  return plan.monthlyScans || 0;
 }
 
 export function freeDailyScanLimit() {
@@ -61,6 +73,18 @@ export function freeDailyScanLimit() {
 export function isPaidPlan(planId) {
   const id = LEGACY_PLAN_MAP[planId] || planId;
   return id === 'daily10' || id === 'daily25';
+}
+
+export function isUnlimitedPlan(planId) {
+  return getPlanConfig(planId).unlimitedMonthly === true;
+}
+
+export function canAccessReports(planId) {
+  return getPlanConfig(planId).reportsAccess === true;
+}
+
+export function plusFairUseDailyCap() {
+  return PLUS_DAILY_FAIR_USE;
 }
 
 export function formatPlanPrice(planId, discounted = false) {

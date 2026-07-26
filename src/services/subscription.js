@@ -1,19 +1,21 @@
 import {
-  DAILY_SOFT_CAP,
   MAX_TOPUP_CARRY,
   TOPUP_PACK,
   formatPlanPrice,
   formatTopUpPrice,
   getPlanConfig,
-  freeDailyScanLimit,
   isPaidPlan,
+  isUnlimitedPlan,
+  canAccessReports,
+  plusFairUseDailyCap,
   LEGACY_PLAN_MAP,
   monthResetLabel,
   monthlyScanAllowance,
   PLANS,
+  STANDARD_MONTHLY_SCANS,
 } from './plans.js';
 import { getDiscountEligibility } from './discount.js';
-import { getUser, getSession } from './auth.js';
+import { getUser, getSession, isSupabaseConfigured } from './auth.js';
 import { getProfile } from './profile.js';
 
 const PLAN_KEY = 'nutrilog_plan';
@@ -65,6 +67,101 @@ export function isPro() {
   return isPaidPlan(getPlan());
 }
 
+export { canAccessReports };
+
+function isDevOfflineMode() {
+  return import.meta.env.DEV && !isSupabaseConfigured();
+}
+
+export function getScanBudget(planId = getPlan()) {
+  const usedToday = getScansToday();
+
+  if (!isPaidPlan(planId)) {
+    if (isDevOfflineMode()) {
+      const limit = STANDARD_MONTHLY_SCANS;
+      const used = getScansUsedThisMonth();
+      const remaining = Math.max(0, limit - used);
+      return {
+        allowed: remaining > 0,
+        remaining,
+        limit,
+        used,
+        allowance: limit,
+        topUp: 0,
+        topUpStored: 0,
+        usedToday,
+        dailyCapHit: false,
+        reason: remaining <= 0 ? 'monthly_limit' : null,
+        resetsOn: monthResetLabel(),
+        isDaily: false,
+        devOffline: true,
+      };
+    }
+    return {
+      allowed: false,
+      remaining: 0,
+      limit: 0,
+      used: 0,
+      allowance: 0,
+      topUp: 0,
+      topUpStored: 0,
+      usedToday,
+      dailyCapHit: false,
+      reason: 'upgrade_required',
+      resetsOn: monthResetLabel(),
+      isDaily: false,
+    };
+  }
+
+  if (isUnlimitedPlan(planId)) {
+    const dailyCap = plusFairUseDailyCap();
+    const dailyCapHit = usedToday >= dailyCap;
+    const remainingToday = Math.max(0, dailyCap - usedToday);
+    return {
+      allowed: !dailyCapHit,
+      remaining: remainingToday,
+      limit: dailyCap,
+      used: usedToday,
+      allowance: null,
+      topUp: 0,
+      topUpStored: getTopUpBalance(),
+      usedToday,
+      dailyCapHit,
+      reason: dailyCapHit ? 'daily_cap' : null,
+      resetsOn: 'midnight',
+      isDaily: true,
+      unlimitedMonthly: true,
+    };
+  }
+
+  const allowance = monthlyScanAllowance(planId);
+  const topUpStored = getTopUpBalance();
+  const used = getScansUsedThisMonth();
+  const usedFromTopUp = Math.max(0, used - allowance);
+  const topUpRemaining = Math.max(0, topUpStored - usedFromTopUp);
+  const total = allowance + topUpStored;
+  const remaining = Math.max(0, total - used);
+
+  let allowed = remaining > 0;
+  let reason = null;
+  if (remaining <= 0) reason = 'monthly_limit';
+
+  return {
+    allowed,
+    remaining,
+    limit: total,
+    used,
+    allowance,
+    topUp: topUpRemaining,
+    topUpStored,
+    usedToday,
+    dailyCapHit: false,
+    reason,
+    resetsOn: monthResetLabel(),
+    isDaily: false,
+  };
+}
+
 export function getTopUpBalance() {
   return Math.min(MAX_TOPUP_CARRY, Number(localStorage.getItem(TOPUP_KEY)) || 0);
 }
@@ -79,58 +176,6 @@ export function getScansToday() {
   return daily[todayKey()] || 0;
 }
 
-export function getScanBudget(planId = getPlan()) {
-  const usedToday = getScansToday();
-
-  if (!isPaidPlan(planId)) {
-    const limit = freeDailyScanLimit();
-    const remaining = Math.max(0, limit - usedToday);
-    return {
-      allowed: remaining > 0,
-      remaining,
-      limit,
-      used: usedToday,
-      allowance: limit,
-      topUp: 0,
-      topUpStored: 0,
-      usedToday,
-      dailyCapHit: false,
-      reason: remaining <= 0 ? 'daily_limit' : null,
-      resetsOn: 'midnight',
-      isDaily: true,
-    };
-  }
-
-  const allowance = monthlyScanAllowance(planId);
-  const topUpStored = getTopUpBalance();
-  const used = getScansUsedThisMonth();
-  const usedFromTopUp = Math.max(0, used - allowance);
-  const topUpRemaining = Math.max(0, topUpStored - usedFromTopUp);
-  const total = allowance + topUpStored;
-  const remaining = Math.max(0, total - used);
-  const dailyCapHit = usedToday >= DAILY_SOFT_CAP;
-
-  let allowed = remaining > 0 && !dailyCapHit;
-  let reason = null;
-  if (dailyCapHit) reason = 'daily_cap';
-  else if (remaining <= 0) reason = 'monthly_limit';
-
-  return {
-    allowed,
-    remaining,
-    limit: total,
-    used,
-    allowance,
-    topUp: topUpRemaining,
-    topUpStored,
-    usedToday,
-    dailyCapHit,
-    reason,
-    resetsOn: monthResetLabel(),
-    isDaily: false,
-  };
-}
-
 export function canScan(planId = getPlan()) {
   return getScanBudget(planId);
 }
@@ -141,7 +186,7 @@ export function recordScan() {
   daily[dk] = (daily[dk] || 0) + 1;
   writeJson(DAILY_KEY, daily);
 
-  if (isPaidPlan(getPlan())) {
+  if (isPaidPlan(getPlan()) && !isUnlimitedPlan(getPlan())) {
     const usage = readJson(USAGE_KEY, {});
     const mk = monthKey();
     usage[mk] = (usage[mk] || 0) + 1;
@@ -372,12 +417,19 @@ export function planLabel(planId = getPlan()) {
 
 export function scansLabel(planId = getPlan()) {
   const b = getScanBudget(planId);
-  if (b.isDaily) {
-    const noun = b.limit === 1 ? 'scan' : 'scans';
+  if (!isPaidPlan(planId) && !b.devOffline) {
+    return 'Free plan · barcode logging · upgrade for AI photos & reports';
+  }
+  if (b.unlimitedMonthly) {
     if (b.remaining <= 0) {
-      return `0/${b.limit} free ${noun} today · resets at midnight`;
+      return `0/${b.limit} photo logs left today · fair use · resets at midnight`;
     }
-    return `${b.remaining}/${b.limit} free ${noun} today · resets at midnight`;
+    return `${b.remaining}/${b.limit} photo logs left today · fair use · resets at midnight`;
+  }
+  if (b.isDaily && b.devOffline) {
+    const parts = [`${b.remaining} of ${b.limit} meal logs left`];
+    parts.push(`resets ${b.resetsOn}`);
+    return parts.join(' · ');
   }
   const parts = [`${b.remaining} of ${b.limit} meal logs left`];
   if (b.topUp > 0) parts.push(`${b.topUp} bonus`);
@@ -399,11 +451,11 @@ export function usageMeterRemainingPercent(planId = getPlan()) {
 }
 
 export function paywallMessage(budget = getScanBudget()) {
-  if (budget.reason === 'daily_limit') {
-    return "You've used your free meal log for today. It resets at midnight (12am). Upgrade in Goals for a monthly allowance.";
+  if (budget.reason === 'upgrade_required') {
+    return 'AI photo logging is on paid plans. Barcode scan is free with your account — upgrade for 300 logs/month or unlimited with a 30/day fair use limit.';
   }
   if (budget.reason === 'daily_cap') {
-    return `You've logged ${DAILY_SOFT_CAP} meals today — a fair daily limit. Try again tomorrow, or add a top-up pack in Goals.`;
+    return `You've logged ${plusFairUseDailyCap()} meals today — our fair use limit on the Plus plan. Try again tomorrow.`;
   }
   return `You've used your meal logs for this month. Top up with +100 logs, upgrade your plan, or wait until ${budget.resetsOn}.`;
 }

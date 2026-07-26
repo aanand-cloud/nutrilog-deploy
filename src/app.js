@@ -129,7 +129,11 @@ export function initApp() {
           profile,
         });
       } else if (currentView === 'reports') {
-        await renderReports(main, { profile, onLog: () => setView('log') });
+        await renderReports(main, {
+          profile,
+          onLog: () => setView('log'),
+          onUpgrade: handleUpgrade,
+        });
       } else if (currentView === 'settings') {
         await renderSettings(main, {
           onSave: refresh,

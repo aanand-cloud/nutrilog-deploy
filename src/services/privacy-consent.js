@@ -132,7 +132,7 @@ export function openAiConsentModal() {
           <li><strong>Meal photos</strong> you choose to log are sent to <strong>Google Gemini</strong> to estimate calories and nutrition.</li>
           <li><strong>Meal summaries</strong> (not photos) may be sent to Gemini for personalised coaching tips in Reports.</li>
           <li>We do <strong>not</strong> use your photos for advertising. Google processes data under their own terms as a sub-processor.</li>
-          <li>You can still log <strong>packaged food</strong> by barcode or search without using AI photo logging.</li>
+          <li>You can still log <strong>packaged food</strong> by barcode or search — free with your account.</li>
         </ul>
         <p class="fine-print health-disclaimer">NutriLog provides estimates only — not medical or dietary advice.</p>
         <label class="consent-row consent-row--panel">

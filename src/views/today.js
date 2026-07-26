@@ -30,7 +30,7 @@ import {
   getScanBudget,
   syncTopUpFromCloud,
 } from '../services/subscription.js';
-import { PLANS, TOPUP_PACK, MAX_TOPUP_CARRY } from '../services/plans.js';
+import { PLANS, TOPUP_PACK, MAX_TOPUP_CARRY, STANDARD_MONTHLY_SCANS } from '../services/plans.js';
 import { getDiscountEligibility, getDiscountSections, validateWorkEmailForDiscount } from '../services/discount.js';
 import { validateAndRedeemVoucher } from '../services/voucher.js';
 import { isTrialActive, trialPlanLabel, formatTrialUntil } from '../services/trial.js';
@@ -97,20 +97,20 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
 
     ${!profile?.loggedIn ? `
       <section class="guest-prompt card" aria-label="Create your account">
-        <p class="guest-prompt__lead">Free account · cloud backup · AI meal photos</p>
+        <p class="guest-prompt__lead">Free account · barcode logging · upgrade for AI photos &amp; reports</p>
         <div class="guest-prompt__actions">
           <button type="button" class="btn btn-primary" id="guestGetStarted">Get started free</button>
           <button type="button" class="btn btn-ghost" id="guestSignIn">Sign in</button>
         </div>
-        <p class="guest-prompt__note">${isSupabaseConfigured() ? 'No sign-in needed for barcode & product search — always free, unlimited.' : 'If sign-in fails, refresh after the latest app update.'}</p>
+        <p class="guest-prompt__note">${isSupabaseConfigured() ? 'Sign in to use free barcode scan — always unlimited on your account.' : 'If sign-in fails, refresh after the latest app update.'}</p>
       </section>
     ` : ''}
 
     <section class="home-free-perks card" aria-label="Free barcode logging">
-      <p class="home-free-perks__eyebrow">100% free · no account · no photo limit</p>
+      <p class="home-free-perks__eyebrow">Free with sign-in · unlimited barcode scans</p>
       <h3 class="home-free-perks__title">Got a barcode? You're done in seconds.</h3>
-      <p class="home-free-perks__body">Scan any packaged food — cereals, meal deals, snacks — and log accurate nutrition from the label. No camera allowance used.</p>
-      <button type="button" class="btn btn-ghost btn-sm full" id="homeLogPackagedBtn">Log packaged food →</button>
+      <p class="home-free-perks__body">Scan any packaged food — cereals, meal deals, snacks — and log accurate nutrition from the label. No photo allowance used.</p>
+      <button type="button" class="btn btn-ghost btn-sm full" id="homeLogPackagedBtn">${profile?.loggedIn ? 'Log packaged food →' : 'Sign in & scan barcode →'}</button>
     </section>
 
     <section class="home-hero" aria-label="NutriLog">
@@ -144,7 +144,7 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
         <span class="insight-badge">↓ ${weeklyTip.label} ${weeklyTip.periodLabel || 'this week'}</span>
         <p>${escapeHtml(weeklyTip.message)}</p>
         ${weeklyTip.daysUnderTarget ? `<p class="insight-meta">${weeklyTip.daysUnderTarget} day(s) below target</p>` : ''}
-        <button type="button" class="btn btn-ghost btn-sm" id="viewReportsBtn">View full report →</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="viewReportsBtn">${isPro() ? 'View full report →' : 'Unlock reports →'}</button>
         ${disclaimerBlock(DISCLAIMERS.goalInsights, 'fine-print health-disclaimer health-disclaimer--inline')}
       </section>
     ` : ''}
@@ -157,7 +157,7 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
           <h3>${escapeHtml(cuisine.tips[0].title)}</h3>
           <p>${escapeHtml(cuisine.tips[0].body)}</p>
         </article>
-        ${cuisine.tips.length > 1 ? `<button type="button" class="btn btn-ghost btn-sm full" id="moreTipsBtn">More tips in Reports →</button>` : ''}
+        ${cuisine.tips.length > 1 ? `<button type="button" class="btn btn-ghost btn-sm full" id="moreTipsBtn">${isPro() ? 'More tips in Reports →' : 'Unlock reports →'}</button>` : ''}
         ${disclaimerBlock(DISCLAIMERS.aiCoach, 'fine-print health-disclaimer health-disclaimer--inline')}
       </section>
     ` : ''}
@@ -165,9 +165,9 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
     <section class="pro-banner ${!scanBudget.allowed ? 'pro-banner--limit' : ''}">
       <div>
         <strong>${scansLabel()}</strong>
-        <p>${planLabel()} · resets ${scanBudget.resetsOn}${!scanBudget.allowed ? ' · AI photos paused until reset or upgrade' : ''}</p>
+        <p>${planLabel()}${getPlan() !== 'free' ? ` · resets ${scanBudget.resetsOn}` : ''}${!scanBudget.allowed && getPlan() !== 'free' ? ' · AI photos paused until reset' : ''}</p>
       </div>
-      ${getPlan() === 'free' ? `<button type="button" class="btn btn-primary btn-sm" id="todayUpgrade">${scanBudget.allowed ? 'Upgrade' : 'Get more scans'}</button>` : ''}
+      ${getPlan() === 'free' ? `<button type="button" class="btn btn-primary btn-sm" id="todayUpgrade">View plans</button>` : ''}
     </section>
 
     <section class="section">
@@ -192,7 +192,10 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
   root.querySelector('#discountHeroBtn')?.addEventListener('click', () => onSettings?.('plans', { openDiscount: true }));
   root.querySelector('#guestGetStarted')?.addEventListener('click', () => onSignIn?.('signup'));
   root.querySelector('#guestSignIn')?.addEventListener('click', () => onSignIn?.('signin'));
-  root.querySelector('#homeLogPackagedBtn')?.addEventListener('click', onLog);
+  root.querySelector('#homeLogPackagedBtn')?.addEventListener('click', () => {
+    if (!profile?.loggedIn && isSupabaseConfigured()) onSignIn?.('signin');
+    else onLog?.();
+  });
   root.querySelector('#todayUpgrade')?.addEventListener('click', () => onSettings?.('plans'));
   root.querySelector('#viewReportsBtn')?.addEventListener('click', () => onReports?.());
   root.querySelector('#moreTipsBtn')?.addEventListener('click', () => onReports?.());
@@ -458,25 +461,40 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
 
         <section class="settings-panel card ${currentPlan !== 'free' ? 'muted-card' : 'pro-card'}" data-panel="plans" ${panelHidden('plans', activeSettingsTab)}>
           <div class="settings-panel-head">
-            <h3 class="settings-panel-title">Meal log plans</h3>
-            <span class="settings-badge">${trialActive ? `${planLabel()} trial` : currentPlan === 'free' ? 'Free · 1/day' : planLabel()}</span>
+            <h3 class="settings-panel-title">Plans &amp; pricing</h3>
+            <span class="settings-badge">${trialActive ? `${planLabel()} trial` : currentPlan === 'free' ? 'Free plan' : planLabel()}</span>
           </div>
+          <p class="settings-panel-lead">Barcode logging is free with your account. Upgrade for AI photo logs and reports.</p>
           ${currentPlan === 'free' ? `
-            <p class="card-desc">Free includes <strong>1 AI meal log per day</strong>, resetting at midnight (12am) on your phone. Paid plans use a flexible monthly allowance.</p>
+            <p class="card-desc"><strong>Free</strong> — unlimited barcode scan. <strong>Standard</strong> — 300 AI photo logs per month. <strong>Plus</strong> — unlimited photos, up to 30 per day (fair use).</p>
+          ` : getScanBudget().unlimitedMonthly ? `
+            <p class="card-desc">You're on <strong>Plus</strong> — unlimited AI photo logs each month, with a fair use cap of 30 per day. Barcode logging stays free.</p>
           ` : `
-            <p class="card-desc">Monthly allowance — use flexibly across the month. Subscription allowance resets on the 1st; purchased top-ups carry over (up to ${MAX_TOPUP_CARRY}). Manage or cancel anytime in Billing &amp; subscription below.</p>
+            <p class="card-desc">You're on <strong>Standard</strong> — ${STANDARD_MONTHLY_SCANS} AI photo logs per month. Barcode logging stays free. Top-ups carry over (up to ${MAX_TOPUP_CARRY}).</p>
           `}
 
           <div class="usage-meter-wrap">
+            ${currentPlan === 'free' ? `
+              <p class="fine-print">Free plan — unlimited barcode logging with your account. Upgrade for AI photo logs and reports.</p>
+            ` : getScanBudget().unlimitedMonthly ? `
+              <div class="usage-meter-head">
+                <span>Today · fair use</span>
+                <span>${getScanBudget().remaining}/${getScanBudget().limit} photo logs left</span>
+              </div>
+              <div class="usage-meter-track" aria-hidden="true">
+                <div class="usage-meter-fill" style="width:${usageMeterRemainingPercent()}%"></div>
+              </div>
+              <p class="fine-print">Unlimited monthly · resets every day at midnight (12am)</p>
+            ` : `
             <div class="usage-meter-head">
-              <span>${currentPlan === 'free' ? 'Today' : 'This month'}</span>
+              <span>This month</span>
               <span>${getScanBudget().remaining}/${getScanBudget().limit} available</span>
             </div>
             <div class="usage-meter-track" aria-hidden="true">
               <div class="usage-meter-fill" style="width:${usageMeterRemainingPercent()}%"></div>
             </div>
-            ${getTopUpBalance() > 0 && currentPlan !== 'free' ? `<p class="fine-print">+${getTopUpBalance()} bonus logs carried from top-ups</p>` : ''}
-            ${currentPlan === 'free' ? `<p class="fine-print">Resets every day at midnight (12am)</p>` : ''}
+            ${getTopUpBalance() > 0 ? `<p class="fine-print">+${getTopUpBalance()} bonus logs carried from top-ups</p>` : ''}
+            `}
           </div>
 
           ${openDiscountSection ? `
@@ -494,7 +512,8 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
               <p class="plan-tagline">${PLANS.daily10.tagline}</p>
               <p class="plan-price">${planPriceLabel('daily10', profile, profile.email)}</p>
               <ul class="plan-features-list">
-                <li>300 meal logs per month</li>
+                <li>300 AI photo logs per month</li>
+                <li>Reports &amp; insights</li>
                 <li>Cloud backup</li>
               </ul>
               ${currentPlan !== 'daily10' ? `<button type="button" class="btn btn-primary full" data-plan="daily10">Choose Standard</button>` : '<p class="plan-current-tag">Current plan</p>'}
@@ -505,7 +524,9 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
               <p class="plan-tagline">${PLANS.daily25.tagline}</p>
               <p class="plan-price">${planPriceLabel('daily25', profile, profile.email)}</p>
               <ul class="plan-features-list">
-                <li>750 meal logs per month</li>
+                <li>Unlimited AI photo logs</li>
+                <li>30/day fair use policy</li>
+                <li>Reports &amp; insights</li>
                 <li>Cloud backup</li>
               </ul>
               ${currentPlan !== 'daily25' ? `<button type="button" class="btn btn-primary full" data-plan="daily25">Choose Plus</button>` : '<p class="plan-current-tag">Current plan</p>'}
@@ -517,8 +538,8 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
               <h4>Need more this month?</h4>
               <p>Add <strong>${TOPUP_PACK.scans} meal logs</strong> — ${topUpPriceLabel(profile, profile.email || user?.email || '')} one-time</p>
             </div>
-            <p class="fine-print">${currentPlan === 'free' ? 'Top-ups apply to paid plans. Upgrade first, then add extra logs if needed.' : `Top-up logs roll over month to month (max ${MAX_TOPUP_CARRY} stored). Used after your monthly allowance.`}</p>
-            <button type="button" class="btn btn-ghost full" id="topUpBtn" ${currentPlan === 'free' ? 'disabled' : ''}>Buy +${TOPUP_PACK.scans} meal logs</button>
+            <p class="fine-print">${currentPlan === 'free' ? 'Top-ups apply to Standard when you need more than 300/month. Upgrade first, then add extra logs if needed.' : currentPlan === 'daily25' ? 'Plus includes unlimited monthly logs — top-ups are for Standard plans.' : `Top-up logs roll over month to month (max ${MAX_TOPUP_CARRY} stored). Used after your monthly allowance.`}</p>
+            <button type="button" class="btn btn-ghost full" id="topUpBtn" ${currentPlan === 'free' || currentPlan === 'daily25' ? 'disabled' : ''}>Buy +${TOPUP_PACK.scans} meal logs</button>
           </div>
 
           ${profile.loggedIn ? `
@@ -531,10 +552,10 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
                 ${trialActive ? `
                   <p class="billing-status-summary">Free trial active</p>
                   <p>You're on a complimentary ${planLabel()} trial until ${formatTrialUntil(profile.trial_until)} — no card required. Subscribe above before it ends to keep your monthly allowance.</p>
-                  <p class="fine-print">When the trial ends, you'll return to the free plan (1 meal log per day) unless you subscribe.</p>
+                  <p class="fine-print">When the trial ends, you'll return to the free plan (barcode logging only) unless you subscribe.</p>
                 ` : currentPlan === 'free' ? `
                   <p class="billing-status-summary">No active subscription</p>
-                  <p>You're on the free tier — 1 AI meal log per day. Subscribe to Standard or Plus above and this section becomes your billing hub: update payment, switch plan, or cancel anytime through Stripe's secure portal.</p>
+                  <p>You're on the free tier — unlimited barcode logging with your account. Subscribe to Standard or Plus for AI photo logs and reports.</p>
                   <p class="fine-print">If you cancel a paid plan, you keep access until the end of your billing period, then return to the free plan automatically.</p>
                   <button type="button" class="btn btn-primary full" id="billingViewPlansBtn">Compare paid plans</button>
                 ` : `

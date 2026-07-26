@@ -200,15 +200,25 @@ begin
   end;
 
   if v_plan = 'free' then
+    return jsonb_build_object(
+      'ok', false,
+      'error', 'AI photo logging requires a paid plan. Barcode scan is free with your account.'
+    );
+  end if;
+
+  if v_plan = 'daily25' then
     if p_local_day is not null and p_local_day ~ '^\d{4}-\d{2}-\d{2}$' then
       v_period := p_local_day;
     else
       v_period := to_char((now() at time zone 'utc')::date, 'YYYY-MM-DD');
     end if;
     v_used := case when v_profile.scan_month = v_period then coalesce(v_profile.scan_used, 0) else 0 end;
-    v_limit := 1;
+    v_limit := 30;
     if v_used >= v_limit then
-      return jsonb_build_object('ok', false, 'error', 'Daily meal log limit reached. Resets at midnight.');
+      return jsonb_build_object(
+        'ok', false,
+        'error', 'Fair use limit of 30 photo logs per day reached. Try again tomorrow.'
+      );
     end if;
     update public.profiles
     set scan_month = v_period, scan_used = v_used + 1, updated_at = now()
@@ -219,13 +229,14 @@ begin
       'used', v_used + 1,
       'limit', v_limit,
       'remaining', greatest(0, v_limit - (v_used + 1)),
-      'isDaily', true
+      'isDaily', true,
+      'unlimited', true
     );
   end if;
 
   v_period := to_char(now() at time zone 'utc', 'YYYY-MM');
   v_used := case when v_profile.scan_month = v_period then coalesce(v_profile.scan_used, 0) else 0 end;
-  v_allowance := case v_plan when 'daily10' then 300 when 'daily25' then 750 else 0 end;
+  v_allowance := 300;
   v_topup := coalesce(v_profile.topup_balance, 0);
   v_limit := v_allowance + v_topup;
 

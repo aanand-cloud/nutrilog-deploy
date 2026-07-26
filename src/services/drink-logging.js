@@ -1,4 +1,4 @@
-/** Drink logging — separate from meal time (breakfast/lunch/dinner/snack). */
+/** Unified photo log — AI detects food vs drinks; no separate scanners. */
 
 export const DRINK_SUBTYPES = [
   {
@@ -110,4 +110,48 @@ export function drinkSubtypeChipsHtml(selectedId) {
       aria-pressed="${selectedId === sub.id ? 'true' : 'false'}"
     >${sub.icon} ${sub.label}</button>
   `).join('');
+}
+
+/** Notes sent with every photo — food and drinks in one flow. */
+export function buildPhotoAnalysisNotes(userNotes = '') {
+  const lines = [
+    'The user photographed food and/or drinks. Identify everything visible in the photo.',
+    'Use grams (g) for solid food and millilitres (ml) for beverages.',
+    'If the photo is mainly a drink, estimate volume in ml and apply drink-appropriate nutrition.',
+  ];
+  const trimmed = String(userNotes || '').trim();
+  if (trimmed) lines.push(`User notes: ${trimmed}`);
+  return lines.join('\n');
+}
+
+export function analysisText(analysis) {
+  const items = analysis?.items || [];
+  return [
+    analysis?.meal_summary || '',
+    ...items.map((i) => `${i.name || i.item_name || ''} ${i.portion_estimate || ''}`),
+  ].join(' ');
+}
+
+/** True when the log is primarily a beverage (used after AI, not before). */
+export function analysisIsMainlyDrink(analysis) {
+  const items = analysis?.items || [];
+  if (!items.length) return false;
+  const text = analysisText(analysis).toLowerCase();
+  const solidFood = /\b(rice|chicken|curry|bread|pasta|salad|sandwich|egg|meat|fish|biryani|pizza|burger|plate|homemade|roast)\b/;
+  if (solidFood.test(text) && items.length > 1) return false;
+  const drinkHint = /\b(coffee|tea|latte|juice|cola|soda|wine|beer|water|smoothie|milkshake|drink|beverage|whisky|vodka|cocktail|chai|espresso|ml\b)/;
+  const drinkUnits = items.filter((i) => /\bml\b|millilitre|milliliter|cup|glass|pint|shot\b/i.test(`${i.portion_estimate || ''} ${i.name || ''}`));
+  if (drinkUnits.length >= items.length && drinkHint.test(text)) return true;
+  if (items.length === 1 && drinkHint.test(text)) return true;
+  return false;
+}
+
+export function inferDrinkSubtypeFromAnalysis(analysis) {
+  const t = analysisText(analysis).toLowerCase();
+  if (/\b(coffee|tea|chai|latte|espresso|cappuccino|matcha|karak)\b/.test(t)) return 'coffee_tea';
+  if (/\b(juice|smoothie|lassi|milkshake)\b/.test(t)) return 'juice_smoothie';
+  if (/\b(coke|cola|pepsi|soda|lemonade|fizzy|soft drink|energy drink|sprite|fanta)\b/.test(t)) return 'soft_drink';
+  if (/\b(wine|beer|whisky|whiskey|vodka|rum|gin|alcohol|cocktail|cider|lager|prosecco)\b/.test(t)) return 'alcohol';
+  if (/\b(water|squash|sparkling water)\b/.test(t)) return 'water';
+  return null;
 }

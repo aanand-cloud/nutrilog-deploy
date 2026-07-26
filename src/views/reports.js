@@ -3,7 +3,31 @@ import { weekReport, monthReport } from '../services/reports.js';
 import { getCuisineTips } from '../services/cuisine-tips.js';
 import { formatEnergy, formatEnergyParts, getUnitPrefs } from '../services/goals.js';
 import { DISCLAIMERS, disclaimerBlock } from '../services/disclaimers.js';
-export async function renderReports(root, { profile, onLog } = {}) {
+import { canAccessReports, getPlan } from '../services/subscription.js';
+
+export function renderReportsPaywall(root, { onUpgrade, profile } = {}) {
+  root.innerHTML = `
+    <section class="log-screen center reports-paywall">
+      <p class="step-label">Paid plans</p>
+      <h2>Reports &amp; insights</h2>
+      <p class="lead">Weekly charts, trends, and AI coaching tips are included with Standard and Plus.</p>
+      <ul class="plan-features-list reports-paywall__list">
+        <li>7-day and 30-day nutrition trends</li>
+        <li>Goal insights and suggestions</li>
+        <li>AI coach tips for your cuisine</li>
+      </ul>
+      <p class="fine-print">Free plan includes barcode logging. Upgrade to unlock reports and AI photo logs.</p>
+      <button type="button" class="btn btn-primary full" id="reportsUpgradeBtn">View plans</button>
+    </section>
+  `;
+  root.querySelector('#reportsUpgradeBtn')?.addEventListener('click', () => onUpgrade?.());
+}
+
+export async function renderReports(root, { profile, onLog, onUpgrade } = {}) {
+  if (!canAccessReports(getPlan())) {
+    renderReportsPaywall(root, { onUpgrade, profile });
+    return;
+  }
   const displayName = profile?.displayName || '';
   const end = new Date();
   const weekStart = new Date(end);

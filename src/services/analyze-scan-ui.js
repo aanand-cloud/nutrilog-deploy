@@ -1,7 +1,7 @@
 /** Subtle “scanning” UI while a meal photo is analysed — CSS-only motion, honest status steps. */
 
 export const PHOTO_ANALYSIS_STEPS = [
-  'Detecting foods…',
+  'Spotting food and drinks…',
   'Estimating portions…',
   'Calculating nutrition…',
 ];
@@ -19,7 +19,7 @@ export function escapeAttr(s) {
     .replace(/</g, '&lt;');
 }
 
-export function photoScanAnalyzingHtml(imageDataUrl, { title = 'Analysing your food', steps = PHOTO_ANALYSIS_STEPS, photoAlt = 'Your food photo' } = {}) {
+export function photoScanAnalyzingHtml(imageDataUrl, { title = 'Analysing your photo', steps = PHOTO_ANALYSIS_STEPS, photoAlt = 'Your photo' } = {}) {
   if (!imageDataUrl) {
     return `
       <div class="meal-scan meal-scan--no-photo" role="status" aria-live="polite">
