@@ -36,10 +36,39 @@ import {
   analysisIsMainlyDrink,
   inferDrinkSubtypeFromAnalysis,
 } from '../services/drink-logging.js';
+import {
+  attachSpeechInput,
+  isSpeechInputSupported,
+  stopSpeechInput,
+} from '../services/speech-input.js';
 
 /** Keeps photo flow alive if the screen re-renders mid-upload */
 let activeLogState = null;
 let analyzeStatusCleanup = null;
+let speechInputCleanup = null;
+
+function speechMicButton(id, labelIdle = 'Speak your answer') {
+  if (!isSpeechInputSupported()) return '';
+  return `
+    <button
+      type="button"
+      class="speech-mic-btn"
+      id="${id}"
+      data-label-idle="${escapeAttr(labelIdle)}"
+      aria-label="${escapeAttr(labelIdle)}"
+      aria-pressed="false"
+      title="Tap to speak · tap again to stop"
+    >
+      <span class="speech-mic-btn__icon" aria-hidden="true">🎤</span>
+      <span class="speech-mic-btn__text">Speak</span>
+    </button>
+  `;
+}
+
+function speechHintHtml() {
+  if (!isSpeechInputSupported()) return '';
+  return '<p class="speech-field-hint fine-print">Voice is turned into text on your device — check it before continuing.</p>';
+}
 
 export function isLogBusy() {
   return activeLogState?.step === 'analyzing' || activeLogState?.step === 'clarify' || activeLogState?.step === 'review';
@@ -68,7 +97,25 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       analyzeStatusCleanup();
       analyzeStatusCleanup = null;
     }
+    speechInputCleanup?.();
+    speechInputCleanup = null;
+    stopSpeechInput();
     activeLogState = null;
+  }
+
+  function bindSpeechField(inputSelector, buttonSelector, { append = false } = {}) {
+    speechInputCleanup?.();
+    speechInputCleanup = null;
+    stopSpeechInput();
+    const input = root.querySelector(inputSelector);
+    const button = root.querySelector(buttonSelector);
+    if (!input || !button || !isSpeechInputSupported()) return;
+    speechInputCleanup = attachSpeechInput({
+      input,
+      button,
+      append,
+      onMessage: (msg) => showToast(msg, 4500),
+    });
   }
 
   function setStatus(msg) {
@@ -207,7 +254,11 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
           ${!needsSignIn ? `<p class="scan-badge ${scan.allowed ? '' : 'scan-badge--limit'}">${scansLabel()}</p>` : ''}
           <label class="field full meal-hints-field">
             <span>Notes <em class="optional-tag">optional</em></span>
-            <textarea id="photoNotesInput" rows="2" maxlength="280" placeholder="Add anything the photo may not show — e.g. &quot;half portion&quot;, &quot;oat latte no sugar&quot;, &quot;diet cola&quot;">${escapeHtml(state.mealNotes)}</textarea>
+            <div class="speech-field">
+              <textarea id="photoNotesInput" rows="2" maxlength="280" placeholder="Add anything the photo may not show — e.g. &quot;half portion&quot;, &quot;oat latte no sugar&quot;, &quot;diet cola&quot;">${escapeHtml(state.mealNotes)}</textarea>
+              ${speechMicButton('photoNotesMic', 'Speak meal notes')}
+            </div>
+            ${speechHintHtml()}
           </label>
           ${photoControlsHtml({
             ...photoOpts,
@@ -254,6 +305,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       showToast('Usage reset — try again');
       render();
     });
+    bindSpeechField('#photoNotesInput', '#photoNotesMic', { append: true });
   }
 
   function render() {
@@ -574,7 +626,11 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
         </div>
         <label class="field">
           <span>${escapeHtml(ui.inputLabel)}</span>
-          <input type="text" id="customAnswer" inputmode="${escapeAttr(ui.inputMode)}" placeholder="${escapeAttr(ui.inputPlaceholder)}"/>
+          <div class="speech-field">
+            <input type="text" id="customAnswer" inputmode="${escapeAttr(ui.inputMode)}" placeholder="${escapeAttr(ui.inputPlaceholder)}"/>
+            ${speechMicButton('customAnswerMic', 'Speak your answer')}
+          </div>
+          ${speechHintHtml()}
         </label>
         <button type="button" class="btn btn-primary full" id="submitAnswer">Continue</button>
         <button type="button" class="btn btn-ghost full" id="skipClarify">Skip — use best guess</button>
@@ -594,6 +650,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       state.step = 'review';
       render();
     });
+    bindSpeechField('#customAnswer', '#customAnswerMic', { append: false });
   }
 
   async function submitAnswer(answer) {

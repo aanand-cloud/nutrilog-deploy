@@ -1484,6 +1484,61 @@ button.camera-zone:active { background: var(--teal-dim); }
   font-family: inherit;
   line-height: 1.4;
 }
+
+.speech-field {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+.speech-field textarea,
+.speech-field input {
+  flex: 1;
+  min-width: 0;
+}
+.speech-field textarea {
+  resize: vertical;
+  min-height: 56px;
+  font-family: inherit;
+  line-height: 1.4;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 1rem;
+}
+.speech-mic-btn {
+  flex-shrink: 0;
+  align-self: flex-start;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 56px;
+  min-height: 56px;
+  padding: 8px 10px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.speech-mic-btn__icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+.speech-mic-btn:active,
+.speech-mic-btn--active {
+  border-color: var(--teal);
+  background: var(--teal-dim);
+}
+.speech-field-hint {
+  margin: 6px 0 0;
+  color: var(--text3);
+}
 .optional-tag {
   font-style: normal;
   font-weight: 400;
