@@ -18,7 +18,7 @@ import {
 import { getDiscountEligibility } from './discount.js';
 import { getUser, getSession, isSupabaseConfigured } from './auth.js';
 import { getProfile } from './profile.js';
-import { MONETIZATION_PAUSED } from '../monetization.js';
+import { MONETIZATION_PAUSED, MONETIZATION_PHASE } from '../monetization.js';
 
 const PLAN_KEY = 'nutrilog_plan';
 const USAGE_KEY = 'nutrilog_monthly_usage';
@@ -70,7 +70,7 @@ export function isPro() {
 }
 
 export function canAccessReports(planId = getPlan()) {
-  if (MONETIZATION_PAUSED) return true;
+  if (MONETIZATION_PAUSED || MONETIZATION_PHASE < 2) return true;
   return planCanAccessReports(planId);
 }
 
@@ -430,32 +430,23 @@ export function planLabel(planId = getPlan()) {
 /** One-line description for Settings → Plans “Your plan”. */
 export function planSummaryHtml(planId = getPlan()) {
   if (isProPlan(planId)) {
-    return `<strong>Pro</strong> — up to ${proFairUseDailyCap()} AI photos / day · ~${proMonthlyCap()} / month fair use · reports included.`;
+    return `<strong>${PLANS.pro.name}</strong> — up to ${proFairUseDailyCap()} AI photos / day · ~${proMonthlyCap()} / month fair use.`;
   }
 
   const dailyCap = getDailyFreeCap();
   const credits = getTopUpBalance();
-  const dailyLine = `${dailyCap} AI photo${dailyCap === 1 ? '' : 's'} / day`;
+  const freeName = PLANS.free.name;
 
-  if (dailyCap >= 2 && credits > 0) {
-    return `<strong>Free + scan pack</strong> — ${dailyLine} · ${credits} credits · unlimited barcode.`;
-  }
-  if (dailyCap >= 2) {
-    return `<strong>Free + scan pack</strong> — ${dailyLine} · unlimited barcode.`;
-  }
   if (credits > 0) {
-    return `<strong>Free + credits</strong> — ${dailyLine} · ${credits} credits · unlimited barcode.`;
+    return `<strong>${freeName}</strong> + <strong>Pay as you go</strong> — ${dailyCap} free / day (midnight reset) · ${credits} credits saved · barcode free.`;
   }
-  return `<strong>Free</strong> — ${dailyLine} · unlimited barcode.`;
+  return `<strong>${freeName}</strong> — ${dailyCap} scan / day · resets at midnight · barcode free.`;
 }
 
 export function planBadgeLabel(planId = getPlan()) {
   if (isProPlan(planId)) return planLabel(planId);
-  const dailyCap = getDailyFreeCap();
-  const credits = getTopUpBalance();
-  if (dailyCap >= 2) return 'Free + scan pack';
-  if (credits > 0) return 'Free + credits';
-  return 'Free plan';
+  if (getTopUpBalance() > 0) return `${PLANS.free.name} + credits`;
+  return PLANS.free.name;
 }
 
 export function scansLabel(planId = getPlan()) {
@@ -472,7 +463,7 @@ export function scansLabel(planId = getPlan()) {
       const cap = getDailyFreeCap();
       return `${b.creditRemaining} scan credits left · ${cap} free tomorrow at midnight`;
     }
-    return 'No AI scans left today · buy a pack or go Pro · barcode still free';
+    return 'No AI scans left today · buy Pay as you go credits or try again after midnight · barcode still free';
   }
 
   if (!b.allowed) {
@@ -498,7 +489,7 @@ export function usageMeterRemainingPercent(planId = getPlan()) {
 
 export function paywallMessage(budget = getScanBudget()) {
   if (budget.reason === 'daily_limit') {
-    return 'You have used today\'s free scan and credits. Buy a scan pack (never expires), upgrade to Pro, or try again after midnight. Barcode logging stays free.';
+    return 'You have used today\'s Daily Free Scan and any saved credits. Buy Pay as you go credits (never expire), or try again after midnight. Barcode logging stays free.';
   }
   if (budget.reason === 'daily_cap') {
     return `You have logged ${proFairUseDailyCap()} meals today — Pro fair use limit. Try again tomorrow.`;
@@ -506,7 +497,7 @@ export function paywallMessage(budget = getScanBudget()) {
   if (budget.reason === 'monthly_cap') {
     return 'You have reached the monthly fair use limit (~1,000 photo logs). Try again next month.';
   }
-  return 'AI photo logging limit reached. Buy a scan pack or upgrade to Pro — barcode scan is still free.';
+  return 'AI photo logging limit reached. Buy Pay as you go credits — barcode scan is still free.';
 }
 
 export function planPriceLabel(planId, profile, accountEmail, { annual = false } = {}) {

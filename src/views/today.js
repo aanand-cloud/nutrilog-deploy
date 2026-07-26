@@ -14,6 +14,20 @@ import {
   isNotificationSupported,
   saveNotifyPrefs,
 } from '../services/notifications.js';
+import {
+  getScanBudget,
+  scansLabel,
+  scanPackPriceLabel,
+  startScanPackCheckout,
+  syncScanStateFromProfile,
+  usageMeterRemainingPercent,
+  getTopUpBalance,
+  getDailyFreeCap,
+  planSummaryHtml,
+  planBadgeLabel,
+} from '../services/subscription.js';
+import { PLANS, SCAN_PACKS, PAYG_PACK_ID, FREE_DAILY_SCANS } from '../services/plans.js';
+import { MONETIZATION_PAUSED } from '../monetization.js';
 import { activityOptions, estimateDailyCalories, suggestMacros } from '../services/calorie-wizard.js';
 import { openOnboardingWizard } from '../services/onboarding-wizard.js';
 import { exportUserDataJson, exportMealsCsv } from '../services/data-export.js';
@@ -29,7 +43,7 @@ let passwordResetMode = false;
 
 /** Jump to a specific Goals tab. */
 export function setSettingsTab(tab) {
-  if (['targets', 'account', 'alerts'].includes(tab)) {
+  if (['targets', 'account', 'plans', 'alerts'].includes(tab)) {
     activeSettingsTab = tab;
   }
 }
@@ -55,17 +69,29 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
   const weekMeals = await getMealsInRange(weekStart.toISOString().slice(0, 10), dateKey);
   const weeklyTip = topWeeklyInsight(weekMeals);
   const cuisine = weekMeals.length ? await getCuisineTips(weekMeals) : { tips: [] };
+  const scanBudget = !MONETIZATION_PAUSED && profile?.loggedIn ? getScanBudget() : null;
+  const paygPack = SCAN_PACKS[PAYG_PACK_ID];
 
   root.innerHTML = `
     ${!profile?.loggedIn ? `
       <section class="guest-prompt card" aria-label="Create your account">
-        <p class="guest-prompt__lead">Free account · sync meals to the cloud</p>
+        <p class="guest-prompt__lead">Sign in for ${PLANS.free.name} · unlimited barcode</p>
         <div class="guest-prompt__actions">
           <button type="button" class="btn btn-primary" id="guestGetStarted">Get started free</button>
           <button type="button" class="btn btn-ghost" id="guestSignIn">Sign in</button>
         </div>
         <p class="guest-prompt__note">${isSupabaseConfigured() ? 'Sign in to use free barcode scan — always unlimited on your account.' : 'If sign-in fails, refresh after the latest app update.'}</p>
       </section>
+    ` : ''}
+
+    ${scanBudget ? `
+    <section class="pro-banner ${!scanBudget.allowed ? 'pro-banner--limit' : ''}">
+      <div>
+        <strong>${scansLabel()}</strong>
+        <p>${PLANS.free.name} · resets at midnight${getTopUpBalance() ? ` · ${getTopUpBalance()} Pay as you go credits saved` : ''}</p>
+      </div>
+      ${!scanBudget.allowed ? `<button type="button" class="btn btn-primary btn-sm" id="todayUpgrade">Buy credits</button>` : `<button type="button" class="btn btn-ghost btn-sm" id="todayViewPlans">View plans</button>`}
+    </section>
     ` : ''}
 
     <section class="home-free-perks card" aria-label="Free barcode logging">
@@ -151,6 +177,8 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
   });
   root.querySelector('#viewReportsBtn')?.addEventListener('click', () => onReports?.());
   root.querySelector('#moreTipsBtn')?.addEventListener('click', () => onReports?.());
+  root.querySelector('#todayUpgrade')?.addEventListener('click', () => onSettings?.('plans'));
+  root.querySelector('#todayViewPlans')?.addEventListener('click', () => onSettings?.('plans'));
   root.querySelectorAll('[data-delete]').forEach((btn) => {
     btn.addEventListener('click', async () => {
       if (confirm('Remove this meal?')) {
@@ -238,17 +266,20 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
   const initials = (displayName || user?.email || '?').charAt(0).toUpperCase();
   const showPasswordReset =
     passwordResetMode || new URLSearchParams(window.location.search).get('reset') === '1';
+  if (profile?.loggedIn) syncScanStateFromProfile(profile);
+  const paygPack = SCAN_PACKS[PAYG_PACK_ID];
 
   root.innerHTML = `
     <div class="settings-screen">
       <header class="settings-header">
         <h2 class="settings-title">Goals &amp; settings</h2>
-        <p class="settings-subtitle">Targets, account, and alerts</p>
+        <p class="settings-subtitle">Targets, account, plans, and alerts</p>
       </header>
 
       <nav class="settings-tabs tab-bar" aria-label="Settings sections">
         ${settingsTab('targets', '🎯 Targets', activeSettingsTab)}
         ${settingsTab('account', '👤 Account', activeSettingsTab)}
+        ${settingsTab('plans', '⭐ Plans', activeSettingsTab)}
         ${settingsTab('alerts', '🔔 Alerts', activeSettingsTab)}
       </nav>
 
@@ -402,6 +433,62 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
               <button type="button" class="btn btn-ghost full" id="sentryTestBtn">Test Sentry</button>
               <p class="fine-print">Sends a test error to your Sentry dashboard — safe to ignore there.</p>
             ` : ''}
+          </div>
+        </section>
+
+        <section class="settings-panel card" data-panel="plans" ${panelHidden('plans', activeSettingsTab)}>
+          <div class="settings-panel-head">
+            <h3 class="settings-panel-title">Plans</h3>
+            <span class="settings-badge">${planBadgeLabel()}</span>
+          </div>
+          <p class="settings-panel-lead">Barcode logging is always free when signed in. Meal scans use your Daily Free Scan or Pay as you go credits.</p>
+
+          ${profile.loggedIn ? `
+          <div class="plan-current-summary">
+            <p class="plan-current-summary__label">Your allowance</p>
+            <p class="card-desc">${planSummaryHtml()}</p>
+          </div>
+
+          <div class="usage-meter-wrap">
+            <div class="usage-meter-head">
+              <span>Today</span>
+              <span>${getScanBudget().dailyFreeRemaining}/${getDailyFreeCap()} free · ${getTopUpBalance()} credits saved</span>
+            </div>
+            <div class="usage-meter-track" aria-hidden="true">
+              <div class="usage-meter-fill" style="width:${usageMeterRemainingPercent()}%"></div>
+            </div>
+            <p class="fine-print">Daily Free Scan resets at midnight (12:00 AM) · Pay as you go credits never expire</p>
+          </div>
+          ` : `
+          <p class="card-desc">Sign in to get ${PLANS.free.name} — ${FREE_DAILY_SCANS} scan per day, resetting at midnight.</p>
+          <button type="button" class="btn btn-primary full" id="plansSignInBtn">Sign in</button>
+          `}
+
+          <div class="plan-pricing-grid">
+            <article class="plan-card plan-card--active plan-card--solo">
+              <span class="plan-featured-tag">Included</span>
+              <h3>${PLANS.free.name}</h3>
+              <p class="plan-tagline">${PLANS.free.tagline}</p>
+              <p class="plan-price">Free</p>
+              <ul class="plan-features-list">
+                ${PLANS.free.bullets.map((b) => `<li>${escapeHtml(b)}</li>`).join('')}
+              </ul>
+              ${profile.loggedIn ? '<p class="plan-current-tag">Active on your account</p>' : ''}
+            </article>
+
+            <article class="scan-pack-card scan-pack-card--featured">
+              <h3>${paygPack.name}</h3>
+              <p class="plan-tagline">${paygPack.tagline}</p>
+              <p class="plan-price">${scanPackPriceLabel(PAYG_PACK_ID, profile, profile.email || user?.email || '')}</p>
+              <ul class="plan-features-list plan-features-list--compact">
+                ${paygPack.bullets.map((b) => `<li>${escapeHtml(b)}</li>`).join('')}
+              </ul>
+              ${profile.loggedIn ? `
+                <button type="button" class="btn btn-primary full" data-pack="${PAYG_PACK_ID}">Buy 100 credits</button>
+              ` : `
+                <button type="button" class="btn btn-ghost full" id="plansSignInPaygBtn">Sign in to buy</button>
+              `}
+            </article>
           </div>
         </section>
 
@@ -626,6 +713,33 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
     } catch (err) {
       showToast?.(err.message || 'Could not delete account', 6000);
     }
+  });
+
+  root.querySelector('#plansSignInBtn')?.addEventListener('click', () => onSignIn?.('signin'));
+  root.querySelector('#plansSignInPaygBtn')?.addEventListener('click', () => onSignIn?.('signin'));
+
+  root.querySelectorAll('[data-pack]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      if (!profile?.loggedIn) {
+        showToast?.('Sign in to buy credits');
+        onSignIn?.('signin');
+        return;
+      }
+      const packId = btn.dataset.pack;
+      const pack = SCAN_PACKS[packId];
+      if (!pack) return;
+      try {
+        const result = await startScanPackCheckout(packId);
+        if (result.mock) {
+          showToast?.(import.meta.env.DEV
+            ? `+${pack.scans} credits added (demo — add Stripe for real payments)`
+            : `+${pack.scans} credits added`);
+          onSave();
+        }
+      } catch (err) {
+        showToast?.(err.message || 'Could not start checkout');
+      }
+    });
   });
 
   root.querySelector('#syncBtn')?.addEventListener('click', async () => {

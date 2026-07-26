@@ -2256,6 +2256,11 @@ button.camera-zone:active { background: var(--teal-dim); }
 .topup-card .fine-print {
   margin-bottom: 12px;
 }
+.plan-pricing-grid {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
 .scan-pack-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

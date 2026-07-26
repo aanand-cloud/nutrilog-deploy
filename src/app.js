@@ -3,6 +3,7 @@ import { renderLog, isLogBusy } from './views/log.js';
 import { renderReports } from './views/reports.js';
 import { onAuthChange, getUser, isSupabaseConfigured } from './services/auth.js';
 import { fullSync } from './services/sync.js';
+import { verifyCheckoutSession, syncScanStateFromProfile } from './services/subscription.js';
 import { getMealsInRange, getMealsForDate, todayKey } from './services/storage.js';
 import { getCuisineTips } from './services/cuisine-tips.js';
 import { runPersonalisedNotificationCheck } from './services/notifications.js';
@@ -40,6 +41,10 @@ export function initApp() {
     const authBtn = document.getElementById('headerAuthBtn');
     if (authBtn) {
       authBtn.hidden = Boolean(cachedProfile.loggedIn) || currentView === 'today';
+    }
+
+    if (cachedProfile.loggedIn) {
+      syncScanStateFromProfile(cachedProfile);
     }
 
     const viewTitles = {
@@ -82,6 +87,11 @@ export function initApp() {
     refresh();
   }
 
+  function handleUpgrade() {
+    setSettingsTab('plans');
+    setView('settings');
+  }
+
   function openSignIn(mode = 'signin') {
     openAuthModal({ mode, showToast, onSuccess: refresh });
   }
@@ -113,6 +123,7 @@ export function initApp() {
           onSaved: () => setView('today'),
           onCancel: () => setView('today'),
           showToast,
+          onUpgrade: handleUpgrade,
           onSignIn: () => openSignIn('signin'),
           profile,
         });
@@ -165,7 +176,7 @@ export function initApp() {
     setSettingsTab('account');
   }
 
-  runNotificationChecks().finally(async () => {
+  handleCheckoutReturn().finally(async () => {
     await runNotificationChecks();
     const url = new URL(window.location.href);
     const view = url.searchParams.get('view');
@@ -177,6 +188,37 @@ export function initApp() {
       refresh();
     }
   });
+}
+
+async function handleCheckoutReturn() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('checkout') !== 'success') return;
+
+  const sessionId = params.get('session_id');
+  const toast = document.getElementById('toast');
+  if (sessionId) {
+    try {
+      const result = await verifyCheckoutSession(sessionId);
+      if (result?.type === 'topup') {
+        if (toast) {
+          toast.textContent = `+${result.scans || 100} Pay as you go credits added`;
+          toast.hidden = false;
+        }
+        const profile = await getProfile();
+        if (profile.loggedIn) syncScanStateFromProfile(profile);
+      }
+    } catch (err) {
+      if (toast) {
+        toast.textContent = err?.message || 'Could not verify payment — contact support if you were charged';
+        toast.hidden = false;
+      }
+    }
+  }
+
+  const url = new URL(window.location.href);
+  url.searchParams.delete('checkout');
+  url.searchParams.delete('session_id');
+  window.history.replaceState({}, '', url.pathname + url.search);
 }
 
 async function runNotificationChecks() {

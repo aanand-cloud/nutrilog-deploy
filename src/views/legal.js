@@ -93,7 +93,11 @@ const TERMS_HTML = `
   </ul>
 
   <h3>Paid features</h3>
-  <p>NutriLog may introduce paid features in future. If we do, pricing and billing terms will be shown in the app before you pay. Existing Stripe billing records are kept as required for tax and accounting.</p>
+  <ul>
+    <li><strong>Daily Free Scan:</strong> 1 AI photo per day when signed in — resets at midnight (12:00 AM local time). Unlimited barcode logging.</li>
+    <li><strong>Pay as you go:</strong> one-off purchase of 100 scan credits for £1.99 — no subscription. Credits never expire until used. Your Daily Free Scan still resets at midnight.</li>
+    <li>Additional subscription options may be offered in future. Pricing will be shown in the app before you pay.</li>
+  </ul>
 
   <h3>Acceptable use</h3>
   <p>Do not upload illegal content, harass others, or automate abuse of our APIs, barcode lookups, or food search.</p>

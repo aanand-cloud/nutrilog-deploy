@@ -87,7 +87,7 @@ function buildFreeScanState(profile, dk) {
     isDaily: true,
     error: allowed
       ? undefined
-      : 'No photo logs left today. Buy a scan pack or upgrade to Pro — free scans reset at midnight.',
+      : 'No photo logs left today. Buy Pay as you go credits or try again after midnight.',
   };
 }
 
