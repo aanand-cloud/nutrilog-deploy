@@ -1,5 +1,6 @@
 import { getSession, signOut } from './auth.js';
 import { clearPrivacyConsentLocal } from './privacy-consent.js';
+import { clearLocalDisplayName } from './profile.js';
 
 export async function deleteMyAccount() {
   const session = await getSession();
@@ -29,6 +30,7 @@ export async function deleteMyAccount() {
   }
 
   clearPrivacyConsentLocal();
+  clearLocalDisplayName();
   await signOut();
   return data;
 }

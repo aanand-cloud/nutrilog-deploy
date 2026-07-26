@@ -1,4 +1,5 @@
 import { expireTrialIfNeeded } from './trial-enforcement.mjs';
+import { MONETIZATION_PAUSED } from './monetization.mjs';
 
 const FREE_DAILY_DEFAULT = 1;
 const PRO_DAILY_FAIR_USE = 33;
@@ -96,6 +97,10 @@ export async function checkScanAllowed(supabase, userId, clientLocalDay) {
     return { ok: false, error: 'Sign in required to log meals with AI' };
   }
 
+  if (MONETIZATION_PAUSED) {
+    return { ok: true, plan: 'free', paused: true, isDaily: true };
+  }
+
   await expireTrialIfNeeded(supabase, userId);
 
   const { data: profile, error } = await supabase
@@ -177,6 +182,10 @@ export async function checkRefinementAllowed(supabase, userId, clientLocalDay) {
 export async function consumeMealScan(supabase, userId, clientLocalDay) {
   if (!supabase || !userId) {
     return { ok: false, error: 'Sign in required' };
+  }
+
+  if (MONETIZATION_PAUSED) {
+    return { ok: true, usage: { ok: true, paused: true } };
   }
 
   const dk = resolveClientLocalDay(clientLocalDay);

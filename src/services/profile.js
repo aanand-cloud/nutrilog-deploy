@@ -14,12 +14,16 @@ export function saveLocalDisplayName(name) {
   if (name) localStorage.setItem(LOCAL_NAME_KEY, name.trim());
 }
 
+export function clearLocalDisplayName() {
+  localStorage.removeItem(LOCAL_NAME_KEY);
+}
+
 export async function getProfile() {
   const user = await getUser();
   if (!user) {
     return {
       loggedIn: false,
-      displayName: getLocalDisplayName(),
+      displayName: '',
       email: null,
     };
   }

@@ -14,8 +14,7 @@ const PRIVACY_HTML = `
     <li><strong>Meals &amp; nutrition:</strong> photos you choose to log, AI estimates, calories, macros, meal notes, dates, and barcode/search results for packaged food.</li>
     <li><strong>Goals &amp; preferences:</strong> calorie targets, macros, units, notification settings.</li>
     <li><strong>On-device profile:</strong> age, height, weight, and activity used to suggest goals (stored on your device unless you sync goals to the cloud).</li>
-    <li><strong>Billing:</strong> subscription status and Stripe customer ID (we do not store full card numbers).</li>
-    <li><strong>Discount eligibility:</strong> optional NHS/work email or self-declared 60+ status for pricing.</li>
+    <li><strong>Billing:</strong> if you purchase paid features in future, we store subscription status and Stripe customer ID (we do not store full card numbers).</li>
     <li><strong>Push notifications:</strong> device push endpoint and keys, only if you opt in.</li>
   </ul>
 
@@ -25,7 +24,7 @@ const PRIVACY_HTML = `
   <h3>Why we use your data (lawful bases)</h3>
   <ul>
     <li><strong>Contract:</strong> to provide your account, sync meals, and manage subscriptions you request.</li>
-    <li><strong>Consent:</strong> AI photo analysis, personalised coaching tips, push notifications, and optional discount verification.</li>
+    <li><strong>Consent:</strong> AI photo analysis, personalised coaching tips, and push notifications.</li>
     <li><strong>Legitimate interests:</strong> security, fraud prevention, and improving the service (balanced against your rights).</li>
     <li><strong>Legal obligation:</strong> tax, accounting, or requests from authorities where applicable.</li>
   </ul>
@@ -88,24 +87,13 @@ const TERMS_HTML = `
   <ul>
     <li>Keep your password private.</li>
     <li>One person per account — do not share login details.</li>
-    <li>Provide accurate information when creating an account or claiming discounts.</li>
-    <li>Do not attempt to bypass meal-log limits or abuse free or paid allowances.</li>
+    <li>Provide accurate information when creating an account.</li>
+    <li>Do not abuse the service or attempt to bypass technical limits.</li>
     <li>You may delete your account at any time in Settings.</li>
   </ul>
 
-  <h3>Subscriptions &amp; scan packs</h3>
-  <ul>
-    <li><strong>Free:</strong> 1 AI photo log per day (resets at midnight, local time) and unlimited barcode logging when signed in.</li>
-    <li><strong>Scan packs:</strong> one-off purchases via Stripe — credits never expire until used. The £2.99 pack also raises your free daily allowance to 2 AI photos per day.</li>
-    <li><strong>Pro:</strong> monthly or annual subscription via Stripe — up to 33 AI photo logs per day and ~1,000 per month fair use, plus reports.</li>
-    <li>Daily allowances reset at midnight (local time). Scan pack credits never expire until used.</li>
-    <li>You can <strong>cancel or change Pro anytime</strong> in Goals → Plans → <em>Billing &amp; subscription</em> → <em>Cancel or change plan</em> (Stripe billing portal).</li>
-    <li>If you cancel Pro, you keep access until the end of your current billing period, then return to the free plan (scan pack credits you already bought are kept).</li>
-    <li>Refunds follow Stripe and applicable consumer law.</li>
-  </ul>
-
-  <h3>NHS &amp; public sector discount</h3>
-  <p>NutriLog is <strong>not affiliated with the NHS</strong>. Discounts are offered to eligible public-sector staff and over-60s who accurately declare eligibility.</p>
+  <h3>Paid features</h3>
+  <p>NutriLog may introduce paid features in future. If we do, pricing and billing terms will be shown in the app before you pay. Existing Stripe billing records are kept as required for tax and accounting.</p>
 
   <h3>Acceptable use</h3>
   <p>Do not upload illegal content, harass others, or automate abuse of our APIs, barcode lookups, or food search.</p>

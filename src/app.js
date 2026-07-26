@@ -3,7 +3,6 @@ import { renderLog, isLogBusy } from './views/log.js';
 import { renderReports } from './views/reports.js';
 import { onAuthChange, getUser, isSupabaseConfigured } from './services/auth.js';
 import { fullSync } from './services/sync.js';
-import { verifyCheckoutSession, setPlan, isPro, planLabel, syncTopUpFromCloud, syncScanStateFromProfile } from './services/subscription.js';
 import { getMealsInRange, getMealsForDate, todayKey } from './services/storage.js';
 import { getCuisineTips } from './services/cuisine-tips.js';
 import { runPersonalisedNotificationCheck } from './services/notifications.js';
@@ -35,16 +34,12 @@ export function initApp() {
         : { displayName: '', loggedIn: false };
     }
 
-    headerGreeting.textContent = getGreeting(cachedProfile.displayName);
+    headerGreeting.textContent = getGreeting(
+      cachedProfile.loggedIn ? cachedProfile.displayName : ''
+    );
     const authBtn = document.getElementById('headerAuthBtn');
     if (authBtn) {
       authBtn.hidden = Boolean(cachedProfile.loggedIn) || currentView === 'today';
-    }
-    if (cachedProfile.topup_balance != null) {
-      syncTopUpFromCloud(cachedProfile.topup_balance);
-    }
-    if (cachedProfile.loggedIn) {
-      syncScanStateFromProfile(cachedProfile);
     }
 
     const viewTitles = {
@@ -63,7 +58,6 @@ export function initApp() {
       }),
     ];
     if (viewSub) parts.unshift(viewSub);
-    if (isPro() && currentView === 'today') parts.push(planLabel());
     headerDate.textContent = parts.filter(Boolean).join(' · ');
   }
 
@@ -88,17 +82,12 @@ export function initApp() {
     refresh();
   }
 
-  async function handleUpgrade() {
-    setSettingsTab('plans');
-    setView('settings');
-  }
-
   function openSignIn(mode = 'signin') {
     openAuthModal({ mode, showToast, onSuccess: refresh });
   }
 
-  function openSettings(tab, opts) {
-    if (tab) setSettingsTab(tab, opts);
+  function openSettings(tab) {
+    if (tab) setSettingsTab(tab);
     setView('settings');
   }
 
@@ -124,7 +113,6 @@ export function initApp() {
           onSaved: () => setView('today'),
           onCancel: () => setView('today'),
           showToast,
-          onUpgrade: handleUpgrade,
           onSignIn: () => openSignIn('signin'),
           profile,
         });
@@ -132,7 +120,6 @@ export function initApp() {
         await renderReports(main, {
           profile,
           onLog: () => setView('log'),
-          onUpgrade: handleUpgrade,
         });
       } else if (currentView === 'settings') {
         await renderSettings(main, {
@@ -166,8 +153,7 @@ export function initApp() {
     }
     if (session && isSupabaseConfigured()) {
       try {
-        const result = await fullSync();
-        if (result.plan) setPlan(result.plan);
+        await fullSync();
       } catch (_) {}
     }
     refresh();
@@ -179,7 +165,7 @@ export function initApp() {
     setSettingsTab('account');
   }
 
-  handleCheckoutReturn().finally(async () => {
+  runNotificationChecks().finally(async () => {
     await runNotificationChecks();
     const url = new URL(window.location.href);
     const view = url.searchParams.get('view');
@@ -204,50 +190,4 @@ async function runNotificationChecks() {
     const profile = await getProfile();
     await runPersonalisedNotificationCheck(weekMeals, todayMeals, cuisineTips, profile.displayName);
   } catch (_) {}
-}
-
-async function handleCheckoutReturn() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('checkout') !== 'success') return;
-
-  const sessionId = params.get('session_id');
-  const toast = document.getElementById('toast');
-  if (sessionId) {
-    try {
-      const result = await verifyCheckoutSession(sessionId);
-      if (result?.type === 'topup') {
-        if (toast) {
-          toast.textContent = `+${result.scans || 100} meal logs added to your account`;
-          toast.hidden = false;
-        }
-      } else if (result?.plan) {
-        setPlan(result.plan);
-        if (toast) {
-          toast.textContent = 'Subscription active — thank you!';
-          toast.hidden = false;
-        }
-      }
-    } catch (err) {
-      if (toast) {
-        toast.textContent = err?.message || 'Could not verify payment — contact support if you were charged';
-        toast.hidden = false;
-      }
-    }
-  } else if (toast) {
-    toast.textContent =
-      'Payment received! If your plan did not update, open Goals → Plans and tap Sync after signing in.';
-    toast.hidden = false;
-    try {
-      const profile = await getProfile();
-      if (profile.loggedIn) {
-        const result = await fullSync();
-        if (result?.plan) setPlan(result.plan);
-      }
-    } catch (_) {}
-  }
-
-  const url = new URL(window.location.href);
-  url.searchParams.delete('checkout');
-  url.searchParams.delete('session_id');
-  window.history.replaceState({}, '', url.pathname + url.search);
 }

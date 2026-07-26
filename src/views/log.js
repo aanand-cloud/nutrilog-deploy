@@ -10,7 +10,7 @@ import { openMealReviewModal } from '../services/meal-review-modal.js';
 import { saveMeal, todayKey } from '../services/storage.js';
 import { captureMealPhoto, pickMealPhotoFromGallery, isNativeApp } from '../services/camera.js';
 import { canUseWebCamera, openWebCameraModal } from '../services/web-camera.js';
-import { canScan, recordScan, scansLabel, resetScansForTesting, paywallMessage } from '../services/subscription.js';
+import { recordScan } from '../services/subscription.js';
 import { isSupabaseConfigured } from '../services/auth.js';
 import { defaultMealType } from '../services/meal-types.js';
 import { lookupBarcodeProduct } from '../services/barcode.js';
@@ -80,7 +80,7 @@ export function isLogBusy() {
   return activeLogState?.step === 'analyzing' || activeLogState?.step === 'clarify' || activeLogState?.step === 'review';
 }
 
-export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profile, onSignIn }) {
+export function renderLog(root, { onSaved, onCancel, showToast, profile, onSignIn }) {
   let state = activeLogState || {
     step: 'capture',
     image: null,
@@ -160,14 +160,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     readNotesFromDom();
   }
 
-  function photoPaywallTitle(budget = canScan()) {
-    if (budget.reason === 'daily_limit') return 'No AI scans left today';
-    if (budget.reason === 'daily_cap') return "Today's fair use limit reached";
-    if (budget.reason === 'monthly_cap') return 'Monthly fair use limit reached';
-    return 'Need more AI photo logs?';
-  }
-
-  function photoControlsHtml({ cameraHint, tipText, needsSignIn, photoBlocked, native, liveCamera, needsHttpsHint }) {
+  function photoControlsHtml({ cameraHint, tipText, needsSignIn, native, liveCamera, needsHttpsHint }) {
 
     if (needsSignIn) {
       return `
@@ -175,17 +168,6 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
           <p><strong>Sign in required</strong> for photo-based logging. Packaged food below works without an account.</p>
           <button type="button" class="btn btn-primary btn-sm" id="logSignInBtn">Sign in</button>
         </section>
-      `;
-    }
-    if (photoBlocked) {
-      const budget = canScan();
-      return `
-        <div class="paywall-inline paywall-inline--prominent">
-          <p class="paywall-inline__title">${photoPaywallTitle(budget)}</p>
-          <p>${escapeHtml(paywallMessage(budget))}</p>
-          <button type="button" class="btn btn-primary full" id="upgradeBtn">View plans</button>
-          ${import.meta.env.DEV ? `<button type="button" class="btn btn-ghost full" id="resetScansBtn">Reset usage (dev only)</button>` : ''}
-        </div>
       `;
     }
     return `
@@ -239,13 +221,11 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
   }
 
   function renderCapture() {
-    const scan = canScan();
     const native = isNativeApp();
     const liveCamera = !native && canUseWebCamera();
     const needsHttpsHint = !native && !window.isSecureContext;
     const needsSignIn = isSupabaseConfigured() && !profile?.loggedIn;
-    const photoBlocked = !needsSignIn && !scan.allowed;
-    const photoOpts = { needsSignIn, photoBlocked, native, liveCamera, needsHttpsHint };
+    const photoOpts = { needsSignIn, native, liveCamera, needsHttpsHint };
 
     root.innerHTML = `
       <section class="log-screen">
@@ -258,7 +238,6 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
             <h3 class="log-section__title" id="logPhotoHeading">Take a photo</h3>
             <p class="log-section__desc">Works for plates, cups, and glasses — we detect food and drinks automatically.</p>
           </header>
-          ${!needsSignIn ? `<p class="scan-badge ${scan.allowed ? '' : 'scan-badge--limit'}">${scansLabel()}</p>` : ''}
           <label class="field full meal-hints-field">
             <span>Notes <em class="optional-tag">optional</em></span>
             <div class="speech-field">
@@ -279,8 +258,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
           <header class="log-section__head">
             <h3 class="log-section__title" id="logPackagedHeading">Packaged food</h3>
             <p class="log-section__desc">Supermarket items with a barcode or brand name — ready meals, cereals, snacks, and labelled products.</p>
-            <p class="log-section__note">Free with sign-in · Does not use your photo allowance</p>
-            ${photoBlocked && profile?.loggedIn ? `<p class="log-section__highlight">Barcode logging stays free on your account.</p>` : ''}
+            <p class="log-section__note">Free with sign-in</p>
           </header>
           ${needsSignIn ? `
             <section class="login-banner">
@@ -306,12 +284,6 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     bindPhotoControls();
     root.querySelector('#barcodeBtn')?.addEventListener('click', openBarcode);
     root.querySelector('#foodSearchBtn')?.addEventListener('click', openFoodSearch);
-    root.querySelectorAll('#upgradeBtn').forEach((btn) => btn.addEventListener('click', () => onUpgrade?.()));
-    root.querySelector('#resetScansBtn')?.addEventListener('click', () => {
-      resetScansForTesting();
-      showToast('Usage reset — try again');
-      render();
-    });
     bindSpeechField('#photoNotesInput', '#photoNotesMic', { append: true });
   }
 
@@ -322,7 +294,6 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     }
     if (state.step !== 'capture') persist();
     if (state.step === 'capture') renderCapture();
-    else if (state.step === 'paywall') renderPaywall();
     else if (state.step === 'analyzing') renderAnalyzing();
     else if (state.step === 'clarify') renderClarify();
     else if (state.step === 'review') showReviewFlow();
@@ -387,11 +358,6 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
 
   async function openLiveCamera() {
     preparePhotoFlow();
-    if (!canScan().allowed) {
-      state.step = 'paywall';
-      render();
-      return;
-    }
     try {
       const img = await openWebCameraModal();
       if (img) await useImage(img);
@@ -400,31 +366,8 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     }
   }
 
-  function renderPaywall() {
-    const scan = canScan();
-    root.innerHTML = `
-      <section class="log-screen center">
-        <h2>${photoPaywallTitle(scan)}</h2>
-        <p class="lead">${escapeHtml(paywallMessage(scan))}</p>
-        <button type="button" class="btn btn-primary full" id="upgradeBtn">View plans</button>
-        <button type="button" class="btn btn-ghost full" id="backCapture">Back</button>
-      </section>
-    `;
-    root.querySelector('#upgradeBtn').addEventListener('click', () => onUpgrade?.());
-    root.querySelector('#backCapture').addEventListener('click', () => {
-      state.step = 'capture';
-      clearPhotoFlow();
-      render();
-    });
-  }
-
   async function openCamera() {
     preparePhotoFlow();
-    if (!canScan().allowed) {
-      state.step = 'paywall';
-      render();
-      return;
-    }
     try {
       const native = await captureMealPhoto();
       if (native) await useImage(native);
@@ -435,11 +378,6 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
 
   async function openGallery() {
     preparePhotoFlow();
-    if (!canScan().allowed) {
-      state.step = 'paywall';
-      render();
-      return;
-    }
     try {
       const img = await pickMealPhotoFromGallery();
       if (img) await useImage(img);
@@ -456,12 +394,6 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     if (!file.type.startsWith('image/') && !/\.(jpe?g|png|webp|gif|bmp|heic|heif)$/i.test(file.name || '')) {
       setStatus('Please choose a photo (JPG, PNG, or WebP)');
       state.step = 'capture';
-      persist();
-      render();
-      return;
-    }
-    if (!canScan().allowed) {
-      state.step = 'paywall';
       persist();
       render();
       return;
@@ -542,7 +474,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
         return;
       }
       if (err?.limitReached) {
-        state.step = 'paywall';
+        state.step = 'capture';
         persist();
         render();
         showToast(err.message, 5000);

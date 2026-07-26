@@ -7,7 +7,7 @@ import {
   getScanPack,
   isProPlan,
   isPaidPlan,
-  canAccessReports,
+  canAccessReports as planCanAccessReports,
   proFairUseDailyCap,
   proMonthlyCap,
   LEGACY_PLAN_MAP,
@@ -18,6 +18,7 @@ import {
 import { getDiscountEligibility } from './discount.js';
 import { getUser, getSession, isSupabaseConfigured } from './auth.js';
 import { getProfile } from './profile.js';
+import { MONETIZATION_PAUSED } from '../monetization.js';
 
 const PLAN_KEY = 'nutrilog_plan';
 const USAGE_KEY = 'nutrilog_monthly_usage';
@@ -68,7 +69,10 @@ export function isPro() {
   return isProPlan(getPlan());
 }
 
-export { canAccessReports };
+export function canAccessReports(planId = getPlan()) {
+  if (MONETIZATION_PAUSED) return true;
+  return planCanAccessReports(planId);
+}
 
 function isDevOfflineMode() {
   return import.meta.env.DEV && !isSupabaseConfigured();
@@ -85,6 +89,23 @@ export function setDailyFreeCap(cap) {
 }
 
 export function getScanBudget(planId = getPlan()) {
+  if (MONETIZATION_PAUSED) {
+    return {
+      allowed: true,
+      remaining: 999,
+      limit: 999,
+      used: 0,
+      dailyFreeCap: FREE_DAILY_SCANS,
+      dailyFreeRemaining: 999,
+      creditRemaining: 0,
+      topUpStored: 0,
+      usedToday: 0,
+      resetsOn: 'midnight',
+      isDaily: true,
+      paused: true,
+    };
+  }
+
   const usedToday = getScansToday();
   const dailyCap = getDailyFreeCap();
   const credits = getTopUpBalance();

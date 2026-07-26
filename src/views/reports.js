@@ -3,31 +3,8 @@ import { weekReport, monthReport } from '../services/reports.js';
 import { getCuisineTips } from '../services/cuisine-tips.js';
 import { formatEnergy, formatEnergyParts, getUnitPrefs } from '../services/goals.js';
 import { DISCLAIMERS, disclaimerBlock } from '../services/disclaimers.js';
-import { canAccessReports, getPlan } from '../services/subscription.js';
 
-export function renderReportsPaywall(root, { onUpgrade, profile } = {}) {
-  root.innerHTML = `
-    <section class="log-screen center reports-paywall">
-      <p class="step-label">Paid plans</p>
-      <h2>Reports &amp; insights</h2>
-      <p class="lead">Weekly charts, trends, and AI coaching tips are included with Pro.</p>
-      <ul class="plan-features-list reports-paywall__list">
-        <li>7-day and 30-day nutrition trends</li>
-        <li>Goal insights and suggestions</li>
-        <li>AI coach tips for your cuisine</li>
-      </ul>
-      <p class="fine-print">Free plan includes 1 AI photo/day and unlimited barcode logging. Pro unlocks reports and higher daily photo limits.</p>
-      <button type="button" class="btn btn-primary full" id="reportsUpgradeBtn">View plans</button>
-    </section>
-  `;
-  root.querySelector('#reportsUpgradeBtn')?.addEventListener('click', () => onUpgrade?.());
-}
-
-export async function renderReports(root, { profile, onLog, onUpgrade } = {}) {
-  if (!canAccessReports(getPlan())) {
-    renderReportsPaywall(root, { onUpgrade, profile });
-    return;
-  }
+export async function renderReports(root, { profile, onLog } = {}) {
   const displayName = profile?.displayName || '';
   const end = new Date();
   const weekStart = new Date(end);
@@ -52,7 +29,8 @@ export async function renderReports(root, { profile, onLog, onUpgrade } = {}) {
     const avgEnergy = formatEnergyParts(report.averages.calories_kcal, prefs);
     const energyPerDay = `${avgEnergy.unit} / day`;
 
-    root.innerHTML = `      <section class="section">
+    root.innerHTML = `
+      <section class="section">
         <h2 class="report-greeting">${escapeHtml(displayName ? `${displayName}'s report` : 'Your report')}</h2>
         <p class="report-intro">${displayName ? `Hi ${escapeHtml(displayName)}, here's how you've been doing.` : 'Track meals to see personalised insights.'}</p>
         <div class="tab-bar">
@@ -68,7 +46,8 @@ export async function renderReports(root, { profile, onLog, onUpgrade } = {}) {
           <div class="avg-main">
             <span class="avg-value">${avgEnergy.value}</span>
             <span class="avg-label">${energyPerDay}</span>
-          </div>          ${['protein_g', 'carbs_g', 'fat_g', 'fibre_g'].map((k) => {
+          </div>
+          ${['protein_g', 'carbs_g', 'fat_g', 'fibre_g'].map((k) => {
             const meta = report.nutrients.find((n) => n.key === k);
             const goal = report.goals[meta.goalKey];
             const val = report.averages[k];

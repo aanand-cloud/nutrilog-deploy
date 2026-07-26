@@ -3,7 +3,7 @@ import { getMealsForDate, getMealsInRange, sumNutrition, deleteMeal, todayKey, c
 import { openMealEditorModal } from '../services/meal-editor.js';
 import { topWeeklyInsight, weekReport } from '../services/reports.js';
 import { getUser, signOut, updatePassword, isSupabaseConfigured } from '../services/auth.js';
-import { getProfile, saveDisplayName, saveLocalDisplayName, getLocalDisplayName, saveDiscountPrefs, saveVoucherRedemption } from '../services/profile.js';
+import { getProfile, saveDisplayName, saveLocalDisplayName, getLocalDisplayName, clearLocalDisplayName } from '../services/profile.js';
 import { fullSync } from '../services/sync.js';
 import { getCuisineTips } from '../services/cuisine-tips.js';
 import { buildWeeklyPushMessage, buildDailyPushMessage } from '../services/push-messages.js';
@@ -14,30 +14,6 @@ import {
   isNotificationSupported,
   saveNotifyPrefs,
 } from '../services/notifications.js';
-import {
-  getPlan,
-  planLabel,
-  scansLabel,
-  startPlanCheckout,
-  setPlan,
-  planPriceLabel,
-  isPro,
-  planSummaryHtml,
-  planBadgeLabel,
-  startScanPackCheckout,
-  scanPackPriceLabel,
-  openBillingPortal,
-  usageMeterRemainingPercent,
-  getTopUpBalance,
-  getScanBudget,
-  syncTopUpFromCloud,
-  syncScanStateFromProfile,
-  getDailyFreeCap,
-} from '../services/subscription.js';
-import { PLANS, SCAN_PACKS, FREE_DAILY_SCANS, PRO_DAILY_FAIR_USE, normalizePlanId } from '../services/plans.js';
-import { getDiscountEligibility, getDiscountSections, validateWorkEmailForDiscount } from '../services/discount.js';
-import { validateAndRedeemVoucher } from '../services/voucher.js';
-import { isTrialActive, trialPlanLabel, formatTrialUntil } from '../services/trial.js';
 import { activityOptions, estimateDailyCalories, suggestMacros } from '../services/calorie-wizard.js';
 import { openOnboardingWizard } from '../services/onboarding-wizard.js';
 import { exportUserDataJson, exportMealsCsv } from '../services/data-export.js';
@@ -49,15 +25,13 @@ import { showSentryTestButton, sendSentryTestError } from '../services/sentry.js
 
 const wizardActivities = activityOptions();
 let activeSettingsTab = 'targets';
-let openDiscountSection = false;
 let passwordResetMode = false;
 
-/** Jump to a specific Goals tab (e.g. plans for NHS discount CTA). */
-export function setSettingsTab(tab, { openDiscount = false } = {}) {
-  if (['targets', 'account', 'plans', 'alerts'].includes(tab)) {
+/** Jump to a specific Goals tab. */
+export function setSettingsTab(tab) {
+  if (['targets', 'account', 'alerts'].includes(tab)) {
     activeSettingsTab = tab;
   }
-  openDiscountSection = Boolean(openDiscount);
 }
 
 /** Show the set-new-password form (after email reset link). */
@@ -75,9 +49,6 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
   const calLeftKcal = Math.max(0, (goals.calories_kcal || 0) - totals.calories_kcal);
   const eaten = formatEnergyParts(totals.calories_kcal, prefs);
   const left = formatEnergyParts(calLeftKcal, prefs);
-  const discount = getDiscountEligibility(profile || {}, profile?.email || '');
-  const showDiscountHero = !isPro() && !discount.eligible;
-  const scanBudget = getScanBudget();
 
   const weekStart = new Date();
   weekStart.setDate(weekStart.getDate() - 6);
@@ -86,22 +57,9 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
   const cuisine = weekMeals.length ? await getCuisineTips(weekMeals) : { tips: [] };
 
   root.innerHTML = `
-    ${showDiscountHero ? `
-    <section class="discount-hero discount-hero--compact" aria-label="Discount offers">
-      <div class="discount-hero__inner">
-        <p class="discount-hero__line">
-          <strong>30% off</strong> · NHS, 60+, or promo
-          <span class="discount-hero__price">Pro from £${PLANS.pro.priceDiscount.toFixed(2)}/mo</span>
-        </p>
-        <button type="button" class="btn btn-primary btn-sm discount-hero__cta" id="discountHeroBtn">See offers →</button>
-      </div>
-      <p class="discount-hero__legal">Separate paths for NHS/public sector, 60+, and promo codes. Not affiliated with the NHS.</p>
-    </section>
-    ` : ''}
-
     ${!profile?.loggedIn ? `
       <section class="guest-prompt card" aria-label="Create your account">
-        <p class="guest-prompt__lead">Free account · 1 AI photo/day · unlimited barcode</p>
+        <p class="guest-prompt__lead">Free account · sync meals to the cloud</p>
         <div class="guest-prompt__actions">
           <button type="button" class="btn btn-primary" id="guestGetStarted">Get started free</button>
           <button type="button" class="btn btn-ghost" id="guestSignIn">Sign in</button>
@@ -113,7 +71,7 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
     <section class="home-free-perks card" aria-label="Free barcode logging">
       <p class="home-free-perks__eyebrow">Free with sign-in · unlimited barcode scans</p>
       <h3 class="home-free-perks__title">Got a barcode? You're done in seconds.</h3>
-      <p class="home-free-perks__body">Scan any packaged food — cereals, meal deals, snacks — and log accurate nutrition from the label. No photo allowance used.</p>
+      <p class="home-free-perks__body">Scan any packaged food — cereals, meal deals, snacks — and log accurate nutrition from the label.</p>
       <button type="button" class="btn btn-ghost btn-sm full" id="homeLogPackagedBtn">${profile?.loggedIn ? 'Log packaged food →' : 'Sign in & scan barcode →'}</button>
     </section>
 
@@ -148,7 +106,7 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
         <span class="insight-badge">↓ ${weeklyTip.label} ${weeklyTip.periodLabel || 'this week'}</span>
         <p>${escapeHtml(weeklyTip.message)}</p>
         ${weeklyTip.daysUnderTarget ? `<p class="insight-meta">${weeklyTip.daysUnderTarget} day(s) below target</p>` : ''}
-        <button type="button" class="btn btn-ghost btn-sm" id="viewReportsBtn">${isPro() ? 'View full report →' : 'Unlock reports →'}</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="viewReportsBtn">View full report →</button>
         ${disclaimerBlock(DISCLAIMERS.goalInsights, 'fine-print health-disclaimer health-disclaimer--inline')}
       </section>
     ` : ''}
@@ -161,18 +119,10 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
           <h3>${escapeHtml(cuisine.tips[0].title)}</h3>
           <p>${escapeHtml(cuisine.tips[0].body)}</p>
         </article>
-        ${cuisine.tips.length > 1 ? `<button type="button" class="btn btn-ghost btn-sm full" id="moreTipsBtn">${isPro() ? 'More tips in Reports →' : 'Unlock reports →'}</button>` : ''}
+        ${cuisine.tips.length > 1 ? `<button type="button" class="btn btn-ghost btn-sm full" id="moreTipsBtn">More tips in Reports →</button>` : ''}
         ${disclaimerBlock(DISCLAIMERS.aiCoach, 'fine-print health-disclaimer health-disclaimer--inline')}
       </section>
     ` : ''}
-
-    <section class="pro-banner ${!scanBudget.allowed ? 'pro-banner--limit' : ''}">
-      <div>
-        <strong>${scansLabel()}</strong>
-        <p>${planLabel()}${getPlan() !== 'free' ? ` · resets ${scanBudget.resetsOn}` : ''}${!scanBudget.allowed && getPlan() !== 'free' ? ' · AI photos paused until reset' : ''}</p>
-      </div>
-      ${getPlan() === 'free' ? `<button type="button" class="btn btn-primary btn-sm" id="todayUpgrade">View plans</button>` : ''}
-    </section>
 
     <section class="section">
       <div class="section-head">
@@ -193,14 +143,12 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
   `;
 
   root.querySelector('#emptyLogBtn')?.addEventListener('click', onLog);
-  root.querySelector('#discountHeroBtn')?.addEventListener('click', () => onSettings?.('plans', { openDiscount: true }));
   root.querySelector('#guestGetStarted')?.addEventListener('click', () => onSignIn?.('signup'));
   root.querySelector('#guestSignIn')?.addEventListener('click', () => onSignIn?.('signin'));
   root.querySelector('#homeLogPackagedBtn')?.addEventListener('click', () => {
     if (!profile?.loggedIn && isSupabaseConfigured()) onSignIn?.('signin');
     else onLog?.();
   });
-  root.querySelector('#todayUpgrade')?.addEventListener('click', () => onSettings?.('plans'));
   root.querySelector('#viewReportsBtn')?.addEventListener('click', () => onReports?.());
   root.querySelector('#moreTipsBtn')?.addEventListener('click', () => onReports?.());
   root.querySelectorAll('[data-delete]').forEach((btn) => {
@@ -287,16 +235,6 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
     dailyPreview = buildDailyPushMessage({ calories_kcal: 840, protein_g: 28, carbs_g: 90, fat_g: 30 }, goals, 2, displayName || 'Alex');
   }
 
-  const discount = getDiscountEligibility(profile, profile.email || user?.email || '');
-  const discountSections = getDiscountSections(profile, profile.email || user?.email || '');
-  const trialActive = isTrialActive(profile);
-  if (profile?.loggedIn) syncScanStateFromProfile(profile);
-  const currentPlan = profile?.loggedIn
-    ? normalizePlanId(profile.plan)
-    : getPlan();
-  const planBadge = profile?.loggedIn && isTrialActive(profile)
-    ? `${planLabel()} trial`
-    : planBadgeLabel(currentPlan);
   const initials = (displayName || user?.email || '?').charAt(0).toUpperCase();
   const showPasswordReset =
     passwordResetMode || new URLSearchParams(window.location.search).get('reset') === '1';
@@ -305,13 +243,12 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
     <div class="settings-screen">
       <header class="settings-header">
         <h2 class="settings-title">Goals &amp; settings</h2>
-        <p class="settings-subtitle">Targets, account, plans, and alerts</p>
+        <p class="settings-subtitle">Targets, account, and alerts</p>
       </header>
 
       <nav class="settings-tabs tab-bar" aria-label="Settings sections">
         ${settingsTab('targets', '🎯 Targets', activeSettingsTab)}
         ${settingsTab('account', '👤 Account', activeSettingsTab)}
-        ${settingsTab('plans', '⭐ Plans', activeSettingsTab)}
         ${settingsTab('alerts', '🔔 Alerts', activeSettingsTab)}
       </nav>
 
@@ -411,7 +348,6 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
             <div class="account-card-body">
               <strong>${escapeHtml(displayName || (user ? 'Your account' : 'Guest'))}</strong>
               <span>${user ? escapeHtml(user.email) : 'Sign in to back up meals &amp; use AI photo logging'}</span>
-              ${user ? `<span class="plan-pill plan-pill--inline">${planLabel()} · ${scansLabel()}</span>` : ''}
             </div>
           </div>
 
@@ -469,215 +405,6 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
           </div>
         </section>
 
-        <section class="settings-panel card ${currentPlan === 'pro' ? 'pro-card' : ''}" data-panel="plans" ${panelHidden('plans', activeSettingsTab)}>
-          <div class="settings-panel-head">
-            <h3 class="settings-panel-title">Plans &amp; pricing</h3>
-            <span class="settings-badge">${planBadge}</span>
-          </div>
-          <p class="settings-panel-lead">Barcode is always free. Every account gets at least ${FREE_DAILY_SCANS} AI photo per day — buy scan packs or Pro when you need more.</p>
-
-          <div class="plan-current-summary ${currentPlan === 'pro' ? 'plan-current-summary--pro' : ''}">
-            <p class="plan-current-summary__label">Your plan</p>
-            <p class="card-desc">${planSummaryHtml(currentPlan)}</p>
-          </div>
-
-          <div class="usage-meter-wrap">
-            ${currentPlan === 'free' ? `
-              <div class="usage-meter-head">
-                <span>Today</span>
-                <span>${getScanBudget().dailyFreeRemaining}/${getDailyFreeCap()} free · ${getTopUpBalance()} credits</span>
-              </div>
-              <div class="usage-meter-track" aria-hidden="true">
-                <div class="usage-meter-fill" style="width:${usageMeterRemainingPercent()}%"></div>
-              </div>
-              <p class="fine-print">Free scan resets at midnight · credits never expire until used</p>
-            ` : `
-              <div class="usage-meter-head">
-                <span>Today · Pro fair use</span>
-                <span>${getScanBudget().remaining}/${getScanBudget().limit} photo logs left</span>
-              </div>
-              <div class="usage-meter-track" aria-hidden="true">
-                <div class="usage-meter-fill" style="width:${usageMeterRemainingPercent()}%"></div>
-              </div>
-              <p class="fine-print">Resets every day at midnight · ~1,000/month fair use cap</p>
-            `}
-          </div>
-
-          ${openDiscountSection ? `
-            <p class="discount-claim-hint" id="discountClaimHint">
-              ${discount.eligible
-                ? '✓ Your discount is active — choose a plan below, or update details in Ways to save.'
-                : '👇 Pick NHS/public sector, 60+, or a promo code below to unlock 30% off'}
-            </p>
-          ` : ''}
-          ${discount.label ? `<p class="settings-discount-banner">✓ ${escapeHtml(discount.label)} — 30% off Pro &amp; scan packs</p>` : ''}
-
-          ${currentPlan !== 'pro' ? `
-          <div class="topup-card">
-            <div class="topup-card-head">
-              <h4>Scan packs · one-off</h4>
-              <p>Pay once — credits never expire. Your free daily scan still applies.</p>
-            </div>
-            <div class="scan-pack-grid">
-              <article class="scan-pack-card">
-                <h5>${SCAN_PACKS.pack100.label}</h5>
-                <p class="plan-price">${scanPackPriceLabel('pack100', profile, profile.email || user?.email || '')}</p>
-                <ul class="plan-features-list plan-features-list--compact">
-                  <li>+${SCAN_PACKS.pack100.scans} credits</li>
-                  <li>${SCAN_PACKS.pack100.dailyFreeCap} free / day</li>
-                  <li>Never expires</li>
-                </ul>
-                <button type="button" class="btn btn-ghost full" data-pack="pack100">Buy 100 scans</button>
-              </article>
-              <article class="scan-pack-card scan-pack-card--featured">
-                <span class="plan-featured-tag">Best value</span>
-                <h5>${SCAN_PACKS.pack150.label}</h5>
-                <p class="plan-price">${scanPackPriceLabel('pack150', profile, profile.email || user?.email || '')}</p>
-                <ul class="plan-features-list plan-features-list--compact">
-                  <li>+${SCAN_PACKS.pack150.scans} credits</li>
-                  <li>${SCAN_PACKS.pack150.dailyFreeCap} free / day forever</li>
-                  <li>Never expires</li>
-                </ul>
-                <button type="button" class="btn btn-primary full" data-pack="pack150">Buy 150 scans</button>
-              </article>
-            </div>
-          </div>
-          ` : ''}
-
-          <div class="plan-subscription-block">
-            <div class="topup-card-head">
-              <h4>Pro subscription</h4>
-              <p>For daily photo logging without buying packs.</p>
-            </div>
-            <article class="plan-card plan-card--featured plan-card--solo ${currentPlan === 'pro' ? 'plan-card--active' : ''}">
-              <h3>${PLANS.pro.name}</h3>
-              <p class="plan-tagline">${PLANS.pro.tagline}</p>
-              <p class="plan-price">${planPriceLabel('pro', profile, profile.email)}</p>
-              <p class="plan-price plan-price--secondary">${planPriceLabel('pro', profile, profile.email, { annual: true })}</p>
-              <ul class="plan-features-list">
-                <li>Up to ${PRO_DAILY_FAIR_USE} AI photos / day</li>
-                <li>~1,000 / month fair use</li>
-                <li>Reports &amp; insights</li>
-                <li>No credit packs needed</li>
-              </ul>
-              ${currentPlan !== 'pro' ? `
-                <button type="button" class="btn btn-primary full" data-plan="pro">Pro monthly</button>
-                <button type="button" class="btn btn-ghost full" data-plan="pro" data-annual="yes">Pro annual — save more</button>
-              ` : '<p class="plan-current-tag">Current plan</p>'}
-            </article>
-          </div>
-
-          ${profile.loggedIn ? `
-            <div class="manage-sub-card manage-sub-card--billing ${trialActive ? 'manage-sub-card--active' : currentPlan === 'free' ? 'manage-sub-card--free' : 'manage-sub-card--active'}">
-              <div class="manage-sub-card-head">
-                <div class="billing-status-row">
-                  <h4>Billing &amp; subscription</h4>
-                  <span class="billing-status-pill ${trialActive ? 'billing-status-pill--active' : currentPlan === 'free' ? 'billing-status-pill--free' : 'billing-status-pill--active'}">${trialActive ? 'Pro trial' : planBadgeLabel(currentPlan)}</span>
-                </div>
-                ${trialActive ? `
-                  <p class="billing-status-summary">Pro trial active</p>
-                  <p>You're on a complimentary Pro trial until ${formatTrialUntil(profile.trial_until)} — no card required. Subscribe to Pro before it ends to keep full photo logging and reports.</p>
-                  <p class="fine-print">When the trial ends, you'll return to the free plan (${getDailyFreeCap()} AI photo / day + barcode) unless you subscribe.</p>
-                ` : currentPlan === 'free' ? `
-                  <p class="billing-status-summary">No active subscription</p>
-                  <p>You're on the free tier — ${getDailyFreeCap()} AI photo${getDailyFreeCap() === 1 ? '' : 's'} per day${getTopUpBalance() ? ` · ${getTopUpBalance()} credits` : ''} + unlimited barcode. Buy scan packs or subscribe to Pro for more.</p>
-                  <p class="fine-print">If you cancel a paid plan, you keep access until the end of your billing period, then return to the free plan automatically.</p>
-                  <button type="button" class="btn btn-primary full" id="billingViewPlansBtn">Compare paid plans</button>
-                ` : `
-                  <p class="billing-status-summary">Active subscription</p>
-                  <p>Cancel or change your plan anytime — no emails or phone calls needed.</p>
-                  <p class="fine-print">Opens Stripe's secure billing page. Your plan stays active until the end of the current billing period if you cancel.</p>
-                  <button type="button" class="btn btn-ghost full" id="manageSubBtn">Cancel or change plan</button>
-                `}
-              </div>
-            </div>
-          ` : `
-            <div class="manage-sub-card manage-sub-card--billing manage-sub-card--guest">
-              <div class="manage-sub-card-head">
-                <div class="billing-status-row">
-                  <h4>Billing &amp; subscription</h4>
-                  <span class="billing-status-pill billing-status-pill--guest">Sign in required</span>
-                </div>
-                <p>Sign in to view your plan status, receipts, and subscription settings.</p>
-                <p class="fine-print">Paid subscribers can cancel or change plan here — self-serve, no support ticket needed.</p>
-                <button type="button" class="btn btn-primary full" id="billingSignInBtn">Sign in</button>
-              </div>
-            </div>
-          `}
-
-          <div class="discount-sections" id="discountSection">
-            <h4 class="discount-sections__title">Ways to save</h4>
-            <p class="fine-print discount-sections__lead">NHS/public sector, 60+, and promo codes are separate paths — run offers without mixing them up.</p>
-
-            <article class="discount-card ${discountSections.publicSector.active ? 'discount-card--active' : ''}" id="publicSectorSection">
-              <div class="discount-card__head">
-                <h5>${discountSections.publicSector.title}</h5>
-                ${discountSections.publicSector.active ? '<span class="discount-card__badge">Active</span>' : ''}
-              </div>
-              <p class="fine-print">${discountSections.publicSector.blurb}</p>
-              ${discountSections.publicSector.active ? `
-                <p class="settings-discount-banner">✓ Verified — 30% off Pro &amp; scan packs</p>
-              ` : `
-                <form id="publicSectorForm" class="auth-form settings-form-compact">
-                  <label class="field full">
-                    <span>Work email</span>
-                    <input type="email" name="work_email" value="${escapeHtml(profile.discount_work_email || '')}" placeholder="you@nhs.net" inputmode="email" required/>
-                  </label>
-                  <label class="toggle-row settings-toggle">
-                    <span>I confirm this is my current public-sector work email</span>
-                    <input type="checkbox" name="consent" required/>
-                  </label>
-                  <button type="submit" class="btn btn-ghost full">Verify &amp; save</button>
-                </form>
-              `}
-            </article>
-
-            <article class="discount-card ${discountSections.senior.active ? 'discount-card--active' : ''}" id="seniorSection">
-              <div class="discount-card__head">
-                <h5>${discountSections.senior.title}</h5>
-                ${discountSections.senior.active ? '<span class="discount-card__badge">Active</span>' : ''}
-              </div>
-              <p class="fine-print">${discountSections.senior.blurb}</p>
-              ${discountSections.senior.active ? `
-                <p class="settings-discount-banner">✓ Age discount active — 30% off Pro &amp; scan packs</p>
-              ` : `
-                <form id="seniorForm" class="auth-form settings-form-compact">
-                  <label class="toggle-row settings-toggle">
-                    <span>I am 60 years of age or over</span>
-                    <input type="checkbox" name="senior" required/>
-                  </label>
-                  <label class="toggle-row settings-toggle">
-                    <span>I confirm this declaration is accurate</span>
-                    <input type="checkbox" name="consent" required/>
-                  </label>
-                  <button type="submit" class="btn btn-ghost full">Confirm &amp; save</button>
-                </form>
-              `}
-            </article>
-
-            <article class="discount-card ${discountSections.voucher.active ? 'discount-card--active' : ''}" id="voucherSection">
-              <div class="discount-card__head">
-                <h5>${discountSections.voucher.title}</h5>
-                ${discountSections.voucher.active ? '<span class="discount-card__badge">Applied</span>' : ''}
-              </div>
-              ${discountSections.voucher.trialActive ? `
-                <p class="settings-discount-banner">✓ ${escapeHtml(trialPlanLabel(profile))}</p>
-              ` : discountSections.voucher.active ? `
-                <p class="settings-discount-banner">✓ Promo code applied</p>
-              ` : `
-                <p class="fine-print">${discountSections.voucher.blurb}</p>
-                <form id="voucherForm" class="auth-form voucher-form settings-form-compact">
-                  <label class="field full">
-                    <span>Promo code</span>
-                    <input type="text" name="code" placeholder="Enter your promo code" autocapitalize="characters" autocomplete="off" required/>
-                  </label>
-                  <button type="submit" class="btn btn-primary full">Apply</button>
-                </form>
-              `}
-            </article>
-          </div>
-        </section>
-
         <section class="settings-panel card" data-panel="alerts" ${panelHidden('alerts', activeSettingsTab)}>
           <h3 class="settings-panel-title">Notifications</h3>
           ${!notifySupported ? `
@@ -713,7 +440,6 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
   root.querySelectorAll('.settings-tab').forEach((btn) => {
     btn.addEventListener('click', () => {
       activeSettingsTab = btn.dataset.tab;
-      openDiscountSection = false;
       root.querySelectorAll('.settings-tab').forEach((b) => {
         b.classList.toggle('active', b.dataset.tab === activeSettingsTab);
       });
@@ -722,19 +448,6 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
       });
     });
   });
-
-  const focusDiscount = openDiscountSection;
-  openDiscountSection = false;
-
-  if (focusDiscount) {
-    requestAnimationFrame(() => {
-      root.querySelector('#discountSection')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      const input = root.querySelector('#discountSection input[name="code"], #discountSection input[name="work_email"]');
-      if (input && !discount.eligible) {
-        setTimeout(() => input.focus({ preventScroll: true }), 400);
-      }
-    });
-  }
 
   root.querySelector('#nameForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -886,6 +599,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
       'Remove meals stored on this device too?\n\nOK = clear local meals\nCancel = keep them for next sign-in'
     );
     await signOut();
+    clearLocalDisplayName();
     if (clearLocal) {
       await clearAllLocalMeals();
       showToast?.('Signed out — local meals cleared');
@@ -917,124 +631,12 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
   root.querySelector('#syncBtn')?.addEventListener('click', async () => {
     try {
       const result = await fullSync();
-      if (result.plan) setPlan(result.plan);
       showToast?.(syncResultMessage(result));
       onSave();
     } catch (err) {
       showToast?.(err.message || 'Sync failed');
     }
   });
-
-  root.querySelectorAll('[data-plan]').forEach((btn) => {
-    btn.addEventListener('click', () =>
-      handleUpgrade(
-        root,
-        user?.email,
-        showToast,
-        btn.dataset.plan,
-        btn.dataset.annual === 'yes',
-        discount.eligible,
-        profile,
-        onSave,
-        onSignIn
-      )
-    );
-  });
-
-  root.querySelectorAll('[data-pack]').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      if (!profile?.loggedIn) {
-        showToast?.('Sign in to buy scan packs');
-        onSignIn?.('signin');
-        return;
-      }
-      const packId = btn.dataset.pack;
-      const pack = SCAN_PACKS[packId];
-      if (!pack) return;
-      try {
-        const result = await startScanPackCheckout(packId);
-        if (result.mock) {
-          showToast?.(import.meta.env.DEV
-            ? `+${pack.scans} scans added (demo — add Stripe for real payments)`
-            : `+${pack.scans} scans added`);
-          onSave();
-        }
-      } catch (err) {
-        showToast?.(err.message || 'Could not start checkout');
-      }
-    });
-  });
-
-  root.querySelector('#manageSubBtn')?.addEventListener('click', async () => {
-    try {
-      await openBillingPortal();
-    } catch (err) {
-      showToast?.(err.message || 'Could not open billing portal');
-    }
-  });
-
-  root.querySelector('#billingViewPlansBtn')?.addEventListener('click', () => {
-    root.querySelector('.topup-card, .plan-subscription-block')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
-
-  root.querySelector('#billingSignInBtn')?.addEventListener('click', () => onSignIn?.('signin'));
-
-  root.querySelector('#voucherForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const code = new FormData(e.target).get('code');
-    try {
-      const result = await validateAndRedeemVoucher(code);
-      if (result.type === 'trial') {
-        if (result.trialPlan) setPlan('pro');
-        showToast?.(result.label ? `${result.label} started` : 'Free trial started');
-      } else if (result.type === 'topup') {
-        if (result.trialPlan) setPlan('pro');
-        if (result.topupBalance != null) syncTopUpFromCloud(result.topupBalance);
-        showToast?.(result.label ? `${result.label} added` : 'Bonus meal logs added');
-      } else {
-        await saveVoucherRedemption();
-        showToast?.('Promo code applied');
-      }
-      onSave();
-    } catch (err) {
-      showToast?.(err.message || 'Invalid promo code');
-    }
-  });
-
-  root.querySelector('#publicSectorForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    const check = validateWorkEmailForDiscount(fd.get('work_email'));
-    if (!check.ok) {
-      showToast?.(check.error);
-      return;
-    }
-    try {
-      await saveDiscountPrefs({ workEmail: check.email });
-      showToast?.('NHS/public sector discount verified — 30% off');
-      onSave();
-    } catch (err) {
-      showToast?.(err.message || 'Could not save');
-    }
-  });
-
-  root.querySelector('#seniorForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    if (fd.get('senior') !== 'on') {
-      showToast?.('Confirm you are 60 or over to continue');
-      return;
-    }
-    try {
-      await saveDiscountPrefs({ senior: true });
-      showToast?.('60+ discount saved — 30% off');
-      onSave();
-    } catch (err) {
-      showToast?.(err.message || 'Could not save');
-    }
-  });
-
-  root.querySelector('#todayUpgrade')?.addEventListener('click', () => onSettings?.('plans'));
 
   root.querySelector('#notifyToggle')?.addEventListener('change', async (e) => {
     try {
@@ -1095,26 +697,6 @@ function notifyPreviewCard(label, msg) {
       </div>
     </div>
   `;
-}
-
-async function handleUpgrade(root, email, showToast, planId = 'pro', annual = false, discount = false, profile = null, onSave, onSignIn) {
-  if (!profile?.loggedIn) {
-    showToast?.('Sign in to choose a plan');
-    onSignIn?.('signin');
-    return;
-  }
-  try {
-    const data = await startPlanCheckout(planId, { annual });
-    if (data.mock) {
-      setPlan('pro');
-      showToast?.(import.meta.env.DEV
-        ? `${PLANS.pro.name} enabled (demo — add Stripe price IDs for real billing)`
-        : `${PLANS.pro.name} enabled`);
-      root.dispatchEvent(new CustomEvent('refresh'));
-    }
-  } catch (err) {
-    showToast?.(err.message || 'Could not start checkout');
-  }
 }
 
 function goalField(name, label, value) {
