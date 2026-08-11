@@ -245,6 +245,8 @@ export default defineConfig(({ mode }) => {
         },
         injectManifest: {
           globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}'],
+          // Keep HTML out of the Workbox precache — navigations use NetworkFirst in sw.js.
+          globIgnores: ['**/index.html', '**/404.html'],
         },
         devOptions: {
           enabled: false,
