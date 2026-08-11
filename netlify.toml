@@ -16,11 +16,19 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
-# Missing hashed assets must 404 — never SPA-fallback to index.html (that blanks the app).
+# Missing hashed assets must 404 (never SPA-fallback — that blanks the app after refresh).
+# force=true so this wins even if edge caching / shadowing interferes.
 [[redirects]]
   from = "/assets/*"
   to = "/404.html"
   status = 404
+  force = true
+
+[[redirects]]
+  from = "/icons/*"
+  to = "/404.html"
+  status = 404
+  force = true
 
 [[redirects]]
   from = "/*"

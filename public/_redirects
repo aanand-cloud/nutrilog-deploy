@@ -1,2 +1,5 @@
+# Netlify _redirects (also mirrored in netlify.toml)
 /api/*  /.netlify/functions/:splat  200
-/*      /index.html                 200
+/assets/*  /404.html  404!
+/icons/*  /404.html  404!
+/*  /index.html  200
