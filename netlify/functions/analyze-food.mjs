@@ -78,14 +78,6 @@ export default async (req) => {
     if (!scanCheck.ok) {
       return jsonResponse({ error: scanCheck.error || 'Scan limit reached' }, 429, req);
     }
-
-    if (!isRefinement) {
-      const consumed = await consumeMealScan(supabaseAdmin, userId, localDay);
-      if (!consumed.ok) {
-        return jsonResponse({ error: consumed.error || 'Scan limit reached' }, 429, req);
-      }
-      usage = consumed.usage;
-    }
   }
 
   const prompt = isRefinement ? CLARIFY_PROMPT : ANALYSIS_PROMPT;
@@ -99,6 +91,15 @@ export default async (req) => {
       context: isRefinement ? context : undefined,
       userNotes,
     }, model);
+
+    // Charge only after a successful Gemini response so failed scans keep credits.
+    if (userId && supabaseAdmin && !isRefinement) {
+      const consumed = await consumeMealScan(supabaseAdmin, userId, localDay);
+      if (!consumed.ok) {
+        return jsonResponse({ error: consumed.error || 'Scan limit reached' }, 429, req);
+      }
+      usage = consumed.usage;
+    }
 
     logGeminiUsage({
       operation: isRefinement ? 'analyze-food-refine' : 'analyze-food',

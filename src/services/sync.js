@@ -25,7 +25,7 @@ export async function pullCloudMeals() {
       const signed = await signedPhotoUrl(row.photo_path);
       if (signed) meal.photoDataUrl = signed;
     }
-    await local.saveMeal({ ...meal, cloudSynced: true });
+    await local.saveMealLocal({ ...meal, cloudSynced: true });
     pulled++;
   }
   return { pulled };

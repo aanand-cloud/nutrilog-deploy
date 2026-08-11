@@ -66,7 +66,7 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
 
   const weekStart = new Date();
   weekStart.setDate(weekStart.getDate() - 6);
-  const weekMeals = await getMealsInRange(weekStart.toISOString().slice(0, 10), dateKey);
+  const weekMeals = await getMealsInRange(todayKey(weekStart), dateKey);
   const weeklyTip = topWeeklyInsight(weekMeals);
   const cuisine = weekMeals.length ? await getCuisineTips(weekMeals) : { tips: [] };
   const scanBudget = !MONETIZATION_PAUSED && profile?.loggedIn ? getScanBudget() : null;
@@ -246,7 +246,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
   const end = todayKey();
   const weekStart = new Date();
   weekStart.setDate(weekStart.getDate() - 6);
-  const weekMeals = await getMealsInRange(weekStart.toISOString().slice(0, 10), end);
+  const weekMeals = await getMealsInRange(todayKey(weekStart), end);
   const todayMeals = await getMealsForDate(end);
   const cuisine = weekMeals.length ? await getCuisineTips(weekMeals) : null;
 
@@ -562,7 +562,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
     }
     try {
       saveGoals(next);
-      saveUnitPrefs({ energy: fd.get('energy') });
+      saveUnitPrefs({ energy: fd.get('energy') || getUnitPrefs().energy });
       try {
         const { syncGoalsToCloud } = await import('../services/sync.js');
         await syncGoalsToCloud();
@@ -759,7 +759,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
         const end = todayKey();
         const weekStart = new Date();
         weekStart.setDate(weekStart.getDate() - 6);
-        const weekMeals = await getMealsInRange(weekStart.toISOString().slice(0, 10), end);
+        const weekMeals = await getMealsInRange(todayKey(weekStart), end);
         const todayMeals = await getMealsForDate(end);
         const cuisine = weekMeals.length ? await getCuisineTips(weekMeals) : null;
         const { runPersonalisedNotificationCheck } = await import('../services/notifications.js');

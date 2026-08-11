@@ -52,7 +52,11 @@ export default async (req) => {
     let msg = null;
 
     if (!msg && sub.user_id) {
-      msg = await personalisedMessageForUser(sub.user_id, startDate);
+      try {
+        msg = await personalisedMessageForUser(supabase, sub.user_id, startDate);
+      } catch (err) {
+        console.warn('personalised weekly push failed', sub.user_id, err);
+      }
     }
 
     if (!msg) {
@@ -81,7 +85,7 @@ export default async (req) => {
   return jsonResponse({ ok: true, sent, failed, total: (subs || []).length, samples: results.slice(0, 5) }, 200, req);
 };
 
-async function personalisedMessageForUser(userId, startDate) {
+async function personalisedMessageForUser(supabase, userId, startDate) {
   const [{ data: meals }, { data: profile }] = await Promise.all([
     supabase
       .from('meals')

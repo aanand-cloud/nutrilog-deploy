@@ -1,4 +1,4 @@
-import { getMealsInRange } from '../services/storage.js';
+import { getMealsInRange, todayKey } from '../services/storage.js';
 import { weekReport, monthReport } from '../services/reports.js';
 import { getCuisineTips } from '../services/cuisine-tips.js';
 import { formatEnergy, formatEnergyParts, getUnitPrefs } from '../services/goals.js';
@@ -12,9 +12,8 @@ export async function renderReports(root, { profile, onLog } = {}) {
   const monthStart = new Date(end);
   monthStart.setDate(monthStart.getDate() - 29);
 
-  const fmt = (d) => d.toISOString().slice(0, 10);
-  const weekMeals = await getMealsInRange(fmt(weekStart), fmt(end));
-  const monthMeals = await getMealsInRange(fmt(monthStart), fmt(end));
+  const weekMeals = await getMealsInRange(todayKey(weekStart), todayKey(end));
+  const monthMeals = await getMealsInRange(todayKey(monthStart), todayKey(end));
 
   const week = weekReport(weekMeals);
   const month = monthReport(monthMeals);

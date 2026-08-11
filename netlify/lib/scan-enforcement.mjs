@@ -224,7 +224,7 @@ export async function assertScanAllowed(supabase, userId) {
 export async function applyScanPackToProfile(
   supabase,
   userId,
-  { scans = 100, dailyFreeCap = 1 } = {}
+  { scans = 100, dailyFreeCap: packDailyFreeCap = 1 } = {}
 ) {
   if (!supabase || !userId) return { ok: false };
 
@@ -235,7 +235,7 @@ export async function applyScanPackToProfile(
     .maybeSingle();
 
   const nextBalance = Math.min(MAX_TOPUP_CARRY, (profile?.topup_balance || 0) + scans);
-  const nextCap = Math.max(dailyFreeCap(profile), Math.min(2, dailyFreeCap));
+  const nextCap = Math.max(dailyFreeCap(profile), Math.min(2, Number(packDailyFreeCap) || 1));
 
   await supabase
     .from('profiles')

@@ -78,7 +78,7 @@ export function openAuthModal({ mode = 'signup', showToast, onSuccess } = {}) {
             <button type="button" class="btn btn-ghost btn-sm full" id="authModalForgot">Forgot password?</button>
             <button type="button" class="btn btn-ghost btn-sm full" id="authModalResend" hidden>Resend confirmation email</button>
           </form>
-          <p class="auth-modal__fine">Packaged food logging works without an account.</p>
+          <p class="auth-modal__fine">Photo and packaged-food logging need a free account when cloud sync is enabled.</p>
         </div>
       `;
 

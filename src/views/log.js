@@ -170,7 +170,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     if (needsSignIn) {
       return `
         <section class="login-banner">
-          <p><strong>Sign in required</strong> for photo-based logging. Packaged food below works without an account.</p>
+          <p><strong>Sign in required</strong> for photo and packaged-food logging when cloud sync is enabled.</p>
           <button type="button" class="btn btn-primary btn-sm" id="logSignInBtn">Sign in</button>
         </section>
       `;

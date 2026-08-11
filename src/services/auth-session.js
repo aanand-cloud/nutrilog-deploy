@@ -1,4 +1,8 @@
 import { getSession, getSupabase } from './auth.js';
+import { ensureUserProfile } from './profile.js';
+import { fullSync } from './sync.js';
+import { setPlan } from './subscription.js';
+
 async function syncConsentMetadataToCloud() {
   const termsAt = localStorage.getItem('nutrilog_terms_accepted_at');
   const aiAt = localStorage.getItem('nutrilog_ai_consent_at');

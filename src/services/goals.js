@@ -45,7 +45,8 @@ export function getUnitPrefs() {
 }
 
 export function saveUnitPrefs(prefs) {
-  localStorage.setItem('nutrilog_units', JSON.stringify(prefs));
+  const next = { ...getUnitPrefs(), ...prefs };
+  localStorage.setItem('nutrilog_units', JSON.stringify(next));
 }
 
 export function kcalToKj(kcal) {

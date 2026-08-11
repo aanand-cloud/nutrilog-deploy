@@ -29,9 +29,9 @@ export function generateId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-export async function saveMeal(meal) {
+async function putMealLocal(meal) {
   const db = await openDb();
-  const record = await new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const tx = db.transaction(MEALS_STORE, 'readwrite');
     const store = tx.objectStore(MEALS_STORE);
     const rec = {
@@ -44,6 +44,15 @@ export async function saveMeal(meal) {
     tx.oncomplete = () => resolve(rec);
     tx.onerror = () => reject(tx.error);
   });
+}
+
+/** Write meal to IndexedDB only — used when pulling from cloud to avoid re-push loops. */
+export async function saveMealLocal(meal) {
+  return putMealLocal(meal);
+}
+
+export async function saveMeal(meal) {
+  const record = await putMealLocal(meal);
 
   try {
     const { pushMeal } = await import('./sync.js');

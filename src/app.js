@@ -226,7 +226,7 @@ async function runNotificationChecks() {
     const end = todayKey();
     const weekStart = new Date();
     weekStart.setDate(weekStart.getDate() - 6);
-    const weekMeals = await getMealsInRange(weekStart.toISOString().slice(0, 10), end);
+    const weekMeals = await getMealsInRange(todayKey(weekStart), end);
     const todayMeals = await getMealsForDate(end);
     const cuisineTips = weekMeals.length ? await getCuisineTips(weekMeals) : null;
     const profile = await getProfile();
