@@ -3,50 +3,160 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-  <meta name="theme-color" content="#0f766e"/>
-  <meta name="description" content="Snap, analyse, track — eat smarter. Photo meal logging with AI estimates. NHS &amp; public sector discounts available."/>
+  <meta name="theme-color" content="#0d6b64"/>
+  <meta name="description" content="Track meals from a photo. MealNova estimates calories and macros — review, edit and save in seconds. Free account, no card required."/>
+  <meta property="og:title" content="MealNova — Track meals from a photo"/>
+  <meta property="og:description" content="Photograph, review and track meals in seconds—with editable portions, confidence ranges and transparent nutrition sources."/>
+  <meta property="og:image" content="https://www.mealnova.co.uk/images/hero-meal.webp"/>
+  <meta property="og:url" content="https://www.mealnova.co.uk/"/>
+  <meta property="og:type" content="website"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="MealNova — Track meals from a photo"/>
+  <meta name="twitter:description" content="Photograph, review and track meals in seconds—with editable portions, confidence ranges and transparent nutrition sources."/>
+  <meta name="twitter:image" content="https://www.mealnova.co.uk/images/hero-meal.webp"/>
+  <!-- MEALNOVA_SITE_VERIFICATION -->
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@graph":[
+    {"@type":"Organization","name":"MealNova","url":"https://www.mealnova.co.uk/","logo":"https://www.mealnova.co.uk/icons/icon-192.png"},
+    {"@type":"WebApplication","name":"MealNova","url":"https://www.mealnova.co.uk/","applicationCategory":"HealthApplication","operatingSystem":"Web, Android"},
+    {"@type":"SoftwareApplication","name":"MealNova","applicationCategory":"HealthApplication","operatingSystem":"Web, Android","offers":{"@type":"Offer","price":"0","priceCurrency":"GBP"}}
+  ]}
+  </script>
+  <!-- MEALNOVA_FAQ_SCHEMA -->
   <meta name="mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
-  <title>NutriLog — Photo Calorie Tracker</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230f766e'/><text y='23' x='6' font-size='18'>🥗</text></svg>"/>
+  <meta name="apple-mobile-web-app-title" content="MealNova"/>
+  <meta name="application-name" content="MealNova"/>
+  <title>MealNova — Track meals from a photo</title>
+  <link rel="canonical" href="https://www.mealnova.co.uk/"/>
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png"/>
+  <link rel="apple-touch-icon" href="/icons/icon-192.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet"/>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" media="print" onload="this.media='all'"/>
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap"/></noscript>
+  <script>
+    (function () {
+      var w = window.innerWidth || 0;
+      var mobile =
+        window.matchMedia('(pointer: coarse)').matches ||
+        window.matchMedia('(hover: none)').matches ||
+        (w > 0 && w <= 1024);
+      if (mobile) document.documentElement.classList.add('touch-ui');
+    })();
+  </script>
+  <link rel="preload" as="image" href="/images/hero-meal.webp" type="image/webp"/>
+  <link rel="stylesheet" href="/src/styles/type-tokens.css"/>
   <link rel="stylesheet" href="/src/styles/app.css"/>
+  <link rel="stylesheet" href="/src/styles/touch-ui.css"/>
+  <link rel="stylesheet" href="/src/styles/quick-polish.css"/>
+  <link rel="stylesheet" href="/src/styles/guest-site.css"/>
+  <link rel="stylesheet" href="/src/styles/landing-v2.css"/>
+  <link rel="stylesheet" href="/src/styles/marketing-pages.css"/>
+  <link rel="stylesheet" href="/src/styles/analytics-consent.css"/>
+  <link rel="stylesheet" href="/src/styles/mnova.css"/>
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to main content</a>
   <div id="app">
+    <header class="site-header" id="siteHeader" hidden>
+      <div class="site-header__inner">
+        <a href="/" class="site-header__brand" id="siteHeaderHome" aria-label="MealNova home">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="site-header__name">MealNova</span>
+        </a>
+        <button type="button" class="site-header__menu-btn" id="siteHeaderMenuBtn" aria-expanded="false" aria-controls="siteHeaderNav">Menu</button>
+        <nav class="site-header__nav" id="siteHeaderNav" aria-label="Site sections">
+          <a class="site-header__link" href="#how-it-works" data-site-anchor="how-it-works">How it works</a>
+          <a class="site-header__link" href="#global-foods" data-site-anchor="global-foods">Global foods</a>
+          <a class="site-header__link" href="#accuracy" data-site-anchor="accuracy">Accuracy</a>
+          <a class="site-header__link" href="#pricing" data-site-anchor="pricing">Pricing</a>
+          <a class="site-header__link" href="#faq" data-site-anchor="faq">FAQ</a>
+        </nav>
+        <div class="site-header__actions">
+          <button type="button" class="btn btn-ghost btn-sm" id="siteHeaderSignIn">Sign in</button>
+          <button type="button" class="btn btn-primary btn-sm" id="siteHeaderTryFree">Start free</button>
+        </div>
+      </div>
+    </header>
     <header class="app-header">
       <div class="header-inner">
-        <div class="header-row">
-          <h1 class="logo">NutriLog</h1>
-          <button type="button" class="header-auth-btn" id="headerAuthBtn" hidden>Sign in</button>
+        <div class="header-meta">
+          <div class="brand-lockup">
+            <span class="brand-mark" aria-hidden="true"></span>
+            <span class="logo" aria-hidden="true">MealNova</span>
+          </div>
+          <p class="greeting" id="headerGreeting"></p>
+          <p class="tagline" id="headerDate"></p>
         </div>
-        <p class="greeting" id="headerGreeting"></p>
-        <p class="tagline" id="headerDate"></p>
+        <button type="button" class="header-auth-btn" id="headerAuthBtn" hidden>Sign in</button>
       </div>
     </header>
     <main id="main" class="main"></main>
     <nav class="bottom-nav" aria-label="Main navigation">
-      <button type="button" class="nav-btn active" data-view="today" aria-current="page">
-        <span class="nav-icon">📊</span>
-        <span>Today</span>
-      </button>
-      <button type="button" class="nav-btn nav-btn--primary" data-view="log" aria-label="Log a meal">
-        <span class="nav-icon nav-icon--large">📷</span>
-        <span>Log</span>
-      </button>
-      <button type="button" class="nav-btn" data-view="reports">
-        <span class="nav-icon">📈</span>
-        <span>Reports</span>
-      </button>
-      <button type="button" class="nav-btn" data-view="settings">
-        <span class="nav-icon">⚙️</span>
-        <span>Settings</span>
-      </button>
+      <div class="sidebar-brand" aria-hidden="true">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <div class="sidebar-brand__text">
+          <span class="sidebar-brand__name">MealNova</span>
+          <span class="sidebar-brand__tagline">Snap · scan · track</span>
+        </div>
+      </div>
+      <div class="sidebar-nav">
+        <button type="button" class="nav-btn nav-btn--log-cta" data-view="log" aria-label="Log a meal">
+          <span class="nav-icon nav-icon--fab" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </span>
+          <span class="nav-btn__log-label">Log meal</span>
+          <span class="nav-btn__log-label-short">Log</span>
+        </button>
+        <button type="button" class="nav-btn active" data-view="today" aria-current="page">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+          </span>
+          <span>Today</span>
+        </button>
+        <button type="button" class="nav-btn" data-view="supplements" aria-label="Supplement log">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="8" rx="4"/><path d="M12 8v8"/></svg>
+          </span>
+          <span class="nav-label">Supplements</span>
+        </button>
+        <button type="button" class="nav-btn" data-view="reports">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 5-6"/></svg>
+          </span>
+          <span>Reports</span>
+        </button>
+        <button type="button" class="nav-btn" data-view="settings">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          </span>
+          <span>Settings</span>
+        </button>
+      </div>
+      <div class="sidebar-guest" id="sidebarGuest" hidden>
+        <p class="sidebar-guest__lead">Free account · barcode always free</p>
+        <button type="button" class="btn btn-primary btn-sm full" id="sidebarGetStarted">Create free account</button>
+        <button type="button" class="btn btn-ghost btn-sm full" id="sidebarSignIn">Sign in</button>
+      </div>
+      <div class="sidebar-footer" aria-hidden="true">
+        <p class="sidebar-footer__links">
+          <button type="button" class="link-btn" data-legal="privacy">Privacy</button>
+          <span aria-hidden="true">·</span>
+          <button type="button" class="link-btn" data-legal="terms">Terms</button>
+        </p>
+        <p class="sidebar-footer__company">by Ventra Digital</p>
+      </div>
     </nav>
-    <p class="app-disclaimer">NutriLog provides AI and database estimates only — not medical or dietary advice. Check food labels when accuracy matters. Speak to your GP or a registered dietitian for health concerns. <button type="button" class="link-btn" data-legal="privacy">Privacy</button> · <button type="button" class="link-btn" data-legal="terms">Terms</button></p>
+    <div class="app-disclaimer-strip" role="note" aria-label="Health notice">
+      <p>Estimates only — not medical advice. Check food labels when accuracy matters. <button type="button" class="link-btn" data-legal="privacy">Privacy</button> · <button type="button" class="link-btn" data-legal="terms">Terms</button></p>
+    </div>
+    <div class="guest-sticky-cta" id="guestStickyCta" hidden>
+      <button type="button" class="btn btn-primary" id="guestStickySignup">Start free</button>
+      <button type="button" class="btn btn-ghost btn-sm" id="guestStickySignIn">Sign in</button>
+    </div>
   </div>
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
   <script type="module" src="/src/main.js"></script>

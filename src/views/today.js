@@ -1,12 +1,70 @@
-import { getGoals, formatEnergy, formatEnergyParts, getUnitPrefs, saveGoals, saveUnitPrefs, DEFAULT_GOALS } from '../services/goals.js';
-import { getMealsForDate, getMealsInRange, sumNutrition, deleteMeal, todayKey, clearAllLocalMeals } from '../services/storage.js';
+import { getGoals, formatEnergy, formatEnergyParts, getUnitPrefs, saveGoals, saveUnitPrefs, DEFAULT_GOALS, setGoalsOwnerId } from '../services/goals.js';
+import { getMealsForDate, getMealsInRange, sumNutrition, deleteMeal, todayKey, clearAllLocalMeals, saveMeal } from '../services/storage.js';
+import { findDuplicateAlertsForDay, findPotentialDuplicates } from '../services/meal-duplicates.js';
+import { openDuplicateMealModal } from '../services/duplicate-meal-modal.js';
+import { getUsualMeals, buildRepeatMealPayload, getYesterdayMeals, mergeQuickLogMeals } from '../services/usual-meals.js';
+import { logAgainSectionHtml } from '../services/log-again-ui.js';
+import { buildRemainingCoach } from '../services/remaining-coach.js';
+import { remainingCoachHtml } from '../services/remaining-coach-ui.js';
 import { openMealEditorModal } from '../services/meal-editor.js';
-import { topWeeklyInsight, weekReport } from '../services/reports.js';
-import { getUser, signOut, updatePassword, isSupabaseConfigured } from '../services/auth.js';
+import { topWeeklyInsight, weekReport, formatDayHeading, formatDayShort, parseDateKey, loggingConsistencyStats } from '../services/reports.js';
+import {
+  dayDateNavHtml,
+  dayDashboardHtml,
+  mealTypeBreakdownHtml,
+  microsTeaserHtml,
+  weeklyInsightTeaserHtml,
+  consistencyStripHtml,
+  bindDayDateNav,
+  planAheadHintHtml,
+} from './day-nutrition.js';
+import { getUser, getSession, signOut, updatePassword, resetPassword, isSupabaseConfigured } from '../services/auth.js';
 import { getProfile, saveDisplayName, saveLocalDisplayName, getLocalDisplayName, clearLocalDisplayName } from '../services/profile.js';
-import { fullSync } from '../services/sync.js';
+import { fullSync, refreshMealPhotoUrls, resolvePhotoUrlForMeal } from '../services/sync.js';
 import { getCuisineTips } from '../services/cuisine-tips.js';
 import { buildWeeklyPushMessage, buildDailyPushMessage } from '../services/push-messages.js';
+import { buildDayWrapUp, shouldShowDayWrapUp, isDayWrapUpDismissed, dismissDayWrapUp } from '../services/day-wrap-up.js';
+import { dayWrapUpCardHtml } from '../services/day-wrap-up-ui.js';
+import { buildWeeklyHabitScore } from '../services/habit-score.js';
+import { habitScoreHtml } from '../services/habit-score-ui.js';
+import { discountEligibilitySettingsHtml, bindDiscountEligibilityForms } from '../services/discount-ui.js';
+import { trackDescribeLogStarted } from '../services/analytics.js';
+import { requestLogMealType, resumeOfflinePhotoMeal } from './log-routing.js';
+import {
+  setTodayViewDate,
+  clearTodayViewDate,
+  getTodayViewDate,
+  setLogTargetDate,
+  getLogTargetDate,
+  clearLogTargetDate,
+  setSettingsTab,
+  getSettingsTab,
+  requestOpenDiscountSection,
+  consumeOpenDiscountSection,
+  getPendingDiscountPathFocus,
+  clearPendingDiscountPathFocus,
+  setPasswordResetMode,
+  isPasswordResetMode,
+} from './app-nav-state.js';
+export {
+  setTodayViewDate,
+  clearTodayViewDate,
+  getTodayViewDate,
+  setLogTargetDate,
+  getLogTargetDate,
+  clearLogTargetDate,
+  setSettingsTab,
+  requestOpenDiscountSection,
+  setPasswordResetMode,
+} from './app-nav-state.js';
+import {
+  PLAN_AHEAD_PHASE1_ENABLED,
+  planTomorrowCardHtml,
+  futureDayEmptyPlanHtml,
+  tomorrowDateKey,
+} from '../services/plan-ahead-phase1.js';
+import { getReferralCode, getReferralShareUrl, shareReferral } from '../services/referral.js';
+import { referralCardHtml } from '../services/referral-ui.js';
 import {
   getNotifyPrefs,
   enableNotifications,
@@ -18,170 +76,535 @@ import {
   getScanBudget,
   scansLabel,
   scanPackPriceLabel,
+  planPriceLabel,
   startScanPackCheckout,
+  startPlanCheckout,
+  requestPlanChange,
+  openBillingPortal,
+  getPlan,
   syncScanStateFromProfile,
   usageMeterRemainingPercent,
+  refreshScanAllowanceFromCloud,
   getTopUpBalance,
   getDailyFreeCap,
+  getSubScanBalance,
+  getSubScansAllowance,
+  syncVoucherCreditsFromRedemption,
   planSummaryHtml,
   planBadgeLabel,
+  SUBSCRIPTION_PLAN_IDS,
+  isSubscriptionPlan,
+  hasActivePaidSubscription,
+  comparePlanChange,
+  canAccessAiTips,
+  canAccessReports,
+  canAccessMicroNutrients,
 } from '../services/subscription.js';
-import { PLANS, SCAN_PACKS, PAYG_PACK_ID, FREE_DAILY_SCANS } from '../services/plans.js';
+import { PLANS, SCAN_PACKS, PAYG_PACK_ID, FREE_DAILY_SCANS, isCreditSubscriptionPlan, isUnlimitedPlan, topUpCreditUsageNote } from '../services/plans.js';
+import { validateAndRedeemVoucher } from '../services/voucher.js';
 import { MONETIZATION_PAUSED } from '../monetization.js';
-import { activityOptions, estimateDailyCalories, suggestMacros } from '../services/calorie-wizard.js';
-import { openOnboardingWizard } from '../services/onboarding-wizard.js';
+import { activityOptions, estimateDailyCalories } from '../services/calorie-wizard.js';
+import { openOnboardingWizard, getWizardProfile } from '../services/onboarding-wizard.js';
+import { resolveBodyMetrics } from '../services/wizard-targets.js';
+import {
+  defaultRateIdForGoal,
+  resolveWeightChangeRate,
+  weightGoalRateSelectHtml,
+} from '../services/weight-goal-rates.js';
+import {
+  readSettingsWizardBody,
+  renderSettingsBodyFieldGroups,
+  settingsBodyMetricsHtml,
+  syncSettingsUnitButtons,
+} from '../services/body-metrics-units.js';
 import { exportUserDataJson, exportMealsCsv } from '../services/data-export.js';
 import { friendlyAuthError } from '../services/auth-errors.js';
+import { nativeAppUsesExternalWebBilling, openWebBilling } from '../services/billing-strategy.js';
 import { openLegalModal } from './legal.js';
 import { DISCLAIMERS, disclaimerBlock } from '../services/disclaimers.js';
+import { LEGAL_VERSION, APP_VERSION, SUPPORT_EMAIL } from '../services/legal-constants.js';
 import { deleteMyAccount } from '../services/account-delete.js';
+import { resetAppOnDevice } from '../services/app-reset.js';
 import { showSentryTestButton, sendSentryTestError } from '../services/sentry.js';
+import { ELIGIBILITY_DISCOUNT_PERCENT, getDiscountEligibility } from '../services/discount.js';
+import { isTrialActive, trialPlanLabel } from '../services/trial.js';
+import {
+  computeCreditAlerts,
+  getPrimaryCreditAlert,
+  usageStripAlertClass,
+  creditAlertsPlansHtml,
+  bindCreditAlertActions,
+  trialBannerExtraHtml,
+} from '../services/credit-alerts.js';
+import { BARCODE_COPY, DESCRIBE_COPY, FREEMIUM_TAGLINE } from '../services/product-copy.js';
+import { isDateInCalendarRange } from '../services/meal-calendar.js';
+import {
+  landingHeroSectionHtml,
+  landingTrustStripHtml,
+  landingProductDemoHtml,
+  landingGlobalMealsHtml,
+  landingAdvantagesHtml,
+  landingAccuracyHtml,
+  landingPlanCompareHtml,
+  landingDiscountStripHtml,
+  landingSocialProofHtml,
+  landingFaqHtml,
+  landingPrivacySupportHtml,
+  landingFinalCtaHtml,
+  guestLandingFooterHtml,
+  bindLandingMarketing,
+} from '../services/guest-marketing.js';
+import { renderProductFeaturesHtml } from '../services/product-features.js';
+import { partitionMealsByKind } from '../services/supplements.js';
+import { repairMisdatedMeals } from '../services/meal-date-repair.js';
+import { APP_NAME } from '../services/brand.js';
+import { openConfirmModal, openTypedConfirmModal } from '../services/confirm-modal.js';
+import { getOfflineQueueSummary, processOfflinePhotoQueue } from '../services/photo-offline-queue.js';
 
 const wizardActivities = activityOptions();
-let activeSettingsTab = 'targets';
-let passwordResetMode = false;
 
-/** Jump to a specific Goals tab. */
-export function setSettingsTab(tab) {
-  if (['targets', 'account', 'plans', 'alerts'].includes(tab)) {
-    activeSettingsTab = tab;
+function syncWizBodyFields(root, profile = getWizardProfile() || {}) {
+  renderSettingsBodyFieldGroups(root, profile);
+  syncSettingsUnitButtons(root, profile);
+}
+
+function syncWizGoalRateWrap(root) {
+  const goal = root.querySelector('#wizGoal')?.value || 'maintain';
+  const wrap = root.querySelector('#wizGoalRateWrap');
+  if (!wrap) return;
+  if (goal === 'maintain') {
+    wrap.hidden = true;
+    return;
   }
+  wrap.hidden = false;
+  const prev = root.querySelector('#wizGoalRate')?.value;
+  const rateId = prev && prev.startsWith(`${goal}_`) ? prev : defaultRateIdForGoal(goal);
+  wrap.innerHTML = weightGoalRateSelectHtml(goal, rateId, {
+    id: 'wizGoalRate',
+    className: 'settings-select full',
+    label: goal === 'lose' ? 'Lose weight at' : 'Gain weight at',
+  });
+}
+let mealDateRepairDone = false;
+
+async function ensureMealDatesRepaired() {
+  if (mealDateRepairDone) return;
+  mealDateRepairDone = true;
+  try {
+    const repaired = await repairMisdatedMeals();
+    if (repaired.length && isSupabaseConfigured()) {
+      const { pushMeal } = await import('../services/sync.js');
+      for (const meal of repaired) {
+        await pushMeal(meal).catch(() => {});
+      }
+    }
+  } catch (_) {}
 }
 
-/** Show the set-new-password form (after email reset link). */
-export function setPasswordResetMode(on = true) {
-  passwordResetMode = Boolean(on);
+const ICON_CAMERA = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`;
+const ICON_BARCODE = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M3 5v14"/><path d="M8 5v14"/><path d="M12 5v14"/><path d="M17 5v14"/><path d="M21 5v14"/></svg>`;
+const ICON_DESCRIBE = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>`;
+const ICON_PLATE = `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v2"/><path d="M12 19v2"/><path d="M3 12h2"/><path d="M19 12h2"/></svg>`;
+const ICON_EDIT = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+const ICON_DELETE = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
+const ICON_CHART = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 5-6"/></svg>`;
+
+/** Expand discount eligibility in Settings → Plans. */
+export function revealDiscountSection(root) {
+  const extras = root.querySelector('#plansExtrasDetails');
+  const discount = root.querySelector('#discountSection');
+  if (extras) extras.open = true;
+  if (discount) discount.open = true;
+  const pathFocus = getPendingDiscountPathFocus();
+  const focusId = pathFocus === 'senior'
+    ? '#discountSeniorCard'
+    : pathFocus === 'public'
+      ? '#discountPublicCard'
+      : '#discountPaths';
+  clearPendingDiscountPathFocus();
+  const target = root.querySelector(focusId) || root.querySelector('#discountSection');
+  target?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-export async function renderToday(root, { onLog, onRefresh, onReports, onSettings, profile, onSignIn }) {
-  const dateKey = todayKey();
-  const meals = await getMealsForDate(dateKey);
-  const totals = sumNutrition(meals);
+export async function renderToday(root, { onLog, onRefresh, onReports, onSettings, onCalendar, onSupplements, profile, onSignIn, showToast }) {
+  if (profile?.loggedIn) await ensureMealDatesRepaired();
+  const dateKey = getTodayViewDate();
+  const isGuest = !profile?.loggedIn;
+  const isViewingToday = dateKey === todayKey();
+  const isFutureDay = dateKey > todayKey();
+  const isPastDay = dateKey < todayKey();
+  const canLogThisDay = !isGuest;
+  let meals = await getMealsForDate(dateKey);
+  if (profile?.loggedIn && isSupabaseConfigured()) {
+    meals = await refreshMealPhotoUrls(meals);
+  }
+  const { food: foodMeals, supplements: supplementEntries } = partitionMealsByKind(meals);
+  const totals = sumNutrition(foodMeals);
   const goals = getGoals();
   const prefs = getUnitPrefs();
-  const calPct = goals.calories_kcal ? Math.min(100, (totals.calories_kcal / goals.calories_kcal) * 100) : 0;
-  const calLeftKcal = Math.max(0, (goals.calories_kcal || 0) - totals.calories_kcal);
-  const eaten = formatEnergyParts(totals.calories_kcal, prefs);
-  const left = formatEnergyParts(calLeftKcal, prefs);
+  const planId = profile?.loggedIn ? getPlan() : 'free';
+  const showMicros = profile?.loggedIn && canAccessMicroNutrients(planId);
 
-  const weekStart = new Date();
-  weekStart.setDate(weekStart.getDate() - 6);
-  const weekMeals = await getMealsInRange(todayKey(weekStart), dateKey);
-  const weeklyTip = topWeeklyInsight(weekMeals);
-  const cuisine = weekMeals.length ? await getCuisineTips(weekMeals) : { tips: [] };
+  const weekEnd = dateKey;
+  const weekStartDate = parseDateKey(weekEnd);
+  weekStartDate.setDate(weekStartDate.getDate() - 6);
+  const weekMeals = await getMealsInRange(todayKey(weekStartDate), weekEnd);
+  const weekStats = weekReport(weekMeals);
   const scanBudget = !MONETIZATION_PAUSED && profile?.loggedIn ? getScanBudget() : null;
-  const paygPack = SCAN_PACKS[PAYG_PACK_ID];
+  const creditAlerts = scanBudget ? computeCreditAlerts({ profile, budget: scanBudget }) : [];
+  const primaryCreditAlert = getPrimaryCreditAlert(creditAlerts);
+  const usageStripMod = !scanBudget?.allowed
+    ? 'usage-strip--limit'
+    : usageStripAlertClass(primaryCreditAlert);
+  const hasReports = profile?.loggedIn && canAccessReports(planId);
+  const weeklyTip = isViewingToday && hasReports ? topWeeklyInsight(weekMeals) : null;
+  const showWeeklyInsightTeaser = isViewingToday && profile?.loggedIn && !hasReports && weekMeals.length >= 2;
+  const consistencyStats = !isGuest && isViewingToday ? loggingConsistencyStats(weekMeals, dateKey) : null;
+  const consistencyHtml = consistencyStats ? consistencyStripHtml(consistencyStats) : '';
+  const scanMeterPct = scanBudget ? usageMeterRemainingPercent(planId) : 0;
+  const scanMeterValueText = scanBudget ? `${scansLabel()}, ${scanMeterPct}% of allowance remaining` : '';
+  const usageStripAlertRole = primaryCreditAlert?.tier >= 2 ? 'role="alert"' : '';
+  const cuisine = isViewingToday && weekMeals.length && canAccessAiTips(planId) ? await getCuisineTips(weekMeals) : { tips: [] };
+  const dayHeading = formatDayHeading(dateKey);
+  const mealsHeading = isViewingToday ? "Today's meals" : isFutureDay ? `Planned meals · ${dayHeading}` : `Meals · ${dayHeading}`;
+  let showPlanTomorrowCard = false;
+  if (PLAN_AHEAD_PHASE1_ENABLED && !isGuest && isViewingToday) {
+    const tomorrowMeals = await getMealsForDate(tomorrowDateKey());
+    const { food: tomorrowFoodMeals } = partitionMealsByKind(tomorrowMeals);
+    showPlanTomorrowCard = tomorrowFoodMeals.length === 0;
+  }
+  const duplicateAlerts = !isGuest && foodMeals.length > 1 ? findDuplicateAlertsForDay(foodMeals) : [];
+
+  let quickLogMeals = [];
+  if (!isGuest && canLogThisDay && isViewingToday) {
+    const historyStart = new Date();
+    historyStart.setDate(historyStart.getDate() - 89);
+    const historyMeals = await getMealsInRange(todayKey(historyStart), todayKey());
+    const usualMeals = getUsualMeals(historyMeals, { limit: 5, minCount: 2 });
+    const yesterdayMeals = getYesterdayMeals(historyMeals, dateKey, { limit: 4 });
+    quickLogMeals = mergeQuickLogMeals(usualMeals, yesterdayMeals, { limit: 6 });
+  }
+  const logAgainHtml = quickLogMeals.length ? logAgainSectionHtml(quickLogMeals, {
+    formatEnergy: (kcal) => formatEnergy(kcal, prefs),
+  }) : '';
+
+  const remainingCoach = (!isGuest && isViewingToday && foodMeals.length >= 1)
+    ? buildRemainingCoach({ totals, goals, mealCount: foodMeals.length })
+    : null;
+  const remainingCoachCard = remainingCoachHtml(remainingCoach);
+
+  const dayWrapUp = (!isGuest && isViewingToday && foodMeals.length >= 1
+    && shouldShowDayWrapUp({ mealCount: foodMeals.length })
+    && !isDayWrapUpDismissed(dateKey))
+    ? buildDayWrapUp({
+      todayMeals: foodMeals,
+      goals,
+      weekMeals,
+      displayName: profile?.displayName || '',
+      cuisineTip: cuisine,
+      canAccessCoach: canAccessAiTips(planId),
+    })
+    : null;
+  const dayWrapUpHtml = dayWrapUpCardHtml(dayWrapUp);
+
+  const habitScore = (!isGuest && isViewingToday && weekMeals.length)
+    ? buildWeeklyHabitScore(weekMeals, goals, dateKey)
+    : null;
+  const habitScoreCard = habitScoreHtml(habitScore);
+
+  const referralCode = profile?.loggedIn ? getReferralCode(profile.userId, profile.email || '') : '';
+  const referralShareUrl = referralCode ? getReferralShareUrl(referralCode) : '';
+  const referralHtml = (!isGuest && isViewingToday) ? referralCardHtml({ code: referralCode, shareUrl: referralShareUrl }) : '';
+
+  const offlineQueue = (!isGuest && isViewingToday) ? await getOfflineQueueSummary() : { total: 0, pending: 0, ready: 0, items: [] };
+  const offlineQueueBannerHtml = offlineQueueBanner(offlineQueue);
 
   root.innerHTML = `
-    ${!profile?.loggedIn ? `
-      <section class="guest-prompt card" aria-label="Create your account">
-        <p class="guest-prompt__lead">Sign in for ${PLANS.free.name} · unlimited barcode</p>
-        <div class="guest-prompt__actions">
-          <button type="button" class="btn btn-primary" id="guestGetStarted">Get started free</button>
-          <button type="button" class="btn btn-ghost" id="guestSignIn">Sign in</button>
-        </div>
-        <p class="guest-prompt__note">${isSupabaseConfigured() ? 'Sign in to use free barcode scan — always unlimited on your account.' : 'If sign-in fails, refresh after the latest app update.'}</p>
-      </section>
-    ` : ''}
-
-    ${scanBudget ? `
-    <section class="pro-banner ${!scanBudget.allowed ? 'pro-banner--limit' : ''}">
-      <div>
-        <strong>${scansLabel()}</strong>
-        <p>${PLANS.free.name} · resets at midnight${getTopUpBalance() ? ` · ${getTopUpBalance()} top-up credits saved` : ''}</p>
+    <div class="view-page view-page--today${isGuest ? ' view-page--guest' : ''}">
+      ${isGuest ? '' : `<h1 class="visually-hidden">${isViewingToday ? 'Today' : escapeHtml(dayHeading)}</h1>`}
+      <div class="view-page__toolbar">
+        ${scanBudget ? `
+        <section class="usage-strip ${usageStripMod}" aria-label="Scan allowance" ${usageStripAlertRole}>
+          <div class="usage-strip__main">
+            <div class="usage-strip__copy">
+              <strong>${scansLabel()}</strong>
+              <p>${planSummaryHtml()}</p>
+              ${primaryCreditAlert ? `<p class="usage-strip__alert-line"${primaryCreditAlert.tier >= 2 ? ' role="alert"' : ''}><strong>${escapeHtml(primaryCreditAlert.title)}</strong> — ${escapeHtml(primaryCreditAlert.body)}</p>` : ''}
+            </div>
+            ${!scanBudget.allowed
+              ? `<button type="button" class="btn btn-primary btn-sm" id="todayUpgrade">View plans</button>`
+              : `<button type="button" class="btn btn-ghost btn-sm" id="todayViewPlans">Plans</button>`}
+          </div>
+          <div class="usage-strip__meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${scanMeterPct}" aria-valuetext="${escapeAttr(scanMeterValueText)}" aria-label="Scans remaining">
+            <div class="usage-strip__meter-fill ${scanMeterPct <= 20 ? 'usage-strip__meter-fill--low' : ''}" style="width:${scanMeterPct}%"></div>
+          </div>
+        </section>
+        ` : ''}
+        ${consistencyHtml}
+        ${offlineQueueBannerHtml}
+        ${!isGuest && isFutureDay ? `
+          <section class="day-view-banner day-view-banner--plan muted-card" aria-live="polite">
+            <p>Planning for <strong>${escapeHtml(dayHeading)}</strong></p>
+            <button type="button" class="link-btn" id="dayBannerToday">Back to today</button>
+          </section>
+        ` : ''}
+        ${!isGuest && isPastDay ? `
+          <section class="day-view-banner muted-card" aria-live="polite">
+            <p>Viewing <strong>${escapeHtml(dayHeading)}</strong> · tap Log to add a meal.</p>
+            <button type="button" class="link-btn" id="dayBannerToday">Jump to today</button>
+          </section>
+        ` : ''}
       </div>
-      ${!scanBudget.allowed ? `<button type="button" class="btn btn-primary btn-sm" id="todayUpgrade">Top up</button>` : `<button type="button" class="btn btn-ghost btn-sm" id="todayViewPlans">View plans</button>`}
-    </section>
-    ` : ''}
 
-    <section class="home-free-perks card" aria-label="Free barcode logging">
-      <p class="home-free-perks__eyebrow">Free with sign-in · unlimited barcode scans</p>
-      <h3 class="home-free-perks__title">Got a barcode? You're done in seconds.</h3>
-      <p class="home-free-perks__body">Scan any packaged food — cereals, meal deals, snacks — and log accurate nutrition from the label.</p>
-      <button type="button" class="btn btn-ghost btn-sm full" id="homeLogPackagedBtn">${profile?.loggedIn ? 'Log packaged food →' : 'Sign in & scan barcode →'}</button>
-    </section>
-
-    <section class="home-hero" aria-label="NutriLog">
-      <p class="home-hero__steps">Snap · Analyse · Track</p>
-      <p class="home-hero__tagline">Eat smarter — it's that easy.</p>
-    </section>
-
-    <section class="card hero-card">
-      <div class="ring-wrap">
-        <svg class="progress-ring" viewBox="0 0 120 120" aria-hidden="true">
-          <circle class="ring-bg" cx="60" cy="60" r="52"/>
-          <circle class="ring-fg" cx="60" cy="60" r="52" style="stroke-dashoffset:${328 - (328 * calPct) / 100}"/>
-        </svg>
-        <div class="ring-label">
-          <span class="ring-value">${eaten.value}</span>
-          <span class="ring-unit">${eaten.unit}</span>
-          <span class="ring-goal">of ${formatEnergy(goals.calories_kcal, prefs)}</span>
-          <span class="ring-left">${left.value} ${left.unit} left</span>
-        </div>
+      ${isGuest ? `
+      <div class="view-page__guest-row view-page__guest-row--photo-first">
+      ${landingHeroSectionHtml()}
+      ${landingTrustStripHtml()}
+      ${landingProductDemoHtml()}
+      ${landingGlobalMealsHtml()}
+      ${landingAdvantagesHtml()}
+      ${landingAccuracyHtml()}
+      ${landingPlanCompareHtml()}
+      ${landingDiscountStripHtml()}
+      ${landingSocialProofHtml()}
+      ${landingFaqHtml()}
+      ${landingPrivacySupportHtml()}
+      ${landingFinalCtaHtml()}
+      ${guestLandingFooterHtml()}
       </div>
-      <div class="macro-row">
-        ${macroChip('Protein', totals.protein_g, goals.protein_g, 'g')}
-        ${macroChip('Carbs', totals.carbs_g, goals.carbs_g, 'g')}
-        ${macroChip('Fat', totals.fat_g, goals.fat_g, 'g')}
-      </div>
-      ${disclaimerBlock(DISCLAIMERS.nutritionEstimate, 'fine-print health-disclaimer health-disclaimer--inline')}
-    </section>
-
-    ${weeklyTip ? `
-      <section class="insight-card low insight-card--compact" id="weeklyTip">
-        <span class="insight-badge">↓ ${weeklyTip.label} ${weeklyTip.periodLabel || 'this week'}</span>
-        <p>${escapeHtml(weeklyTip.message)}</p>
-        ${weeklyTip.daysUnderTarget ? `<p class="insight-meta">${weeklyTip.daysUnderTarget} day(s) below target</p>` : ''}
-        <button type="button" class="btn btn-ghost btn-sm" id="viewReportsBtn">View full report →</button>
-        ${disclaimerBlock(DISCLAIMERS.goalInsights, 'fine-print health-disclaimer health-disclaimer--inline')}
-      </section>
-    ` : ''}
-
-    ${cuisine.tips?.length ? `
-      <section class="card tip-card">
-        <h2 class="card-title">🍽️ Coach tip for your meals</h2>
-        <article class="cuisine-tip">
-          <span class="cuisine-tag">${escapeHtml(cuisine.tips[0].cuisine || 'Tip')}</span>
-          <h3>${escapeHtml(cuisine.tips[0].title)}</h3>
-          <p>${escapeHtml(cuisine.tips[0].body)}</p>
-        </article>
-        ${cuisine.tips.length > 1 ? `<button type="button" class="btn btn-ghost btn-sm full" id="moreTipsBtn">More tips in Reports →</button>` : ''}
-        ${disclaimerBlock(DISCLAIMERS.aiCoach, 'fine-print health-disclaimer health-disclaimer--inline')}
-      </section>
-    ` : ''}
-
-    <section class="section">
-      <div class="section-head">
-        <h2>Today's meals</h2>
-        <span class="badge">${meals.length} logged</span>
-      </div>
-      ${meals.length === 0 ? `
-        <div class="empty-state">
-          <p>No meals yet today.</p>
-          <button type="button" class="btn btn-primary" id="emptyLogBtn">📷 Log your first meal</button>
-        </div>
       ` : `
-        <ul class="meal-list" id="mealList">
-          ${meals.map((m) => mealCard(m, prefs)).join('')}
-        </ul>
+      <div class="view-page__dashboard">
+        <aside class="view-page__aside">
+          ${!isGuest && canLogThisDay ? `
+            <section class="quick-actions" aria-label="Quick log">
+              <button type="button" class="quick-action quick-action--primary" id="quickLogPhoto">
+                <span class="quick-action__icon">${ICON_CAMERA}</span>
+                <span class="quick-action__text">
+                  <span class="quick-action__label">${isFutureDay ? 'Plan meal' : isPastDay ? 'Add meal' : 'Log meal'}</span>
+                  <span class="quick-action__hint">${isViewingToday ? 'Photo scan' : `For ${formatDayShort(dateKey)}`}</span>
+                </span>
+              </button>
+              <button type="button" class="quick-action" id="homeLogPackagedBtn">
+                <span class="quick-action__icon">${ICON_BARCODE}</span>
+                <span class="quick-action__text">
+                  <span class="quick-action__label">Barcode</span>
+                  <span class="quick-action__hint">${BARCODE_COPY.quickHint}</span>
+                </span>
+              </button>
+              <button type="button" class="quick-action" id="quickLogDescribe">
+                <span class="quick-action__icon">${ICON_DESCRIBE}</span>
+                <span class="quick-action__text">
+                  <span class="quick-action__label">Describe</span>
+                  <span class="quick-action__hint">${DESCRIBE_COPY.quickHint}</span>
+                </span>
+              </button>
+            </section>
+          ` : ''}
+
+          ${dayDashboardHtml({
+            dateKey,
+            totals,
+            goals,
+            prefs,
+            weekReport: weekStats,
+            showMicros,
+          })}
+
+          ${!isGuest && !showMicros ? microsTeaserHtml() : ''}
+
+          ${mealTypeBreakdownHtml(foodMeals, prefs)}
+
+          ${!isGuest ? `
+            <section class="supplements-teaser muted-card" aria-label="Supplement log">
+              <p class="supplements-teaser__text">${supplementEntries.length
+                ? `<strong>${supplementEntries.length}</strong> supplement${supplementEntries.length === 1 ? '' : 's'} logged ${isViewingToday ? 'today' : `on ${formatDayShort(dateKey)}`}`
+                : 'Supplements have their own tab'}</p>
+              <button type="button" class="btn btn-ghost btn-sm full" id="todayOpenSupplements">${supplementEntries.length ? 'Open supplement log →' : 'Go to Supplements tab'}</button>
+            </section>
+          ` : ''}
+
+          ${weeklyTip ? `
+            <section class="insight-card low insight-card--compact" id="weeklyTip">
+              <span class="insight-badge">↓ ${weeklyTip.label} ${weeklyTip.periodLabel || 'this week'}</span>
+              <p>${escapeHtml(weeklyTip.message)}</p>
+              ${weeklyTip.daysUnderTarget ? `<p class="insight-meta">${weeklyTip.daysUnderTarget} day(s) below target</p>` : ''}
+              <button type="button" class="btn btn-ghost btn-sm" id="viewReportsBtn">View full report →</button>
+              ${disclaimerBlock(DISCLAIMERS.goalInsights, 'fine-print health-disclaimer health-disclaimer--inline')}
+            </section>
+          ` : ''}
+
+          ${showWeeklyInsightTeaser ? weeklyInsightTeaserHtml() : ''}
+
+          ${cuisine.tips?.length ? `
+            <section class="card tip-card">
+              <h2 class="card-title">Coach tip for your meals</h2>
+              <article class="cuisine-tip">
+                <span class="cuisine-tag">${escapeHtml(cuisine.tips[0].cuisine || 'Tip')}</span>
+                <h3>${escapeHtml(cuisine.tips[0].title)}</h3>
+                <p>${escapeHtml(cuisine.tips[0].body)}</p>
+              </article>
+              ${cuisine.tips.length > 1 ? `<button type="button" class="btn btn-ghost btn-sm full" id="moreTipsBtn">More tips in Reports →</button>` : ''}
+              ${disclaimerBlock(DISCLAIMERS.aiCoach, 'fine-print health-disclaimer health-disclaimer--inline')}
+            </section>
+          ` : ''}
+        </aside>
+
+        <div class="view-page__main">
+          ${!isGuest ? dayDateNavHtml(dateKey, { showCalendarBtn: true }) : ''}
+          ${!isGuest && isViewingToday ? (
+            PLAN_AHEAD_PHASE1_ENABLED
+              ? (showPlanTomorrowCard ? planTomorrowCardHtml() : '')
+              : planAheadHintHtml({ variant: 'today' })
+          ) : ''}
+
+          ${remainingCoachCard}
+
+          ${dayWrapUpHtml}
+
+          ${habitScoreCard}
+
+          ${logAgainHtml}
+
+          ${referralHtml}
+
+          <section class="section section--meals">
+            <div class="section-head">
+              <h2>${mealsHeading}</h2>
+              <span class="badge">${foodMeals.length} logged</span>
+            </div>
+            ${duplicateAlerts.length ? duplicateAlerts.map((alert) => `
+              <section class="insight-card duplicate-day-alert" role="alert">
+                <span class="insight-badge">Possible duplicate</span>
+                <p>${escapeHtml(alert.detail)}</p>
+              </section>
+            `).join('') : ''}
+            ${foodMeals.length === 0 ? (
+              !isGuest && isFutureDay && PLAN_AHEAD_PHASE1_ENABLED
+                ? futureDayEmptyPlanHtml({ dayHeading })
+                : `
+              <div class="empty-state empty-state--meals">
+                <div class="empty-state__icon">${ICON_PLATE}</div>
+                <p class="empty-state__title">No meals logged yet</p>
+                <p class="empty-state__hint">${isGuest ? 'Create an account to start tracking today.' : isFutureDay ? 'Plan what you expect to eat — photo scan or barcode.' : 'Snap a photo or scan a barcode to log your first meal.'}</p>
+                <button type="button" class="btn btn-primary" id="emptyLogBtn">${isGuest ? 'Get started' : isFutureDay ? 'Plan a meal' : 'Log a meal'}</button>
+              </div>
+            `
+            ) : `
+              <ul class="meal-list" id="mealList">
+                ${foodMeals.map((m) => mealCard(m, prefs)).join('')}
+              </ul>
+            `}
+          </section>
+        </div>
+      </div>
       `}
-    </section>
+    </div>
   `;
 
-  root.querySelector('#emptyLogBtn')?.addEventListener('click', onLog);
-  root.querySelector('#guestGetStarted')?.addEventListener('click', () => onSignIn?.('signup'));
+  const openLogForViewDate = (mealType = null, focus = 'photo') => {
+    setLogTargetDate(dateKey);
+    if (mealType) requestLogMealType(mealType);
+    onLog?.(focus);
+  };
+
+  root.querySelector('#emptyLogBtn')?.addEventListener('click', () => {
+    if (isGuest && isSupabaseConfigured()) onSignIn?.('signup');
+    else openLogForViewDate();
+  });
+  root.querySelectorAll('[data-plan-meal-type]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      openLogForViewDate(btn.dataset.planMealType);
+    });
+  });
+  root.querySelector('#planTomorrowBtn')?.addEventListener('click', () => {
+    setTodayViewDate(tomorrowDateKey());
+    setLogTargetDate(tomorrowDateKey());
+    onLog?.('photo');
+  });
+  root.querySelector('#planTomorrowCalendarBtn')?.addEventListener('click', () => onCalendar?.());
+  root.querySelector('#quickLogPhoto')?.addEventListener('click', () => openLogForViewDate(null, 'photo'));
+  root.querySelector('#quickLogDescribe')?.addEventListener('click', () => {
+    trackDescribeLogStarted('today');
+    openLogForViewDate(null, 'describe');
+  });
+  root.querySelector('#todayOpenSupplements')?.addEventListener('click', () => onSupplements?.());
+  root.querySelectorAll('.js-guest-scan').forEach((btn) => {
+    btn.addEventListener('click', () => onSignIn?.('signup'));
+  });
   root.querySelector('#guestSignIn')?.addEventListener('click', () => onSignIn?.('signin'));
+  root.querySelector('#guestFooterSignIn')?.addEventListener('click', () => onSignIn?.('signin'));
+  if (isGuest) {
+    bindLandingMarketing(root, { onSignIn });
+    root.querySelectorAll('[data-legal]').forEach((btn) => {
+      btn.addEventListener('click', () => openLegalModal(btn.dataset.legal));
+    });
+  }
   root.querySelector('#homeLogPackagedBtn')?.addEventListener('click', () => {
     if (!profile?.loggedIn && isSupabaseConfigured()) onSignIn?.('signin');
-    else onLog?.();
+    else openLogForViewDate(null, 'barcode');
   });
   root.querySelector('#viewReportsBtn')?.addEventListener('click', () => onReports?.());
   root.querySelector('#moreTipsBtn')?.addEventListener('click', () => onReports?.());
+  root.querySelector('#microsTeaserPlans')?.addEventListener('click', () => onSettings?.('plans'));
+  root.querySelector('#weeklyInsightTeaserPlans')?.addEventListener('click', () => onSettings?.('plans'));
   root.querySelector('#todayUpgrade')?.addEventListener('click', () => onSettings?.('plans'));
   root.querySelector('#todayViewPlans')?.addEventListener('click', () => onSettings?.('plans'));
+  root.querySelector('#dayBannerToday')?.addEventListener('click', () => {
+    clearTodayViewDate();
+    onRefresh?.();
+  });
+  root.querySelector('[data-offline-resume]')?.addEventListener('click', (e) => {
+    resumeOfflinePhotoMeal(e.currentTarget.dataset.offlineResume);
+    onLog?.();
+  });
+  root.querySelector('#offlineQueueRetry')?.addEventListener('click', async () => {
+    showToast?.('Checking connection…');
+    const result = await processOfflinePhotoQueue();
+    if (result.ready > 0) {
+      showToast?.('Meal ready — tap Review meal', 5000);
+      onRefresh?.();
+      return;
+    }
+    if (result.failed > 0) {
+      showToast?.('Still offline — your photo stays saved', 5000);
+      return;
+    }
+    showToast?.('Nothing to analyse right now');
+  });
+  root.querySelector('#dayNavCalendar')?.addEventListener('click', () => onCalendar?.());
+  root.querySelector('#dayWrapUpDismiss')?.addEventListener('click', () => {
+    dismissDayWrapUp(dateKey);
+    document.getElementById('dayWrapUpCard')?.remove();
+  });
+  root.querySelector('#referFriendShareBtn')?.addEventListener('click', () => {
+    shareReferral({ code: referralCode, showToast });
+  });
+  root.querySelector('#referFriendCopyBtn')?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(referralShareUrl);
+      showToast?.('Invite link copied');
+    } catch {
+      showToast?.('Could not copy — select the link and copy manually');
+    }
+  });
+  if (!isGuest) {
+    bindDayDateNav(root, {
+      dateKey,
+      onDateChange: (nextKey) => {
+        setTodayViewDate(nextKey);
+        onRefresh?.();
+      },
+    });
+  }
   root.querySelectorAll('[data-delete]').forEach((btn) => {
     btn.addEventListener('click', async () => {
-      if (confirm('Remove this meal?')) {
+      const ok = await openConfirmModal({
+        title: 'Remove this meal?',
+        message: 'This cannot be undone.',
+        confirmLabel: 'Remove',
+        tone: 'danger',
+      });
+      if (ok) {
         await deleteMeal(btn.dataset.delete);
         onRefresh();
       }
@@ -189,28 +612,64 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
   });
   root.querySelectorAll('[data-edit]').forEach((btn) => {
     btn.addEventListener('click', async () => {
-      const meal = meals.find((m) => m.id === btn.dataset.edit);
+      const meal = foodMeals.find((m) => m.id === btn.dataset.edit);
       if (!meal) return;
       const updated = await openMealEditorModal(meal);
       if (updated) onRefresh();
     });
   });
+  root.querySelectorAll('.meal-thumb[data-photo-path]').forEach((img) => {
+    img.addEventListener('error', async () => {
+      const path = img.dataset.photoPath;
+      if (!path || img.dataset.retried === '1') return;
+      img.dataset.retried = '1';
+      const signed = await resolvePhotoUrlForMeal(img.dataset.mealId, path);
+      if (signed) img.src = signed;
+    });
+  });
+
+  root.querySelectorAll('[data-log-again]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const index = Number(btn.dataset.logAgain);
+      const entry = quickLogMeals[index];
+      if (!entry?.template) return;
+
+      btn.disabled = true;
+      try {
+        const payload = buildRepeatMealPayload(entry.template, dateKey);
+        const candidate = {
+          meal_summary: payload.meal_summary,
+          total_calories_kcal: payload.total_calories_kcal,
+          barcode: payload.barcode || null,
+        };
+        const duplicates = findPotentialDuplicates(candidate, foodMeals);
+        if (duplicates.length) {
+          const choice = await openDuplicateMealModal({
+            candidate: payload,
+            duplicates: duplicates.map((d) => d.meal),
+          });
+          if (choice !== 'save') return;
+        }
+
+        const saved = await saveMeal(payload);
+        if (saved?.cloudSynced === false && profile?.loggedIn) {
+          showToast?.('Logged on this device — sync will catch up shortly', 4000);
+        } else {
+          showToast?.('Logged again ✓');
+        }
+        onRefresh?.();
+      } catch (err) {
+        showToast?.(err?.message || 'Could not log meal', 4500);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  });
 }
 
 function mealTypeLabel(type) {
-  const map = { breakfast: '🌅 Breakfast', lunch: '☀️ Lunch', dinner: '🌙 Dinner', snack: '🍎 Snack' };
+  const map = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', snack: 'Snack' };
   return map[type] || '';
-}
-
-function macroChip(label, value, goal, unit) {
-  const pct = goal ? Math.round((value / goal) * 100) : 0;
-  return `
-    <div class="macro-chip">
-      <span class="macro-label">${label}</span>
-      <span class="macro-value">${Math.round(value)}${unit}</span>
-      <span class="macro-pct ${pct < 80 ? 'low' : ''}">${pct}%</span>
-    </div>
-  `;
 }
 
 function mealCard(meal, prefs = getUnitPrefs()) {
@@ -218,7 +677,9 @@ function mealCard(meal, prefs = getUnitPrefs()) {
   const type = mealTypeLabel(meal.meal_type);
   return `
     <li class="meal-card">
-      ${meal.photoDataUrl ? `<img src="${meal.photoDataUrl}" alt="" class="meal-thumb"/>` : '<div class="meal-thumb meal-thumb--placeholder">🍽️</div>'}
+      ${meal.photoDataUrl || meal.photo_path
+    ? `<img src="${meal.photoDataUrl || ''}" alt="" class="meal-thumb" data-meal-id="${meal.id}" data-photo-path="${escapeHtml(meal.photo_path || '')}"/>`
+    : `<div class="meal-thumb meal-thumb--placeholder">${ICON_PLATE}</div>`}
       <div class="meal-body">
         <h3>${type ? `<span class="meal-type">${type}</span> ` : ''}${escapeHtml(meal.meal_summary || 'Meal')}</h3>
         <p class="meal-meta">${formatEnergy(meal.total_calories_kcal || 0, prefs)} · P ${Math.round(n.protein_g || 0)}g · C ${Math.round(n.carbs_g || 0)}g · F ${Math.round(n.fat_g || 0)}g</p>
@@ -226,19 +687,21 @@ function mealCard(meal, prefs = getUnitPrefs()) {
         ${meal.items?.length ? `<p class="meal-items">${meal.items.map((i) => escapeHtml(i.name)).join(', ')}</p>` : ''}
       </div>
       <div class="meal-actions">
-        <button type="button" class="icon-btn icon-btn--edit" data-edit="${meal.id}" aria-label="Edit meal">✎</button>
-        <button type="button" class="icon-btn" data-delete="${meal.id}" aria-label="Delete meal">✕</button>
+        <button type="button" class="icon-btn icon-btn--edit" data-edit="${meal.id}" aria-label="Edit meal">${ICON_EDIT}</button>
+        <button type="button" class="icon-btn icon-btn--danger" data-delete="${meal.id}" aria-label="Delete meal">${ICON_DELETE}</button>
       </div>
     </li>
   `;
 }
 
 export async function renderSettings(root, { onSave, onGoToday, showToast, profile: profileIn, onSignIn }) {
+  let activeSettingsTab = getSettingsTab();
   const goals = getGoals();
   const prefs = getUnitPrefs();
   const notifyPrefs = getNotifyPrefs();
   const profile = profileIn || await getProfile();
-  const user = profile.loggedIn ? await getUser() : null;
+  const session = await getSession();
+  const user = session?.user ?? (profile.loggedIn ? await getUser() : null);
   const cloudReady = isSupabaseConfigured();
   const notifySupported = isNotificationSupported();
   const displayName = profile.displayName || '';
@@ -248,7 +711,10 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
   weekStart.setDate(weekStart.getDate() - 6);
   const weekMeals = await getMealsInRange(todayKey(weekStart), end);
   const todayMeals = await getMealsForDate(end);
-  const cuisine = weekMeals.length ? await getCuisineTips(weekMeals) : null;
+  let cuisine = null;
+  if (weekMeals.length && canAccessAiTips()) {
+    cuisine = await getCuisineTips(weekMeals);
+  }
 
   let weeklyPreview;
   let dailyPreview;
@@ -265,26 +731,38 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
 
   const initials = (displayName || user?.email || '?').charAt(0).toUpperCase();
   const showPasswordReset =
-    passwordResetMode || new URLSearchParams(window.location.search).get('reset') === '1';
+    isPasswordResetMode() || new URLSearchParams(window.location.search).get('reset') === '1';
+  const recoveryReady = showPasswordReset && Boolean(user);
+  const recoveryPending = showPasswordReset && !user;
   if (profile?.loggedIn) syncScanStateFromProfile(profile);
   const paygPack = SCAN_PACKS[PAYG_PACK_ID];
+  const currentPlan = profile?.loggedIn ? getPlan() : 'free';
+  const settingsCreditAlerts = profile?.loggedIn && !MONETIZATION_PAUSED
+    ? computeCreditAlerts({ profile, budget: getScanBudget(currentPlan) })
+    : [];
+  const accountEmail = profile.email || user?.email || '';
+  const discount = getDiscountEligibility(profile, accountEmail);
+  const wizardProfile = getWizardProfile() || {};
+  const wizGoal = wizardProfile.weightGoal || 'maintain';
+  const wizRateId = wizardProfile.weightChangeRateId || defaultRateIdForGoal(wizGoal);
 
   root.innerHTML = `
     <div class="settings-screen">
       <header class="settings-header">
-        <h2 class="settings-title">Goals &amp; settings</h2>
+        <h1 class="settings-title">Goals &amp; settings</h1>
         <p class="settings-subtitle">Targets, account, plans, and alerts</p>
       </header>
 
-      <nav class="settings-tabs tab-bar" aria-label="Settings sections">
-        ${settingsTab('targets', '🎯 Targets', activeSettingsTab)}
-        ${settingsTab('account', '👤 Account', activeSettingsTab)}
-        ${settingsTab('plans', '⭐ Plans', activeSettingsTab)}
-        ${settingsTab('alerts', '🔔 Alerts', activeSettingsTab)}
+      <nav class="settings-tabs tab-bar" role="tablist" aria-label="Settings sections">
+        ${settingsTab('targets', 'Targets', activeSettingsTab)}
+        ${settingsTab('account', 'Account', activeSettingsTab)}
+        ${settingsTab('plans', 'Plans', activeSettingsTab)}
+        ${settingsTab('alerts', 'Alerts', activeSettingsTab)}
       </nav>
 
       <div class="settings-panels">
-        <section class="settings-panel card" data-panel="targets" ${panelHidden('targets', activeSettingsTab)}>
+        <section class="settings-panel card" role="tabpanel" id="settingsPanel-targets" aria-labelledby="settingsTab-targets" data-panel="targets" ${panelHidden('targets', activeSettingsTab)}>
+          ${profile?.loggedIn ? `
           <form id="goalsForm">
             <p class="card-desc fine-print">${DISCLAIMERS.wellnessTargets}</p>
 
@@ -303,16 +781,9 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
                   </label>
                   <label class="field">
                     <span>Age</span>
-                    <input type="number" id="wizAge" min="16" max="100" inputmode="numeric" placeholder="e.g. 35"/>
+                    <input type="number" id="wizAge" min="16" max="100" inputmode="numeric" placeholder="e.g. 35" value="${escapeHtml(wizardProfile.age || '')}" required/>
                   </label>
-                  <label class="field">
-                    <span>Weight (kg)</span>
-                    <input type="number" id="wizWeight" min="30" max="300" step="0.1" inputmode="decimal" placeholder="e.g. 72"/>
-                  </label>
-                  <label class="field">
-                    <span>Height (cm)</span>
-                    <input type="number" id="wizHeight" min="120" max="230" inputmode="numeric" placeholder="e.g. 168"/>
-                  </label>
+                  ${settingsBodyMetricsHtml(wizardProfile)}
                   <label class="field full">
                     <span>Activity</span>
                     <select id="wizActivity" class="settings-select full">
@@ -322,11 +793,18 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
                   <label class="field full">
                     <span>Weight goal</span>
                     <select id="wizGoal" class="settings-select full">
-                      <option value="lose">Lose weight (~500 kcal below maintenance)</option>
-                      <option value="maintain" selected>Maintain weight</option>
-                      <option value="gain">Gain weight (~275 kcal above maintenance)</option>
+                      <option value="lose" ${wizGoal === 'lose' ? 'selected' : ''}>Lose weight</option>
+                      <option value="maintain" ${wizGoal === 'maintain' ? 'selected' : ''}>Maintain weight</option>
+                      <option value="gain" ${wizGoal === 'gain' ? 'selected' : ''}>Gain weight</option>
                     </select>
                   </label>
+                  <div id="wizGoalRateWrap" ${wizGoal === 'maintain' ? 'hidden' : ''}>
+                    ${weightGoalRateSelectHtml(wizGoal, wizRateId, {
+                      id: 'wizGoalRate',
+                      className: 'settings-select full',
+                      label: wizGoal === 'lose' ? 'Lose weight at' : 'Gain weight at',
+                    })}
+                  </div>
                 </div>
                 <button type="button" class="btn btn-ghost full" id="applyCalorieEstimate">Calculate &amp; apply to targets</button>
                 <p class="fine-print" id="calorieEstimateResult" hidden></p>
@@ -351,11 +829,13 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
             </div>
 
             <p class="settings-group-label">Daily limits</p>
+            <p class="fine-print health-disclaimer">${DISCLAIMERS.nutrientTargetsShort}</p>
             <div class="goal-limits-grid">
               ${goalField('fibre_g', 'Fibre min (g)', goals.fibre_g)}
-              ${goalField('sugar_g', 'Sugar max (g)', goals.sugar_g)}
-              ${goalField('salt_mg', 'Salt max (mg)', goals.salt_mg)}
+              ${goalField('sugar_g', 'Total sugars max (g)', goals.sugar_g)}
+              ${goalField('salt_mg', 'Salt max (mg · ~6 g/day)', goals.salt_mg)}
             </div>
+            <p class="fine-print">Barcode sodium is converted to salt (×2.5). Sugar totals include natural and added sugars — NHS free-sugar guidance is about 30g/day for adults.</p>
 
             <div class="settings-row">
               <span>Display energy as</span>
@@ -371,9 +851,19 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
               <button type="submit" class="btn btn-primary">Save goals</button>
             </div>
           </form>
+          ` : `
+          <div class="guest-prompt">
+            <p class="guest-prompt__lead">Sign in to set and save your daily nutrition targets.</p>
+            <div class="guest-prompt__actions settings-auth-cta">
+              <button type="button" class="btn btn-primary full" id="targetsGetStarted">Create free account</button>
+              <button type="button" class="btn btn-ghost full" id="targetsSignIn">Sign in</button>
+            </div>
+            <p class="guest-prompt__note">${BARCODE_COPY.authFine}</p>
+          </div>
+          `}
         </section>
 
-        <section class="settings-panel card" data-panel="account" ${panelHidden('account', activeSettingsTab)}>
+        <section class="settings-panel card" role="tabpanel" id="settingsPanel-account" aria-labelledby="settingsTab-account" data-panel="account" ${panelHidden('account', activeSettingsTab)}>
           <div class="account-card">
             <div class="account-avatar" aria-hidden="true">${escapeHtml(initials)}</div>
             <div class="account-card-body">
@@ -384,10 +874,10 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
 
           ${!cloudReady ? `
             <p class="card-desc">Cloud login is not configured on this site build. Contact support if this persists after an update.</p>
-          ` : user ? `
-            ${showPasswordReset ? `
-              <p class="settings-group-label">Set new password</p>
-              <p class="fine-print">Choose a new password for your account.</p>
+          ` : recoveryReady ? `
+            <section class="password-reset-panel card muted-card" aria-labelledby="passwordResetTitle">
+              <h3 class="settings-panel-title" id="passwordResetTitle">Set a new password</h3>
+              <p class="card-desc">You opened a secure link from your email. Choose a new password for ${escapeHtml(user.email || 'your account')}.</p>
               <form id="newPasswordForm" class="auth-form settings-form-compact">
                 <label class="field full">
                   <span>New password</span>
@@ -395,7 +885,21 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
                 </label>
                 <button type="submit" class="btn btn-primary full">Save new password</button>
               </form>
-            ` : ''}
+            </section>
+          ` : recoveryPending ? `
+            <section class="password-reset-panel card muted-card" aria-labelledby="passwordResetExpiredTitle">
+              <h3 class="settings-panel-title" id="passwordResetExpiredTitle">Reset link expired</h3>
+              <p class="card-desc">This password reset link is invalid or has already been used. Request a fresh link and open it on this device.</p>
+              <form id="requestResetForm" class="auth-form settings-form-compact">
+                <label class="field full">
+                  <span>Email</span>
+                  <input type="email" name="email" id="requestResetEmail" required autocomplete="email" inputmode="email" placeholder="you@email.com"/>
+                </label>
+                <button type="submit" class="btn btn-primary full">Email me a new reset link</button>
+              </form>
+              <p class="fine-print">Already know your password? <button type="button" class="link-btn" id="settingsSignIn">Sign in</button></p>
+            </section>
+          ` : user ? `
             <p class="settings-group-label">First name</p>
             <p class="fine-print">Used in your greeting and reports.</p>
             <form id="nameForm" class="auth-form settings-form-compact">
@@ -416,19 +920,29 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
             </div>
           ` : `
             <p class="settings-group-label">Create account or sign in</p>
-            <p class="fine-print">Free to start. Your meals sync securely to the cloud when signed in.</p>
-            <div class="guest-prompt__actions settings-auth-cta">
-              <button type="button" class="btn btn-primary full" id="settingsGetStarted">Create free account</button>
-              <button type="button" class="btn btn-ghost full" id="settingsSignIn">Sign in</button>
+            <div class="guest-prompt">
+              <p class="guest-prompt__lead">Free to start. Your meals sync securely to the cloud when signed in.</p>
+              <div class="guest-prompt__actions settings-auth-cta">
+                <button type="button" class="btn btn-primary full" id="settingsGetStarted">Create free account</button>
+                <button type="button" class="btn btn-ghost full" id="settingsSignIn">Sign in</button>
+              </div>
+              <p class="guest-prompt__note">${BARCODE_COPY.authFine}</p>
             </div>
           `}
 
           <p class="settings-group-label">Privacy &amp; data</p>
           <div class="settings-list settings-list--stack">
+            ${profile?.loggedIn ? `
             <button type="button" class="btn btn-ghost full" id="exportJsonBtn">Download my data (JSON)</button>
             <button type="button" class="btn btn-ghost full" id="exportCsvBtn">Download meals (CSV)</button>
+            <p class="fine-print">Exports meals saved on this device. Sync first if you need the latest from the cloud.</p>
+            ` : `
+            <p class="fine-print">Sign in to download your data (JSON or CSV).</p>
+            `}
             <button type="button" class="btn btn-ghost full" id="privacyBtn">Privacy policy</button>
             <button type="button" class="btn btn-ghost full" id="termsBtn">Terms of use</button>
+            <button type="button" class="btn btn-ghost full settings-btn-danger" id="resetAppBtn">Reset app on this device</button>
+            <p class="fine-print">Clears local meals, goals, onboarding, and cached sign-in on this phone or browser. Does not delete your cloud account. Try this if signup or the app feels stuck.</p>
             ${showSentryTestButton() ? `
               <button type="button" class="btn btn-ghost full" id="sentryTestBtn">Test Sentry</button>
               <p class="fine-print">Sends a test error to your Sentry dashboard — safe to ignore there.</p>
@@ -436,68 +950,123 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
           </div>
         </section>
 
-        <section class="settings-panel card" data-panel="plans" ${panelHidden('plans', activeSettingsTab)}>
+        <section class="settings-panel card plans-page" role="tabpanel" id="settingsPanel-plans" aria-labelledby="settingsTab-plans" data-panel="plans" ${panelHidden('plans', activeSettingsTab)}>
           <div class="settings-panel-head">
             <h3 class="settings-panel-title">Plans</h3>
-            <span class="settings-badge">${planBadgeLabel()}</span>
+            <span class="settings-badge">${planBadgeLabel(currentPlan)}</span>
           </div>
-          <p class="settings-panel-lead">Barcode logging is always free when signed in. Meal scans use your Daily Free Scan first, then top-up credits when those run out.</p>
+          <p class="settings-panel-lead plans-page__lead">Free, Plus or Pro for photo scans — Essential if you need fewer scans. Barcode, search and Describe stay free.</p>
 
-          ${profile.loggedIn ? `
-          <div class="plan-current-summary">
-            <p class="plan-current-summary__label">Your allowance</p>
-            <p class="card-desc">${planSummaryHtml()}</p>
+          ${profile.loggedIn && isTrialActive(profile) ? `
+          <div class="plans-status-banner plans-status-banner--trial" role="status">
+            <strong>Trial active</strong> — ${escapeHtml(trialPlanLabel(profile))}${escapeHtml(trialBannerExtraHtml(profile))}
           </div>
+          ` : ''}
 
-          <div class="usage-meter-wrap">
-            <div class="usage-meter-head">
-              <span>Today</span>
-              <span>${getScanBudget().dailyFreeRemaining}/${getDailyFreeCap()} free · ${getTopUpBalance()} credits saved</span>
-            </div>
-            <div class="usage-meter-track" aria-hidden="true">
-              <div class="usage-meter-fill" style="width:${usageMeterRemainingPercent()}%"></div>
-            </div>
-            <p class="fine-print">Daily Free Scan resets at midnight (12:00 AM) · Top-up credits never expire until used</p>
+          ${creditAlertsPlansHtml(settingsCreditAlerts)}
+
+          ${profile.loggedIn && currentPlan === 'free' && getTopUpBalance() > 0 ? `
+          <div class="plans-status-banner plans-status-banner--topup" role="status">
+            <strong>Bonus scans</strong> — ${getTopUpBalance()} top-up credit${getTopUpBalance() === 1 ? '' : 's'} on your account
           </div>
-          ` : `
-          <p class="card-desc">Sign in to get ${PLANS.free.name} — ${FREE_DAILY_SCANS} scan per day, resetting at midnight.</p>
-          <button type="button" class="btn btn-primary full" id="plansSignInBtn">Sign in</button>
+          ` : ''}
+
+          ${profile.loggedIn ? plansStatusCardHtml(currentPlan) : `
+          <p class="plans-guest-lead">${PLANS.free.name} — ${FREE_DAILY_SCANS} AI photo scan per day. ${BARCODE_COPY.short}.</p>
           `}
 
-          <div class="plan-pricing-grid">
-            <article class="plan-card plan-card--active plan-card--solo">
-              <span class="plan-featured-tag">Included</span>
-              <h3>${PLANS.free.name}</h3>
-              <p class="plan-tagline">${PLANS.free.tagline}</p>
-              <p class="plan-price">Free</p>
-              <ul class="plan-features-list">
-                ${PLANS.free.bullets.map((b) => `<li>${escapeHtml(b)}</li>`).join('')}
-              </ul>
-              ${profile.loggedIn ? '<p class="plan-current-tag">Active on your account</p>' : ''}
-            </article>
-
-            <article class="scan-pack-card scan-pack-card--featured">
-              <h3>${paygPack.name}</h3>
-              <p class="plan-tagline">${paygPack.tagline}</p>
-              <p class="plan-price">${scanPackPriceLabel(PAYG_PACK_ID, profile, profile.email || user?.email || '')}</p>
-              <ul class="plan-features-list plan-features-list--compact">
-                ${paygPack.bullets.map((b) => `<li>${escapeHtml(b)}</li>`).join('')}
-              </ul>
-              ${profile.loggedIn ? `
-                <button type="button" class="btn btn-primary full" data-pack="${PAYG_PACK_ID}">Top up 100 credits</button>
-              ` : `
-                <button type="button" class="btn btn-ghost full" id="plansSignInPaygBtn">Sign in to buy</button>
-              `}
-            </article>
+          <div class="plans-discount-pill ${discount.eligible ? 'plans-discount-pill--active' : ''}" role="note">
+            <span class="plans-discount-pill__badge">${ELIGIBILITY_DISCOUNT_PERCENT}% off</span>
+            <span class="plans-discount-pill__text">NHS work email or 60+ — ${ELIGIBILITY_DISCOUNT_PERCENT}% off</span>
+            ${discount.eligible
+              ? `<span class="plans-discount-pill__status">Applied to prices below</span>`
+              : profile.loggedIn
+                ? `<button type="button" class="link-btn" id="openDiscountSection">See if you qualify →</button>`
+                : `<span class="plans-discount-pill__hint">Sign in to apply</span>`}
           </div>
+
+          ${nativeAppUsesExternalWebBilling() && profile.loggedIn ? `
+          <div class="native-billing-banner muted-card">
+            <p><strong>Subscriptions &amp; top-ups</strong> are completed on our website (Stripe). Sign in with the same email. When you return to the app, your plan syncs automatically.</p>
+            <button type="button" class="btn btn-primary full" id="openWebPlansBtn">Open plans on web</button>
+          </div>
+          ` : ''}
+
+          <div class="plans-page__pricing" id="plansPricing">
+            <div class="plans-free-chip" role="note">
+              <span class="plans-free-chip__label">Always free</span>
+              <span class="plans-free-chip__text">${FREEMIUM_TAGLINE}</span>
+            </div>
+
+            <div class="plan-subscription-block plan-subscription-block--primary">
+              <p class="settings-group-label">Subscription plans</p>
+              <p class="plan-carousel-hint" aria-hidden="true">Swipe to compare →</p>
+              <div class="plan-carousel-wrap">
+                <div class="plan-pricing-grid plan-pricing-grid--subs">
+                  ${SUBSCRIPTION_PLAN_IDS.map((planId) => subscriptionPlanCard(planId, currentPlan, profile, user)).join('')}
+                </div>
+              </div>
+            </div>
+
+            <div class="plan-subscription-block plan-subscription-block--topup">
+              <p class="settings-group-label">Top up anytime</p>
+              <div class="plan-topup-wrap">
+                ${topUpPlanCard(currentPlan, profile, user, paygPack)}
+              </div>
+            </div>
+          </div>
+
+          ${renderProductFeaturesHtml({ variant: 'settings', showDisclaimer: false })}
+
+          ${profile.loggedIn ? `
+          <details class="settings-details plans-extras-details" id="plansExtrasDetails">
+            <summary>Promo code &amp; billing</summary>
+            <div class="settings-details-body plans-extras-details__body">
+              <form class="voucher-form" id="promoCodeForm">
+                <label class="field full">
+                  <span>Promo code</span>
+                  <div class="settings-action-row">
+                    <input type="text" id="promoCodeInput" class="full" placeholder="e.g. VIP100" autocomplete="off" maxlength="40"/>
+                    <button type="submit" class="btn btn-ghost" id="promoCodeApplyBtn">Apply</button>
+                  </div>
+                </label>
+                <p class="fine-print">Sign in with a confirmed email before applying. <strong>VIP100</strong> adds 100 bonus AI meal scans to your account.</p>
+              </form>
+
+              <details class="settings-details settings-details--nested" id="discountSection">
+                <summary>Discount eligibility — NHS / public sector or 60+</summary>
+                <div class="settings-details-body">
+                  ${discountEligibilitySettingsHtml({ profile, accountEmail, discount })}
+                </div>
+              </details>
+
+              <p class="fine-print plan-billing-note">Subscription scans reset each billing period — unused allowance does not carry over. Top-up credits never expire until used.</p>
+
+              ${isSubscriptionPlan(currentPlan) ? `
+                <button type="button" class="btn btn-ghost full" id="manageSubscriptionBtn">${nativeAppUsesExternalWebBilling() ? 'Manage subscription on web' : 'Manage or cancel subscription'}</button>
+                <p class="fine-print">${nativeAppUsesExternalWebBilling() ? 'Cancel or update payment on our website — access continues until the end of your billing period.' : 'Cancel anytime — you keep access until the end of your billing period.'}</p>
+              ` : ''}
+            </div>
+          </details>
+          ` : `
+          <p class="plans-guest-signin fine-print">
+            Already have an account?
+            <button type="button" class="link-btn" id="plansSignInLink">Sign in</button>
+          </p>
+          `}
+
+          <p class="plans-trust-row" aria-label="Payment security">
+            <svg class="plans-trust-row__icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Secure checkout by Stripe · Cancel anytime · Prices in GBP
+          </p>
         </section>
 
-        <section class="settings-panel card" data-panel="alerts" ${panelHidden('alerts', activeSettingsTab)}>
+        <section class="settings-panel card" role="tabpanel" id="settingsPanel-alerts" aria-labelledby="settingsTab-alerts" data-panel="alerts" ${panelHidden('alerts', activeSettingsTab)}>
           <h3 class="settings-panel-title">Notifications</h3>
           ${!notifySupported ? `
             <p class="card-desc">Notifications are not supported in this browser.</p>
           ` : `
-            <p class="card-desc">Reminders when you open NutriLog, plus push alerts when your browser allows them.</p>
+            <p class="card-desc">Reminders when you open ${APP_NAME}, plus push alerts when your browser allows them.</p>
             <div class="settings-list">
               <label class="settings-row settings-row--toggle">
                 <span>Enable notifications</span>
@@ -508,6 +1077,22 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
                 <input type="time" id="reminderTime" class="settings-time" value="${String(notifyPrefs.reminderHour).padStart(2, '0')}:${String(notifyPrefs.reminderMinute).padStart(2, '0')}"/>
               </label>
             </div>
+            <p class="fine-print settings-panel-title">Scan allowance alerts</p>
+            <p class="fine-print">Shown when you open ${APP_NAME}. Background push needs notification permission above.</p>
+            <div class="settings-list">
+              <label class="settings-row settings-row--toggle">
+                <span>Credits expiring soon</span>
+                <input type="checkbox" id="creditExpiryToggle" ${notifyPrefs.creditExpiryEnabled !== false ? 'checked' : ''}/>
+              </label>
+              <label class="settings-row settings-row--toggle">
+                <span>Trial ending soon</span>
+                <input type="checkbox" id="creditTrialToggle" ${notifyPrefs.creditTrialEnabled !== false ? 'checked' : ''}/>
+              </label>
+              <label class="settings-row settings-row--toggle">
+                <span>Low scan balance (≤5 left)</span>
+                <input type="checkbox" id="creditLowToggle" ${notifyPrefs.creditLowEnabled ? 'checked' : ''}/>
+              </label>
+            </div>
             <p class="fine-print">Daily reminders run when the app is open. Background push needs permission and a supported browser.</p>
 
             <details class="settings-details">
@@ -516,23 +1101,41 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
                 <p class="fine-print">Based on ${previewNote}.</p>
                 ${notifyPreviewCard('Weekly digest (Monday)', weeklyPreview)}
                 ${notifyPreviewCard('Daily reminder', dailyPreview)}
+                ${notifyPreviewCard('Scan allowance alert', { title: '3 scans left', body: 'This will use 1 of your 3 remaining scans. Barcode and describe logging stay free.' })}
               </div>
             </details>
           `}
         </section>
       </div>
+
+      <footer class="settings-footer" aria-label="Support and legal">
+        <p class="settings-footer__support">
+          Questions or data requests?
+          <a href="mailto:${escapeHtml(SUPPORT_EMAIL)}">${escapeHtml(SUPPORT_EMAIL)}</a>
+        </p>
+        <p class="settings-footer__meta fine-print">
+          <button type="button" class="link-btn" data-settings-legal="privacy">Privacy</button>
+          ·
+          <button type="button" class="link-btn" data-settings-legal="terms">Terms</button>
+          · ${APP_NAME} v${APP_VERSION} · Policy ${LEGAL_VERSION}
+        </p>
+      </footer>
     </div>
   `;
 
   root.querySelectorAll('.settings-tab').forEach((btn) => {
     btn.addEventListener('click', () => {
       activeSettingsTab = btn.dataset.tab;
+      setSettingsTab(activeSettingsTab);
       root.querySelectorAll('.settings-tab').forEach((b) => {
-        b.classList.toggle('active', b.dataset.tab === activeSettingsTab);
+        const selected = b.dataset.tab === activeSettingsTab;
+        b.classList.toggle('active', selected);
+        b.setAttribute('aria-selected', selected ? 'true' : 'false');
       });
       root.querySelectorAll('.settings-panel').forEach((panel) => {
         panel.hidden = panel.dataset.panel !== activeSettingsTab;
       });
+      btn.focus();
     });
   });
 
@@ -562,12 +1165,16 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
     }
     try {
       saveGoals(next);
+      const user = await getUser();
+      if (user?.id) setGoalsOwnerId(user.id);
       saveUnitPrefs({ energy: fd.get('energy') || getUnitPrefs().energy });
       try {
         const { syncGoalsToCloud } = await import('../services/sync.js');
         await syncGoalsToCloud();
-      } catch (_) {}
-      showToast?.('Goals saved');
+        showToast?.('Goals saved');
+      } catch (syncErr) {
+        showToast?.('Saved on this device — cloud sync failed, try Sync now in Settings');
+      }
       onSave();
       onGoToday?.();
     } finally {
@@ -578,44 +1185,77 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
     }
   });
 
-  root.querySelector('#resetGoals')?.addEventListener('click', () => {
+  root.querySelector('#resetGoals')?.addEventListener('click', async () => {
     saveGoals(DEFAULT_GOALS);
-    showToast?.('Goals reset to defaults');
+    try {
+      const { syncGoalsToCloud } = await import('../services/sync.js');
+      await syncGoalsToCloud();
+      showToast?.('Goals reset to defaults');
+    } catch (_) {
+      showToast?.('Reset locally — cloud sync failed, try Sync now in Settings');
+    }
     onSave();
   });
 
   root.querySelector('#runOnboardingWizard')?.addEventListener('click', async () => {
-    await openOnboardingWizard({ onComplete: () => onSave() });
+    await openOnboardingWizard({ showToast, force: true });
+    onSave();
+  });
+
+  root.querySelector('#wizGoal')?.addEventListener('change', () => syncWizGoalRateWrap(root));
+
+  root.addEventListener('click', (event) => {
+    const heightBtn = event.target.closest('[data-wiz-height-unit]');
+    if (heightBtn) {
+      const body = readSettingsWizardBody(root, getWizardProfile() || {});
+      body.heightUnit = heightBtn.dataset.wizHeightUnit;
+      syncWizBodyFields(root, body);
+      return;
+    }
+    const weightBtn = event.target.closest('[data-wiz-weight-unit]');
+    if (weightBtn) {
+      const body = readSettingsWizardBody(root, getWizardProfile() || {});
+      body.weightUnit = weightBtn.dataset.wizWeightUnit;
+      syncWizBodyFields(root, body);
+    }
   });
 
   root.querySelector('#applyCalorieEstimate')?.addEventListener('click', () => {
     const form = root.querySelector('#goalsForm');
     const resultEl = root.querySelector('#calorieEstimateResult');
     try {
+      const bodyState = readSettingsWizardBody(root, getWizardProfile() || {});
+      bodyState.sex = root.querySelector('#wizSex')?.value;
+      bodyState.age = root.querySelector('#wizAge')?.value;
+      const metrics = resolveBodyMetrics(bodyState, { strict: true });
+      const weightGoal = root.querySelector('#wizGoal')?.value;
+      const rate = resolveWeightChangeRate(weightGoal, root.querySelector('#wizGoalRate')?.value);
       const estimate = estimateDailyCalories({
-        sex: root.querySelector('#wizSex')?.value,
-        age: root.querySelector('#wizAge')?.value,
-        weightKg: root.querySelector('#wizWeight')?.value,
-        heightCm: root.querySelector('#wizHeight')?.value,
+        sex: bodyState.sex,
+        age: metrics.age,
+        weightKg: metrics.weightKg,
+        heightCm: metrics.heightCm,
         activity: root.querySelector('#wizActivity')?.value,
-        weightGoal: root.querySelector('#wizGoal')?.value,
+        weightGoal,
+        gramsPerWeek: rate.gramsPerWeek,
       });
-      const macros = suggestMacros(estimate.target, root.querySelector('#wizWeight')?.value);
       form.querySelector('[name="calories_kcal"]').value = estimate.target;
-      form.querySelector('[name="protein_g"]').value = macros.protein_g;
-      form.querySelector('[name="carbs_g"]').value = macros.carbs_g;
-      form.querySelector('[name="fat_g"]').value = macros.fat_g;
       if (resultEl) {
         resultEl.hidden = false;
-        resultEl.textContent = `Estimated maintenance ~${estimate.tdee} kcal/day → target ${estimate.target} kcal. Review and tap Save goals.`;
+        const paceNote = rate.label ? ` Pace: ${rate.label}.` : '';
+        resultEl.textContent = `Estimated maintenance ~${estimate.tdee} kcal/day → target ${estimate.target} kcal.${paceNote} Protein, carbs and fat unchanged — edit in Targets if needed.`;
       }
-      showToast?.('Estimate applied — review and save');
+      showToast?.('Calorie estimate applied — review and save');
     } catch (err) {
       showToast?.(err.message || 'Could not estimate');
     }
   });
 
   root.querySelector('#exportJsonBtn')?.addEventListener('click', async () => {
+    if (!profile?.loggedIn) {
+      showToast?.('Sign in to export your data');
+      return;
+    }
     try {
       await exportUserDataJson(profile);
       showToast?.('Data export downloaded');
@@ -625,6 +1265,10 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
   });
 
   root.querySelector('#exportCsvBtn')?.addEventListener('click', async () => {
+    if (!profile?.loggedIn) {
+      showToast?.('Sign in to export your data');
+      return;
+    }
     try {
       const count = await exportMealsCsv(profile);
       showToast?.(count ? `Exported ${count} meals` : 'No meals to export yet');
@@ -636,6 +1280,25 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
   root.querySelector('#privacyBtn')?.addEventListener('click', () => openLegalModal('privacy'));
   root.querySelector('#termsBtn')?.addEventListener('click', () => openLegalModal('terms'));
 
+  root.querySelector('#resetAppBtn')?.addEventListener('click', async () => {
+    const ok = await openConfirmModal({
+      title: 'Reset app on this device?',
+      message: 'This clears local meals, goals, onboarding progress, and any cached sign-in on this device. Your cloud account and cloud meals are not deleted.',
+      confirmLabel: 'Reset app',
+      cancelLabel: 'Cancel',
+      tone: 'danger',
+    });
+    if (!ok) return;
+    try {
+      await resetAppOnDevice();
+    } catch (err) {
+      showToast?.(err.message || 'Could not reset app', 5000);
+    }
+  });
+  root.querySelectorAll('[data-settings-legal]').forEach((btn) => {
+    btn.addEventListener('click', () => openLegalModal(btn.dataset.settingsLegal));
+  });
+
   root.querySelector('#sentryTestBtn')?.addEventListener('click', async () => {
     try {
       await sendSentryTestError();
@@ -645,8 +1308,37 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
     }
   });
 
+  root.querySelector('#targetsGetStarted')?.addEventListener('click', () => onSignIn?.('signup'));
+  root.querySelector('#targetsSignIn')?.addEventListener('click', () => onSignIn?.('signin'));
   root.querySelector('#settingsGetStarted')?.addEventListener('click', () => onSignIn?.('signup'));
   root.querySelector('#settingsSignIn')?.addEventListener('click', () => onSignIn?.('signin'));
+
+  root.querySelector('#requestResetForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const input = root.querySelector('#requestResetEmail');
+    const email = input?.value?.trim() || '';
+    if (!email) {
+      showToast?.('Enter your email address', 4000);
+      input?.focus();
+      return;
+    }
+    const btn = root.querySelector('#requestResetForm button[type="submit"]');
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+    }
+    try {
+      await resetPassword(email);
+      showToast?.('Check your email for a new reset link (check spam too)', 6000);
+    } catch (err) {
+      showToast?.(friendlyAuthError(err.message) || 'Could not send reset email', 5000);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Email me a new reset link';
+      }
+    }
+  });
 
   root.querySelector('#newPasswordForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -668,7 +1360,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
       const url = new URL(window.location.href);
       url.searchParams.delete('reset');
       window.history.replaceState({}, '', url.pathname + url.search);
-      showToast?.('Password updated — you can sign in with your new password');
+      showToast?.('Password updated — you\'re all set');
       onSave();
     } catch (err) {
       showToast?.(friendlyAuthError(err.message) || 'Could not update password', 5000);
@@ -681,10 +1373,19 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
   });
 
   root.querySelector('#signOutBtn')?.addEventListener('click', async () => {
-    if (!window.confirm('Sign out of your account?')) return;
-    const clearLocal = window.confirm(
-      'Remove meals stored on this device too?\n\nOK = clear local meals\nCancel = keep them for next sign-in'
-    );
+    const ok = await openConfirmModal({
+      title: 'Sign out?',
+      message: 'You can sign back in anytime to sync your meals.',
+      confirmLabel: 'Sign out',
+    });
+    if (!ok) return;
+    const clearLocal = await openConfirmModal({
+      title: 'Clear local meals?',
+      message: 'Remove meals stored on this device too? Choose Keep to preserve them for your next sign-in.',
+      confirmLabel: 'Clear local meals',
+      cancelLabel: 'Keep meals',
+      tone: 'danger',
+    });
     await signOut();
     clearLocalDisplayName();
     if (clearLocal) {
@@ -697,11 +1398,20 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
   });
 
   root.querySelector('#deleteAccountBtn')?.addEventListener('click', async () => {
-    if (!window.confirm(
-      'Delete your NutriLog account permanently?\n\nThis removes your profile, cloud meals, photos, and cancels any active subscription.'
-    )) return;
-    const typed = window.prompt('Type DELETE to confirm account deletion');
-    if (typed !== 'DELETE') {
+    const ok = await openConfirmModal({
+      title: `Delete your ${APP_NAME} account?`,
+      message: 'This removes your profile, cloud meals, photos, and cancels any active subscription.',
+      confirmLabel: 'Continue',
+      tone: 'danger',
+    });
+    if (!ok) return;
+    const confirmed = await openTypedConfirmModal({
+      title: 'Delete account permanently',
+      message: 'This action cannot be undone. All your data will be removed.',
+      expected: 'DELETE',
+      confirmLabel: 'Delete permanently',
+    });
+    if (!confirmed) {
       showToast?.('Account deletion cancelled');
       return;
     }
@@ -715,8 +1425,38 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
     }
   });
 
-  root.querySelector('#plansSignInBtn')?.addEventListener('click', () => onSignIn?.('signin'));
-  root.querySelector('#plansSignInPaygBtn')?.addEventListener('click', () => onSignIn?.('signin'));
+  root.querySelector('#plansSignInLink')?.addEventListener('click', () => onSignIn?.('signin'));
+  root.querySelector('#openDiscountSection')?.addEventListener('click', () => {
+    revealDiscountSection(root);
+  });
+
+  if (consumeOpenDiscountSection()) {
+    revealDiscountSection(root);
+  }
+  bindCreditAlertActions(root, {
+    onPlans: () => {
+      root.querySelector('.settings-tab[data-tab="plans"]')?.click();
+    },
+    onRefresh: async () => {
+      showToast?.('Refreshing allowance…');
+      await refreshScanAllowanceFromCloud().catch(() => {});
+      showToast?.('Allowance updated');
+      onSave();
+    },
+  });
+
+  root.querySelectorAll('.plans-signin-sub').forEach((btn) => {
+    btn.addEventListener('click', () => onSignIn?.('signup'));
+  });
+
+  root.querySelector('#openWebPlansBtn')?.addEventListener('click', async () => {
+    try {
+      await openWebBilling({ tab: 'plans' });
+      showToast?.('Opening plans in your browser…');
+    } catch (err) {
+      showToast?.(err.message || 'Could not open website');
+    }
+  });
 
   root.querySelectorAll('[data-pack]').forEach((btn) => {
     btn.addEventListener('click', async () => {
@@ -730,6 +1470,10 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
       if (!pack) return;
       try {
         const result = await startScanPackCheckout(packId);
+        if (result?.external) {
+          showToast?.('Complete checkout in your browser — credits sync when you return');
+          return;
+        }
         if (result.mock) {
           showToast?.(import.meta.env.DEV
             ? `+${pack.scans} credits added (demo — add Stripe for real payments)`
@@ -741,6 +1485,120 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
       }
     });
   });
+
+  root.querySelectorAll('[data-plan]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      if (!profile?.loggedIn) {
+        showToast?.('Sign in to subscribe');
+        onSignIn?.('signin');
+        return;
+      }
+      const planId = btn.dataset.plan;
+      const annual = btn.dataset.annual === 'yes';
+      try {
+        const result = await startPlanCheckout(planId, { annual });
+        if (result?.external) {
+          showToast?.('Complete checkout in your browser — your plan syncs when you return');
+          return;
+        }
+        if (result.mock) {
+          showToast?.(`${PLANS[planId]?.name || planId} enabled (demo — add Stripe price IDs for real billing)`);
+          onSave();
+        }
+      } catch (err) {
+        showToast?.(err.message || 'Could not start checkout');
+      }
+    });
+  });
+
+  root.querySelectorAll('[data-change-plan]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      if (!profile?.loggedIn) {
+        showToast?.('Sign in to change plan');
+        onSignIn?.('signin');
+        return;
+      }
+      const planId = btn.dataset.changePlan;
+      const annual = btn.dataset.annual === 'yes';
+      try {
+        const result = await requestPlanChange(planId, { annual });
+        if (result?.cancelled) return;
+        if (result?.external) {
+          showToast?.('Complete this on our website — your plan syncs when you return');
+          return;
+        }
+        if (result?.url) {
+          showToast?.('Complete checkout in your browser — your plan syncs when you return');
+          return;
+        }
+        if (result?.mock) {
+          showToast?.(`${PLANS[planId]?.name || planId} enabled (demo — add Stripe price IDs for real billing)`);
+          onSave();
+        }
+      } catch (err) {
+        if (err.message?.includes('billing')) {
+          showToast?.(err.message);
+        } else {
+          showToast?.(err.message || 'Could not change plan');
+        }
+      }
+    });
+  });
+
+  root.querySelector('#manageSubscriptionBtn')?.addEventListener('click', async () => {
+    try {
+      const result = await openBillingPortal();
+      if (result?.external) {
+        showToast?.('Opening subscription management in your browser…');
+      }
+    } catch (err) {
+      showToast?.(err.message || 'Could not open billing portal');
+    }
+  });
+
+  root.querySelector('#promoCodeForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const input = root.querySelector('#promoCodeInput');
+    const applyBtn = root.querySelector('#promoCodeApplyBtn');
+    const code = input?.value?.trim();
+    if (!code) {
+      showToast?.('Enter a promo code');
+      return;
+    }
+    if (!profile?.loggedIn) {
+      showToast?.('Sign in to redeem a promo code');
+      onSignIn?.('signin');
+      return;
+    }
+    const prevLabel = applyBtn?.textContent || 'Apply';
+    if (applyBtn) {
+      applyBtn.disabled = true;
+      applyBtn.textContent = 'Applying…';
+    }
+    try {
+      const result = await validateAndRedeemVoucher(code);
+      if (result.type === 'trial') {
+        showToast?.('Promo applied — trial activated');
+      } else if (result.type === 'topup') {
+        const added = result.scansAdded || result.topupScans || 100;
+        const total = result.displayBalance ?? (getSubScanBalance() || getTopUpBalance());
+        showToast?.(`Success! +${added} scans added — ${total} scans now available`);
+      } else {
+        showToast?.(`Promo applied — ${ELIGIBILITY_DISCOUNT_PERCENT}% off prices`);
+      }
+      if (input) input.value = '';
+      onSave();
+    } catch (err) {
+      showToast?.(err.message || 'Invalid promo code');
+    } finally {
+      if (applyBtn) {
+        applyBtn.disabled = false;
+        applyBtn.textContent = prevLabel;
+      }
+    }
+  });
+
+  bindDiscountEligibilityForms(root, { profile, onSave, onSignIn, showToast });
 
   root.querySelector('#syncBtn')?.addEventListener('click', async () => {
     try {
@@ -761,7 +1619,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
         weekStart.setDate(weekStart.getDate() - 6);
         const weekMeals = await getMealsInRange(todayKey(weekStart), end);
         const todayMeals = await getMealsForDate(end);
-        const cuisine = weekMeals.length ? await getCuisineTips(weekMeals) : null;
+        const cuisine = weekMeals.length && canAccessAiTips() ? await getCuisineTips(weekMeals) : null;
         const { runPersonalisedNotificationCheck } = await import('../services/notifications.js');
         await runPersonalisedNotificationCheck(weekMeals, todayMeals, cuisine);
         showToast?.('Notifications enabled with your current stats');
@@ -780,6 +1638,19 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
     const [h, m] = e.target.value.split(':').map(Number);
     saveNotifyPrefs({ reminderHour: h, reminderMinute: m });
     showToast?.('Reminder time saved');
+  });
+
+  root.querySelector('#creditExpiryToggle')?.addEventListener('change', (e) => {
+    saveNotifyPrefs({ creditExpiryEnabled: e.target.checked });
+    showToast?.('Credit expiry alerts updated');
+  });
+  root.querySelector('#creditTrialToggle')?.addEventListener('change', (e) => {
+    saveNotifyPrefs({ creditTrialEnabled: e.target.checked });
+    showToast?.('Trial alerts updated');
+  });
+  root.querySelector('#creditLowToggle')?.addEventListener('change', (e) => {
+    saveNotifyPrefs({ creditLowEnabled: e.target.checked });
+    showToast?.('Low balance alerts updated');
   });
 }
 
@@ -802,7 +1673,7 @@ function notifyPreviewCard(label, msg) {
         <div class="notify-preview-toast">
           <div class="notify-preview-app">
             <span class="notify-preview-icon">🥗</span>
-            <span>NutriLog</span>
+            <span>${APP_NAME}</span>
             <span class="notify-preview-time">now</span>
           </div>
           <p class="notify-preview-title">${escapeHtml(msg.title)}</p>
@@ -834,12 +1705,191 @@ function goalMacroField(name, label, value, unit, accent) {
   `;
 }
 
+function planUsageMeterDetail(planId) {
+  const b = getScanBudget(planId);
+  if (isCreditSubscriptionPlan(planId)) {
+    const balance = getSubScanBalance();
+    const allowance = getSubScansAllowance();
+    const topup = getTopUpBalance();
+    if (balance > 0) {
+      return {
+        label: 'This billing period',
+        value: `${balance}/${allowance} scans`,
+        note: 'Cancel anytime',
+      };
+    }
+    if (topup > 0) {
+      return {
+        label: 'Top-up credits',
+        value: `${topup} remaining`,
+        note: 'Subscription scans used · top-up credits never expire until used',
+      };
+    }
+    return {
+      label: 'This billing period',
+      value: `0/${allowance} scans`,
+      note: 'Cancel anytime',
+    };
+  }
+  if (isUnlimitedPlan(planId)) {
+    return {
+      label: 'Today (fair use)',
+      value: `${b.remaining}/${b.limit} scans`,
+      note: 'Up to 33 scans per day · ~1,000/month fair use · cancel anytime',
+    };
+  }
+  return {
+    label: 'Today',
+    value: `${b.dailyFreeRemaining ?? 0}/${getDailyFreeCap()} free · ${getTopUpBalance()} top-up credits`,
+    note: 'Daily Free Scan resets at midnight (12:00 AM) · top-up credits never expire until used',
+  };
+}
+
+function plansStatusCardHtml(currentPlan) {
+  const meter = planUsageMeterDetail(currentPlan);
+  const pct = usageMeterRemainingPercent(currentPlan);
+  return `
+    <div class="plans-status-card ${isSubscriptionPlan(currentPlan) && currentPlan !== 'free' ? 'plans-status-card--pro' : ''}">
+      <div class="plans-status-card__head">
+        <div>
+          <p class="plans-status-card__label">Your allowance</p>
+          <p class="plans-status-card__summary">${planSummaryHtml(currentPlan)}</p>
+        </div>
+        <div class="plans-status-card__stat">
+          <span class="plans-status-card__stat-label">${escapeHtml(meter.label)}</span>
+          <strong class="plans-status-card__stat-value">${escapeHtml(meter.value)}</strong>
+        </div>
+      </div>
+      <div class="usage-meter-track" aria-hidden="true">
+        <div class="usage-meter-fill" style="width:${pct}%"></div>
+      </div>
+      <p class="fine-print plans-status-card__note">${escapeHtml(meter.note)}</p>
+    </div>
+  `;
+}
+
+function subscriptionPlanCard(planId, currentPlan, profile, user) {
+  const plan = PLANS[planId];
+  if (!plan) return '';
+  const isCurrent = currentPlan === planId;
+  const hasSub = hasActivePaidSubscription(currentPlan);
+  const changeDir = hasSub && !isCurrent ? comparePlanChange(currentPlan, planId) : null;
+  const featured = planId === 'plus';
+  const onNative = nativeAppUsesExternalWebBilling();
+  const price = planPriceLabel(planId, profile, profile.email || user?.email || '', {
+    annual: plan.billing === 'annual',
+  });
+  const bullets = plan.bullets || [];
+  let btnLabel = 'Subscribe';
+  let btnClass = 'btn-primary';
+  let btnAttrs = '';
+
+  if (isCurrent) {
+    btnLabel = 'Current plan';
+    btnClass = 'btn-ghost';
+    btnAttrs = 'disabled';
+  } else if (changeDir === 'downgrade') {
+    btnLabel = onNative ? 'Change on web' : 'Change plan';
+    btnClass = 'btn-ghost';
+    btnAttrs = `data-change-plan="${planId}"${plan.billing === 'annual' ? ' data-annual="yes"' : ''}`;
+  } else if (changeDir === 'upgrade') {
+    btnLabel = onNative ? 'Upgrade on web' : 'Upgrade';
+    btnClass = 'btn-primary';
+    btnAttrs = `data-change-plan="${planId}"${plan.billing === 'annual' ? ' data-annual="yes"' : ''}`;
+  } else if (changeDir === 'lateral') {
+    btnLabel = onNative ? 'Switch on web' : 'Switch plan';
+    btnClass = 'btn-ghost';
+    btnAttrs = `data-change-plan="${planId}"${plan.billing === 'annual' ? ' data-annual="yes"' : ''}`;
+  } else if (plan.billing === 'annual') {
+    btnLabel = onNative ? 'Subscribe yearly on web' : 'Subscribe yearly';
+    btnAttrs = `data-plan="${planId}" data-annual="yes"`;
+  } else if (onNative) {
+    btnLabel = 'Subscribe on web';
+    btnAttrs = `data-plan="${planId}"`;
+  } else {
+    btnAttrs = `data-plan="${planId}"`;
+  }
+
+  return `
+    <article class="plan-card ${featured && !isCurrent ? 'plan-card--featured' : ''} ${isCurrent ? 'plan-card--active' : ''}">
+      ${featured && !isCurrent ? '<span class="plan-featured-tag">Most popular</span>' : ''}
+      ${isCurrent ? '<span class="plan-featured-tag plan-featured-tag--current">Your plan</span>' : ''}
+      <h3>${escapeHtml(plan.name)}</h3>
+      <p class="plan-tagline">${escapeHtml(plan.tagline)}</p>
+      <p class="plan-price">${price}</p>
+      <ul class="plan-features-list plan-features-list--compact">
+        ${bullets.map((b) => `<li>${escapeHtml(b)}</li>`).join('')}
+      </ul>
+      <div class="plan-card__footer">
+      ${profile.loggedIn ? `
+        <button type="button" class="btn ${btnClass} plan-card__btn"
+          ${btnAttrs}
+          ${isCurrent ? 'disabled' : ''}>${btnLabel}</button>
+      ` : `
+        <button type="button" class="btn btn-ghost plan-card__btn plans-signin-sub">Create account</button>
+      `}
+      </div>
+    </article>
+  `;
+}
+
+function topUpPlanCard(currentPlan, profile, user, paygPack) {
+  return `
+    <article class="plan-card plan-card--topup plan-card--solo">
+      <h3>${paygPack.name}</h3>
+      <p class="plan-tagline">${paygPack.tagline}</p>
+      <p class="plan-price">${scanPackPriceLabel(PAYG_PACK_ID, profile, profile.email || user?.email || '')}</p>
+      <ul class="plan-features-list plan-features-list--compact">
+        ${paygPack.bullets.map((b) => `<li>${escapeHtml(b)}</li>`).join('')}
+        <li>${escapeHtml(topUpCreditUsageNote(currentPlan))}</li>
+      </ul>
+      <div class="plan-card__footer">
+      ${profile.loggedIn ? `
+        <button type="button" class="btn btn-primary plan-card__btn" data-pack="${PAYG_PACK_ID}">${nativeAppUsesExternalWebBilling() ? 'Top up on web' : 'Top up 100 credits'}</button>
+      ` : `
+        <button type="button" class="btn btn-ghost plan-card__btn plans-signin-sub">Create account</button>
+      `}
+      </div>
+    </article>
+  `;
+}
+
 function settingsTab(id, label, active) {
-  return `<button type="button" class="tab settings-tab ${active === id ? 'active' : ''}" data-tab="${id}">${label}</button>`;
+  const selected = active === id;
+  return `<button type="button" role="tab" class="tab settings-tab ${selected ? 'active' : ''}" data-tab="${id}" id="settingsTab-${id}" aria-selected="${selected ? 'true' : 'false'}" aria-controls="settingsPanel-${id}">${label}</button>`;
 }
 
 function panelHidden(id, active) {
   return active !== id ? 'hidden' : '';
+}
+
+function offlineQueueBanner(summary = {}) {
+  if (!summary.total) return '';
+  const readyItem = (summary.items || []).find((item) => item.status === 'ready');
+  if (summary.ready > 0 && readyItem) {
+    const label = summary.ready === 1
+      ? '1 meal photo analysed — finish logging when ready'
+      : `${summary.ready} meal photos analysed — finish logging when ready`;
+    return `
+      <section class="offline-queue-banner offline-queue-banner--ready muted-card" aria-live="polite">
+        <p>${escapeHtml(label)}</p>
+        <button type="button" class="btn btn-primary btn-sm" data-offline-resume="${escapeAttr(readyItem.id)}">Review meal</button>
+      </section>
+    `;
+  }
+  const pendingLabel = summary.pending === 1
+    ? '1 photo saved — will analyse when you\'re back online'
+    : `${summary.pending} photos saved — will analyse when you're back online`;
+  return `
+    <section class="offline-queue-banner muted-card" aria-live="polite">
+      <p>${escapeHtml(pendingLabel)}</p>
+      <button type="button" class="btn btn-ghost btn-sm" id="offlineQueueRetry">Try now</button>
+    </section>
+  `;
+}
+
+function escapeAttr(s) {
+  return String(s ?? '').replace(/"/g, '&quot;');
 }
 
 function escapeHtml(s) {

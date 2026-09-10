@@ -1,0 +1,11 @@
+file 'C:/Users/user/Projects/nutrilog-deploy/public/images/landing-demo/frame-01-hero.png'
+duration 2.5
+file 'C:/Users/user/Projects/nutrilog-deploy/public/images/landing-demo/frame-02-result-card.png'
+duration 2.5
+file 'C:/Users/user/Projects/nutrilog-deploy/public/images/landing-demo/frame-03-log-photo.png'
+duration 2.5
+file 'C:/Users/user/Projects/nutrilog-deploy/public/images/landing-demo/frame-04-signup.png'
+duration 2.5
+file 'C:/Users/user/Projects/nutrilog-deploy/public/images/landing-demo/frame-06-pricing.png'
+duration 2.5
+file 'C:/Users/user/Projects/nutrilog-deploy/public/images/landing-demo/frame-06-pricing.png'
