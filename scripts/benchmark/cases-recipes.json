@@ -1,0 +1,107 @@
+{
+  "version": "1.0",
+  "description": "Phase 3 recipe decomposition — composite dishes without explicit gram weights.",
+  "categories": ["recipe_uk", "recipe_indian"],
+  "cases": [
+    {
+      "id": "recipe-fish-chips",
+      "category": "recipe_uk",
+      "input": "fish and chips",
+      "minItems": 2,
+      "mustInclude": ["cod", "chip"],
+      "expectRecipeDerived": true,
+      "kcalMin": 900,
+      "kcalMax": 1400
+    },
+    {
+      "id": "recipe-beans-toast",
+      "category": "recipe_uk",
+      "input": "beans on toast",
+      "minItems": 2,
+      "mustInclude": ["bean", "toast"],
+      "expectRecipeDerived": true,
+      "kcalMin": 250,
+      "kcalMax": 450
+    },
+    {
+      "id": "recipe-sunday-roast",
+      "category": "recipe_uk",
+      "input": "sunday roast",
+      "minItems": 4,
+      "mustInclude": ["chicken", "potato"],
+      "expectRecipeDerived": true,
+      "kcalMin": 400,
+      "kcalMax": 900
+    },
+    {
+      "id": "recipe-bangers-mash",
+      "category": "recipe_uk",
+      "input": "bangers and mash",
+      "minItems": 2,
+      "mustInclude": ["sausage", "mash"],
+      "expectRecipeDerived": true,
+      "kcalMin": 350,
+      "kcalMax": 700
+    },
+    {
+      "id": "recipe-chole-bhature",
+      "category": "recipe_indian",
+      "input": "chole bhature",
+      "minItems": 2,
+      "mustInclude": ["chole", "bhatur"],
+      "expectRecipeDerived": true,
+      "kcalMin": 300,
+      "kcalMax": 700
+    },
+    {
+      "id": "recipe-pav-bhaji",
+      "category": "recipe_indian",
+      "input": "pav bhaji",
+      "minItems": 2,
+      "mustInclude": ["bhaji", "pav"],
+      "expectRecipeDerived": true,
+      "kcalMin": 350,
+      "kcalMax": 650
+    },
+    {
+      "id": "recipe-tikka-rice-composite",
+      "category": "recipe_indian",
+      "input": "chicken tikka masala with basmati rice",
+      "minItems": 2,
+      "mustInclude": ["tikka", "rice"],
+      "expectRecipeDerived": true,
+      "kcalMin": 400,
+      "kcalMax": 900
+    },
+    {
+      "id": "recipe-biryani-raita-composite",
+      "category": "recipe_indian",
+      "input": "biryani with cucumber raita",
+      "minItems": 2,
+      "mustInclude": ["biryani", "raita"],
+      "expectRecipeDerived": true,
+      "kcalMin": 400,
+      "kcalMax": 850
+    },
+    {
+      "id": "recipe-idli-sambar",
+      "category": "recipe_indian",
+      "input": "idli with sambar",
+      "minItems": 2,
+      "mustInclude": ["idli", "sambar"],
+      "expectRecipeDerived": true,
+      "kcalMin": 150,
+      "kcalMax": 350
+    },
+    {
+      "id": "recipe-poha-peanuts",
+      "category": "recipe_indian",
+      "input": "poha with peanuts",
+      "minItems": 2,
+      "mustInclude": ["poha", "peanut"],
+      "expectRecipeDerived": true,
+      "kcalMin": 350,
+      "kcalMax": 600
+    }
+  ]
+}

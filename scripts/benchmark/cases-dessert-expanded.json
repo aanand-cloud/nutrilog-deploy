@@ -1,0 +1,142 @@
+{
+  "version": "1.0",
+  "description": "Desserts and sweets — benchmark batch 2 expansion (Phase 6).",
+  "categories": ["dessert"],
+  "cases": [
+    {
+      "id": "ds-gulab-jamun",
+      "category": "dessert",
+      "input": "gulab jamun",
+      "minItems": 1,
+      "mustInclude": ["gulab", "jamun"],
+      "kcalMin": 200,
+      "kcalMax": 500
+    },
+    {
+      "id": "ds-jalebi",
+      "category": "dessert",
+      "input": "jalebi",
+      "minItems": 1,
+      "mustInclude": ["jalebi"],
+      "kcalMin": 280,
+      "kcalMax": 600
+    },
+    {
+      "id": "ds-rasmalai",
+      "category": "dessert",
+      "input": "rasmalai",
+      "minItems": 1,
+      "mustInclude": ["rasmalai"],
+      "kcalMin": 180,
+      "kcalMax": 450
+    },
+    {
+      "id": "ds-kulfi",
+      "category": "dessert",
+      "input": "kulfi",
+      "minItems": 1,
+      "mustInclude": ["kulfi"],
+      "kcalMin": 140,
+      "kcalMax": 400
+    },
+    {
+      "id": "ds-kheer",
+      "category": "dessert",
+      "input": "kheer",
+      "minItems": 1,
+      "mustInclude": ["kheer"],
+      "kcalMin": 180,
+      "kcalMax": 450
+    },
+    {
+      "id": "ds-halwa",
+      "category": "dessert",
+      "input": "gajar halwa",
+      "minItems": 1,
+      "mustInclude": ["halwa"],
+      "kcalMin": 250,
+      "kcalMax": 600
+    },
+    {
+      "id": "ds-sticky-toffee",
+      "category": "dessert",
+      "input": "sticky toffee pudding",
+      "minItems": 1,
+      "mustInclude": ["sticky", "toffee"],
+      "kcalMin": 350,
+      "kcalMax": 900
+    },
+    {
+      "id": "ds-banoffee",
+      "category": "dessert",
+      "input": "banoffee pie",
+      "minItems": 1,
+      "mustInclude": ["banoffee"],
+      "kcalMin": 320,
+      "kcalMax": 750
+    },
+    {
+      "id": "ds-eton-mess",
+      "category": "dessert",
+      "input": "eton mess",
+      "minItems": 1,
+      "mustInclude": ["eton", "mess"],
+      "kcalMin": 220,
+      "kcalMax": 550
+    },
+    {
+      "id": "ds-cheesecake",
+      "category": "dessert",
+      "input": "cheesecake slice",
+      "minItems": 1,
+      "mustInclude": ["cheesecake"],
+      "kcalMin": 350,
+      "kcalMax": 800
+    },
+    {
+      "id": "ds-sundae",
+      "category": "dessert",
+      "input": "ice cream sundae",
+      "minItems": 1,
+      "mustInclude": ["sundae"],
+      "kcalMin": 350,
+      "kcalMax": 800
+    },
+    {
+      "id": "ds-lava-cake",
+      "category": "dessert",
+      "input": "lava cake",
+      "minItems": 1,
+      "mustInclude": ["lava", "cake"],
+      "kcalMin": 350,
+      "kcalMax": 800
+    },
+    {
+      "id": "ds-tiramisu",
+      "category": "dessert",
+      "input": "tiramisu",
+      "minItems": 1,
+      "mustInclude": ["tiramisu"],
+      "kcalMin": 250,
+      "kcalMax": 600
+    },
+    {
+      "id": "ds-baklava",
+      "category": "dessert",
+      "input": "baklava",
+      "minItems": 1,
+      "mustInclude": ["baklava"],
+      "kcalMin": 250,
+      "kcalMax": 600
+    },
+    {
+      "id": "ds-creme-brulee",
+      "category": "dessert",
+      "input": "crème brûlée",
+      "minItems": 1,
+      "mustInclude": ["brulee"],
+      "kcalMin": 280,
+      "kcalMax": 650
+    }
+  ]
+}

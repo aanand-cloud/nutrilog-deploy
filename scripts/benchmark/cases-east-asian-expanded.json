@@ -1,0 +1,215 @@
+{
+  "version": "1.0",
+  "description": "East Asian meals — benchmark batch 3 expansion (Phase 6).",
+  "categories": ["east_asian"],
+  "cases": [
+    {
+      "id": "ea-tonkotsu",
+      "category": "east_asian",
+      "input": "tonkotsu ramen",
+      "minItems": 1,
+      "mustInclude": ["ramen"],
+      "kcalMin": 400,
+      "kcalMax": 900
+    },
+    {
+      "id": "ea-miso-ramen",
+      "category": "east_asian",
+      "input": "miso ramen",
+      "minItems": 1,
+      "mustInclude": ["ramen", "miso"],
+      "kcalMin": 400,
+      "kcalMax": 900
+    },
+    {
+      "id": "ea-chicken-fried-rice",
+      "category": "east_asian",
+      "input": "chicken fried rice",
+      "minItems": 1,
+      "mustInclude": ["fried", "rice"],
+      "kcalMin": 450,
+      "kcalMax": 900
+    },
+    {
+      "id": "ea-sushi",
+      "category": "east_asian",
+      "input": "sushi platter",
+      "minItems": 1,
+      "mustInclude": ["sushi"],
+      "kcalMin": 300,
+      "kcalMax": 700
+    },
+    {
+      "id": "ea-gyoza",
+      "category": "east_asian",
+      "input": "gyoza",
+      "minItems": 1,
+      "mustInclude": ["gyoza"],
+      "kcalMin": 200,
+      "kcalMax": 500
+    },
+    {
+      "id": "ea-katsu-curry",
+      "category": "east_asian",
+      "input": "katsu curry",
+      "minItems": 1,
+      "mustInclude": ["katsu", "curry"],
+      "kcalMin": 500,
+      "kcalMax": 1100
+    },
+    {
+      "id": "ea-pad-thai",
+      "category": "east_asian",
+      "input": "pad thai",
+      "minItems": 1,
+      "mustInclude": ["pad", "thai"],
+      "kcalMin": 380,
+      "kcalMax": 900
+    },
+    {
+      "id": "ea-beef-pho",
+      "category": "east_asian",
+      "input": "beef pho",
+      "minItems": 1,
+      "mustInclude": ["pho"],
+      "kcalMin": 350,
+      "kcalMax": 800
+    },
+    {
+      "id": "ea-dim-sum",
+      "category": "east_asian",
+      "input": "dim sum",
+      "minItems": 1,
+      "mustInclude": ["dim"],
+      "kcalMin": 250,
+      "kcalMax": 700
+    },
+    {
+      "id": "ea-yakitori",
+      "category": "east_asian",
+      "input": "yakitori",
+      "minItems": 1,
+      "mustInclude": ["yakitori"],
+      "kcalMin": 250,
+      "kcalMax": 600
+    },
+    {
+      "id": "ea-bibimbap",
+      "category": "east_asian",
+      "input": "bibimbap",
+      "minItems": 1,
+      "mustInclude": ["bibimbap"],
+      "kcalMin": 250,
+      "kcalMax": 900
+    },
+    {
+      "id": "ea-kimchi-rice",
+      "category": "east_asian",
+      "input": "kimchi fried rice",
+      "minItems": 1,
+      "mustInclude": ["kimchi", "rice"],
+      "kcalMin": 450,
+      "kcalMax": 900
+    },
+    {
+      "id": "ea-teriyaki",
+      "category": "east_asian",
+      "input": "chicken teriyaki with rice",
+      "minItems": 2,
+      "mustInclude": ["teriyaki", "rice"],
+      "kcalMin": 450,
+      "kcalMax": 1100
+    },
+    {
+      "id": "ea-edamame",
+      "category": "east_asian",
+      "input": "100g edamame",
+      "minItems": 1,
+      "mustInclude": ["edamame"],
+      "kcalMin": 100,
+      "kcalMax": 180,
+      "quantityChecks": [{ "contains": "100" }]
+    },
+    {
+      "id": "ea-miso-soup",
+      "category": "east_asian",
+      "input": "miso soup",
+      "minItems": 1,
+      "mustInclude": ["miso", "soup"],
+      "kcalMin": 80,
+      "kcalMax": 250
+    },
+    {
+      "id": "ea-udon",
+      "category": "east_asian",
+      "input": "udon noodles",
+      "minItems": 1,
+      "mustInclude": ["udon"],
+      "kcalMin": 300,
+      "kcalMax": 450
+    },
+    {
+      "id": "ea-poke",
+      "category": "east_asian",
+      "input": "salmon poke bowl",
+      "minItems": 1,
+      "mustInclude": ["poke"],
+      "kcalMin": 280,
+      "kcalMax": 450
+    },
+    {
+      "id": "ea-spring-roll",
+      "category": "east_asian",
+      "input": "spring rolls",
+      "minItems": 1,
+      "mustInclude": ["spring", "roll"],
+      "kcalMin": 500,
+      "kcalMax": 700
+    },
+    {
+      "id": "ea-soba",
+      "category": "east_asian",
+      "input": "soba noodles",
+      "minItems": 1,
+      "mustInclude": ["udon"],
+      "kcalMin": 300,
+      "kcalMax": 450
+    },
+    {
+      "id": "ea-bulgogi",
+      "category": "east_asian",
+      "input": "beef bulgogi with rice",
+      "minItems": 2,
+      "mustInclude": ["bulgogi", "rice"],
+      "kcalMin": 650,
+      "kcalMax": 950
+    },
+    {
+      "id": "ea-dumplings",
+      "category": "east_asian",
+      "input": "pork dumplings",
+      "minItems": 1,
+      "mustInclude": ["dumpling"],
+      "kcalMin": 400,
+      "kcalMax": 650
+    },
+    {
+      "id": "ea-tempura",
+      "category": "east_asian",
+      "input": "vegetable tempura",
+      "minItems": 1,
+      "mustInclude": ["tempura"],
+      "kcalMin": 350,
+      "kcalMax": 550
+    },
+    {
+      "id": "ea-sashimi",
+      "category": "east_asian",
+      "input": "tuna sashimi",
+      "minItems": 1,
+      "mustInclude": ["sashimi"],
+      "kcalMin": 300,
+      "kcalMax": 500
+    }
+  ]
+}

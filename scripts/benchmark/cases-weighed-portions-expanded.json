@@ -1,0 +1,197 @@
+{
+  "version": "1.0",
+  "description": "Additional weighed portions — benchmark batch 4 expansion (Phase 6).",
+  "categories": ["weighed_portion"],
+  "cases": [
+    {
+      "id": "wp-oats-50g",
+      "category": "weighed_portion",
+      "input": "50g oats",
+      "minItems": 1,
+      "mustInclude": ["oat"],
+      "kcalMin": 170,
+      "kcalMax": 210,
+      "quantityChecks": [{ "contains": "50" }]
+    },
+    {
+      "id": "wp-milk-250ml",
+      "category": "weighed_portion",
+      "input": "250ml whole milk",
+      "minItems": 1,
+      "mustInclude": ["milk"],
+      "kcalMin": 100,
+      "kcalMax": 140,
+      "quantityChecks": [{ "contains": "250" }]
+    },
+    {
+      "id": "wp-avocado-80g",
+      "category": "weighed_portion",
+      "input": "80g avocado",
+      "minItems": 1,
+      "mustInclude": ["avocado"],
+      "kcalMin": 120,
+      "kcalMax": 160,
+      "quantityChecks": [{ "contains": "80" }]
+    },
+    {
+      "id": "wp-butter-15g",
+      "category": "weighed_portion",
+      "input": "15g butter",
+      "minItems": 1,
+      "mustInclude": ["butter"],
+      "kcalMin": 100,
+      "kcalMax": 120,
+      "quantityChecks": [{ "contains": "15" }]
+    },
+    {
+      "id": "wp-sweet-potato-200g",
+      "category": "weighed_portion",
+      "input": "200g sweet potato",
+      "minItems": 1,
+      "mustInclude": ["potato"],
+      "kcalMin": 170,
+      "kcalMax": 200,
+      "quantityChecks": [{ "contains": "200" }]
+    },
+    {
+      "id": "wp-broccoli-75g",
+      "category": "weighed_portion",
+      "input": "75g broccoli",
+      "minItems": 1,
+      "mustInclude": ["broccoli"],
+      "kcalMin": 15,
+      "kcalMax": 25,
+      "quantityChecks": [{ "contains": "75" }]
+    },
+    {
+      "id": "wp-beef-100g",
+      "category": "weighed_portion",
+      "input": "100g minced beef",
+      "minItems": 1,
+      "mustInclude": ["beef"],
+      "kcalMin": 210,
+      "kcalMax": 240,
+      "quantityChecks": [{ "contains": "100" }]
+    },
+    {
+      "id": "wp-cottage-150g",
+      "category": "weighed_portion",
+      "input": "150g cottage cheese",
+      "minItems": 1,
+      "mustInclude": ["cottage"],
+      "kcalMin": 140,
+      "kcalMax": 160,
+      "quantityChecks": [{ "contains": "150" }]
+    },
+    {
+      "id": "wp-almonds-50g",
+      "category": "weighed_portion",
+      "input": "50g almonds",
+      "minItems": 1,
+      "mustInclude": ["almond"],
+      "kcalMin": 270,
+      "kcalMax": 300,
+      "quantityChecks": [{ "contains": "50" }]
+    },
+    {
+      "id": "wp-chocolate-25g",
+      "category": "weighed_portion",
+      "input": "25g dark chocolate",
+      "minItems": 1,
+      "mustInclude": ["chocolate"],
+      "kcalMin": 125,
+      "kcalMax": 145,
+      "quantityChecks": [{ "contains": "25" }]
+    },
+    {
+      "id": "wp-orange-250ml",
+      "category": "weighed_portion",
+      "input": "250ml orange juice",
+      "minItems": 1,
+      "mustInclude": ["orange"],
+      "kcalMin": 90,
+      "kcalMax": 110,
+      "quantityChecks": [{ "contains": "250" }]
+    },
+    {
+      "id": "wp-beans-150g",
+      "category": "weighed_portion",
+      "input": "150g baked beans",
+      "minItems": 1,
+      "mustInclude": ["baked"],
+      "kcalMin": 150,
+      "kcalMax": 170,
+      "quantityChecks": [{ "contains": "150" }]
+    },
+    {
+      "id": "wp-greek-salad-200g",
+      "category": "weighed_portion",
+      "input": "200g greek salad",
+      "minItems": 1,
+      "mustInclude": ["greek"],
+      "kcalMin": 180,
+      "kcalMax": 210,
+      "quantityChecks": [{ "contains": "200" }]
+    },
+    {
+      "id": "wp-grapes-100g",
+      "category": "weighed_portion",
+      "input": "100g grapes",
+      "minItems": 1,
+      "mustInclude": ["grape"],
+      "kcalMin": 60,
+      "kcalMax": 80,
+      "quantityChecks": [{ "contains": "100" }]
+    },
+    {
+      "id": "wp-hummus-60g",
+      "category": "weighed_portion",
+      "input": "60g hummus",
+      "minItems": 1,
+      "mustInclude": ["hummus"],
+      "kcalMin": 90,
+      "kcalMax": 110,
+      "quantityChecks": [{ "contains": "60" }]
+    },
+    {
+      "id": "wp-cashews-45g",
+      "category": "weighed_portion",
+      "input": "45g cashews",
+      "minItems": 1,
+      "mustInclude": ["cashew"],
+      "kcalMin": 240,
+      "kcalMax": 270,
+      "quantityChecks": [{ "contains": "45" }]
+    },
+    {
+      "id": "wp-tofu-120g",
+      "category": "weighed_portion",
+      "input": "120g tofu",
+      "minItems": 1,
+      "mustInclude": ["tofu"],
+      "kcalMin": 85,
+      "kcalMax": 100,
+      "quantityChecks": [{ "contains": "120" }]
+    },
+    {
+      "id": "wp-cheddar-90g",
+      "category": "weighed_portion",
+      "input": "90g cheddar",
+      "minItems": 1,
+      "mustInclude": ["cheese"],
+      "kcalMin": 360,
+      "kcalMax": 390,
+      "quantityChecks": [{ "contains": "90" }]
+    },
+    {
+      "id": "wp-chicken-thigh-180g",
+      "category": "weighed_portion",
+      "input": "180g chicken thigh",
+      "minItems": 1,
+      "mustInclude": ["thigh"],
+      "kcalMin": 360,
+      "kcalMax": 400,
+      "quantityChecks": [{ "contains": "180" }]
+    }
+  ]
+}

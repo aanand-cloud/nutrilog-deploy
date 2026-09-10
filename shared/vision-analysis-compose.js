@@ -1,0 +1,270 @@
+/**
+ * Phase 4 — recipe decomposition for photo / vision payloads.
+ * Composes full analysis from Gemini identification + portions using the same
+ * canonical pipeline as Describe (verified per-100g, null micros, confidence).
+ */
+
+import {
+  attachPer100ToItem,
+  calibrateItemWithReference,
+  kcalFromAtwater,
+  matchFoodReference,
+  nutritionForAmount,
+  parseGramsFromText,
+  resolveFoodReferenceById,
+} from './nutrition-density.js';
+import { cookingMethodMultiplier } from './cooking-methods.js';
+import { applyMealValidation, sanitizeAnalysisTotals } from './nutrition-sanitize.js';
+import { decomposeVisionWithRecipes } from './vision-recipe-compose.js';
+import { scoreMealConfidence } from './nutrition-confidence.js';
+import { applyAuthoritativeNutritionToItem } from './authoritative-nutrition.js';
+import { normalizeCanonicalFoodText } from './canonical-food-identity.js';
+import { itemProvenanceSummary } from './nutrition-provenance.js';
+
+const FALLBACK_PER100 = {
+  kcal: 130,
+  protein_g: 8,
+  carbs_g: 10,
+  fat_g: 6,
+  fibre_g: null,
+  sugar_g: null,
+  salt_mg: null,
+  refId: null,
+  source: 'fallback',
+};
+
+function round1(v) {
+  return Math.round(v * 10) / 10;
+}
+
+function num(v) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function scaleMicro(val, factor) {
+  if (val == null || !Number.isFinite(Number(val))) return null;
+  return round1(num(val) * factor);
+}
+
+/** True when Gemini returned vision-only items (no AI nutrition). */
+export function isVisionAnalysis(raw = {}) {
+  if (!Array.isArray(raw.items) || !raw.items.length) return false;
+  const first = raw.items[0];
+  if (first == null || typeof first !== 'object') return false;
+  if (first.estimated_amount != null && first.unit != null) return true;
+  return raw.total_calories_kcal == null && first.calories_kcal == null && first.nutrition == null;
+}
+
+function scaleItemNutrition(item, factor) {
+  if (!item || !Number.isFinite(factor) || factor <= 0 || Math.abs(factor - 1) < 0.02) return item;
+  const n = item.nutrition || {};
+  const nutrition = {
+    protein_g: round1(num(n.protein_g) * factor),
+    carbs_g: round1(num(n.carbs_g) * factor),
+    fat_g: round1(num(n.fat_g) * factor),
+    fibre_g: scaleMicro(n.fibre_g, factor),
+    sugar_g: scaleMicro(n.sugar_g, factor),
+    salt_mg: n.salt_mg != null ? Math.round(num(n.salt_mg) * factor) : null,
+  };
+  const calories_kcal = item._authoritative
+    ? Math.round(num(item.calories_kcal) * factor)
+    : (num(item.calories_kcal) > 0
+      ? Math.round(num(item.calories_kcal) * factor)
+      : kcalFromAtwater(nutrition));
+  return {
+    ...item,
+    calories_kcal,
+    nutrition,
+  };
+}
+
+function applyCookingMethod(item, cookingMethod = '') {
+  const factor = cookingMethodMultiplier(cookingMethod);
+  if (factor == null) return item;
+  return attachPer100ToItem(scaleItemNutrition(item, factor));
+}
+
+function buildOilLineItem(grams = 7) {
+  const g = Math.max(1, Math.round(grams));
+  const nutrition = {
+    protein_g: 0,
+    carbs_g: 0,
+    fat_g: round1(g),
+    fibre_g: null,
+    sugar_g: null,
+    salt_mg: null,
+  };
+  return attachPer100ToItem({
+    name: 'Cooking oil',
+    portion_estimate: `~${g}g`,
+    calories_kcal: Math.round(g * 9),
+    nutrition,
+    confidence: 0.6,
+    _visionOil: true,
+    _nutritionSource: 'estimated',
+  });
+}
+
+function oilGramsForMethod(cookingMethod = '') {
+  const t = String(cookingMethod).toLowerCase();
+  if (/deep/.test(t)) return 10;
+  if (/pan|stir|saut|shallow|fried/.test(t)) return 7;
+  return 7;
+}
+
+function visionItemToStub(visionItem = {}) {
+  const unit = String(visionItem.unit || 'g').toLowerCase() === 'ml' ? 'ml' : 'g';
+  const amount = Math.max(1, Math.round(num(visionItem.estimated_amount) || (unit === 'ml' ? 250 : 120)));
+  return {
+    name: String(visionItem.name || 'Food').trim() || 'Food',
+    portion_estimate: unit === 'ml' ? `~${amount}ml` : `~${amount}g`,
+    calories_kcal: 0,
+    nutrition: {
+      protein_g: 0,
+      carbs_g: 0,
+      fat_g: 0,
+      fibre_g: null,
+      sugar_g: null,
+      salt_mg: null,
+    },
+    confidence: num(visionItem.confidence) || 0.7,
+    _visionMeta: {
+      unit,
+      amount,
+      cooking_method: visionItem.cooking_method || '',
+      visible_oil: Boolean(visionItem.visible_oil),
+    },
+    _hiddenGrams: unit === 'g' ? amount : undefined,
+    ...(unit === 'ml' ? { _volumeMl: amount } : {}),
+  };
+}
+
+function enrichVisionItemProvenance(item = {}) {
+  if (item._provenanceLabel) return item;
+  const summary = itemProvenanceSummary(item);
+  if (!summary) return item;
+  return {
+    ...item,
+    _provenanceLabel: summary.split('\n').find((l) => l.startsWith('Source:'))?.replace('Source: ', '') || undefined,
+  };
+}
+
+function calibrateVisionItem(item) {
+  let result = calibrateItemWithReference(item);
+
+  if (result._refId) {
+    const { ref } = resolveFoodReferenceById(result._refId);
+    result = applyAuthoritativeNutritionToItem(result, ref);
+  }
+
+  if (result._refId && (result._authoritative || num(result.calories_kcal) > 0)) {
+    result = applyCookingMethod(result, item._visionMeta?.cooking_method);
+    return enrichVisionItemProvenance(result);
+  }
+
+  const normalized = normalizeCanonicalFoodText(item.name || '');
+  const ref = matchFoodReference(item.name || '')
+    || (normalized !== item.name?.toLowerCase() ? matchFoodReference(normalized) : null);
+  if (ref) {
+    result = calibrateItemWithReference({ ...item, _refId: ref.id });
+    const { ref: refRow } = resolveFoodReferenceById(ref.id);
+    result = applyAuthoritativeNutritionToItem(result, refRow);
+    if (result._refId && num(result.calories_kcal) > 0) {
+      result = applyCookingMethod(result, item._visionMeta?.cooking_method);
+      return enrichVisionItemProvenance(result);
+    }
+  }
+
+  const amount = item._visionMeta?.amount
+    || item._hiddenGrams
+    || parseGramsFromText(item.portion_estimate)
+    || 120;
+  const scaled = nutritionForAmount(FALLBACK_PER100, amount);
+  result = attachPer100ToItem({
+    ...item,
+    calories_kcal: scaled.calories_kcal,
+    nutrition: scaled.nutrition,
+    _nutritionFallback: true,
+    _hiddenGrams: item._hiddenGrams || (item._visionMeta?.unit === 'g' ? amount : undefined),
+  });
+  result = applyCookingMethod(result, item._visionMeta?.cooking_method);
+  return enrichVisionItemProvenance(result);
+}
+
+/** Compose only newly detected side items from an accompaniment Gemini pass. */
+export function composeAccompanimentAdditions(accompanimentVision = {}, existingItems = []) {
+  const existing = new Set(
+    (existingItems || []).map((item) => String(item.name || '').toLowerCase().trim()),
+  );
+  const stubs = (accompanimentVision.items || [])
+    .filter((row) => {
+      const key = String(row.name || '').toLowerCase().trim();
+      return key && !existing.has(key);
+    })
+    .map(visionItemToStub);
+
+  return stubs.map(calibrateVisionItem).map((item) => ({
+    ...item,
+    _accompanimentGeminiPass: true,
+  }));
+}
+
+/**
+ * @param {object} vision — Gemini vision-only JSON
+ * @returns {object} full analysis for existing client flow
+ */
+export function composeAnalysisFromVision(vision = {}) {
+  const stubs = (vision.items || []).map(visionItemToStub);
+  const { recipeItems, remainingStubs, decomposed } = decomposeVisionWithRecipes(stubs, vision);
+  const oilItems = [];
+
+  const stubsForOil = decomposed ? recipeItems : remainingStubs;
+  for (const stub of stubsForOil) {
+    const meta = stub._visionMeta || {};
+    if (!meta.visible_oil) continue;
+    if (/steam|boil|raw|salad/.test(String(meta.cooking_method).toLowerCase())) continue;
+    oilItems.push(buildOilLineItem(oilGramsForMethod(meta.cooking_method)));
+  }
+
+  const calibratedRest = decomposed ? [] : remainingStubs.map(calibrateVisionItem);
+  const recipeItemsEnriched = recipeItems.map((item) => {
+    const { ref } = resolveFoodReferenceById(item._refId);
+    return enrichVisionItemProvenance(applyAuthoritativeNutritionToItem(item, ref));
+  });
+  const items = [...recipeItemsEnriched, ...calibratedRest, ...oilItems];
+
+  const sourceText = vision.meal_summary || stubs.map((s) => s.name).filter(Boolean).join(', ');
+
+  let analysis = sanitizeAnalysisTotals({
+    meal_summary: vision.meal_summary || 'Meal',
+    confidence_score: num(vision.confidence_score) || 0.7,
+    clarification_questions: vision.clarification_questions || [],
+    items,
+    total_calories_kcal: 0,
+    total_nutrition: {
+      protein_g: 0,
+      carbs_g: 0,
+      fat_g: 0,
+      fibre_g: null,
+      sugar_g: null,
+      salt_mg: null,
+    },
+    _visionComposed: true,
+    _visionNotes: vision.notes || '',
+    _recipeDecomposed: decomposed || items.some((item) => item._recipeDerived),
+    _pipelineResolved: true,
+    source: 'photo',
+    _sourceText: sourceText,
+  });
+
+  analysis = applyMealValidation(analysis, { sourceText });
+  analysis._confidence = scoreMealConfidence(analysis);
+  return analysis;
+}
+
+/** Accept vision-only or legacy full AI analysis. */
+export function normalizePhotoAnalysis(raw = {}) {
+  if (isVisionAnalysis(raw)) return composeAnalysisFromVision(raw);
+  return raw;
+}

@@ -1,0 +1,125 @@
+{
+  "version": "1.0",
+  "description": "Phase 2 trusted benchmark — per-100g nutrient accuracy vs CoFID/IFCT for weighed inputs.",
+  "categories": [
+    "trusted_weighed",
+    "trusted_provenance",
+    "trusted_uk",
+    "trusted_indian"
+  ],
+  "cases": [
+    {
+      "id": "trusted-rice-100g",
+      "category": "trusted_weighed",
+      "input": "100g cooked rice",
+      "minItems": 1,
+      "refId": "rice",
+      "grams": 100,
+      "fixtureId": "white_rice",
+      "expectVerified": true
+    },
+    {
+      "id": "trusted-rice-250g",
+      "category": "trusted_weighed",
+      "input": "250g cooked rice",
+      "minItems": 1,
+      "refId": "rice",
+      "grams": 250,
+      "fixtureId": "white_rice",
+      "kcalMin": 280,
+      "kcalMax": 420,
+      "expectVerified": true
+    },
+    {
+      "id": "trusted-beans-200g",
+      "category": "trusted_uk",
+      "input": "200g baked beans",
+      "minItems": 1,
+      "refId": "baked_beans",
+      "grams": 200,
+      "fixtureId": "baked_beans",
+      "kcalMin": 190,
+      "kcalMax": 230,
+      "expectVerified": true
+    },
+    {
+      "id": "trusted-fish-chips-weighed",
+      "category": "trusted_uk",
+      "input": "180g battered cod, 250g chips, 80g mushy peas",
+      "minItems": 3,
+      "mustInclude": ["cod", "chip", "pea"],
+      "itemFixtures": [
+        { "refId": "white_fish", "grams": 180, "fixtureId": "white_fish" },
+        { "refId": "fries", "grams": 250, "fixtureId": "fries" },
+        { "refId": "mushy_peas", "grams": 80, "fixtureId": "mushy_peas" }
+      ],
+      "kcalMin": 550,
+      "kcalMax": 1350
+    },
+    {
+      "id": "trusted-dal-200g",
+      "category": "trusted_indian",
+      "input": "200g dal tadka",
+      "minItems": 1,
+      "refId": "dal_tadka",
+      "grams": 200,
+      "fixtureId": "dal",
+      "kcalMin": 190,
+      "kcalMax": 230,
+      "expectVerified": true
+    },
+    {
+      "id": "trusted-chapati-count",
+      "category": "trusted_indian",
+      "input": "2 chapatis",
+      "minItems": 1,
+      "refId": "roti",
+      "expectVerified": true,
+      "mustInclude": ["chapati"]
+    },
+    {
+      "id": "trusted-edamame-100g",
+      "category": "trusted_weighed",
+      "input": "100g edamame",
+      "minItems": 1,
+      "refId": "edamame",
+      "grams": 100,
+      "fixtureId": "edamame",
+      "kcalMin": 110,
+      "kcalMax": 135,
+      "expectVerified": true
+    },
+    {
+      "id": "trusted-banana-medium",
+      "category": "trusted_provenance",
+      "input": "1 medium banana",
+      "minItems": 1,
+      "refId": "banana",
+      "fixtureId": "banana",
+      "expectVerified": true,
+      "mustInclude": ["banana"]
+    },
+    {
+      "id": "trusted-eggs-2",
+      "category": "trusted_provenance",
+      "input": "2 large boiled eggs",
+      "minItems": 1,
+      "refId": "boiled_egg",
+      "fixtureId": "boiled_egg",
+      "kcalMin": 140,
+      "kcalMax": 220
+    },
+    {
+      "id": "trusted-basmati-150g",
+      "category": "trusted_indian",
+      "input": "150g basmati rice",
+      "minItems": 1,
+      "refId": "basmati_rice",
+      "grams": 150,
+      "fixtureId": "basmati_rice",
+      "kcalMin": 200,
+      "kcalMax": 240,
+      "expectVerified": true
+    }
+  ]
+}

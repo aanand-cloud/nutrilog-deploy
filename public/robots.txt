@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Disallow: /logo-preview.html
+Disallow: /api/
+
+Sitemap: https://www.mealnova.co.uk/sitemap.xml

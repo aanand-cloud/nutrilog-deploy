@@ -1,0 +1,3505 @@
+{
+  "version": "p5-locked-1",
+  "description": "MealNova P5 locked accuracy benchmark — do not edit by hand; regenerate via generate-p5-locked-benchmark.mjs",
+  "generatedAt": "2026-09-10T14:04:34.117Z",
+  "quotas": {
+    "uk": 60,
+    "indian": 80,
+    "packaged": 30,
+    "restaurant": 20,
+    "difficult_mixed": 10
+  },
+  "regionCounts": {
+    "uk": 60,
+    "indian": 80,
+    "packaged": 30,
+    "restaurant": 20,
+    "difficult_mixed": 10
+  },
+  "cases": [
+    {
+      "id": "mandatory-3-idlis",
+      "p5Region": "indian",
+      "input": "3 idlis",
+      "minItems": 1,
+      "mustInclude": [
+        "idli"
+      ],
+      "grams": {
+        "idli": 180
+      },
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true,
+      "tolerancePct": 20
+    },
+    {
+      "id": "mandatory-4-idlis",
+      "p5Region": "indian",
+      "input": "4 idlis",
+      "minItems": 1,
+      "mustInclude": [
+        "idli"
+      ],
+      "grams": {
+        "idli": 240
+      },
+      "expectFirstSubmitPass": true,
+      "expectWeightProvenance": true,
+      "tolerancePct": 20,
+      "expectRangeIntegrity": true
+    },
+    {
+      "id": "mandatory-5-idlis",
+      "p5Region": "indian",
+      "input": "5 idlis",
+      "minItems": 1,
+      "mustInclude": [
+        "idli"
+      ],
+      "grams": {
+        "idli": 300
+      },
+      "expectFirstSubmitPass": true,
+      "expectWeightProvenance": true,
+      "tolerancePct": 20,
+      "expectRangeIntegrity": true
+    },
+    {
+      "id": "mandatory-6-idlis",
+      "p5Region": "indian",
+      "input": "6 idlis",
+      "minItems": 1,
+      "mustInclude": [
+        "idli"
+      ],
+      "grams": {
+        "idli": 360
+      },
+      "expectFirstSubmitPass": true,
+      "expectWeightProvenance": true,
+      "tolerancePct": 20,
+      "expectRangeIntegrity": true
+    },
+    {
+      "id": "mandatory-3-idlys",
+      "p5Region": "indian",
+      "input": "3 idlys",
+      "minItems": 1,
+      "mustInclude": [
+        "idli"
+      ],
+      "grams": {
+        "idli": 180
+      },
+      "expectFirstSubmitPass": true,
+      "expectWeightProvenance": true,
+      "tolerancePct": 20,
+      "expectRangeIntegrity": true
+    },
+    {
+      "id": "mandatory-idli-plate",
+      "p5Region": "indian",
+      "input": "3 idlies with 100 ml sambar and 30 g coconut chutney",
+      "minItems": 3,
+      "mustInclude": [
+        "idli",
+        "sambar",
+        "chutney"
+      ],
+      "grams": {
+        "idli": 180,
+        "sambar": 100,
+        "chutney": 30
+      },
+      "referenceKcal": 277,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "mandatory-chutney-idli-a",
+      "p5Region": "difficult_mixed",
+      "input": "30 g coconut chutney with 3 idlis",
+      "minItems": 2,
+      "mustInclude": [
+        "chutney",
+        "idli"
+      ],
+      "orderPairId": "chutney-idli",
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true,
+      "tolerancePct": 20
+    },
+    {
+      "id": "mandatory-chutney-idli-b",
+      "p5Region": "difficult_mixed",
+      "input": "3 idlis with 30 g coconut chutney",
+      "minItems": 2,
+      "mustInclude": [
+        "chutney",
+        "idli"
+      ],
+      "orderPairId": "chutney-idli",
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true,
+      "tolerancePct": 20
+    },
+    {
+      "id": "mandatory-korma-chapati-a",
+      "p5Region": "difficult_mixed",
+      "input": "200 g vegetable korma with 2 chapatis",
+      "minItems": 2,
+      "mustInclude": [
+        "kurma",
+        "roti"
+      ],
+      "grams": {
+        "kurma": 200,
+        "roti": 120
+      },
+      "referenceKcal": 546,
+      "tolerancePct": 20,
+      "orderPairId": "korma-chapati",
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "mandatory-korma-chapati-b",
+      "p5Region": "difficult_mixed",
+      "input": "2 chapatis with 200 g vegetable korma",
+      "minItems": 2,
+      "mustInclude": [
+        "kurma",
+        "roti"
+      ],
+      "grams": {
+        "kurma": 200,
+        "roti": 120
+      },
+      "referenceKcal": 546,
+      "tolerancePct": 20,
+      "orderPairId": "korma-chapati",
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "mandatory-oats-milk",
+      "p5Region": "uk",
+      "input": "50 g dry porridge oats made with 250 ml semi-skimmed milk",
+      "minItems": 2,
+      "mustInclude": [
+        "oat",
+        "milk"
+      ],
+      "grams": {
+        "oat": 50,
+        "milk": 250
+      },
+      "referenceKcal": 305,
+      "tolerancePct": 15,
+      "expectFirstSubmitPass": true,
+      "expectWeightProvenance": true,
+      "confidenceBand": "high",
+      "expectRangeIntegrity": true
+    },
+    {
+      "id": "mandatory-tikka-rice",
+      "p5Region": "indian",
+      "input": "200 g chicken tikka masala with 180 g cooked basmati rice",
+      "minItems": 2,
+      "mustInclude": [
+        "tikka",
+        "rice"
+      ],
+      "grams": {
+        "tikka": 200,
+        "rice": 180
+      },
+      "referenceKcal": 566,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "confidenceBand": "medium",
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "mandatory-biryani-300g",
+      "p5Region": "restaurant",
+      "input": "300 g restaurant chicken biryani",
+      "minItems": 1,
+      "mustInclude": [
+        "biryani"
+      ],
+      "grams": {
+        "biryani": 300
+      },
+      "referenceKcal": 555,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "confidenceBand": "medium",
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "mandatory-biryani-raita",
+      "p5Region": "restaurant",
+      "input": "300 g chicken biryani with 100 g cucumber raita",
+      "minItems": 2,
+      "mustInclude": [
+        "biryani",
+        "raita"
+      ],
+      "referenceKcal": 613,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "mandatory-chole-bhature",
+      "p5Region": "indian",
+      "input": "2 bhature with 200 g chole",
+      "minItems": 2,
+      "mustInclude": [
+        "bhatur",
+        "chana"
+      ],
+      "grams": {
+        "bhatur": 240,
+        "chana": 200
+      },
+      "referenceKcal": 1008,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "mandatory-fish-chips-peas",
+      "p5Region": "uk",
+      "input": "180 g battered cod with 250 g chip-shop chips and 80 g mushy peas",
+      "minItems": 3,
+      "mustInclude": [
+        "cod",
+        "chip",
+        "pea"
+      ],
+      "grams": {
+        "cod": 180,
+        "fries": 250,
+        "pea": 80
+      },
+      "referenceKcal": 1263,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "mandatory-toast-beans-butter",
+      "p5Region": "uk",
+      "input": "2 slices wholemeal toast with 200 g baked beans and 10 g butter",
+      "minItems": 3,
+      "expectFirstSubmitPass": true,
+      "expectWeightProvenance": true,
+      "tolerancePct": 20,
+      "expectRangeIntegrity": true
+    },
+    {
+      "id": "mandatory-poha-peanuts",
+      "p5Region": "indian",
+      "input": "250 g vegetable poha with 20 g peanuts",
+      "minItems": 2,
+      "mustInclude": [
+        "poha",
+        "peanut"
+      ],
+      "referenceKcal": 438,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "trusted-beans-200g",
+      "category": "trusted_uk",
+      "input": "200g baked beans",
+      "minItems": 1,
+      "refId": "baked_beans",
+      "grams": 200,
+      "fixtureId": "baked_beans",
+      "kcalMin": 190,
+      "kcalMax": 230,
+      "expectVerified": true,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "beans-toast",
+      "category": "uk_meal",
+      "input": "beans on two slices of wholemeal toast",
+      "minItems": 2,
+      "mustInclude": [
+        "toast",
+        "bean"
+      ],
+      "kcalMin": 250,
+      "kcalMax": 550,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "eu-beans-toast",
+      "category": "european",
+      "input": "beans on toast",
+      "minItems": 2,
+      "mustInclude": [
+        "bean",
+        "toast"
+      ],
+      "kcalMin": 380,
+      "kcalMax": 480,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "eu-club",
+      "category": "european",
+      "input": "club sandwich",
+      "minItems": 1,
+      "mustInclude": [
+        "club"
+      ],
+      "kcalMin": 500,
+      "kcalMax": 580,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "eu-fish-chips",
+      "category": "european",
+      "input": "fish and chips",
+      "minItems": 2,
+      "mustInclude": [
+        "cod",
+        "chip"
+      ],
+      "kcalMin": 1200,
+      "kcalMax": 1400,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "eu-full-english",
+      "category": "european",
+      "input": "full english breakfast",
+      "minItems": 3,
+      "mustInclude": [
+        "english"
+      ],
+      "kcalMin": 650,
+      "kcalMax": 900,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "eu-porridge-banana",
+      "category": "european",
+      "input": "porridge with banana",
+      "minItems": 1,
+      "mustInclude": [
+        "porridge"
+      ],
+      "kcalMin": 180,
+      "kcalMax": 280,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "fish-chips-peas",
+      "category": "uk_meal",
+      "input": "180g battered cod, 250g chips, 80g mushy peas",
+      "minItems": 3,
+      "mustInclude": [
+        "cod",
+        "chip",
+        "pea"
+      ],
+      "kcalMin": 550,
+      "kcalMax": 1350,
+      "quantityChecks": [
+        {
+          "contains": "180",
+          "unit": "g"
+        },
+        {
+          "contains": "250",
+          "unit": "g"
+        }
+      ],
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-beans-120",
+      "p5Region": "uk",
+      "input": "120g baked beans",
+      "minItems": 1,
+      "mustInclude": [
+        "bean"
+      ],
+      "kcalMin": 100,
+      "kcalMax": 300,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-beans-140",
+      "p5Region": "uk",
+      "input": "140g baked beans",
+      "minItems": 1,
+      "mustInclude": [
+        "bean"
+      ],
+      "kcalMin": 100,
+      "kcalMax": 300,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-beans-160",
+      "p5Region": "uk",
+      "input": "160g baked beans",
+      "minItems": 1,
+      "mustInclude": [
+        "bean"
+      ],
+      "kcalMin": 100,
+      "kcalMax": 300,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-beans-180",
+      "p5Region": "uk",
+      "input": "180g baked beans",
+      "minItems": 1,
+      "mustInclude": [
+        "bean"
+      ],
+      "kcalMin": 100,
+      "kcalMax": 300,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-beans-220",
+      "p5Region": "uk",
+      "input": "220g baked beans",
+      "minItems": 1,
+      "mustInclude": [
+        "bean"
+      ],
+      "kcalMin": 100,
+      "kcalMax": 300,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-beans-240",
+      "p5Region": "uk",
+      "input": "240g baked beans",
+      "minItems": 1,
+      "mustInclude": [
+        "bean"
+      ],
+      "kcalMin": 100,
+      "kcalMax": 300,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-cheese-40",
+      "p5Region": "uk",
+      "input": "40g cheddar cheese",
+      "minItems": 1,
+      "mustInclude": [
+        "cheese"
+      ],
+      "kcalMin": 120,
+      "kcalMax": 220,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-chicken-120",
+      "p5Region": "uk",
+      "input": "120g chicken breast",
+      "minItems": 1,
+      "mustInclude": [
+        "chicken"
+      ],
+      "kcalMin": 100,
+      "kcalMax": 250,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-chicken-160",
+      "p5Region": "uk",
+      "input": "160g chicken breast",
+      "minItems": 1,
+      "mustInclude": [
+        "chicken"
+      ],
+      "kcalMin": 100,
+      "kcalMax": 250,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-chicken-80",
+      "p5Region": "uk",
+      "input": "80g chicken breast",
+      "minItems": 1,
+      "mustInclude": [
+        "chicken"
+      ],
+      "kcalMin": 100,
+      "kcalMax": 250,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-eggs-1",
+      "p5Region": "uk",
+      "input": "1 boiled egg",
+      "minItems": 1,
+      "mustInclude": [
+        "egg"
+      ],
+      "kcalMin": 60,
+      "kcalMax": 250,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-eggs-3",
+      "p5Region": "uk",
+      "input": "3 boiled eggs",
+      "minItems": 1,
+      "mustInclude": [
+        "egg"
+      ],
+      "kcalMin": 150,
+      "kcalMax": 300,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-milk-150",
+      "p5Region": "uk",
+      "input": "150 ml semi skimmed milk",
+      "minItems": 1,
+      "mustInclude": [
+        "milk"
+      ],
+      "kcalMin": 60,
+      "kcalMax": 200,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-milk-180",
+      "p5Region": "uk",
+      "input": "180 ml semi skimmed milk",
+      "minItems": 1,
+      "mustInclude": [
+        "milk"
+      ],
+      "kcalMin": 60,
+      "kcalMax": 200,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-milk-220",
+      "p5Region": "uk",
+      "input": "220 ml semi skimmed milk",
+      "minItems": 1,
+      "mustInclude": [
+        "milk"
+      ],
+      "kcalMin": 60,
+      "kcalMax": 200,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-milk-300",
+      "p5Region": "uk",
+      "input": "300 ml semi skimmed milk",
+      "minItems": 1,
+      "mustInclude": [
+        "milk"
+      ],
+      "kcalMin": 60,
+      "kcalMax": 200,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-oats-40",
+      "p5Region": "uk",
+      "input": "40g porridge oats with 200 ml milk",
+      "minItems": 2,
+      "mustInclude": [
+        "oat",
+        "milk"
+      ],
+      "kcalMin": 200,
+      "kcalMax": 400,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-oats-50",
+      "p5Region": "uk",
+      "input": "50g porridge oats with 250 ml milk",
+      "minItems": 2,
+      "mustInclude": [
+        "oat",
+        "milk"
+      ],
+      "kcalMin": 250,
+      "kcalMax": 450,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-rice-100",
+      "p5Region": "uk",
+      "input": "100g cooked rice",
+      "minItems": 1,
+      "mustInclude": [
+        "rice"
+      ],
+      "kcalMin": 120,
+      "kcalMax": 350,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-rice-120",
+      "p5Region": "uk",
+      "input": "120g cooked rice",
+      "minItems": 1,
+      "mustInclude": [
+        "rice"
+      ],
+      "kcalMin": 120,
+      "kcalMax": 350,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-rice-200",
+      "p5Region": "uk",
+      "input": "200g cooked rice",
+      "minItems": 1,
+      "mustInclude": [
+        "rice"
+      ],
+      "kcalMin": 120,
+      "kcalMax": 350,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-rice-220",
+      "p5Region": "uk",
+      "input": "220g cooked rice",
+      "minItems": 1,
+      "mustInclude": [
+        "rice"
+      ],
+      "kcalMin": 120,
+      "kcalMax": 350,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-toast-1",
+      "p5Region": "uk",
+      "input": "1 slice toast with 5 g butter",
+      "minItems": 1,
+      "mustInclude": [
+        "toast"
+      ],
+      "kcalMin": 80,
+      "kcalMax": 250,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-toast-2",
+      "p5Region": "uk",
+      "input": "2 slices toast with 15 g butter",
+      "minItems": 2,
+      "mustInclude": [
+        "toast",
+        "butter"
+      ],
+      "kcalMin": 150,
+      "kcalMax": 400,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-uk-tuna-100",
+      "p5Region": "uk",
+      "input": "100g tinned tuna",
+      "minItems": 1,
+      "mustInclude": [
+        "tuna"
+      ],
+      "kcalMin": 80,
+      "kcalMax": 200,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "porridge-milk",
+      "category": "uk_meal",
+      "input": "porridge oats made with semi-skimmed milk",
+      "minItems": 1,
+      "mustInclude": [
+        "porridge",
+        "oat"
+      ],
+      "kcalMin": 130,
+      "kcalMax": 400,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "roast-dinner",
+      "category": "uk_meal",
+      "input": "roast chicken with potatoes, carrots, peas and gravy",
+      "minItems": 3,
+      "mustInclude": [
+        "chicken",
+        "potato",
+        "gravy"
+      ],
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "trusted-fish-chips-weighed",
+      "category": "trusted_uk",
+      "input": "180g battered cod, 250g chips, 80g mushy peas",
+      "minItems": 3,
+      "mustInclude": [
+        "cod",
+        "chip",
+        "pea"
+      ],
+      "itemFixtures": [
+        {
+          "refId": "white_fish",
+          "grams": 180,
+          "fixtureId": "white_fish"
+        },
+        {
+          "refId": "fries",
+          "grams": 250,
+          "fixtureId": "fries"
+        },
+        {
+          "refId": "mushy_peas",
+          "grams": 80,
+          "fixtureId": "mushy_peas"
+        }
+      ],
+      "kcalMin": 550,
+      "kcalMax": 1350,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "uk-banana",
+      "category": "uk_basic",
+      "input": "1 medium banana",
+      "minItems": 1,
+      "mustInclude": [
+        "banana"
+      ],
+      "kcalMin": 80,
+      "kcalMax": 130,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "uk-bangers-mash",
+      "category": "uk_mixed",
+      "input": "bangers and mash",
+      "minItems": 2,
+      "mustInclude": [
+        "sausage",
+        "mash"
+      ],
+      "kcalMin": 350,
+      "kcalMax": 800,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "uk-beans-200g",
+      "category": "uk_basic",
+      "input": "200g baked beans",
+      "minItems": 1,
+      "mustInclude": [
+        "bean"
+      ],
+      "kcalMin": 180,
+      "kcalMax": 240,
+      "quantityChecks": [
+        {
+          "contains": "200",
+          "unit": "g"
+        }
+      ],
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "uk-beans-toast",
+      "category": "uk_mixed",
+      "input": "beans on toast",
+      "minItems": 2,
+      "mustInclude": [
+        "bean",
+        "toast"
+      ],
+      "kcalMin": 250,
+      "kcalMax": 450,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "uk-chicken-breast",
+      "category": "uk_basic",
+      "input": "100g chicken breast",
+      "minItems": 1,
+      "mustInclude": [
+        "chicken"
+      ],
+      "kcalMin": 120,
+      "kcalMax": 200,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "uk-cornish-pasty",
+      "category": "uk_mixed",
+      "input": "cornish pasty",
+      "minItems": 1,
+      "mustInclude": [
+        "pasty"
+      ],
+      "kcalMin": 400,
+      "kcalMax": 750,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "uk-cottage-pie",
+      "category": "uk_mixed",
+      "input": "cottage pie",
+      "minItems": 2,
+      "mustInclude": [
+        "lamb",
+        "mash"
+      ],
+      "kcalMin": 500,
+      "kcalMax": 900,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "uk-eggs-2",
+      "category": "uk_basic",
+      "input": "2 boiled eggs",
+      "minItems": 1,
+      "mustInclude": [
+        "egg"
+      ],
+      "kcalMin": 120,
+      "kcalMax": 220,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "uk-fish-chips",
+      "category": "uk_mixed",
+      "input": "fish and chips",
+      "minItems": 2,
+      "mustInclude": [
+        "cod",
+        "chip"
+      ],
+      "kcalMin": 900,
+      "kcalMax": 1400,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "uk-fish-chips-peas-w",
+      "category": "uk_mixed",
+      "input": "180g battered cod, 250g chips, 80g mushy peas",
+      "minItems": 3,
+      "mustInclude": [
+        "cod",
+        "chip",
+        "pea"
+      ],
+      "kcalMin": 550,
+      "kcalMax": 1350,
+      "quantityChecks": [
+        {
+          "contains": "180",
+          "unit": "g"
+        },
+        {
+          "contains": "250",
+          "unit": "g"
+        }
+      ],
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "uk-full-english",
+      "category": "uk_mixed",
+      "input": "full english breakfast",
+      "minItems": 3,
+      "mustInclude": [
+        "egg",
+        "sausage",
+        "bean"
+      ],
+      "kcalMin": 600,
+      "kcalMax": 950,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "uk-jacket-beans",
+      "category": "uk_mixed",
+      "input": "jacket potato with baked beans",
+      "minItems": 2,
+      "mustInclude": [
+        "potato",
+        "bean"
+      ],
+      "kcalMin": 350,
+      "kcalMax": 650,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "uk-milk-200ml",
+      "category": "uk_basic",
+      "input": "200 ml semi skimmed milk",
+      "minItems": 1,
+      "mustInclude": [
+        "milk"
+      ],
+      "kcalMin": 80,
+      "kcalMax": 150,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "uk-ploughmans",
+      "category": "uk_mixed",
+      "input": "ploughmans lunch",
+      "minItems": 1,
+      "mustInclude": [
+        "ploughman"
+      ],
+      "kcalMin": 350,
+      "kcalMax": 600,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "uk-porridge-milk",
+      "category": "uk_basic",
+      "input": "40g porridge oats with 200 ml milk",
+      "minItems": 2,
+      "mustInclude": [
+        "oat",
+        "milk"
+      ],
+      "kcalMin": 200,
+      "kcalMax": 350,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "uk-rice-150g",
+      "category": "uk_basic",
+      "input": "150g cooked rice",
+      "minItems": 1,
+      "mustInclude": [
+        "rice"
+      ],
+      "kcalMin": 180,
+      "kcalMax": 280,
+      "quantityChecks": [
+        {
+          "contains": "150",
+          "unit": "g"
+        }
+      ],
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "uk-scotch-egg",
+      "category": "uk_mixed",
+      "input": "scotch egg",
+      "minItems": 1,
+      "mustInclude": [
+        "scotch",
+        "egg"
+      ],
+      "kcalMin": 200,
+      "kcalMax": 700,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "uk-shepherds-pie",
+      "category": "uk_mixed",
+      "input": "shepherds pie",
+      "minItems": 2,
+      "mustInclude": [
+        "lamb",
+        "mash"
+      ],
+      "kcalMin": 500,
+      "kcalMax": 900,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "uk-sunday-roast",
+      "category": "uk_mixed",
+      "input": "sunday roast chicken",
+      "minItems": 1,
+      "mustInclude": [
+        "chicken",
+        "roast"
+      ],
+      "kcalMin": 400,
+      "kcalMax": 900,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "uk-toast-butter",
+      "category": "uk_basic",
+      "input": "2 slices toast with 10 g butter",
+      "minItems": 2,
+      "mustInclude": [
+        "toast",
+        "butter"
+      ],
+      "kcalMin": 150,
+      "kcalMax": 350,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "uk-yorkshire-pud",
+      "category": "uk_mixed",
+      "input": "yorkshire pudding",
+      "minItems": 1,
+      "mustInclude": [
+        "yorkshire"
+      ],
+      "kcalMin": 150,
+      "kcalMax": 600,
+      "p5Region": "uk",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "trusted-basmati-150g",
+      "category": "trusted_indian",
+      "input": "150g basmati rice",
+      "minItems": 1,
+      "refId": "basmati_rice",
+      "grams": 150,
+      "fixtureId": "basmati_rice",
+      "kcalMin": 200,
+      "kcalMax": 240,
+      "expectVerified": true,
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "trusted-chapati-count",
+      "category": "trusted_indian",
+      "input": "2 chapatis",
+      "minItems": 1,
+      "refId": "roti",
+      "expectVerified": true,
+      "mustInclude": [
+        "chapati"
+      ],
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "trusted-dal-200g",
+      "category": "trusted_indian",
+      "input": "200g dal tadka",
+      "minItems": 1,
+      "refId": "dal_tadka",
+      "grams": 200,
+      "fixtureId": "dal",
+      "kcalMin": 190,
+      "kcalMax": 230,
+      "expectVerified": true,
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "biryani-raita",
+      "category": "indian_meal",
+      "input": "biryani with cucumber raita",
+      "minItems": 2,
+      "mustInclude": [
+        "biryani",
+        "raita"
+      ],
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "chapati-dal-sabzi",
+      "category": "indian_meal",
+      "input": "2 chapatis, dal tadka and vegetable sabzi",
+      "minItems": 3,
+      "mustInclude": [
+        "chapati",
+        "dal",
+        "sabzi"
+      ],
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "chole-bhature",
+      "category": "indian_meal",
+      "input": "chole bhature",
+      "minItems": 1,
+      "mustInclude": [
+        "chole",
+        "bhatur"
+      ],
+      "kcalMin": 350,
+      "kcalMax": 900,
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "idli-sambar",
+      "category": "indian_meal",
+      "input": "3 idlis with sambar and coconut chutney",
+      "minItems": 3,
+      "mustInclude": [
+        "idli",
+        "sambar",
+        "chutney"
+      ],
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "in-biryani-raita-w",
+      "category": "indian_mixed",
+      "input": "300 g chicken biryani, 100 g cucumber raita",
+      "minItems": 2,
+      "mustInclude": [
+        "biryani",
+        "raita"
+      ],
+      "kcalMin": 400,
+      "kcalMax": 900,
+      "quantityChecks": [
+        {
+          "contains": "300",
+          "unit": "g"
+        }
+      ],
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "in-butter-naan",
+      "category": "indian_mixed",
+      "input": "butter chicken with naan",
+      "minItems": 2,
+      "mustInclude": [
+        "curry",
+        "naan"
+      ],
+      "kcalMin": 700,
+      "kcalMax": 1400,
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "in-chapati-2",
+      "category": "indian_basic",
+      "input": "2 chapatis",
+      "minItems": 1,
+      "mustInclude": [
+        "chapati"
+      ],
+      "kcalMin": 200,
+      "kcalMax": 400,
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "in-chole-bhature",
+      "category": "indian_mixed",
+      "input": "chole bhature",
+      "minItems": 1,
+      "mustInclude": [
+        "chole",
+        "bhatur"
+      ],
+      "kcalMin": 350,
+      "kcalMax": 900,
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "in-curd-100g",
+      "category": "indian_basic",
+      "input": "100g plain yogurt",
+      "minItems": 1,
+      "mustInclude": [
+        "yogurt"
+      ],
+      "kcalMin": 50,
+      "kcalMax": 120,
+      "quantityChecks": [
+        {
+          "contains": "100",
+          "unit": "g"
+        }
+      ],
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "in-curry-rice-w",
+      "category": "indian_mixed",
+      "input": "150g chicken curry and 180g rice",
+      "minItems": 2,
+      "mustInclude": [
+        "curry",
+        "rice"
+      ],
+      "kcalMin": 350,
+      "kcalMax": 800,
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "in-dahi-puri",
+      "category": "indian_mixed",
+      "input": "dahi puri",
+      "minItems": 1,
+      "mustInclude": [
+        "puri"
+      ],
+      "kcalMin": 150,
+      "kcalMax": 500,
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "in-dal-200g",
+      "category": "indian_basic",
+      "input": "200g dal tadka",
+      "minItems": 1,
+      "mustInclude": [
+        "dal"
+      ],
+      "kcalMin": 180,
+      "kcalMax": 260,
+      "quantityChecks": [
+        {
+          "contains": "200",
+          "unit": "g"
+        }
+      ],
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "in-dal-rice",
+      "category": "indian_mixed",
+      "input": "dal makhani with rice",
+      "minItems": 2,
+      "mustInclude": [
+        "dal",
+        "rice"
+      ],
+      "kcalMin": 350,
+      "kcalMax": 800,
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "in-dosa-chutney",
+      "category": "indian_mixed",
+      "input": "plain dosa with coconut chutney",
+      "minItems": 2,
+      "mustInclude": [
+        "dosa",
+        "chutney"
+      ],
+      "kcalMin": 300,
+      "kcalMax": 800,
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "in-dry-oats-milk",
+      "category": "indian_mixed",
+      "input": "50 g dry oats with 250 ml milk",
+      "minItems": 2,
+      "mustInclude": [
+        "oat",
+        "milk"
+      ],
+      "kcalMin": 250,
+      "kcalMax": 400,
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "in-idli-3",
+      "category": "indian_basic",
+      "input": "3 idlis",
+      "minItems": 1,
+      "mustInclude": [
+        "idli"
+      ],
+      "kcalMin": 150,
+      "kcalMax": 250,
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "in-idli-sambar",
+      "category": "indian_mixed",
+      "input": "3 idlis with sambar",
+      "minItems": 2,
+      "mustInclude": [
+        "idli",
+        "sambar"
+      ],
+      "kcalMin": 150,
+      "kcalMax": 400,
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "in-madras-rice",
+      "category": "indian_mixed",
+      "input": "chicken madras with rice",
+      "minItems": 2,
+      "mustInclude": [
+        "curry",
+        "rice"
+      ],
+      "kcalMin": 400,
+      "kcalMax": 900,
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "in-masala-dosa",
+      "category": "indian_mixed",
+      "input": "masala dosa with sambar",
+      "minItems": 2,
+      "mustInclude": [
+        "dosa",
+        "sambar"
+      ],
+      "kcalMin": 400,
+      "kcalMax": 900,
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "in-misal-pav",
+      "category": "indian_mixed",
+      "input": "misal pav",
+      "minItems": 1,
+      "mustInclude": [
+        "misal",
+        "pav"
+      ],
+      "kcalMin": 250,
+      "kcalMax": 550,
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "in-palak-roti",
+      "category": "indian_mixed",
+      "input": "palak paneer with 2 roti",
+      "minItems": 2,
+      "mustInclude": [
+        "paneer",
+        "roti"
+      ],
+      "kcalMin": 300,
+      "kcalMax": 900,
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "in-pav-bhaji",
+      "category": "indian_mixed",
+      "input": "pav bhaji",
+      "minItems": 2,
+      "mustInclude": [
+        "pav",
+        "bhaji"
+      ],
+      "kcalMin": 350,
+      "kcalMax": 650,
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "in-poha-peanut-w",
+      "category": "indian_mixed",
+      "input": "250 g poha, 20 g peanuts",
+      "minItems": 2,
+      "mustInclude": [
+        "poha",
+        "peanut"
+      ],
+      "kcalMin": 350,
+      "kcalMax": 650,
+      "quantityChecks": [
+        {
+          "contains": "250",
+          "unit": "g"
+        }
+      ],
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "in-poha-plain",
+      "category": "indian_mixed",
+      "input": "poha with peanuts",
+      "minItems": 2,
+      "mustInclude": [
+        "poha",
+        "peanut"
+      ],
+      "kcalMin": 350,
+      "kcalMax": 650,
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "in-rice-150g",
+      "category": "indian_basic",
+      "input": "150g basmati rice",
+      "minItems": 1,
+      "mustInclude": [
+        "rice"
+      ],
+      "kcalMin": 180,
+      "kcalMax": 280,
+      "quantityChecks": [
+        {
+          "contains": "150",
+          "unit": "g"
+        }
+      ],
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "in-tikka-rice",
+      "category": "indian_mixed",
+      "input": "chicken tikka masala with basmati rice",
+      "minItems": 2,
+      "mustInclude": [
+        "tikka",
+        "rice"
+      ],
+      "kcalMin": 400,
+      "kcalMax": 900,
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "in-uttapam",
+      "category": "indian_mixed",
+      "input": "uttapam with tomato chutney",
+      "minItems": 2,
+      "mustInclude": [
+        "uttapam",
+        "chutney"
+      ],
+      "kcalMin": 300,
+      "kcalMax": 700,
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "in-vada-pav",
+      "category": "indian_mixed",
+      "input": "vada pav",
+      "minItems": 1,
+      "mustInclude": [
+        "vada",
+        "pav"
+      ],
+      "kcalMin": 400,
+      "kcalMax": 750,
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "masala-dosa-plate",
+      "category": "indian_meal",
+      "input": "masala dosa with potato filling, sambar and 30g chutney",
+      "minItems": 3,
+      "mustInclude": [
+        "dosa",
+        "sambar",
+        "chutney"
+      ],
+      "quantityChecks": [
+        {
+          "contains": "30",
+          "unit": "g"
+        }
+      ],
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-chapati-1",
+      "p5Region": "indian",
+      "input": "1 chapati",
+      "minItems": 1,
+      "mustInclude": [
+        "chapati"
+      ],
+      "kcalMin": 80,
+      "kcalMax": 600,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-chapati-3",
+      "p5Region": "indian",
+      "input": "3 chapatis",
+      "minItems": 1,
+      "mustInclude": [
+        "chapati"
+      ],
+      "kcalMin": 80,
+      "kcalMax": 600,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-chapati-4",
+      "p5Region": "indian",
+      "input": "4 chapatis",
+      "minItems": 1,
+      "mustInclude": [
+        "chapati"
+      ],
+      "kcalMin": 200,
+      "kcalMax": 800,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-chutney-30",
+      "p5Region": "indian",
+      "input": "30g coconut chutney",
+      "minItems": 1,
+      "mustInclude": [
+        "chutney"
+      ],
+      "kcalMin": 30,
+      "kcalMax": 150,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-chutney-40",
+      "p5Region": "indian",
+      "input": "40g coconut chutney",
+      "minItems": 1,
+      "mustInclude": [
+        "chutney"
+      ],
+      "kcalMin": 30,
+      "kcalMax": 150,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-chutney-50",
+      "p5Region": "indian",
+      "input": "50g coconut chutney",
+      "minItems": 1,
+      "mustInclude": [
+        "chutney"
+      ],
+      "kcalMin": 30,
+      "kcalMax": 150,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-curd-120",
+      "p5Region": "indian",
+      "input": "120g plain yogurt",
+      "minItems": 1,
+      "mustInclude": [
+        "yogurt"
+      ],
+      "kcalMin": 40,
+      "kcalMax": 200,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-curd-150",
+      "p5Region": "indian",
+      "input": "150g plain yogurt",
+      "minItems": 1,
+      "mustInclude": [
+        "yogurt"
+      ],
+      "kcalMin": 40,
+      "kcalMax": 200,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-curd-80",
+      "p5Region": "indian",
+      "input": "80g plain yogurt",
+      "minItems": 1,
+      "mustInclude": [
+        "yogurt"
+      ],
+      "kcalMin": 40,
+      "kcalMax": 200,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-curry-150",
+      "p5Region": "indian",
+      "input": "150g chicken curry",
+      "minItems": 1,
+      "mustInclude": [
+        "curry"
+      ],
+      "kcalMin": 150,
+      "kcalMax": 450,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-curry-180",
+      "p5Region": "indian",
+      "input": "180g chicken curry",
+      "minItems": 1,
+      "mustInclude": [
+        "curry"
+      ],
+      "kcalMin": 150,
+      "kcalMax": 450,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-curry-220",
+      "p5Region": "indian",
+      "input": "220g chicken curry",
+      "minItems": 1,
+      "mustInclude": [
+        "curry"
+      ],
+      "kcalMin": 150,
+      "kcalMax": 450,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-dal-150",
+      "p5Region": "indian",
+      "input": "150g dal tadka",
+      "minItems": 1,
+      "mustInclude": [
+        "dal"
+      ],
+      "kcalMin": 120,
+      "kcalMax": 350,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-dal-220",
+      "p5Region": "indian",
+      "input": "220g dal tadka",
+      "minItems": 1,
+      "mustInclude": [
+        "dal"
+      ],
+      "kcalMin": 120,
+      "kcalMax": 350,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-dal-280",
+      "p5Region": "indian",
+      "input": "280g dal tadka",
+      "minItems": 1,
+      "mustInclude": [
+        "dal"
+      ],
+      "kcalMin": 120,
+      "kcalMax": 350,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-idli-1",
+      "p5Region": "indian",
+      "input": "1 idli",
+      "minItems": 1,
+      "mustInclude": [
+        "idli"
+      ],
+      "kcalMin": 50,
+      "kcalMax": 120,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-idli-2",
+      "p5Region": "indian",
+      "input": "2 idlis",
+      "minItems": 1,
+      "mustInclude": [
+        "idli"
+      ],
+      "kcalMin": 80,
+      "kcalMax": 400,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-idli-4",
+      "p5Region": "indian",
+      "input": "4 idlis",
+      "minItems": 1,
+      "mustInclude": [
+        "idli"
+      ],
+      "kcalMin": 100,
+      "kcalMax": 400,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-idli-5",
+      "p5Region": "indian",
+      "input": "5 idlis",
+      "minItems": 1,
+      "mustInclude": [
+        "idli"
+      ],
+      "kcalMin": 100,
+      "kcalMax": 400,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-idli-7",
+      "p5Region": "indian",
+      "input": "7 idlis",
+      "minItems": 1,
+      "mustInclude": [
+        "idli"
+      ],
+      "kcalMin": 300,
+      "kcalMax": 500,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-idli-sambar-2",
+      "p5Region": "indian",
+      "input": "2 idlis with 100 ml sambar",
+      "minItems": 2,
+      "mustInclude": [
+        "idli",
+        "sambar"
+      ],
+      "kcalMin": 100,
+      "kcalMax": 350,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-idli-sambar-4",
+      "p5Region": "indian",
+      "input": "4 idlis with 150 ml sambar",
+      "minItems": 2,
+      "mustInclude": [
+        "idli",
+        "sambar"
+      ],
+      "kcalMin": 200,
+      "kcalMax": 500,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-naan-2",
+      "p5Region": "indian",
+      "input": "2 butter naan",
+      "minItems": 1,
+      "mustInclude": [
+        "naan"
+      ],
+      "kcalMin": 400,
+      "kcalMax": 900,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-paneer-100",
+      "p5Region": "indian",
+      "input": "100g paneer",
+      "minItems": 1,
+      "mustInclude": [
+        "paneer"
+      ],
+      "kcalMin": 150,
+      "kcalMax": 450,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-paneer-150",
+      "p5Region": "indian",
+      "input": "150g paneer",
+      "minItems": 1,
+      "mustInclude": [
+        "paneer"
+      ],
+      "kcalMin": 150,
+      "kcalMax": 450,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-paneer-200",
+      "p5Region": "indian",
+      "input": "200g paneer",
+      "minItems": 1,
+      "mustInclude": [
+        "paneer"
+      ],
+      "kcalMin": 400,
+      "kcalMax": 600,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-rice-120",
+      "p5Region": "indian",
+      "input": "120g basmati rice",
+      "minItems": 1,
+      "mustInclude": [
+        "rice"
+      ],
+      "kcalMin": 140,
+      "kcalMax": 350,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-rice-180",
+      "p5Region": "indian",
+      "input": "180g basmati rice",
+      "minItems": 1,
+      "mustInclude": [
+        "rice"
+      ],
+      "kcalMin": 140,
+      "kcalMax": 350,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-rice-220",
+      "p5Region": "indian",
+      "input": "220g basmati rice",
+      "minItems": 1,
+      "mustInclude": [
+        "rice"
+      ],
+      "kcalMin": 140,
+      "kcalMax": 350,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-rice-dal-1",
+      "p5Region": "indian",
+      "input": "150g basmati rice with 150g dal tadka",
+      "minItems": 2,
+      "mustInclude": [
+        "rice",
+        "dal"
+      ],
+      "kcalMin": 250,
+      "kcalMax": 700,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-rice-dal-2",
+      "p5Region": "indian",
+      "input": "180g basmati rice with 200g dal tadka",
+      "minItems": 2,
+      "mustInclude": [
+        "rice",
+        "dal"
+      ],
+      "kcalMin": 300,
+      "kcalMax": 800,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-roti-dal",
+      "p5Region": "indian",
+      "input": "2 roti with 200g dal tadka",
+      "minItems": 2,
+      "mustInclude": [
+        "roti",
+        "dal"
+      ],
+      "kcalMin": 300,
+      "kcalMax": 800,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-sabzi-150",
+      "p5Region": "indian",
+      "input": "150g mixed vegetable sabzi",
+      "minItems": 1,
+      "mustInclude": [
+        "sabzi"
+      ],
+      "kcalMin": 80,
+      "kcalMax": 350,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-sabzi-200",
+      "p5Region": "indian",
+      "input": "200g mixed vegetable sabzi",
+      "minItems": 1,
+      "mustInclude": [
+        "sabzi"
+      ],
+      "kcalMin": 80,
+      "kcalMax": 350,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-sabzi-250",
+      "p5Region": "indian",
+      "input": "250g mixed vegetable sabzi",
+      "minItems": 1,
+      "mustInclude": [
+        "sabzi"
+      ],
+      "kcalMin": 80,
+      "kcalMax": 350,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-sambar-100",
+      "p5Region": "indian",
+      "input": "100 ml sambar",
+      "minItems": 1,
+      "mustInclude": [
+        "sambar"
+      ],
+      "kcalMin": 30,
+      "kcalMax": 200,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-sambar-150",
+      "p5Region": "indian",
+      "input": "150 ml sambar",
+      "minItems": 1,
+      "mustInclude": [
+        "sambar"
+      ],
+      "kcalMin": 30,
+      "kcalMax": 200,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-in-sambar-200",
+      "p5Region": "indian",
+      "input": "200 ml sambar",
+      "minItems": 1,
+      "mustInclude": [
+        "sambar"
+      ],
+      "kcalMin": 30,
+      "kcalMax": 200,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "pani-puri",
+      "category": "indian_meal",
+      "input": "6 pani puri",
+      "minItems": 1,
+      "mustInclude": [
+        "puri"
+      ],
+      "kcalMin": 70,
+      "kcalMax": 500,
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "trusted-edamame-100g",
+      "category": "trusted_weighed",
+      "input": "100g edamame",
+      "minItems": 1,
+      "refId": "edamame",
+      "grams": 100,
+      "fixtureId": "edamame",
+      "kcalMin": 110,
+      "kcalMax": 135,
+      "expectVerified": true,
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "trusted-rice-100g",
+      "category": "trusted_weighed",
+      "input": "100g cooked rice",
+      "minItems": 1,
+      "refId": "rice",
+      "grams": 100,
+      "fixtureId": "white_rice",
+      "expectVerified": true,
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "trusted-rice-250g",
+      "category": "trusted_weighed",
+      "input": "250g cooked rice",
+      "minItems": 1,
+      "refId": "rice",
+      "grams": 250,
+      "fixtureId": "white_rice",
+      "kcalMin": 280,
+      "kcalMax": 420,
+      "expectVerified": true,
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "eggs-banana",
+      "category": "basic_weighed",
+      "input": "2 large boiled eggs and 1 medium banana",
+      "minItems": 2,
+      "mustInclude": [
+        "egg",
+        "banana"
+      ],
+      "kcalMin": 170,
+      "kcalMax": 280,
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "wp-avocado-80g",
+      "category": "weighed_portion",
+      "input": "80g avocado",
+      "minItems": 1,
+      "mustInclude": [
+        "avocado"
+      ],
+      "kcalMin": 120,
+      "kcalMax": 160,
+      "quantityChecks": [
+        {
+          "contains": "80"
+        }
+      ],
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "wp-beans-150g",
+      "category": "weighed_portion",
+      "input": "150g baked beans",
+      "minItems": 1,
+      "mustInclude": [
+        "baked"
+      ],
+      "kcalMin": 150,
+      "kcalMax": 170,
+      "quantityChecks": [
+        {
+          "contains": "150"
+        }
+      ],
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "wp-beef-100g",
+      "category": "weighed_portion",
+      "input": "100g minced beef",
+      "minItems": 1,
+      "mustInclude": [
+        "beef"
+      ],
+      "kcalMin": 210,
+      "kcalMax": 240,
+      "quantityChecks": [
+        {
+          "contains": "100"
+        }
+      ],
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "wp-broccoli-75g",
+      "category": "weighed_portion",
+      "input": "75g broccoli",
+      "minItems": 1,
+      "mustInclude": [
+        "broccoli"
+      ],
+      "kcalMin": 15,
+      "kcalMax": 25,
+      "quantityChecks": [
+        {
+          "contains": "75"
+        }
+      ],
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "wp-butter-15g",
+      "category": "weighed_portion",
+      "input": "15g butter",
+      "minItems": 1,
+      "mustInclude": [
+        "butter"
+      ],
+      "kcalMin": 100,
+      "kcalMax": 120,
+      "quantityChecks": [
+        {
+          "contains": "15"
+        }
+      ],
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "wp-cashews-45g",
+      "category": "weighed_portion",
+      "input": "45g cashews",
+      "minItems": 1,
+      "mustInclude": [
+        "cashew"
+      ],
+      "kcalMin": 240,
+      "kcalMax": 270,
+      "quantityChecks": [
+        {
+          "contains": "45"
+        }
+      ],
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "wp-cheddar-90g",
+      "category": "weighed_portion",
+      "input": "90g cheddar",
+      "minItems": 1,
+      "mustInclude": [
+        "cheese"
+      ],
+      "kcalMin": 360,
+      "kcalMax": 390,
+      "quantityChecks": [
+        {
+          "contains": "90"
+        }
+      ],
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "wp-chicken-thigh-180g",
+      "category": "weighed_portion",
+      "input": "180g chicken thigh",
+      "minItems": 1,
+      "mustInclude": [
+        "thigh"
+      ],
+      "kcalMin": 360,
+      "kcalMax": 400,
+      "quantityChecks": [
+        {
+          "contains": "180"
+        }
+      ],
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "wp-chocolate-25g",
+      "category": "weighed_portion",
+      "input": "25g dark chocolate",
+      "minItems": 1,
+      "mustInclude": [
+        "chocolate"
+      ],
+      "kcalMin": 125,
+      "kcalMax": 145,
+      "quantityChecks": [
+        {
+          "contains": "25"
+        }
+      ],
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "wp-cottage-150g",
+      "category": "weighed_portion",
+      "input": "150g cottage cheese",
+      "minItems": 1,
+      "mustInclude": [
+        "cottage"
+      ],
+      "kcalMin": 140,
+      "kcalMax": 160,
+      "quantityChecks": [
+        {
+          "contains": "150"
+        }
+      ],
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "wp-grapes-100g",
+      "category": "weighed_portion",
+      "input": "100g grapes",
+      "minItems": 1,
+      "mustInclude": [
+        "grape"
+      ],
+      "kcalMin": 60,
+      "kcalMax": 80,
+      "quantityChecks": [
+        {
+          "contains": "100"
+        }
+      ],
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "wp-greek-salad-200g",
+      "category": "weighed_portion",
+      "input": "200g greek salad",
+      "minItems": 1,
+      "mustInclude": [
+        "greek"
+      ],
+      "kcalMin": 180,
+      "kcalMax": 210,
+      "quantityChecks": [
+        {
+          "contains": "200"
+        }
+      ],
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "wp-hummus-60g",
+      "category": "weighed_portion",
+      "input": "60g hummus",
+      "minItems": 1,
+      "mustInclude": [
+        "hummus"
+      ],
+      "kcalMin": 90,
+      "kcalMax": 110,
+      "quantityChecks": [
+        {
+          "contains": "60"
+        }
+      ],
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "wp-milk-250ml",
+      "category": "weighed_portion",
+      "input": "250ml whole milk",
+      "minItems": 1,
+      "mustInclude": [
+        "milk"
+      ],
+      "kcalMin": 100,
+      "kcalMax": 140,
+      "quantityChecks": [
+        {
+          "contains": "250"
+        }
+      ],
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "wp-oats-50g",
+      "category": "weighed_portion",
+      "input": "50g oats",
+      "minItems": 1,
+      "mustInclude": [
+        "oat"
+      ],
+      "kcalMin": 170,
+      "kcalMax": 210,
+      "quantityChecks": [
+        {
+          "contains": "50"
+        }
+      ],
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "wp-orange-250ml",
+      "category": "weighed_portion",
+      "input": "250ml orange juice",
+      "minItems": 1,
+      "mustInclude": [
+        "orange"
+      ],
+      "kcalMin": 90,
+      "kcalMax": 110,
+      "quantityChecks": [
+        {
+          "contains": "250"
+        }
+      ],
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "wp-sweet-potato-200g",
+      "category": "weighed_portion",
+      "input": "200g sweet potato",
+      "minItems": 1,
+      "mustInclude": [
+        "potato"
+      ],
+      "kcalMin": 170,
+      "kcalMax": 200,
+      "quantityChecks": [
+        {
+          "contains": "200"
+        }
+      ],
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "wp-tofu-120g",
+      "category": "weighed_portion",
+      "input": "120g tofu",
+      "minItems": 1,
+      "mustInclude": [
+        "tofu"
+      ],
+      "kcalMin": 85,
+      "kcalMax": 100,
+      "quantityChecks": [
+        {
+          "contains": "120"
+        }
+      ],
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "ws-apple",
+      "category": "weighed_staple",
+      "input": "1 medium apple",
+      "minItems": 1,
+      "mustInclude": [
+        "apple"
+      ],
+      "kcalMin": 70,
+      "kcalMax": 120,
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "ws-banana-100g",
+      "category": "weighed_staple",
+      "input": "100g banana",
+      "minItems": 1,
+      "mustInclude": [
+        "banana"
+      ],
+      "kcalMin": 80,
+      "kcalMax": 120,
+      "quantityChecks": [
+        {
+          "contains": "100"
+        }
+      ],
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "ws-bread-2slice",
+      "category": "weighed_staple",
+      "input": "2 slices bread",
+      "minItems": 1,
+      "mustInclude": [
+        "bread"
+      ],
+      "kcalMin": 120,
+      "kcalMax": 250,
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "ws-cheddar",
+      "category": "weighed_staple",
+      "input": "40g cheese",
+      "minItems": 1,
+      "mustInclude": [
+        "cheese"
+      ],
+      "kcalMin": 140,
+      "kcalMax": 220,
+      "quantityChecks": [
+        {
+          "contains": "40"
+        }
+      ],
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "ws-chicken-100g",
+      "category": "weighed_staple",
+      "input": "100g chicken breast",
+      "minItems": 1,
+      "mustInclude": [
+        "chicken"
+      ],
+      "kcalMin": 120,
+      "kcalMax": 200,
+      "quantityChecks": [
+        {
+          "contains": "100"
+        }
+      ],
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "ws-egg-2",
+      "category": "weighed_staple",
+      "input": "2 boiled eggs",
+      "minItems": 1,
+      "mustInclude": [
+        "egg"
+      ],
+      "kcalMin": 120,
+      "kcalMax": 220,
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "ws-latte",
+      "category": "weighed_staple",
+      "input": "200 ml latte",
+      "minItems": 1,
+      "mustInclude": [
+        "coffee"
+      ],
+      "kcalMin": 80,
+      "kcalMax": 200,
+      "quantityChecks": [
+        {
+          "contains": "200"
+        }
+      ],
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "ws-pasta-150g",
+      "category": "weighed_staple",
+      "input": "150g cooked pasta",
+      "minItems": 1,
+      "mustInclude": [
+        "pasta"
+      ],
+      "kcalMin": 200,
+      "kcalMax": 350,
+      "quantityChecks": [
+        {
+          "contains": "150"
+        }
+      ],
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "recipe-bangers-mash",
+      "category": "recipe_uk",
+      "input": "bangers and mash",
+      "minItems": 2,
+      "mustInclude": [
+        "sausage",
+        "mash"
+      ],
+      "expectRecipeDerived": true,
+      "kcalMin": 350,
+      "kcalMax": 700,
+      "p5Region": "restaurant",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "recipe-beans-toast",
+      "category": "recipe_uk",
+      "input": "beans on toast",
+      "minItems": 2,
+      "mustInclude": [
+        "bean",
+        "toast"
+      ],
+      "expectRecipeDerived": true,
+      "kcalMin": 250,
+      "kcalMax": 450,
+      "p5Region": "restaurant",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "recipe-biryani-raita-composite",
+      "category": "recipe_indian",
+      "input": "biryani with cucumber raita",
+      "minItems": 2,
+      "mustInclude": [
+        "biryani",
+        "raita"
+      ],
+      "expectRecipeDerived": true,
+      "kcalMin": 400,
+      "kcalMax": 850,
+      "p5Region": "restaurant",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "recipe-chole-bhature",
+      "category": "recipe_indian",
+      "input": "chole bhature",
+      "minItems": 2,
+      "mustInclude": [
+        "chole",
+        "bhatur"
+      ],
+      "expectRecipeDerived": true,
+      "kcalMin": 300,
+      "kcalMax": 700,
+      "p5Region": "restaurant",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "recipe-fish-chips",
+      "category": "recipe_uk",
+      "input": "fish and chips",
+      "minItems": 2,
+      "mustInclude": [
+        "cod",
+        "chip"
+      ],
+      "expectRecipeDerived": true,
+      "kcalMin": 900,
+      "kcalMax": 1400,
+      "p5Region": "restaurant",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "recipe-idli-sambar",
+      "category": "recipe_indian",
+      "input": "idli with sambar",
+      "minItems": 2,
+      "mustInclude": [
+        "idli",
+        "sambar"
+      ],
+      "expectRecipeDerived": true,
+      "kcalMin": 150,
+      "kcalMax": 350,
+      "p5Region": "restaurant",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "recipe-pav-bhaji",
+      "category": "recipe_indian",
+      "input": "pav bhaji",
+      "minItems": 2,
+      "mustInclude": [
+        "bhaji",
+        "pav"
+      ],
+      "expectRecipeDerived": true,
+      "kcalMin": 350,
+      "kcalMax": 650,
+      "p5Region": "restaurant",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "recipe-poha-peanuts",
+      "category": "recipe_indian",
+      "input": "poha with peanuts",
+      "minItems": 2,
+      "mustInclude": [
+        "poha",
+        "peanut"
+      ],
+      "expectRecipeDerived": true,
+      "kcalMin": 350,
+      "kcalMax": 600,
+      "p5Region": "restaurant",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "recipe-sunday-roast",
+      "category": "recipe_uk",
+      "input": "sunday roast",
+      "minItems": 4,
+      "mustInclude": [
+        "chicken",
+        "potato"
+      ],
+      "expectRecipeDerived": true,
+      "kcalMin": 400,
+      "kcalMax": 900,
+      "p5Region": "restaurant",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "recipe-tikka-rice-composite",
+      "category": "recipe_indian",
+      "input": "chicken tikka masala with basmati rice",
+      "minItems": 2,
+      "mustInclude": [
+        "tikka",
+        "rice"
+      ],
+      "expectRecipeDerived": true,
+      "kcalMin": 400,
+      "kcalMax": 900,
+      "p5Region": "restaurant",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "vision-beans-toast",
+      "category": "vision_recipe_uk",
+      "vision": {
+        "meal_summary": "Beans on toast",
+        "confidence_score": 0.8,
+        "items": [
+          {
+            "name": "Beans on toast",
+            "unit": "g",
+            "estimated_amount": 280,
+            "cooking_method": "unknown",
+            "visible_oil": false,
+            "confidence": 0.78
+          }
+        ],
+        "clarification_questions": []
+      },
+      "minItems": 2,
+      "mustInclude": [
+        "bean",
+        "toast"
+      ],
+      "expectRecipeDerived": true,
+      "kcalMin": 250,
+      "kcalMax": 450,
+      "p5Region": "restaurant",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "vision-fish-chips",
+      "category": "vision_recipe_uk",
+      "vision": {
+        "meal_summary": "Fish and chips",
+        "confidence_score": 0.84,
+        "items": [
+          {
+            "name": "Fish and chips",
+            "unit": "g",
+            "estimated_amount": 430,
+            "cooking_method": "deep_fried",
+            "visible_oil": true,
+            "confidence": 0.82
+          }
+        ],
+        "clarification_questions": []
+      },
+      "minItems": 2,
+      "mustInclude": [
+        "cod",
+        "chip"
+      ],
+      "expectRecipeDerived": true,
+      "kcalMin": 900,
+      "kcalMax": 1400,
+      "p5Region": "restaurant",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "vision-split-curry-rice",
+      "category": "vision_recipe_indian",
+      "vision": {
+        "meal_summary": "Chicken curry with rice",
+        "confidence_score": 0.86,
+        "items": [
+          {
+            "name": "Chicken curry",
+            "unit": "g",
+            "estimated_amount": 250,
+            "cooking_method": "pan_fried",
+            "visible_oil": false,
+            "confidence": 0.9
+          },
+          {
+            "name": "Steamed rice",
+            "unit": "g",
+            "estimated_amount": 150,
+            "cooking_method": "steamed",
+            "visible_oil": false,
+            "confidence": 0.88
+          }
+        ],
+        "clarification_questions": []
+      },
+      "minItems": 2,
+      "maxItems": 3,
+      "mustInclude": [
+        "curry",
+        "rice"
+      ],
+      "expectRecipeDerived": false,
+      "kcalMin": 350,
+      "kcalMax": 900,
+      "p5Region": "restaurant",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "vision-sunday-roast",
+      "category": "vision_recipe_uk",
+      "vision": {
+        "meal_summary": "Sunday roast",
+        "confidence_score": 0.79,
+        "items": [
+          {
+            "name": "Roast dinner",
+            "unit": "g",
+            "estimated_amount": 490,
+            "cooking_method": "grilled",
+            "visible_oil": false,
+            "confidence": 0.76
+          }
+        ],
+        "clarification_questions": []
+      },
+      "minItems": 4,
+      "mustInclude": [
+        "chicken",
+        "potato"
+      ],
+      "expectRecipeDerived": true,
+      "kcalMin": 400,
+      "kcalMax": 900,
+      "p5Region": "restaurant",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p3-bangers-mash",
+      "input": "bangers and mash",
+      "expectedKcal": 664,
+      "minItems": 2,
+      "expectRecipeDerived": true,
+      "p5Region": "restaurant",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p3-beans-toast",
+      "input": "beans on toast",
+      "expectedKcal": 416,
+      "minItems": 2,
+      "expectRecipeDerived": true,
+      "p5Region": "restaurant",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p3-biryani-raita",
+      "input": "biryani with raita",
+      "expectedKcal": 649,
+      "minItems": 2,
+      "expectRecipeDerived": true,
+      "p5Region": "restaurant",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p3-biryani-raita-alias",
+      "input": "biryani with cucumber raita",
+      "expectedKcal": 649,
+      "minItems": 2,
+      "expectRecipeDerived": true,
+      "p5Region": "restaurant",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "dosa-plate-comma",
+      "category": "component_splitting",
+      "input": "2 chapatis, 200g dal and 150g vegetable curry",
+      "minItems": 3,
+      "mustInclude": [
+        "chapati",
+        "dal",
+        "curry"
+      ],
+      "p5Region": "difficult_mixed",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-diff-naan-curry-a",
+      "p5Region": "difficult_mixed",
+      "input": "2 naan with 250 g butter chicken",
+      "minItems": 2,
+      "mustInclude": [
+        "naan",
+        "curry"
+      ],
+      "orderPairId": "naan-curry",
+      "expectRangeIntegrity": true,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-diff-naan-curry-b",
+      "p5Region": "difficult_mixed",
+      "input": "250 g butter chicken with 2 naan",
+      "minItems": 2,
+      "mustInclude": [
+        "naan",
+        "curry"
+      ],
+      "orderPairId": "naan-curry",
+      "expectRangeIntegrity": true,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-diff-rice-dal-a",
+      "p5Region": "difficult_mixed",
+      "input": "180 g basmati rice with 200 g dal tadka",
+      "minItems": 2,
+      "mustInclude": [
+        "rice",
+        "dal"
+      ],
+      "orderPairId": "rice-dal",
+      "expectRangeIntegrity": true,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "p5s-diff-rice-dal-b",
+      "p5Region": "difficult_mixed",
+      "input": "200 g dal tadka with 180 g basmati rice",
+      "minItems": 2,
+      "mustInclude": [
+        "rice",
+        "dal"
+      ],
+      "orderPairId": "rice-dal",
+      "expectRangeIntegrity": true,
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "sushi-plate",
+      "category": "mixed_dish",
+      "input": "8-piece salmon roll, 100g edamame and 15ml soy sauce",
+      "minItems": 3,
+      "mustInclude": [
+        "salmon",
+        "edamame",
+        "soy"
+      ],
+      "p5Region": "difficult_mixed",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    }
+  ]
+}

@@ -1,0 +1,223 @@
+{
+  "version": "1.0",
+  "description": "Latin American meals — benchmark batch 4 expansion (Phase 6).",
+  "categories": ["latin_american"],
+  "cases": [
+    {
+      "id": "la-tacos",
+      "category": "latin_american",
+      "input": "tacos al pastor",
+      "minItems": 1,
+      "mustInclude": ["taco"],
+      "kcalMin": 350,
+      "kcalMax": 550
+    },
+    {
+      "id": "la-burrito",
+      "category": "latin_american",
+      "input": "chicken burrito",
+      "minItems": 1,
+      "mustInclude": ["burrito"],
+      "kcalMin": 300,
+      "kcalMax": 500
+    },
+    {
+      "id": "la-enchiladas",
+      "category": "latin_american",
+      "input": "beef enchiladas",
+      "minItems": 1,
+      "mustInclude": ["enchilada"],
+      "kcalMin": 350,
+      "kcalMax": 550
+    },
+    {
+      "id": "la-quesadilla",
+      "category": "latin_american",
+      "input": "quesadilla",
+      "minItems": 1,
+      "mustInclude": ["quesadilla"],
+      "kcalMin": 400,
+      "kcalMax": 550
+    },
+    {
+      "id": "la-nachos",
+      "category": "latin_american",
+      "input": "nachos with cheese",
+      "minItems": 1,
+      "mustInclude": ["nacho"],
+      "kcalMin": 650,
+      "kcalMax": 950
+    },
+    {
+      "id": "la-carnitas",
+      "category": "latin_american",
+      "input": "carnitas with rice",
+      "minItems": 2,
+      "mustInclude": ["carnitas", "rice"],
+      "kcalMin": 650,
+      "kcalMax": 900
+    },
+    {
+      "id": "la-fish-tacos",
+      "category": "latin_american",
+      "input": "fish tacos",
+      "minItems": 1,
+      "mustInclude": ["fish"],
+      "kcalMin": 350,
+      "kcalMax": 500
+    },
+    {
+      "id": "la-fajitas",
+      "category": "latin_american",
+      "input": "chicken fajitas",
+      "minItems": 1,
+      "mustInclude": ["fajita"],
+      "kcalMin": 400,
+      "kcalMax": 550
+    },
+    {
+      "id": "la-empanadas",
+      "category": "latin_american",
+      "input": "empanadas",
+      "minItems": 1,
+      "mustInclude": ["empanada"],
+      "kcalMin": 600,
+      "kcalMax": 800
+    },
+    {
+      "id": "la-ceviche",
+      "category": "latin_american",
+      "input": "ceviche",
+      "minItems": 1,
+      "mustInclude": ["ceviche"],
+      "kcalMin": 150,
+      "kcalMax": 250
+    },
+    {
+      "id": "la-arepas",
+      "category": "latin_american",
+      "input": "arepas with cheese",
+      "minItems": 1,
+      "mustInclude": ["cheese"],
+      "kcalMin": 900,
+      "kcalMax": 1200
+    },
+    {
+      "id": "la-beans-rice",
+      "category": "latin_american",
+      "input": "black beans and rice",
+      "minItems": 2,
+      "mustInclude": ["bean", "rice"],
+      "kcalMin": 500,
+      "kcalMax": 750
+    },
+    {
+      "id": "la-churros",
+      "category": "latin_american",
+      "input": "churros",
+      "minItems": 1,
+      "mustInclude": ["churro"],
+      "kcalMin": 300,
+      "kcalMax": 450
+    },
+    {
+      "id": "la-guac-chips",
+      "category": "latin_american",
+      "input": "guacamole with chips",
+      "minItems": 2,
+      "mustInclude": ["guacamole", "chip"],
+      "kcalMin": 1000,
+      "kcalMax": 1400
+    },
+    {
+      "id": "la-pozole",
+      "category": "latin_american",
+      "input": "pozole",
+      "minItems": 1,
+      "mustInclude": ["pozole"],
+      "kcalMin": 200,
+      "kcalMax": 300
+    },
+    {
+      "id": "la-tamales",
+      "category": "latin_american",
+      "input": "tamales",
+      "minItems": 1,
+      "mustInclude": ["enchilada"],
+      "kcalMin": 350,
+      "kcalMax": 550
+    },
+    {
+      "id": "la-carne-asada",
+      "category": "latin_american",
+      "input": "carne asada with rice",
+      "minItems": 2,
+      "mustInclude": ["carne", "rice"],
+      "kcalMin": 700,
+      "kcalMax": 900
+    },
+    {
+      "id": "la-elote",
+      "category": "latin_american",
+      "input": "elote",
+      "minItems": 1,
+      "mustInclude": ["elote"],
+      "kcalMin": 400,
+      "kcalMax": 550
+    },
+    {
+      "id": "la-chilaquiles",
+      "category": "latin_american",
+      "input": "chilaquiles",
+      "minItems": 1,
+      "mustInclude": ["chilaquile"],
+      "kcalMin": 400,
+      "kcalMax": 550
+    },
+    {
+      "id": "la-burrito-bowl",
+      "category": "latin_american",
+      "input": "beef burrito bowl",
+      "minItems": 1,
+      "mustInclude": ["burrito"],
+      "kcalMin": 450,
+      "kcalMax": 550
+    },
+    {
+      "id": "la-pulled-pork",
+      "category": "latin_american",
+      "input": "pulled pork taco",
+      "minItems": 1,
+      "mustInclude": ["pork"],
+      "kcalMin": 400,
+      "kcalMax": 500
+    },
+    {
+      "id": "la-veg-burrito",
+      "category": "latin_american",
+      "input": "vegetarian burrito",
+      "minItems": 1,
+      "mustInclude": ["burrito"],
+      "kcalMin": 450,
+      "kcalMax": 550
+    },
+    {
+      "id": "la-mole",
+      "category": "latin_american",
+      "input": "mole chicken with rice",
+      "minItems": 2,
+      "mustInclude": ["chicken", "rice"],
+      "kcalMin": 650,
+      "kcalMax": 750
+    },
+    {
+      "id": "la-tres-leches",
+      "category": "latin_american",
+      "input": "tres leches cake",
+      "minItems": 1,
+      "mustInclude": ["cake"],
+      "kcalMin": 400,
+      "kcalMax": 500
+    }
+  ]
+}

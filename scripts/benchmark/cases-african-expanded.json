@@ -1,0 +1,133 @@
+{
+  "version": "1.0",
+  "description": "African & Caribbean meals — benchmark batch 2 expansion (Phase 6).",
+  "categories": ["african_mixed"],
+  "cases": [
+    {
+      "id": "af-jollof-chicken",
+      "category": "african_mixed",
+      "input": "jollof rice and chicken",
+      "minItems": 2,
+      "mustInclude": ["jollof", "chicken"],
+      "kcalMin": 500,
+      "kcalMax": 1200
+    },
+    {
+      "id": "af-pepper-soup",
+      "category": "african_mixed",
+      "input": "pepper soup",
+      "minItems": 1,
+      "mustInclude": ["pepper", "soup"],
+      "kcalMin": 250,
+      "kcalMax": 600
+    },
+    {
+      "id": "af-suya-plantain",
+      "category": "african_mixed",
+      "input": "suya and plantain",
+      "minItems": 2,
+      "mustInclude": ["suya", "plantain"],
+      "kcalMin": 450,
+      "kcalMax": 900
+    },
+    {
+      "id": "af-moi-moi",
+      "category": "african_mixed",
+      "input": "moi moi and akara",
+      "minItems": 2,
+      "mustInclude": ["moi", "akara"],
+      "kcalMin": 400,
+      "kcalMax": 900
+    },
+    {
+      "id": "af-rice-stew",
+      "category": "african_mixed",
+      "input": "rice and stew",
+      "minItems": 1,
+      "mustInclude": ["rice", "stew"],
+      "kcalMin": 450,
+      "kcalMax": 1000
+    },
+    {
+      "id": "af-ofada",
+      "category": "african_mixed",
+      "input": "ofada rice",
+      "minItems": 1,
+      "mustInclude": ["ofada", "rice"],
+      "kcalMin": 450,
+      "kcalMax": 900
+    },
+    {
+      "id": "af-amala-ewedu",
+      "category": "african_mixed",
+      "input": "amala and ewedu",
+      "minItems": 1,
+      "mustInclude": ["amala", "ewedu"],
+      "kcalMin": 300,
+      "kcalMax": 800
+    },
+    {
+      "id": "af-abacha",
+      "category": "african_mixed",
+      "input": "abacha",
+      "minItems": 1,
+      "mustInclude": ["abacha"],
+      "kcalMin": 300,
+      "kcalMax": 700
+    },
+    {
+      "id": "af-waakye",
+      "category": "african_mixed",
+      "input": "waakye",
+      "minItems": 1,
+      "mustInclude": ["waakye"],
+      "kcalMin": 450,
+      "kcalMax": 900
+    },
+    {
+      "id": "af-banku-tilapia",
+      "category": "african_mixed",
+      "input": "banku and tilapia",
+      "minItems": 1,
+      "mustInclude": ["banku", "tilapia"],
+      "kcalMin": 400,
+      "kcalMax": 900
+    },
+    {
+      "id": "af-nyama-ugali",
+      "category": "african_mixed",
+      "input": "nyama choma and ugali",
+      "minItems": 1,
+      "mustInclude": ["nyama", "ugali"],
+      "kcalMin": 400,
+      "kcalMax": 900
+    },
+    {
+      "id": "af-doro-injera",
+      "category": "african_mixed",
+      "input": "doro wat with injera",
+      "minItems": 2,
+      "mustInclude": ["doro", "injera"],
+      "kcalMin": 500,
+      "kcalMax": 1200
+    },
+    {
+      "id": "af-beef-suya",
+      "category": "african_mixed",
+      "input": "beef suya",
+      "minItems": 1,
+      "mustInclude": ["suya"],
+      "kcalMin": 300,
+      "kcalMax": 700
+    },
+    {
+      "id": "af-egusi-yam",
+      "category": "african_mixed",
+      "input": "egusi and pounded yam",
+      "minItems": 2,
+      "mustInclude": ["egusi", "yam"],
+      "kcalMin": 500,
+      "kcalMax": 1200
+    }
+  ]
+}

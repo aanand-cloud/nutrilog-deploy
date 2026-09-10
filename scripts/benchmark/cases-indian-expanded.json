@@ -1,0 +1,228 @@
+{
+  "version": "1.0",
+  "description": "Indian staples and mixed meals — benchmark batch 1 expansion (Phase 6).",
+  "categories": ["indian_basic", "indian_mixed"],
+  "cases": [
+    {
+      "id": "in-rice-150g",
+      "category": "indian_basic",
+      "input": "150g basmati rice",
+      "minItems": 1,
+      "mustInclude": ["rice"],
+      "kcalMin": 180,
+      "kcalMax": 280,
+      "quantityChecks": [{ "contains": "150", "unit": "g" }]
+    },
+    {
+      "id": "in-dal-200g",
+      "category": "indian_basic",
+      "input": "200g dal tadka",
+      "minItems": 1,
+      "mustInclude": ["dal"],
+      "kcalMin": 180,
+      "kcalMax": 260,
+      "quantityChecks": [{ "contains": "200", "unit": "g" }]
+    },
+    {
+      "id": "in-chapati-2",
+      "category": "indian_basic",
+      "input": "2 chapatis",
+      "minItems": 1,
+      "mustInclude": ["chapati"],
+      "kcalMin": 200,
+      "kcalMax": 400
+    },
+    {
+      "id": "in-idli-3",
+      "category": "indian_basic",
+      "input": "3 idlis",
+      "minItems": 1,
+      "mustInclude": ["idli"],
+      "kcalMin": 150,
+      "kcalMax": 250
+    },
+    {
+      "id": "in-curd-100g",
+      "category": "indian_basic",
+      "input": "100g plain yogurt",
+      "minItems": 1,
+      "mustInclude": ["yogurt"],
+      "kcalMin": 50,
+      "kcalMax": 120,
+      "quantityChecks": [{ "contains": "100", "unit": "g" }]
+    },
+    {
+      "id": "in-tikka-rice",
+      "category": "indian_mixed",
+      "input": "chicken tikka masala with basmati rice",
+      "minItems": 2,
+      "mustInclude": ["tikka", "rice"],
+      "kcalMin": 400,
+      "kcalMax": 900
+    },
+    {
+      "id": "in-madras-rice",
+      "category": "indian_mixed",
+      "input": "chicken madras with rice",
+      "minItems": 2,
+      "mustInclude": ["curry", "rice"],
+      "kcalMin": 400,
+      "kcalMax": 900
+    },
+    {
+      "id": "in-butter-naan",
+      "category": "indian_mixed",
+      "input": "butter chicken with naan",
+      "minItems": 2,
+      "mustInclude": ["curry", "naan"],
+      "kcalMin": 700,
+      "kcalMax": 1400
+    },
+    {
+      "id": "in-dal-rice",
+      "category": "indian_mixed",
+      "input": "dal makhani with rice",
+      "minItems": 2,
+      "mustInclude": ["dal", "rice"],
+      "kcalMin": 350,
+      "kcalMax": 800
+    },
+    {
+      "id": "in-palak-roti",
+      "category": "indian_mixed",
+      "input": "palak paneer with 2 roti",
+      "minItems": 2,
+      "mustInclude": ["paneer", "roti"],
+      "kcalMin": 300,
+      "kcalMax": 900
+    },
+    {
+      "id": "in-biryani-raita-w",
+      "category": "indian_mixed",
+      "input": "300 g chicken biryani, 100 g cucumber raita",
+      "minItems": 2,
+      "mustInclude": ["biryani", "raita"],
+      "kcalMin": 400,
+      "kcalMax": 900,
+      "quantityChecks": [{ "contains": "300", "unit": "g" }]
+    },
+    {
+      "id": "in-poha-peanut-w",
+      "category": "indian_mixed",
+      "input": "250 g poha, 20 g peanuts",
+      "minItems": 2,
+      "mustInclude": ["poha", "peanut"],
+      "kcalMin": 350,
+      "kcalMax": 650,
+      "quantityChecks": [{ "contains": "250", "unit": "g" }]
+    },
+    {
+      "id": "in-curry-rice-w",
+      "category": "indian_mixed",
+      "input": "150g chicken curry and 180g rice",
+      "minItems": 2,
+      "mustInclude": ["curry", "rice"],
+      "kcalMin": 350,
+      "kcalMax": 800
+    },
+    {
+      "id": "in-chole-bhature",
+      "category": "indian_mixed",
+      "input": "chole bhature",
+      "minItems": 1,
+      "mustInclude": ["chole", "bhatur"],
+      "kcalMin": 350,
+      "kcalMax": 900
+    },
+    {
+      "id": "in-pav-bhaji",
+      "category": "indian_mixed",
+      "input": "pav bhaji",
+      "minItems": 2,
+      "mustInclude": ["pav", "bhaji"],
+      "kcalMin": 350,
+      "kcalMax": 650
+    },
+    {
+      "id": "in-idli-sambar",
+      "category": "indian_mixed",
+      "input": "3 idlis with sambar",
+      "minItems": 2,
+      "mustInclude": ["idli", "sambar"],
+      "kcalMin": 150,
+      "kcalMax": 400
+    },
+    {
+      "id": "in-masala-dosa",
+      "category": "indian_mixed",
+      "input": "masala dosa with sambar",
+      "minItems": 2,
+      "mustInclude": ["dosa", "sambar"],
+      "kcalMin": 400,
+      "kcalMax": 900
+    },
+    {
+      "id": "in-vada-pav",
+      "category": "indian_mixed",
+      "input": "vada pav",
+      "minItems": 1,
+      "mustInclude": ["vada", "pav"],
+      "kcalMin": 400,
+      "kcalMax": 750
+    },
+    {
+      "id": "in-misal-pav",
+      "category": "indian_mixed",
+      "input": "misal pav",
+      "minItems": 1,
+      "mustInclude": ["misal", "pav"],
+      "kcalMin": 250,
+      "kcalMax": 550
+    },
+    {
+      "id": "in-dahi-puri",
+      "category": "indian_mixed",
+      "input": "dahi puri",
+      "minItems": 1,
+      "mustInclude": ["puri"],
+      "kcalMin": 150,
+      "kcalMax": 500
+    },
+    {
+      "id": "in-dosa-chutney",
+      "category": "indian_mixed",
+      "input": "plain dosa with coconut chutney",
+      "minItems": 2,
+      "mustInclude": ["dosa", "chutney"],
+      "kcalMin": 300,
+      "kcalMax": 800
+    },
+    {
+      "id": "in-uttapam",
+      "category": "indian_mixed",
+      "input": "uttapam with tomato chutney",
+      "minItems": 2,
+      "mustInclude": ["uttapam", "chutney"],
+      "kcalMin": 300,
+      "kcalMax": 700
+    },
+    {
+      "id": "in-poha-plain",
+      "category": "indian_mixed",
+      "input": "poha with peanuts",
+      "minItems": 2,
+      "mustInclude": ["poha", "peanut"],
+      "kcalMin": 350,
+      "kcalMax": 650
+    },
+    {
+      "id": "in-dry-oats-milk",
+      "category": "indian_mixed",
+      "input": "50 g dry oats with 250 ml milk",
+      "minItems": 2,
+      "mustInclude": ["oat", "milk"],
+      "kcalMin": 250,
+      "kcalMax": 400
+    }
+  ]
+}

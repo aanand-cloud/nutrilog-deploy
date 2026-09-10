@@ -1,0 +1,27 @@
+{
+  "version": "1.0",
+  "description": "Phase 3 mixed dish trusted kcal benchmarks — ±20% tolerance on confirmed recipe decomposition.",
+  "tolerancePct": 20,
+  "cases": [
+    { "id": "p3-fish-chips", "input": "fish and chips", "expectedKcal": 1298, "minItems": 2, "expectRecipeDerived": true },
+    { "id": "p3-beans-toast", "input": "beans on toast", "expectedKcal": 416, "minItems": 2, "expectRecipeDerived": true },
+    { "id": "p3-sunday-roast", "input": "sunday roast", "expectedKcal": 629, "minItems": 4, "expectRecipeDerived": true },
+    { "id": "p3-bangers-mash", "input": "bangers and mash", "expectedKcal": 664, "minItems": 2, "expectRecipeDerived": true },
+    { "id": "p3-chole-bhature", "input": "chole bhature", "expectedKcal": 623, "minItems": 2, "expectRecipeDerived": true },
+    { "id": "p3-pav-bhaji", "input": "pav bhaji", "expectedKcal": 387, "minItems": 2, "expectRecipeDerived": true },
+    { "id": "p3-tikka-rice", "input": "chicken tikka masala with rice", "expectedKcal": 641, "minItems": 2, "expectRecipeDerived": true },
+    { "id": "p3-biryani-raita", "input": "biryani with raita", "expectedKcal": 649, "minItems": 2, "expectRecipeDerived": true },
+    { "id": "p3-biryani-raita-alias", "input": "biryani with cucumber raita", "expectedKcal": 649, "minItems": 2, "expectRecipeDerived": true },
+    { "id": "p3-dosa-plate", "input": "masala dosa with sambar and chutney", "expectedKcal": 479, "minItems": 3, "expectRecipeDerived": true },
+    { "id": "p3-idli-sambar", "input": "idli with sambar", "expectedKcal": 327, "minItems": 2, "expectRecipeDerived": true },
+    { "id": "p3-poha-peanuts", "input": "poha with peanuts", "expectedKcal": 459, "minItems": 2, "expectRecipeDerived": true },
+    { "id": "p3-chapati-dal", "input": "chapati dal sabzi", "expectedKcal": 692, "minItems": 3, "expectRecipeDerived": true },
+    { "id": "p3-lamb-curry-rice", "input": "lamb curry with rice", "expectedKcal": 710, "minItems": 2, "expectRecipeDerived": true },
+    { "id": "p3-dal-rice", "input": "dal chawal", "expectedKcal": 474, "minItems": 2, "expectRecipeDerived": true },
+    { "id": "p3-korma-rice", "input": "chicken korma with rice", "expectedKcal": 916, "minItems": 2, "expectRecipeDerived": true },
+    { "id": "p3-shepherds-pie", "input": "shepherds pie", "expectedKcal": 748, "minItems": 2, "expectRecipeDerived": true },
+    { "id": "p3-uttapam", "input": "uttapam with chutney", "expectedKcal": 354, "minItems": 2, "expectRecipeDerived": true },
+    { "id": "p3-full-english", "input": "full english breakfast", "expectedKcal": 776, "minItems": 4, "expectRecipeDerived": true },
+    { "id": "p3-fish-peas", "input": "fish and chips with mushy peas", "expectedKcal": 1363, "minItems": 3, "expectRecipeDerived": true }
+  ]
+}

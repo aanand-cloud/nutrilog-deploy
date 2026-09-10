@@ -1,0 +1,179 @@
+{
+  "version": "1.0",
+  "description": "MealNova nutrition benchmark seed cases — expand to 1000+ in Phase 2 with CoFID/IFCT references.",
+  "categories": [
+    "basic_weighed",
+    "uk_meal",
+    "indian_meal",
+    "mixed_dish",
+    "quantity_retention",
+    "component_splitting"
+  ],
+  "cases": [
+    {
+      "id": "eggs-banana",
+      "category": "basic_weighed",
+      "input": "2 large boiled eggs and 1 medium banana",
+      "minItems": 2,
+      "mustInclude": ["egg", "banana"],
+      "kcalMin": 170,
+      "kcalMax": 280
+    },
+    {
+      "id": "porridge-milk",
+      "category": "uk_meal",
+      "input": "porridge oats made with semi-skimmed milk",
+      "minItems": 1,
+      "mustInclude": ["porridge", "oat"],
+      "kcalMin": 130,
+      "kcalMax": 400
+    },
+    {
+      "id": "beans-toast",
+      "category": "uk_meal",
+      "input": "beans on two slices of wholemeal toast",
+      "minItems": 2,
+      "mustInclude": ["toast", "bean"],
+      "kcalMin": 250,
+      "kcalMax": 550
+    },
+    {
+      "id": "fish-chips-peas",
+      "category": "uk_meal",
+      "input": "180g battered cod, 250g chips, 80g mushy peas",
+      "minItems": 3,
+      "mustInclude": ["cod", "chip", "pea"],
+      "kcalMin": 550,
+      "kcalMax": 1350,
+      "quantityChecks": [
+        { "contains": "180", "unit": "g" },
+        { "contains": "250", "unit": "g" }
+      ]
+    },
+    {
+      "id": "roast-dinner",
+      "category": "uk_meal",
+      "input": "roast chicken with potatoes, carrots, peas and gravy",
+      "minItems": 3,
+      "mustInclude": ["chicken", "potato", "gravy"]
+    },
+    {
+      "id": "tikka-rice",
+      "category": "indian_meal",
+      "input": "chicken tikka masala with basmati rice",
+      "minItems": 2,
+      "mustInclude": ["tikka", "rice"],
+      "kcalMin": 400,
+      "kcalMax": 900
+    },
+    {
+      "id": "idli-sambar",
+      "category": "indian_meal",
+      "input": "3 idlis with sambar and coconut chutney",
+      "minItems": 3,
+      "mustInclude": ["idli", "sambar", "chutney"]
+    },
+    {
+      "id": "masala-dosa-plate",
+      "category": "indian_meal",
+      "input": "masala dosa with potato filling, sambar and 30g chutney",
+      "minItems": 3,
+      "mustInclude": ["dosa", "sambar", "chutney"],
+      "quantityChecks": [{ "contains": "30", "unit": "g" }]
+    },
+    {
+      "id": "chole-bhature",
+      "category": "indian_meal",
+      "input": "chole bhature",
+      "minItems": 1,
+      "mustInclude": ["chole", "bhatur"],
+      "kcalMin": 350,
+      "kcalMax": 900
+    },
+    {
+      "id": "pav-bhaji",
+      "category": "indian_meal",
+      "input": "pav bhaji with butter",
+      "minItems": 2,
+      "mustInclude": ["pav", "bhaji"]
+    },
+    {
+      "id": "chapati-dal-sabzi",
+      "category": "indian_meal",
+      "input": "2 chapatis, dal tadka and vegetable sabzi",
+      "minItems": 3,
+      "mustInclude": ["chapati", "dal", "sabzi"]
+    },
+    {
+      "id": "biryani-raita",
+      "category": "indian_meal",
+      "input": "biryani with cucumber raita",
+      "minItems": 2,
+      "mustInclude": ["biryani", "raita"]
+    },
+    {
+      "id": "poha-peanuts",
+      "category": "indian_meal",
+      "input": "poha with peanuts",
+      "minItems": 2,
+      "mustInclude": ["poha", "peanut"]
+    },
+    {
+      "id": "uttapam-chutney",
+      "category": "indian_meal",
+      "input": "uttapam with tomato chutney",
+      "minItems": 2,
+      "mustInclude": ["uttapam", "chutney"]
+    },
+    {
+      "id": "pani-puri",
+      "category": "indian_meal",
+      "input": "6 pani puri",
+      "minItems": 1,
+      "mustInclude": ["puri"],
+      "kcalMin": 70,
+      "kcalMax": 500
+    },
+    {
+      "id": "rice-100g",
+      "category": "basic_weighed",
+      "input": "100g cooked rice",
+      "minItems": 1,
+      "quantityChecks": [{ "contains": "100", "unit": "g" }],
+      "kcalMin": 110,
+      "kcalMax": 170
+    },
+    {
+      "id": "rice-250g",
+      "category": "basic_weighed",
+      "input": "250g cooked rice",
+      "minItems": 1,
+      "quantityChecks": [{ "contains": "250", "unit": "g" }],
+      "kcalMin": 280,
+      "kcalMax": 420
+    },
+    {
+      "id": "dosa-plate-comma",
+      "category": "component_splitting",
+      "input": "2 chapatis, 200g dal and 150g vegetable curry",
+      "minItems": 3,
+      "mustInclude": ["chapati", "dal", "curry"]
+    },
+    {
+      "id": "sushi-plate",
+      "category": "mixed_dish",
+      "input": "8-piece salmon roll, 100g edamame and 15ml soy sauce",
+      "minItems": 3,
+      "mustInclude": ["salmon", "edamame", "soy"]
+    },
+    {
+      "id": "half-cup-rice",
+      "category": "quantity_retention",
+      "input": "half cup cooked rice",
+      "minItems": 1,
+      "mustInclude": ["rice"],
+      "kcalMin": 90,
+      "kcalMax": 160
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="MealNova">
+  <defs>
+    <linearGradient id="mn-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a5c56"/>
+      <stop offset="100%" stop-color="#0f9488"/>
+    </linearGradient>
+    <linearGradient id="mn-shine" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.14"/>
+      <stop offset="55%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#mn-bg)"/>
+  <rect width="512" height="280" rx="112" fill="url(#mn-shine)"/>
+  <g fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M96 168h56l40-48h128l40 48h56a28 28 0 0 1 28 28v152a28 28 0 0 1-28 28H96a28 28 0 0 1-28-28V196a28 28 0 0 1 28-28z" stroke-width="20"/>
+    <circle cx="256" cy="284" r="76" stroke-width="20"/>
+    <circle cx="256" cy="284" r="30" fill="#ffffff" stroke="none"/>
+    <path d="M388 96l12 24 24 12-24 12-12 24-12-24-24-12 24-12z" fill="#ffffff" stroke="none"/>
+  </g>
+</svg>

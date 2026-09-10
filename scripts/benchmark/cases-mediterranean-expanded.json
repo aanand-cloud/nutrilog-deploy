@@ -1,0 +1,142 @@
+{
+  "version": "1.0",
+  "description": "Mediterranean & Middle Eastern meals — benchmark batch 3 expansion (Phase 6).",
+  "categories": ["mediterranean"],
+  "cases": [
+    {
+      "id": "md-falafel-wrap",
+      "category": "mediterranean",
+      "input": "falafel wrap",
+      "minItems": 1,
+      "mustInclude": ["falafel"],
+      "kcalMin": 400,
+      "kcalMax": 900
+    },
+    {
+      "id": "md-shawarma",
+      "category": "mediterranean",
+      "input": "chicken shawarma",
+      "minItems": 1,
+      "mustInclude": ["shawarma"],
+      "kcalMin": 450,
+      "kcalMax": 900
+    },
+    {
+      "id": "md-greek-salad",
+      "category": "mediterranean",
+      "input": "greek salad",
+      "minItems": 1,
+      "mustInclude": ["greek", "salad"],
+      "kcalMin": 200,
+      "kcalMax": 500
+    },
+    {
+      "id": "md-moussaka",
+      "category": "mediterranean",
+      "input": "moussaka",
+      "minItems": 1,
+      "mustInclude": ["moussaka"],
+      "kcalMin": 350,
+      "kcalMax": 800
+    },
+    {
+      "id": "md-hummus-pita",
+      "category": "mediterranean",
+      "input": "hummus with pita",
+      "minItems": 1,
+      "mustInclude": ["flatbread"],
+      "kcalMin": 350,
+      "kcalMax": 900
+    },
+    {
+      "id": "md-kebab-rice",
+      "category": "mediterranean",
+      "input": "kebab with rice",
+      "minItems": 2,
+      "mustInclude": ["kebab", "rice"],
+      "kcalMin": 450,
+      "kcalMax": 1100
+    },
+    {
+      "id": "md-tabouleh",
+      "category": "mediterranean",
+      "input": "tabbouleh",
+      "minItems": 1,
+      "mustInclude": ["tabbouleh"],
+      "kcalMin": 150,
+      "kcalMax": 400
+    },
+    {
+      "id": "md-baklava",
+      "category": "mediterranean",
+      "input": "baklava",
+      "minItems": 1,
+      "mustInclude": ["baklava"],
+      "kcalMin": 250,
+      "kcalMax": 600
+    },
+    {
+      "id": "md-lentil-soup",
+      "category": "mediterranean",
+      "input": "lentil soup",
+      "minItems": 1,
+      "mustInclude": ["dal"],
+      "kcalMin": 200,
+      "kcalMax": 500
+    },
+    {
+      "id": "md-shakshuka",
+      "category": "mediterranean",
+      "input": "shakshuka with bread",
+      "minItems": 2,
+      "mustInclude": ["shakshuka", "bread"],
+      "kcalMin": 350,
+      "kcalMax": 800
+    },
+    {
+      "id": "md-falafel-salad",
+      "category": "mediterranean",
+      "input": "falafel with salad",
+      "minItems": 2,
+      "mustInclude": ["falafel", "salad"],
+      "kcalMin": 900,
+      "kcalMax": 1200
+    },
+    {
+      "id": "md-fattoush",
+      "category": "mediterranean",
+      "input": "fattoush salad",
+      "minItems": 1,
+      "mustInclude": ["salad"],
+      "kcalMin": 150,
+      "kcalMax": 250
+    },
+    {
+      "id": "md-couscous",
+      "category": "mediterranean",
+      "input": "couscous with vegetables",
+      "minItems": 1,
+      "mustInclude": ["couscous"],
+      "kcalMin": 220,
+      "kcalMax": 350
+    },
+    {
+      "id": "md-spanakopita",
+      "category": "mediterranean",
+      "input": "spanakopita",
+      "minItems": 1,
+      "mustInclude": ["spanakopita"],
+      "kcalMin": 500,
+      "kcalMax": 700
+    },
+    {
+      "id": "md-dolma",
+      "category": "mediterranean",
+      "input": "dolma",
+      "minItems": 1,
+      "mustInclude": ["dolma"],
+      "kcalMin": 180,
+      "kcalMax": 280
+    }
+  ]
+}

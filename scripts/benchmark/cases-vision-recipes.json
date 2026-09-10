@@ -1,0 +1,92 @@
+{
+  "version": "1.0",
+  "description": "Phase 4 vision compose — recipe decomposition on collapsed photo payloads.",
+  "categories": ["vision_recipe_uk", "vision_recipe_indian"],
+  "cases": [
+    {
+      "id": "vision-fish-chips",
+      "category": "vision_recipe_uk",
+      "vision": {
+        "meal_summary": "Fish and chips",
+        "confidence_score": 0.84,
+        "items": [{
+          "name": "Fish and chips",
+          "unit": "g",
+          "estimated_amount": 430,
+          "cooking_method": "deep_fried",
+          "visible_oil": true,
+          "confidence": 0.82
+        }],
+        "clarification_questions": []
+      },
+      "minItems": 2,
+      "mustInclude": ["cod", "chip"],
+      "expectRecipeDerived": true,
+      "kcalMin": 900,
+      "kcalMax": 1400
+    },
+    {
+      "id": "vision-beans-toast",
+      "category": "vision_recipe_uk",
+      "vision": {
+        "meal_summary": "Beans on toast",
+        "confidence_score": 0.8,
+        "items": [{
+          "name": "Beans on toast",
+          "unit": "g",
+          "estimated_amount": 280,
+          "cooking_method": "unknown",
+          "visible_oil": false,
+          "confidence": 0.78
+        }],
+        "clarification_questions": []
+      },
+      "minItems": 2,
+      "mustInclude": ["bean", "toast"],
+      "expectRecipeDerived": true,
+      "kcalMin": 250,
+      "kcalMax": 450
+    },
+    {
+      "id": "vision-sunday-roast",
+      "category": "vision_recipe_uk",
+      "vision": {
+        "meal_summary": "Sunday roast",
+        "confidence_score": 0.79,
+        "items": [{
+          "name": "Roast dinner",
+          "unit": "g",
+          "estimated_amount": 490,
+          "cooking_method": "grilled",
+          "visible_oil": false,
+          "confidence": 0.76
+        }],
+        "clarification_questions": []
+      },
+      "minItems": 4,
+      "mustInclude": ["chicken", "potato"],
+      "expectRecipeDerived": true,
+      "kcalMin": 400,
+      "kcalMax": 900
+    },
+    {
+      "id": "vision-split-curry-rice",
+      "category": "vision_recipe_indian",
+      "vision": {
+        "meal_summary": "Chicken curry with rice",
+        "confidence_score": 0.86,
+        "items": [
+          { "name": "Chicken curry", "unit": "g", "estimated_amount": 250, "cooking_method": "pan_fried", "visible_oil": false, "confidence": 0.9 },
+          { "name": "Steamed rice", "unit": "g", "estimated_amount": 150, "cooking_method": "steamed", "visible_oil": false, "confidence": 0.88 }
+        ],
+        "clarification_questions": []
+      },
+      "minItems": 2,
+      "maxItems": 3,
+      "mustInclude": ["curry", "rice"],
+      "expectRecipeDerived": false,
+      "kcalMin": 350,
+      "kcalMax": 900
+    }
+  ]
+}

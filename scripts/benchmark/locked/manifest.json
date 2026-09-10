@@ -1,0 +1,33 @@
+{
+  "version": "p5-locked-1",
+  "buildLock": "2026-09-09-p5.0",
+  "casesFile": "cases-p5-locked.json",
+  "casesChecksum": "cebe2382294c",
+  "totalCases": 200,
+  "regionCounts": {
+    "uk": 60,
+    "indian": 80,
+    "packaged": 30,
+    "restaurant": 20,
+    "difficult_mixed": 10
+  },
+  "quotas": {
+    "uk": 60,
+    "indian": 80,
+    "packaged": 30,
+    "restaurant": 20,
+    "difficult_mixed": 10
+  },
+  "gates": {
+    "casePassRateMin": 0.95,
+    "componentRecognitionMin": 0.95,
+    "ingredientRetentionMin": 0.98,
+    "quantityBindingMin": 0.98,
+    "medianCalorieErrorPctMax": 0.1,
+    "within20PctMin": 0.9,
+    "rangeIntegrityMin": 1,
+    "firstSubmissionSuccessMin": 1,
+    "weightProvenanceMin": 1,
+    "mandatoryPassRateMin": 1
+  }
+}

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="robots" content="noindex"/>
+  <title>Logo preview — MealNova</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/src/styles/app.css"/>
+  <link rel="stylesheet" href="/src/styles/logo-preview.css"/>
+</head>
+<body class="logo-preview-page">
+  <section class="logo-preview-hero">
+    <a class="logo-preview-back" href="/">← Back to MealNova</a>
+    <h1>Wellness logo ideas</h1>
+    <p>Eight health &amp; nourishment directions for MealNova — plus the live classic camera mark. Pick one to try in this browser, or restore classic any time.</p>
+    <div class="logo-preview-active">
+      <span class="brand-mark" data-brand-mark aria-hidden="true"></span>
+      <span>Active: <strong id="activeName">Classic</strong></span>
+    </div>
+  </section>
+
+  <div class="logo-preview-grid" id="logoGrid"></div>
+
+  <footer class="logo-preview-footer">
+    <p><a href="#" id="restoreClassic">Restore classic logo</a> · <a href="/">Open MealNova</a></p>
+  </footer>
+
+  <script type="module">
+    import {
+      LOGO_VARIANTS,
+      getLogoVariantId,
+      setLogoVariant,
+      getBrandMarkSvg,
+      initBrandMarks,
+    } from '/src/services/brand-mark.js';
+
+    initBrandMarks();
+
+    const grid = document.getElementById('logoGrid');
+    const activeName = document.getElementById('activeName');
+    let currentId = getLogoVariantId();
+
+    function updateActiveLabel() {
+      const v = LOGO_VARIANTS.find((x) => x.id === currentId);
+      activeName.textContent = v ? v.name : 'Classic';
+      document.querySelectorAll('.logo-preview-card').forEach((card) => {
+        card.classList.toggle('is-active', card.dataset.id === currentId);
+      });
+      document.querySelectorAll('.btn-apply').forEach((btn) => {
+        const isCurrent = btn.dataset.id === currentId;
+        btn.disabled = isCurrent;
+        btn.textContent = isCurrent ? 'Currently active' : 'Use this logo';
+      });
+    }
+
+    function stageHtml(variantId, suffix) {
+      const svg = getBrandMarkSvg(variantId);
+      return `<span class="brand-mark" data-logo="${variantId}">${svg}</span><span class="logo-preview-wordmark">MealNova</span>`;
+    }
+
+    grid.innerHTML = LOGO_VARIANTS.map((variant) => `
+      <article class="logo-preview-card${variant.id === currentId ? ' is-active' : ''}" data-id="${variant.id}">
+        <div class="logo-preview-stage">${stageHtml(variant.id, 'dark')}</div>
+        <div class="logo-preview-stage logo-preview-stage--light">${stageHtml(variant.id, 'light')}</div>
+        <h2>${variant.name}</h2>
+        <p>${variant.tagline}</p>
+        <div class="logo-preview-actions">
+          <button type="button" class="btn-apply" data-id="${variant.id}"${variant.id === currentId ? ' disabled' : ''}>
+            ${variant.id === currentId ? 'Currently active' : 'Use this logo'}
+          </button>
+        </div>
+      </article>
+    `).join('');
+
+    grid.addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn-apply');
+      if (!btn || btn.disabled) return;
+      currentId = btn.dataset.id;
+      setLogoVariant(currentId);
+      updateActiveLabel();
+    });
+
+    document.getElementById('restoreClassic').addEventListener('click', (e) => {
+      e.preventDefault();
+      currentId = 'classic';
+      setLogoVariant('classic');
+      updateActiveLabel();
+    });
+
+    window.addEventListener('mealnova:logo-change', (e) => {
+      currentId = e.detail.id;
+      updateActiveLabel();
+    });
+
+    updateActiveLabel();
+  </script>
+</body>
+</html>

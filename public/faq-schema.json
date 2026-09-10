@@ -1,0 +1,54 @@
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How accurate are MealNova estimates?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Weighed staples and exact product labels can produce higher confidence when matched to sources such as UK CoFID, IFCT or verified labels. Mixed meals receive central estimates and likely ranges because recipe and portion size vary. See our accuracy methodology for limits."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which features are free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Barcode logging, food search and Describe stay free when signed in. Only AI photo analysis uses scan credits. Free accounts include 1 AI photo scan per day."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can MealNova recognise foods from different countries?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "MealNova is designed for home cooking, restaurant meals and mixed dishes from many cuisines — including strong support for UK and Indian foods alongside Mediterranean, Asian, Middle Eastern and other everyday plates. Results depend on what is visible and how portions are reviewed."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens if a food is not recognised?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Unmatched items stay visible on the review screen so you can rename them, adjust portions, search the database or remove them before saving. Nothing is silently dropped."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are my meal photos and history private?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Your meal history is not sold. You can export your data or request deletion from Settings or by email. See our privacy page for retention and security details."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I cancel anytime?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Paid plans can be cancelled from Settings. You keep access until the end of the current billing period and can continue on the free plan afterwards."
+      }
+    }
+  ]
+}

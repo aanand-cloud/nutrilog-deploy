@@ -1,0 +1,451 @@
+/**
+ * Mobile touch UI — layout + typography mapped to type-tokens.css.
+ * Scoped to html.touch-ui (set in index.html + app.js).
+ */
+
+/* ── Header ── */
+html.touch-ui .logo {
+  font-size: var(--t-logo);
+  line-height: var(--t-lh-snug);
+}
+
+html.touch-ui .brand-mark {
+  width: 40px;
+  height: 40px;
+}
+
+html.touch-ui .brand-mark svg {
+  width: 22px;
+  height: 22px;
+}
+
+html.touch-ui .greeting {
+  font-size: var(--t-greeting);
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+html.touch-ui .tagline {
+  font-size: var(--t-tagline);
+  margin-top: 4px;
+}
+
+html.touch-ui .header-auth-btn {
+  font-size: var(--t-base);
+  font-weight: 600;
+  min-height: var(--header-btn-height);
+  padding: 11px 20px;
+}
+
+html.touch-ui.is-guest .greeting,
+html.touch-ui #app:has(.view-page--guest) .greeting {
+  font-size: var(--t-greeting-guest);
+}
+
+html.touch-ui.is-guest .tagline,
+html.touch-ui #app:has(.view-page--guest) .tagline {
+  font-size: var(--t-tagline);
+}
+
+/* ── Bottom navigation ── */
+html.touch-ui .bottom-nav {
+  height: calc(var(--nav-h) + var(--safe-b));
+}
+
+html.touch-ui .nav-btn {
+  font-size: var(--t-nav);
+  font-weight: 600;
+  gap: 4px;
+  padding: 8px 4px;
+}
+
+html.touch-ui .nav-icon {
+  width: 26px;
+  height: 26px;
+}
+
+html.touch-ui .nav-icon--fab {
+  width: 56px;
+  height: 56px;
+  margin-top: -12px;
+}
+
+html.touch-ui .nav-icon--fab svg {
+  width: 26px;
+  height: 26px;
+}
+
+/* ── Buttons & forms ── */
+html.touch-ui .btn {
+  font-size: var(--t-btn);
+  font-weight: 600;
+  min-height: var(--btn-height);
+  padding: 12px 20px;
+  border-radius: 12px;
+}
+
+html.touch-ui .btn-sm {
+  font-size: var(--t-btn-sm);
+  min-height: var(--btn-height-sm);
+  padding: 12px 18px;
+}
+
+html.touch-ui .link-btn {
+  font-size: var(--t-link);
+}
+
+html.touch-ui input,
+html.touch-ui select,
+html.touch-ui textarea {
+  font-size: var(--t-input);
+}
+
+html.touch-ui .field span {
+  font-size: var(--t-field-label);
+}
+
+/* ── Cards & body copy ── */
+html.touch-ui .card-title {
+  font-size: var(--t-title);
+  line-height: var(--t-lh-snug);
+}
+
+html.touch-ui .card-desc,
+html.touch-ui .card-subtitle {
+  font-size: var(--t-body);
+  line-height: var(--t-lh-normal);
+}
+
+html.touch-ui .fine-print,
+html.touch-ui .app-disclaimer,
+html.touch-ui .app-disclaimer p,
+html.touch-ui .app-disclaimer-strip,
+html.touch-ui .app-disclaimer-strip p {
+  font-size: var(--t-caption);
+  line-height: var(--t-lh-relaxed);
+}
+
+/* ── Landing / welcome ── */
+html.touch-ui .welcome-panel__eyebrow,
+html.touch-ui .how-it-works__eyebrow,
+html.touch-ui .guest-landing-footer__eyebrow {
+  font-size: var(--t-caption);
+}
+
+html.touch-ui .welcome-panel__title {
+  font-size: var(--t-display);
+  line-height: var(--t-lh-tight);
+}
+
+html.touch-ui .welcome-panel__lead,
+html.touch-ui .how-it-works__lead {
+  font-size: var(--t-body-lg);
+  line-height: var(--t-lh-normal);
+}
+
+html.touch-ui .welcome-panel__stat strong {
+  font-size: var(--t-title-xl);
+}
+
+html.touch-ui .welcome-panel__stat span {
+  font-size: var(--t-body);
+}
+
+html.touch-ui .welcome-panel__features li {
+  font-size: var(--t-body);
+}
+
+html.touch-ui .welcome-panel__features svg {
+  width: 24px;
+  height: 24px;
+}
+
+html.touch-ui .welcome-panel__trust {
+  font-size: var(--t-sm);
+}
+
+html.touch-ui .how-it-works__title {
+  font-size: var(--t-title-xl);
+}
+
+html.touch-ui .product-features__eyebrow {
+  font-size: var(--t-caption);
+}
+
+html.touch-ui .product-features__title {
+  font-size: var(--t-title-xl);
+  line-height: 1.2;
+}
+
+html.touch-ui .product-features__lead,
+html.touch-ui .product-features__section-intro {
+  font-size: var(--t-body);
+  line-height: var(--t-lh-normal);
+}
+
+html.touch-ui .product-features__section-title {
+  font-size: var(--t-title-sm);
+}
+
+html.touch-ui .product-features__item-name {
+  font-size: var(--t-body);
+}
+
+html.touch-ui .product-features__item-detail {
+  font-size: var(--t-sm);
+}
+
+html.touch-ui .product-features__tier {
+  font-size: var(--t-micro);
+  padding: 4px 8px;
+}
+
+html.touch-ui .how-step__title {
+  font-size: var(--t-title-sm);
+}
+
+html.touch-ui .how-step__text {
+  font-size: var(--t-body);
+}
+
+html.touch-ui .guest-barcode__title {
+  font-size: var(--t-title);
+}
+
+html.touch-ui .guest-barcode__text {
+  font-size: var(--t-body);
+}
+
+html.touch-ui .guest-landing-footer__title {
+  font-size: var(--t-title-xxl);
+}
+
+html.touch-ui .guest-landing-footer__lead {
+  font-size: var(--t-body-lg);
+}
+
+html.touch-ui .landing-preview-card__meal {
+  font-size: var(--t-body);
+}
+
+html.touch-ui .landing-preview-card__kcal {
+  font-size: var(--t-base);
+}
+
+html.touch-ui .landing-preview-card__kcal strong {
+  font-size: var(--t-title-lg);
+}
+
+html.touch-ui .landing-preview-card__macros span {
+  font-size: var(--t-sm);
+}
+
+html.touch-ui .landing-ui-preview__title {
+  font-size: var(--t-title-sm);
+}
+
+html.touch-ui .landing-ui-preview__kcal strong {
+  font-size: var(--t-title-lg);
+}
+
+/* ── Supplements ── */
+html.touch-ui .supplement-card__body h3 {
+  font-size: var(--t-body);
+}
+
+html.touch-ui .supplement-card__meta,
+html.touch-ui .supplement-card__notes {
+  font-size: var(--t-sm);
+}
+
+html.touch-ui .section--supplements .section-intro {
+  font-size: var(--t-sm);
+}
+
+html.touch-ui .supplements-hero__title {
+  font-size: var(--t-title-xl);
+}
+
+html.touch-ui .supplements-hero__lead {
+  font-size: var(--t-body);
+}
+
+/* ── Today / meals ── */
+html.touch-ui .meal-body h3 {
+  font-size: var(--t-title-sm);
+}
+
+html.touch-ui .meal-meta,
+html.touch-ui .meal-kcal,
+html.touch-ui .meal-items {
+  font-size: var(--t-base);
+}
+
+html.touch-ui .macro-label {
+  font-size: var(--t-caption);
+}
+
+html.touch-ui .macro-value {
+  font-size: var(--t-title-sm);
+}
+
+html.touch-ui .ring-value {
+  font-size: var(--t-display-lg);
+}
+
+html.touch-ui .ring-unit,
+html.touch-ui .ring-goal,
+html.touch-ui .ring-left {
+  font-size: var(--t-sm);
+}
+
+html.touch-ui .quick-action__label {
+  font-size: var(--t-body);
+}
+
+html.touch-ui .quick-action__hint {
+  font-size: var(--t-base);
+}
+
+html.touch-ui .day-date-nav__label {
+  font-size: var(--t-body);
+}
+
+html.touch-ui .usage-strip__copy strong {
+  font-size: var(--t-body);
+}
+
+html.touch-ui .usage-strip__copy p {
+  font-size: var(--t-base);
+}
+
+/* ── Settings / reports ── */
+html.touch-ui .settings-title {
+  font-size: var(--t-title-xl);
+}
+
+html.touch-ui .settings-tabs .tab {
+  font-size: var(--t-tab);
+  padding: 12px 14px;
+}
+
+html.touch-ui .settings-panel-lead {
+  font-size: var(--t-body);
+}
+
+html.touch-ui .report-greeting {
+  font-size: var(--t-title-xl);
+}
+
+html.touch-ui .report-sub {
+  font-size: var(--t-base);
+}
+
+html.touch-ui .upgrade-gate__title {
+  font-size: var(--t-title-xl);
+}
+
+html.touch-ui .upgrade-gate__lead {
+  font-size: var(--t-body);
+}
+
+html.touch-ui .auth-modal__title {
+  font-size: var(--t-title-lg);
+}
+
+html.touch-ui .toast {
+  font-size: var(--t-base);
+}
+
+html.touch-ui .onboarding-skip {
+  font-size: var(--t-base);
+}
+
+/* ── Gaps not covered by token map (still rem in app.css) ── */
+html.touch-ui .empty-state__title {
+  font-size: var(--t-title-sm);
+}
+
+html.touch-ui .empty-state__hint,
+html.touch-ui .empty-state p {
+  font-size: var(--t-base);
+  line-height: var(--t-lh-normal);
+}
+
+html.touch-ui .plan-card h3 {
+  font-size: var(--t-title-sm);
+}
+
+html.touch-ui .plan-card li,
+html.touch-ui .plan-card p {
+  font-size: var(--t-sm);
+}
+
+html.touch-ui .section-intro {
+  font-size: var(--t-base);
+  line-height: var(--t-lh-normal);
+}
+
+html.touch-ui .meal-notes-compose__label {
+  font-size: var(--t-base);
+}
+
+html.touch-ui .meal-notes-compose__lead {
+  font-size: var(--t-sm);
+}
+
+html.touch-ui .note-chip {
+  font-size: var(--t-sm);
+}
+
+html.touch-ui .speech-field__bar .speech-field-hint {
+  font-size: var(--t-caption);
+}
+
+html.touch-ui .speech-mic-btn--pill {
+  font-size: var(--t-sm);
+  min-height: var(--btn-height-sm);
+}
+
+html.touch-ui .log-again__title {
+  font-size: var(--t-base);
+}
+
+html.touch-ui .log-again__sub {
+  font-size: var(--t-sm);
+}
+
+html.touch-ui .log-again-chip__name {
+  font-size: var(--t-base);
+}
+
+html.touch-ui .log-again-chip__meta {
+  font-size: var(--t-caption);
+}
+
+html.touch-ui .portion-scale__label {
+  font-size: var(--t-sm);
+}
+
+html.touch-ui .portion-scale__active {
+  font-size: var(--t-caption);
+}
+
+html.touch-ui .portion-scale__btn {
+  font-size: var(--t-sm);
+  min-height: var(--btn-height-sm);
+}
+
+html.touch-ui .day-wrap-up__title {
+  font-size: var(--t-title-sm);
+}
+
+html.touch-ui .day-wrap-up__insight {
+  font-size: var(--t-base);
+}
+
+html.touch-ui .day-wrap-up__detail,
+html.touch-ui .day-wrap-up__suggestion,
+html.touch-ui .day-wrap-up__coach {
+  font-size: var(--t-sm);
+}

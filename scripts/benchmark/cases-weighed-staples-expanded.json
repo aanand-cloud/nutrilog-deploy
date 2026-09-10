@@ -1,0 +1,134 @@
+{
+  "version": "1.0",
+  "description": "Weighed staples and drinks — benchmark batch 3 expansion (Phase 6).",
+  "categories": ["weighed_staple"],
+  "cases": [
+    {
+      "id": "ws-rice-100g",
+      "category": "weighed_staple",
+      "input": "100g cooked rice",
+      "minItems": 1,
+      "mustInclude": ["rice"],
+      "kcalMin": 130,
+      "kcalMax": 220,
+      "quantityChecks": [{ "contains": "100" }]
+    },
+    {
+      "id": "ws-pasta-150g",
+      "category": "weighed_staple",
+      "input": "150g cooked pasta",
+      "minItems": 1,
+      "mustInclude": ["pasta"],
+      "kcalMin": 200,
+      "kcalMax": 350,
+      "quantityChecks": [{ "contains": "150" }]
+    },
+    {
+      "id": "ws-salmon-120g",
+      "category": "weighed_staple",
+      "input": "120g salmon fillet",
+      "minItems": 1,
+      "mustInclude": ["salmon"],
+      "kcalMin": 180,
+      "kcalMax": 320,
+      "quantityChecks": [{ "contains": "120" }]
+    },
+    {
+      "id": "ws-apple",
+      "category": "weighed_staple",
+      "input": "1 medium apple",
+      "minItems": 1,
+      "mustInclude": ["apple"],
+      "kcalMin": 70,
+      "kcalMax": 120
+    },
+    {
+      "id": "ws-yogurt-150g",
+      "category": "weighed_staple",
+      "input": "150g greek yogurt",
+      "minItems": 1,
+      "mustInclude": ["yogurt"],
+      "kcalMin": 100,
+      "kcalMax": 200,
+      "quantityChecks": [{ "contains": "150" }]
+    },
+    {
+      "id": "ws-peanut-butter",
+      "category": "weighed_staple",
+      "input": "30 g peanut butter",
+      "minItems": 1,
+      "mustInclude": ["peanut", "butter"],
+      "kcalMin": 150,
+      "kcalMax": 250,
+      "quantityChecks": [{ "contains": "30" }]
+    },
+    {
+      "id": "ws-cheddar",
+      "category": "weighed_staple",
+      "input": "40g cheese",
+      "minItems": 1,
+      "mustInclude": ["cheese"],
+      "kcalMin": 140,
+      "kcalMax": 220,
+      "quantityChecks": [{ "contains": "40" }]
+    },
+    {
+      "id": "ws-tuna-100g",
+      "category": "weighed_staple",
+      "input": "100g tinned tuna",
+      "minItems": 1,
+      "mustInclude": ["tuna"],
+      "kcalMin": 100,
+      "kcalMax": 180,
+      "quantityChecks": [{ "contains": "100" }]
+    },
+    {
+      "id": "ws-bread-2slice",
+      "category": "weighed_staple",
+      "input": "2 slices bread",
+      "minItems": 1,
+      "mustInclude": ["bread"],
+      "kcalMin": 120,
+      "kcalMax": 250
+    },
+    {
+      "id": "ws-latte",
+      "category": "weighed_staple",
+      "input": "200 ml latte",
+      "minItems": 1,
+      "mustInclude": ["coffee"],
+      "kcalMin": 80,
+      "kcalMax": 200,
+      "quantityChecks": [{ "contains": "200" }]
+    },
+    {
+      "id": "ws-banana-100g",
+      "category": "weighed_staple",
+      "input": "100g banana",
+      "minItems": 1,
+      "mustInclude": ["banana"],
+      "kcalMin": 80,
+      "kcalMax": 120,
+      "quantityChecks": [{ "contains": "100" }]
+    },
+    {
+      "id": "ws-egg-2",
+      "category": "weighed_staple",
+      "input": "2 boiled eggs",
+      "minItems": 1,
+      "mustInclude": ["egg"],
+      "kcalMin": 120,
+      "kcalMax": 220
+    },
+    {
+      "id": "ws-chicken-100g",
+      "category": "weighed_staple",
+      "input": "100g chicken breast",
+      "minItems": 1,
+      "mustInclude": ["chicken"],
+      "kcalMin": 120,
+      "kcalMax": 200,
+      "quantityChecks": [{ "contains": "100" }]
+    }
+  ]
+}

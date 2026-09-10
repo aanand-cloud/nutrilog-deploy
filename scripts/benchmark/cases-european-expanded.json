@@ -1,0 +1,304 @@
+{
+  "version": "1.0",
+  "description": "European café and classic meals — benchmark batch 4 expansion (Phase 6).",
+  "categories": ["european"],
+  "cases": [
+    {
+      "id": "eu-full-english",
+      "category": "european",
+      "input": "full english breakfast",
+      "minItems": 3,
+      "mustInclude": ["english"],
+      "kcalMin": 650,
+      "kcalMax": 900
+    },
+    {
+      "id": "eu-croissant-coffee",
+      "category": "european",
+      "input": "croissant and coffee",
+      "minItems": 2,
+      "mustInclude": ["croissant", "coffee"],
+      "kcalMin": 900,
+      "kcalMax": 1100
+    },
+    {
+      "id": "eu-pain-chocolat",
+      "category": "european",
+      "input": "pain au chocolat",
+      "minItems": 1,
+      "mustInclude": ["pain"],
+      "kcalMin": 400,
+      "kcalMax": 550
+    },
+    {
+      "id": "eu-quiche",
+      "category": "european",
+      "input": "quiche lorraine",
+      "minItems": 1,
+      "mustInclude": ["quiche"],
+      "kcalMin": 600,
+      "kcalMax": 800
+    },
+    {
+      "id": "eu-croque",
+      "category": "european",
+      "input": "croque monsieur",
+      "minItems": 1,
+      "mustInclude": ["croque"],
+      "kcalMin": 600,
+      "kcalMax": 750
+    },
+    {
+      "id": "eu-onion-soup",
+      "category": "european",
+      "input": "french onion soup",
+      "minItems": 1,
+      "mustInclude": ["onion", "soup"],
+      "kcalMin": 120,
+      "kcalMax": 200
+    },
+    {
+      "id": "eu-ratatouille",
+      "category": "european",
+      "input": "ratatouille",
+      "minItems": 1,
+      "mustInclude": ["ratatouille"],
+      "kcalMin": 140,
+      "kcalMax": 200
+    },
+    {
+      "id": "eu-bourguignon",
+      "category": "european",
+      "input": "beef bourguignon",
+      "minItems": 1,
+      "mustInclude": ["bourguignon"],
+      "kcalMin": 500,
+      "kcalMax": 650
+    },
+    {
+      "id": "eu-coq-vin",
+      "category": "european",
+      "input": "coq au vin",
+      "minItems": 1,
+      "mustInclude": ["coq"],
+      "kcalMin": 420,
+      "kcalMax": 550
+    },
+    {
+      "id": "eu-schnitzel",
+      "category": "european",
+      "input": "wiener schnitzel with potatoes",
+      "minItems": 2,
+      "mustInclude": ["schnitzel", "potato"],
+      "kcalMin": 950,
+      "kcalMax": 1200
+    },
+    {
+      "id": "eu-bratwurst",
+      "category": "european",
+      "input": "bratwurst with sauerkraut",
+      "minItems": 2,
+      "mustInclude": ["bratwurst", "sauerkraut"],
+      "kcalMin": 600,
+      "kcalMax": 900
+    },
+    {
+      "id": "eu-goulash",
+      "category": "european",
+      "input": "goulash with bread",
+      "minItems": 2,
+      "mustInclude": ["goulash", "bread"],
+      "kcalMin": 500,
+      "kcalMax": 650
+    },
+    {
+      "id": "eu-carbonara",
+      "category": "european",
+      "input": "spaghetti carbonara",
+      "minItems": 1,
+      "mustInclude": ["carbonara"],
+      "kcalMin": 350,
+      "kcalMax": 500
+    },
+    {
+      "id": "eu-pizza",
+      "category": "european",
+      "input": "margherita pizza",
+      "minItems": 1,
+      "mustInclude": ["pizza"],
+      "kcalMin": 600,
+      "kcalMax": 750
+    },
+    {
+      "id": "eu-risotto",
+      "category": "european",
+      "input": "risotto",
+      "minItems": 1,
+      "mustInclude": ["risotto"],
+      "kcalMin": 380,
+      "kcalMax": 480
+    },
+    {
+      "id": "eu-minestrone",
+      "category": "european",
+      "input": "minestrone soup",
+      "minItems": 1,
+      "mustInclude": ["minestrone"],
+      "kcalMin": 100,
+      "kcalMax": 150
+    },
+    {
+      "id": "eu-caprese",
+      "category": "european",
+      "input": "caprese salad",
+      "minItems": 1,
+      "mustInclude": ["caprese"],
+      "kcalMin": 200,
+      "kcalMax": 280
+    },
+    {
+      "id": "eu-tortilla",
+      "category": "european",
+      "input": "spanish omelette",
+      "minItems": 1,
+      "mustInclude": ["omelette"],
+      "kcalMin": 350,
+      "kcalMax": 450
+    },
+    {
+      "id": "eu-paella",
+      "category": "european",
+      "input": "paella",
+      "minItems": 1,
+      "mustInclude": ["paella"],
+      "kcalMin": 550,
+      "kcalMax": 650
+    },
+    {
+      "id": "eu-fish-chips",
+      "category": "european",
+      "input": "fish and chips",
+      "minItems": 2,
+      "mustInclude": ["cod", "chip"],
+      "kcalMin": 1200,
+      "kcalMax": 1400
+    },
+    {
+      "id": "eu-porridge-banana",
+      "category": "european",
+      "input": "porridge with banana",
+      "minItems": 1,
+      "mustInclude": ["porridge"],
+      "kcalMin": 180,
+      "kcalMax": 280
+    },
+    {
+      "id": "eu-beans-toast",
+      "category": "european",
+      "input": "beans on toast",
+      "minItems": 2,
+      "mustInclude": ["bean", "toast"],
+      "kcalMin": 380,
+      "kcalMax": 480
+    },
+    {
+      "id": "eu-scrambled-toast",
+      "category": "european",
+      "input": "scrambled eggs on toast",
+      "minItems": 1,
+      "mustInclude": ["scrambled"],
+      "kcalMin": 280,
+      "kcalMax": 380
+    },
+    {
+      "id": "eu-avocado-toast",
+      "category": "european",
+      "input": "avocado toast",
+      "minItems": 1,
+      "mustInclude": ["avocado"],
+      "kcalMin": 320,
+      "kcalMax": 400
+    },
+    {
+      "id": "eu-salmon-bagel",
+      "category": "european",
+      "input": "smoked salmon bagel",
+      "minItems": 1,
+      "mustInclude": ["salmon"],
+      "kcalMin": 480,
+      "kcalMax": 580
+    },
+    {
+      "id": "eu-benedict",
+      "category": "european",
+      "input": "eggs benedict",
+      "minItems": 1,
+      "mustInclude": ["benedict"],
+      "kcalMin": 500,
+      "kcalMax": 600
+    },
+    {
+      "id": "eu-club",
+      "category": "european",
+      "input": "club sandwich",
+      "minItems": 1,
+      "mustInclude": ["club"],
+      "kcalMin": 500,
+      "kcalMax": 580
+    },
+    {
+      "id": "eu-caesar",
+      "category": "european",
+      "input": "caesar salad",
+      "minItems": 1,
+      "mustInclude": ["caesar"],
+      "kcalMin": 250,
+      "kcalMax": 320
+    },
+    {
+      "id": "eu-tomato-soup",
+      "category": "european",
+      "input": "tomato soup with bread",
+      "minItems": 2,
+      "mustInclude": ["tomato", "bread"],
+      "kcalMin": 170,
+      "kcalMax": 220
+    },
+    {
+      "id": "eu-lasagne",
+      "category": "european",
+      "input": "beef lasagne",
+      "minItems": 1,
+      "mustInclude": ["lasagne"],
+      "kcalMin": 450,
+      "kcalMax": 520
+    },
+    {
+      "id": "eu-steak-frites",
+      "category": "european",
+      "input": "steak frites",
+      "minItems": 1,
+      "mustInclude": ["steak"],
+      "kcalMin": 520,
+      "kcalMax": 600
+    },
+    {
+      "id": "eu-french-toast",
+      "category": "european",
+      "input": "french toast",
+      "minItems": 1,
+      "mustInclude": ["french"],
+      "kcalMin": 540,
+      "kcalMax": 600
+    },
+    {
+      "id": "eu-pancakes",
+      "category": "european",
+      "input": "pancakes with syrup",
+      "minItems": 1,
+      "mustInclude": ["pancake"],
+      "kcalMin": 550,
+      "kcalMax": 620
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+/* Anonymous analytics consent banner */
+
+.analytics-consent {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--nav-h) + var(--safe-b) + 8px);
+  z-index: 45;
+  margin: 0 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.analytics-consent__text {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--text2);
+}
+
+.analytics-consent__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+html.is-guest:has(.guest-sticky-cta--visible) .analytics-consent {
+  bottom: calc(var(--nav-h) + var(--safe-b) + 72px);
+}
+
+@media (min-width: 640px) {
+  .analytics-consent {
+    flex-direction: row;
+    align-items: center;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .analytics-consent__text {
+    flex: 1;
+  }
+}

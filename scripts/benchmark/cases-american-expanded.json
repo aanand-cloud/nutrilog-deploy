@@ -1,0 +1,133 @@
+{
+  "version": "1.0",
+  "description": "American comfort meals — benchmark batch 2 expansion (Phase 6).",
+  "categories": ["american_mixed"],
+  "cases": [
+    {
+      "id": "us-burger-fries",
+      "category": "american_mixed",
+      "input": "cheeseburger and fries",
+      "minItems": 1,
+      "mustInclude": ["burger", "fries"],
+      "kcalMin": 650,
+      "kcalMax": 1400
+    },
+    {
+      "id": "us-chicken-waffles",
+      "category": "american_mixed",
+      "input": "chicken and waffles",
+      "minItems": 1,
+      "mustInclude": ["chicken", "waffle"],
+      "kcalMin": 550,
+      "kcalMax": 1200
+    },
+    {
+      "id": "us-mac-cheese",
+      "category": "american_mixed",
+      "input": "mac and cheese",
+      "minItems": 1,
+      "mustInclude": ["mac"],
+      "kcalMin": 400,
+      "kcalMax": 900
+    },
+    {
+      "id": "us-buffalo-wings",
+      "category": "american_mixed",
+      "input": "buffalo wings",
+      "minItems": 1,
+      "mustInclude": ["wing"],
+      "kcalMin": 450,
+      "kcalMax": 900
+    },
+    {
+      "id": "us-philly",
+      "category": "american_mixed",
+      "input": "philly cheesesteak",
+      "minItems": 1,
+      "mustInclude": ["philly", "cheese"],
+      "kcalMin": 500,
+      "kcalMax": 1000
+    },
+    {
+      "id": "us-meatloaf",
+      "category": "american_mixed",
+      "input": "meatloaf and mashed potatoes",
+      "minItems": 2,
+      "mustInclude": ["meatloaf", "potato"],
+      "kcalMin": 500,
+      "kcalMax": 1200
+    },
+    {
+      "id": "us-biscuits-gravy",
+      "category": "american_mixed",
+      "input": "biscuits and gravy",
+      "minItems": 2,
+      "mustInclude": ["biscuit", "gravy"],
+      "kcalMin": 450,
+      "kcalMax": 1000
+    },
+    {
+      "id": "us-eggs-benedict",
+      "category": "american_mixed",
+      "input": "eggs benedict",
+      "minItems": 1,
+      "mustInclude": ["benedict", "egg"],
+      "kcalMin": 450,
+      "kcalMax": 900
+    },
+    {
+      "id": "us-pancakes-bacon",
+      "category": "american_mixed",
+      "input": "pancakes and bacon",
+      "minItems": 1,
+      "mustInclude": ["pancake", "bacon"],
+      "kcalMin": 550,
+      "kcalMax": 1200
+    },
+    {
+      "id": "us-clam-chowder",
+      "category": "american_mixed",
+      "input": "clam chowder",
+      "minItems": 1,
+      "mustInclude": ["clam", "chowder"],
+      "kcalMin": 280,
+      "kcalMax": 700
+    },
+    {
+      "id": "us-jambalaya",
+      "category": "american_mixed",
+      "input": "jambalaya",
+      "minItems": 1,
+      "mustInclude": ["jambalaya"],
+      "kcalMin": 450,
+      "kcalMax": 900
+    },
+    {
+      "id": "us-cobb-salad",
+      "category": "american_mixed",
+      "input": "cobb salad",
+      "minItems": 1,
+      "mustInclude": ["cobb", "salad"],
+      "kcalMin": 350,
+      "kcalMax": 800
+    },
+    {
+      "id": "us-bbq-ribs",
+      "category": "american_mixed",
+      "input": "bbq ribs",
+      "minItems": 1,
+      "mustInclude": ["rib"],
+      "kcalMin": 500,
+      "kcalMax": 1200
+    },
+    {
+      "id": "us-grilled-cheese",
+      "category": "american_mixed",
+      "input": "grilled cheese",
+      "minItems": 1,
+      "mustInclude": ["grilled", "cheese"],
+      "kcalMin": 380,
+      "kcalMax": 800
+    }
+  ]
+}

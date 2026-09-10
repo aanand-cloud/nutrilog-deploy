@@ -1,0 +1,57 @@
+/**
+ * Mobile typography tokens — single source of truth when html.touch-ui is set.
+ * Calibrated to a 16px root (iOS/Material body standard): readable, not oversized.
+ */
+html.touch-ui {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  --copy-lead-size: 0.9375rem; /* 15px secondary lead */
+
+  /* Type scale */
+  --t-micro: 11px;
+  --t-caption: 12px;
+  --t-sm: 13px;
+  --t-base: 14px;
+  --t-body: 16px;
+  --t-body-lg: 17px;
+  --t-title-sm: 17px;
+  --t-title: 20px;
+  --t-title-lg: 22px;
+  --t-title-xl: 24px;
+  --t-title-xxl: 26px;
+  --t-display: 28px;
+  --t-display-lg: 32px;
+
+  /* Shell */
+  --t-logo: 20px;
+  --t-greeting: 17px;
+  --t-greeting-guest: 18px;
+  --t-tagline: 13px;
+  --t-nav: 11px;
+  --t-tab: 14px;
+
+  /* Controls */
+  --t-btn: 16px;
+  --t-btn-sm: 14px;
+  --t-input: 16px;
+  --t-field-label: 13px;
+  --t-link: 15px;
+
+  /* Layout */
+  --nav-h: 76px;
+  --btn-height: 48px;
+  --btn-height-sm: 44px;
+  --header-btn-height: 40px;
+
+  /* Line height */
+  --t-lh-tight: 1.15;
+  --t-lh-snug: 1.3;
+  --t-lh-normal: 1.5;
+  --t-lh-relaxed: 1.45;
+}
+
+html.touch-ui #app {
+  font-size: var(--t-body);
+  line-height: var(--t-lh-normal);
+}

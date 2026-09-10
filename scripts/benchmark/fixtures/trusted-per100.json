@@ -1,0 +1,21 @@
+{
+  "version": "1.0",
+  "description": "Trusted per-100g ground truth from CoFID 2021 / IFCT 2017 for weighed benchmark cases.",
+  "fixtures": {
+    "white_rice": { "kcal100": 130, "tolerancePct": 8, "source": "cofid", "sourceRecordId": "11-1079" },
+    "cooked_rice": { "kcal100": 130, "tolerancePct": 8, "source": "cofid", "sourceRecordId": "11-1079" },
+    "basmati_rice": { "kcal100": 148, "tolerancePct": 8, "source": "cofid", "sourceRecordId": "11-1079" },
+    "baked_beans": { "kcal100": 105, "tolerancePct": 5, "source": "cofid", "sourceRecordId": "13-149" },
+    "butter": { "kcal100": 717, "tolerancePct": 3, "source": "cofid", "sourceRecordId": "12-344" },
+    "white_fish": { "kcal100": 232, "tolerancePct": 10, "source": "cofid", "sourceRecordId": "16-378" },
+    "fries": { "kcal100": 312, "tolerancePct": 10, "source": "cofid", "sourceRecordId": "13-1425" },
+    "peas": { "kcal100": 81, "tolerancePct": 8, "source": "cofid", "sourceRecordId": "13-803" },
+    "mushy_peas": { "kcal100": 81, "tolerancePct": 8, "source": "cofid", "sourceRecordId": "13-803" },
+    "banana": { "kcal100": 95, "tolerancePct": 8, "source": "cofid", "sourceRecordId": "13-342" },
+    "boiled_egg": { "kcal100": 155, "tolerancePct": 5, "source": "cofid", "sourceRecordId": "12-454" },
+    "idli": { "kcal100": 106, "tolerancePct": 15, "source": "ifct", "sourceRecordId": "A031" },
+    "dal": { "kcal100": 104, "tolerancePct": 12, "source": "ifct", "sourceRecordId": "D012" },
+    "roti": { "kcal100": 297, "tolerancePct": 10, "source": "ifct", "sourceRecordId": "A035" },
+    "edamame": { "kcal100": 121, "tolerancePct": 10, "source": "cofid", "sourceRecordId": "13-803" }
+  }
+}

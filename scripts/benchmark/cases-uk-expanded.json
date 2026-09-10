@@ -1,0 +1,202 @@
+{
+  "version": "1.0",
+  "description": "UK staples and mixed meals — benchmark batch 1 expansion (Phase 6).",
+  "categories": ["uk_basic", "uk_mixed"],
+  "cases": [
+    {
+      "id": "uk-milk-200ml",
+      "category": "uk_basic",
+      "input": "200 ml semi skimmed milk",
+      "minItems": 1,
+      "mustInclude": ["milk"],
+      "kcalMin": 80,
+      "kcalMax": 150
+    },
+    {
+      "id": "uk-eggs-2",
+      "category": "uk_basic",
+      "input": "2 boiled eggs",
+      "minItems": 1,
+      "mustInclude": ["egg"],
+      "kcalMin": 120,
+      "kcalMax": 220
+    },
+    {
+      "id": "uk-chicken-breast",
+      "category": "uk_basic",
+      "input": "100g chicken breast",
+      "minItems": 1,
+      "mustInclude": ["chicken"],
+      "kcalMin": 120,
+      "kcalMax": 200
+    },
+    {
+      "id": "uk-rice-150g",
+      "category": "uk_basic",
+      "input": "150g cooked rice",
+      "minItems": 1,
+      "mustInclude": ["rice"],
+      "kcalMin": 180,
+      "kcalMax": 280,
+      "quantityChecks": [{ "contains": "150", "unit": "g" }]
+    },
+    {
+      "id": "uk-beans-200g",
+      "category": "uk_basic",
+      "input": "200g baked beans",
+      "minItems": 1,
+      "mustInclude": ["bean"],
+      "kcalMin": 180,
+      "kcalMax": 240,
+      "quantityChecks": [{ "contains": "200", "unit": "g" }]
+    },
+    {
+      "id": "uk-toast-butter",
+      "category": "uk_basic",
+      "input": "2 slices toast with 10 g butter",
+      "minItems": 2,
+      "mustInclude": ["toast", "butter"],
+      "kcalMin": 150,
+      "kcalMax": 350
+    },
+    {
+      "id": "uk-porridge-milk",
+      "category": "uk_basic",
+      "input": "40g porridge oats with 200 ml milk",
+      "minItems": 2,
+      "mustInclude": ["oat", "milk"],
+      "kcalMin": 200,
+      "kcalMax": 350
+    },
+    {
+      "id": "uk-banana",
+      "category": "uk_basic",
+      "input": "1 medium banana",
+      "minItems": 1,
+      "mustInclude": ["banana"],
+      "kcalMin": 80,
+      "kcalMax": 130
+    },
+    {
+      "id": "uk-bangers-mash",
+      "category": "uk_mixed",
+      "input": "bangers and mash",
+      "minItems": 2,
+      "mustInclude": ["sausage", "mash"],
+      "kcalMin": 350,
+      "kcalMax": 800
+    },
+    {
+      "id": "uk-fish-chips",
+      "category": "uk_mixed",
+      "input": "fish and chips",
+      "minItems": 2,
+      "mustInclude": ["cod", "chip"],
+      "kcalMin": 900,
+      "kcalMax": 1400
+    },
+    {
+      "id": "uk-beans-toast",
+      "category": "uk_mixed",
+      "input": "beans on toast",
+      "minItems": 2,
+      "mustInclude": ["bean", "toast"],
+      "kcalMin": 250,
+      "kcalMax": 450
+    },
+    {
+      "id": "uk-shepherds-pie",
+      "category": "uk_mixed",
+      "input": "shepherds pie",
+      "minItems": 2,
+      "mustInclude": ["lamb", "mash"],
+      "kcalMin": 500,
+      "kcalMax": 900
+    },
+    {
+      "id": "uk-cottage-pie",
+      "category": "uk_mixed",
+      "input": "cottage pie",
+      "minItems": 2,
+      "mustInclude": ["lamb", "mash"],
+      "kcalMin": 500,
+      "kcalMax": 900
+    },
+    {
+      "id": "uk-full-english",
+      "category": "uk_mixed",
+      "input": "full english breakfast",
+      "minItems": 3,
+      "mustInclude": ["egg", "sausage", "bean"],
+      "kcalMin": 600,
+      "kcalMax": 950
+    },
+    {
+      "id": "uk-jacket-beans",
+      "category": "uk_mixed",
+      "input": "jacket potato with baked beans",
+      "minItems": 2,
+      "mustInclude": ["potato", "bean"],
+      "kcalMin": 350,
+      "kcalMax": 650
+    },
+    {
+      "id": "uk-scotch-egg",
+      "category": "uk_mixed",
+      "input": "scotch egg",
+      "minItems": 1,
+      "mustInclude": ["scotch", "egg"],
+      "kcalMin": 200,
+      "kcalMax": 700
+    },
+    {
+      "id": "uk-cornish-pasty",
+      "category": "uk_mixed",
+      "input": "cornish pasty",
+      "minItems": 1,
+      "mustInclude": ["pasty"],
+      "kcalMin": 400,
+      "kcalMax": 750
+    },
+    {
+      "id": "uk-ploughmans",
+      "category": "uk_mixed",
+      "input": "ploughmans lunch",
+      "minItems": 1,
+      "mustInclude": ["ploughman"],
+      "kcalMin": 350,
+      "kcalMax": 600
+    },
+    {
+      "id": "uk-yorkshire-pud",
+      "category": "uk_mixed",
+      "input": "yorkshire pudding",
+      "minItems": 1,
+      "mustInclude": ["yorkshire"],
+      "kcalMin": 150,
+      "kcalMax": 600
+    },
+    {
+      "id": "uk-sunday-roast",
+      "category": "uk_mixed",
+      "input": "sunday roast chicken",
+      "minItems": 1,
+      "mustInclude": ["chicken", "roast"],
+      "kcalMin": 400,
+      "kcalMax": 900
+    },
+    {
+      "id": "uk-fish-chips-peas-w",
+      "category": "uk_mixed",
+      "input": "180g battered cod, 250g chips, 80g mushy peas",
+      "minItems": 3,
+      "mustInclude": ["cod", "chip", "pea"],
+      "kcalMin": 550,
+      "kcalMax": 1350,
+      "quantityChecks": [
+        { "contains": "180", "unit": "g" },
+        { "contains": "250", "unit": "g" }
+      ]
+    }
+  ]
+}
