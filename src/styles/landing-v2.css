@@ -1,5 +1,11 @@
 /* Landing v2 — premium international guest page */
 
+html.is-guest {
+  /* App --text2 is mint-on-teal; landing needs readable muted copy on white. */
+  --landing-muted: #475569;
+  --landing-muted-soft: #64748b;
+}
+
 html.is-guest .view-page--guest .view-page__guest-row {
   gap: 0;
   padding: 0 0 32px;
@@ -46,7 +52,7 @@ html.is-guest .view-page--guest .view-page__guest-row {
 .landing-section__lead {
   font-size: 1.02rem;
   line-height: 1.55;
-  color: var(--text2);
+  color: var(--landing-muted);
   margin: 0 0 20px;
   max-width: 62ch;
 }
@@ -126,7 +132,7 @@ html.is-guest .view-page--guest .view-page__guest-row {
 
 .landing-hero-v2__intl {
   font-size: 0.95rem;
-  color: var(--text2);
+  color: var(--landing-muted);
   margin: 0 0 18px;
 }
 
@@ -142,7 +148,7 @@ html.is-guest .view-page--guest .view-page__guest-row {
   flex-wrap: wrap;
   gap: 8px 16px;
   font-size: 0.82rem;
-  color: var(--text2);
+  color: var(--landing-muted);
   margin: 0;
 }
 
@@ -264,7 +270,7 @@ html.is-guest .view-page--guest .view-page__guest-row {
 .landing-trust-strip__text {
   font-size: 0.82rem;
   line-height: 1.5;
-  color: var(--text2);
+  color: var(--landing-muted);
   text-align: center;
   margin: 0;
   max-width: 920px;
@@ -321,10 +327,11 @@ html.is-guest .view-page--guest .view-page__guest-row {
 }
 
 .landing-product-demo__step .landing-photo__img {
-  aspect-ratio: 390 / 520;
+  aspect-ratio: 4 / 3;
   object-fit: cover;
   width: 100%;
   height: auto;
+  background: #f1f5f9;
 }
 
 .landing-product-demo__step-title {
@@ -376,7 +383,7 @@ html.is-guest .view-page--guest .view-page__guest-row {
 }
 
 .landing-result-card__kcal .review-kcal-label {
-  color: var(--text2);
+  color: var(--landing-muted);
   font-weight: 600;
 }
 
@@ -499,7 +506,7 @@ html.is-guest .view-page--guest .view-page__guest-row {
 
 .landing-global-meals__stats {
   font-size: 0.82rem;
-  color: var(--text2);
+  color: var(--landing-muted);
   margin: 0;
 }
 
@@ -570,7 +577,7 @@ html.is-guest .view-page--guest .view-page__guest-row {
 
 .landing-advantage__body {
   font-size: 0.88rem;
-  color: var(--text2);
+  color: var(--landing-muted);
   margin: 0;
   line-height: 1.45;
 }
@@ -578,7 +585,7 @@ html.is-guest .view-page--guest .view-page__guest-row {
 .landing-accuracy-v2__list {
   margin: 0;
   padding-left: 1.1rem;
-  color: var(--text2);
+  color: var(--landing-muted);
   line-height: 1.55;
 }
 
@@ -595,7 +602,7 @@ html.is-guest .view-page--guest .view-page__guest-row {
 
 .landing-pricing-v2__scan-note {
   font-size: 0.88rem;
-  color: var(--text2);
+  color: var(--landing-muted);
   margin: 0 0 18px;
   padding: 12px 14px;
   border-radius: 10px;
@@ -609,7 +616,7 @@ html.is-guest .view-page--guest .view-page__guest-row {
 
 .landing-pricing-v2__essential-line {
   font-size: 0.88rem;
-  color: var(--text2);
+  color: var(--landing-muted);
   margin: 16px 0 0;
 }
 
@@ -622,7 +629,7 @@ html.is-guest .view-page--guest .view-page__guest-row {
 .landing-social-proof__quote {
   font-size: 1.05rem;
   line-height: 1.5;
-  color: var(--text2);
+  color: var(--landing-muted);
   margin: 0;
 }
 
@@ -661,7 +668,7 @@ html.is-guest .view-page--guest .view-page__guest-row {
 
 .landing-privacy-support__col p {
   font-size: 0.88rem;
-  color: var(--text2);
+  color: var(--landing-muted);
   margin: 0;
   line-height: 1.45;
 }

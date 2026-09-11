@@ -56,7 +56,7 @@ html.is-guest .app-header {
 }
 
 .site-header__link {
-  color: var(--text2);
+  color: var(--text3);
   text-decoration: none;
   font-size: 0.92rem;
   font-weight: 500;

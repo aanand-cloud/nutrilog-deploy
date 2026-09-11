@@ -60,8 +60,9 @@ const LANDING_ASSETS = {
   '/images/meal-asia-thai-curry.jpg': { webp: '/images/meal-asia-thai-curry.webp' },
   '/images/meal-middle-east-platter.jpg': { webp: '/images/meal-middle-east-platter.webp' },
   '/images/meal-africa-jollof.jpg': { webp: '/images/meal-africa-jollof.webp' },
-  '/images/landing-demo/frame-03-log-photo.png': { webp: '/images/landing-demo/frame-03-log-photo.png' },
-  '/images/landing-demo/frame-02-result-card.png': { webp: '/images/landing-demo/frame-02-result-card.png' },
+  '/images/how-step-snap.jpg': { webp: '/images/how-step-snap.webp' },
+  '/images/how-step-estimates.jpg': { webp: '/images/how-step-estimates.webp' },
+  '/images/how-step-track.jpg': { webp: '/images/how-step-track.webp' },
 };
 
 const GLOBAL_MEALS = [
@@ -131,18 +132,18 @@ const GLOBAL_MEALS = [
 
 const STATIC_DEMO_STEPS = [
   {
-    img: '/images/landing-demo/frame-03-log-photo.png',
-    alt: 'MealNova log screen showing photograph meal option',
+    img: '/images/how-step-snap.jpg',
+    alt: 'Photograph a plate of food to start logging',
     title: 'Photograph or describe your meal',
   },
   {
-    img: '/images/landing-demo/frame-02-result-card.png',
-    alt: 'MealNova review card showing calories, macros and confidence range',
+    img: '/images/how-step-estimates.jpg',
+    alt: 'Review calorie and macro estimates for each food',
     title: 'Review every component and portion',
   },
   {
-    img: '/images/landing-demo/frame-03-log-photo.png',
-    alt: 'MealNova portion editing before saving to diary',
+    img: '/images/how-step-track.jpg',
+    alt: 'Save the meal and track progress on Today',
     title: 'Adjust portions, then save and track',
   },
 ];
