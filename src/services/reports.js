@@ -46,6 +46,7 @@ export function dailyTotals(meals) {
 }
 
 export function periodReport(meals, dayCount) {
+  meals = foodMealsOnly(meals);
   const goals = getGoals();
   const prefs = getUnitPrefs();
   const byDate = groupMealsByDate(meals);
@@ -147,6 +148,106 @@ export function weekReport(meals) {
 
 export function monthReport(meals) {
   return periodReport(meals, 30);
+}
+
+export function parseDateKey(key) {
+  const [y, m, d] = String(key).split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+export function shiftDateKey(key, days) {
+  const d = parseDateKey(key);
+  d.setDate(d.getDate() + days);
+  return todayKey(d);
+}
+
+export function formatDayHeading(dateKey, ref = new Date()) {
+  const today = todayKey(ref);
+  if (dateKey === today) return 'Today';
+  if (dateKey === shiftDateKey(today, -1)) return 'Yesterday';
+  return parseDateKey(dateKey).toLocaleDateString(undefined, {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
+export function formatDayShort(dateKey) {
+  return parseDateKey(dateKey).toLocaleDateString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
+/** Food and drink meals only — supplements have their own diary. */
+export function foodMealsOnly(meals) {
+  return (meals || []).filter((m) => m.meal_type !== 'supplement' && m.source !== 'supplement');
+}
+
+export function weekComparisonLines(dayTotals, weekReport) {
+  if (!weekReport?.daysWithData) return [];
+  const prefs = getUnitPrefs();
+  const items = [
+    { key: 'protein_g', label: 'Protein', unit: 'g' },
+    { key: 'carbs_g', label: 'Carbs', unit: 'g' },
+    { key: 'fat_g', label: 'Fat', unit: 'g' },
+  ];
+  const lines = [];
+  for (const item of items) {
+    const todayVal = dayTotals[item.key] || 0;
+    const avgVal = weekReport.averages[item.key] || 0;
+    if (todayVal <= 0 && avgVal <= 0) continue;
+    lines.push({
+      label: item.label,
+      today: `${Math.round(todayVal)}${item.unit}`,
+      avg: `${Math.round(avgVal)}${item.unit}`,
+    });
+  }
+  const calToday = dayTotals.calories_kcal || 0;
+  const calAvg = weekReport.averages.calories_kcal || 0;
+  if (calToday > 0 || calAvg > 0) {
+    lines.unshift({
+      label: 'Calories',
+      today: formatEnergy(calToday, prefs),
+      avg: formatEnergy(calAvg, prefs),
+    });
+  }
+  return lines.slice(0, 4);
+}
+
+export function mealTypeBreakdown(meals) {
+  const order = ['breakfast', 'lunch', 'dinner', 'snack'];
+  const labels = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', snack: 'Snack' };
+  const map = {};
+  for (const m of meals) {
+    const t = m.meal_type || 'snack';
+    if (!map[t]) map[t] = { count: 0, calories_kcal: 0 };
+    map[t].count += 1;
+    map[t].calories_kcal += m.total_nutrition?.calories_kcal || m.total_calories_kcal || 0;
+  }
+  return order
+    .filter((t) => map[t]?.count)
+    .map((t) => ({ type: t, label: labels[t], ...map[t] }));
+}
+
+export function loggingConsistencyStats(meals, endDateKey = todayKey()) {
+  const byDate = groupMealsByDate(meals);
+  const daysLoggedThisWeek = Object.keys(byDate).filter((k) => byDate[k]?.length > 0).length;
+
+  let streak = 0;
+  let cursor = endDateKey;
+  if (!byDate[cursor]?.length) {
+    cursor = shiftDateKey(endDateKey, -1);
+  }
+  const minKey = shiftDateKey(endDateKey, -400);
+  while (byDate[cursor]?.length) {
+    streak += 1;
+    cursor = shiftDateKey(cursor, -1);
+    if (cursor < minKey) break;
+  }
+
+  return { daysLoggedThisWeek, currentStreak: streak };
 }
 
 /** Top weekly insight for Today screen banner */

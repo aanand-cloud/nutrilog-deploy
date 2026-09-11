@@ -1,5 +1,8 @@
 import { isTrialActive } from './trial.js';
 
+/** NHS / public-sector / 60+ discount on list prices. */
+export const ELIGIBILITY_DISCOUNT_PERCENT = 30;
+
 /**
  * Safe discount eligibility — no ID collection.
  * - Public sector: verified work email domain (or account email domain)

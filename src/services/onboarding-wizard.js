@@ -3,6 +3,11 @@ import { estimateDailyCalories, suggestMacros } from './calorie-wizard.js';
 import { DISCLAIMERS } from './disclaimers.js';
 
 const PROFILE_KEY = 'nutrilog_wizard_profile';
+let wizardOpen = false;
+
+export function isOnboardingWizardOpen() {
+  return wizardOpen;
+}
 
 const GOAL_OPTIONS = [
   { id: 'lose', label: 'Weight loss', detail: 'About −0.5 kg / week' },
@@ -37,6 +42,7 @@ function saveWizardProfile(profile) {
 /** 3-step TDEE onboarding for new users. */
 export function openOnboardingWizard({ onComplete } = {}) {
   return new Promise((resolve) => {
+    wizardOpen = true;
     const saved = getWizardProfile() || {};
     let step = 1;
     const state = {
@@ -59,6 +65,7 @@ export function openOnboardingWizard({ onComplete } = {}) {
     overlay.setAttribute('aria-modal', 'true');
 
     function close(result) {
+      wizardOpen = false;
       overlay.remove();
       document.body.style.overflow = '';
       resolve(result);

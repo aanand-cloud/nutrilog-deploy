@@ -172,6 +172,24 @@ async function signedPhotoUrl(path) {
   return data.signedUrl;
 }
 
+export async function resolvePhotoUrlForMeal(_mealId, path) {
+  if (!path) return null;
+  return signedPhotoUrl(path);
+}
+
+export async function refreshMealPhotoUrls(meals = []) {
+  const out = [];
+  for (const meal of meals) {
+    if (!meal?.photo_path) {
+      out.push(meal);
+      continue;
+    }
+    const signed = await signedPhotoUrl(meal.photo_path);
+    out.push(signed ? { ...meal, photoDataUrl: signed } : meal);
+  }
+  return out;
+}
+
 function rowToLocal(row) {
   return {
     id: row.id,

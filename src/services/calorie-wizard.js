@@ -12,6 +12,11 @@ export function activityOptions() {
   return Object.entries(ACTIVITY).map(([id, meta]) => ({ id, label: meta.label }));
 }
 
+/** ~7,700 kcal per kg of body weight, spread across 7 days. */
+export function dailyKcalForGramsPerWeek(gramsPerWeek = 0) {
+  return (Number(gramsPerWeek) || 0) * 7.7 / 7;
+}
+
 export function estimateDailyCalories({
   sex = 'female',
   age,
@@ -19,6 +24,7 @@ export function estimateDailyCalories({
   heightCm,
   activity = 'light',
   weightGoal = 'maintain',
+  gramsPerWeek = 0,
 }) {
   const w = Number(weightKg);
   const h = Number(heightCm);
@@ -33,8 +39,15 @@ export function estimateDailyCalories({
   const tdee = Math.round(bmr * factor);
 
   let delta = 0;
-  if (weightGoal === 'lose') delta = -500; // ~0.5 kg / week
-  if (weightGoal === 'gain') delta = 275; // ~0.25 kg / week
+  const grams = Number(gramsPerWeek);
+  if (Number.isFinite(grams) && grams > 0) {
+    delta = dailyKcalForGramsPerWeek(grams);
+    if (weightGoal === 'lose') delta = -delta;
+    else if (weightGoal !== 'gain') delta = 0;
+  } else {
+    if (weightGoal === 'lose') delta = -500; // ~0.5 kg / week
+    if (weightGoal === 'gain') delta = 275; // ~0.25 kg / week
+  }
 
   const target = Math.max(1200, Math.min(5000, tdee + delta));
   return { bmr, tdee, target, activity, weightGoal };

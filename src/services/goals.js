@@ -19,7 +19,28 @@ export function getGoals() {
 }
 
 export function saveGoals(goals) {
-  localStorage.setItem(GOALS_KEY, JSON.stringify(goals));
+  localStorage.setItem(GOALS_KEY, JSON.stringify(normalizeGoals(goals)));
+}
+
+export function normalizeGoals(partial = {}) {
+  const next = { ...DEFAULT_GOALS };
+  for (const key of Object.keys(DEFAULT_GOALS)) {
+    const n = Number(partial[key]);
+    if (Number.isFinite(n) && n >= 0) next[key] = Math.round(n);
+  }
+  return next;
+}
+
+/** Scope locally cached goals to the signed-in account. */
+export function setGoalsOwnerId(userId) {
+  const next = userId || 'guest';
+  try {
+    const prev = localStorage.getItem('nutrilog_goals_owner');
+    if (prev && prev !== next) {
+      // Cloud pull replaces goals after sign-in; keep the owner marker in sync.
+    }
+    localStorage.setItem('nutrilog_goals_owner', next);
+  } catch (_) {}
 }
 
 export function isDefaultGoals(goals = getGoals()) {

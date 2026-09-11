@@ -1,4 +1,7 @@
+import { MEALNOVA_BUILD } from '../../shared/build-info.js';
+
 export const LEGAL_VERSION = '2026-07';
+export const APP_VERSION = MEALNOVA_BUILD.version;
 
 function readEnv(key, fallback) {
   if (typeof import.meta !== 'undefined' && import.meta.env?.[key]) {

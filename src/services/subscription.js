@@ -14,6 +14,10 @@ import {
   normalizePlanId,
   PLANS,
   FREE_DAILY_SCANS,
+  comparePlanChange,
+  SUBSCRIPTION_PLAN_IDS,
+  isSubscriptionPlan as planIsSubscriptionPlan,
+  isCreditSubscriptionPlan,
 } from './plans.js';
 import { getDiscountEligibility } from './discount.js';
 import { getUser, getSession, isSupabaseConfigured } from './auth.js';
@@ -27,6 +31,9 @@ const DAILY_KEY = 'nutrilog_daily_usage';
 const DAILY_CAP_KEY = 'nutrilog_daily_free_cap';
 const PRO_MONTH_KEY = 'nutrilog_pro_month_usage';
 const REDEEMED_KEY = 'nutrilog_redeemed_checkouts';
+const SUB_BALANCE_KEY = 'nutrilog_sub_scan_balance';
+const SUB_ALLOWANCE_KEY = 'nutrilog_sub_scans_allowance';
+const SUB_EXPIRE_KEY = 'nutrilog_sub_credits_expire_at';
 
 function monthKey(date = new Date()) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
@@ -266,6 +273,15 @@ export function syncScanStateFromProfile(profile) {
   if (profile.daily_free_cap != null) setDailyFreeCap(profile.daily_free_cap);
   if (plan) setPlan(normalizePlanId(plan));
   if (profile.topup_balance != null) syncTopUpFromCloud(profile.topup_balance);
+  if (profile.sub_scan_balance != null) {
+    localStorage.setItem(SUB_BALANCE_KEY, String(Math.max(0, Number(profile.sub_scan_balance) || 0)));
+  }
+  if (profile.sub_scans_allowance != null) {
+    localStorage.setItem(SUB_ALLOWANCE_KEY, String(Math.max(0, Number(profile.sub_scans_allowance) || 0)));
+  }
+  if (profile.sub_credits_expire_at) {
+    localStorage.setItem(SUB_EXPIRE_KEY, String(profile.sub_credits_expire_at));
+  }
   if (profile.daily_free_cap != null) setDailyFreeCap(profile.daily_free_cap);
 
   const used = Number(profile.scan_used) || 0;
@@ -318,9 +334,13 @@ async function checkoutAuthPayload(extra = {}) {
 
 export async function startPlanCheckout(planId, { annual = false } = {}) {
   const id = normalizePlanId(planId);
-  if (id !== 'pro') throw new Error('Unknown plan');
+  if (!isPaidPlan(id)) throw new Error('Unknown plan');
+  const checkoutPlan = annual && (id === 'pro' || id === 'pro_annual') ? 'pro_annual' : id;
 
-  const { payload, headers } = await checkoutAuthPayload({ plan: 'pro', annual: annual ? 'yes' : 'no' });
+  const { payload, headers } = await checkoutAuthPayload({
+    plan: checkoutPlan,
+    annual: annual || checkoutPlan === 'pro_annual' ? 'yes' : 'no',
+  });
   const res = await fetch('/api/create-subscription', {
     method: 'POST',
     headers,
@@ -329,8 +349,8 @@ export async function startPlanCheckout(planId, { annual = false } = {}) {
   const data = await res.json();
   if (data.mock) {
     if (import.meta.env.PROD) throw new Error('Payments are not configured');
-    setPlan('pro');
-    return { mock: true, plan: 'pro' };
+    setPlan(checkoutPlan);
+    return { mock: true, plan: checkoutPlan };
   }
   if (!res.ok) throw new Error(data.error || 'Checkout failed');
   if (data.url) {
@@ -529,4 +549,85 @@ export function resetScansToday() {
   resetScansForTesting();
 }
 
-export { SCAN_PACKS, formatScanPackPrice, getScanPack };
+export { SCAN_PACKS, formatScanPackPrice, getScanPack, comparePlanChange, SUBSCRIPTION_PLAN_IDS };
+
+export function isSubscriptionPlan(planId = getPlan()) {
+  return planIsSubscriptionPlan(planId);
+}
+
+export function hasActivePaidSubscription(planId = getPlan()) {
+  return isPaidPlan(planId);
+}
+
+export function getSubScanBalance() {
+  return Math.max(0, Number(localStorage.getItem(SUB_BALANCE_KEY)) || 0);
+}
+
+export function getSubScansAllowance() {
+  const stored = Number(localStorage.getItem(SUB_ALLOWANCE_KEY));
+  if (stored > 0) return stored;
+  const plan = getPlan();
+  if (isCreditSubscriptionPlan(plan)) return getPlanConfig(plan).monthlyScans || 0;
+  return 0;
+}
+
+export function getSubCreditsExpireAt() {
+  return localStorage.getItem(SUB_EXPIRE_KEY) || null;
+}
+
+export function isStripePaidProfile(profile = {}) {
+  const plan = normalizePlanId(profile.plan || getPlan());
+  return isPaidPlan(plan) && Boolean(
+    profile.stripe_customer_id
+    || profile.stripe_subscription_id
+    || profile.subscription_status === 'active'
+    || profile.plan,
+  );
+}
+
+export function canAccessAiTips(planId = getPlan()) {
+  if (MONETIZATION_PAUSED || MONETIZATION_PHASE < 2) return true;
+  const id = normalizePlanId(planId);
+  return id === 'plus' || id === 'pro' || id === 'pro_annual';
+}
+
+export function canAccessMicroNutrients(planId = getPlan()) {
+  if (MONETIZATION_PAUSED || MONETIZATION_PHASE < 2) return true;
+  const id = normalizePlanId(planId);
+  return id === 'plus' || id === 'pro' || id === 'pro_annual';
+}
+
+export function canExportData() {
+  return true;
+}
+
+export async function refreshScanAllowanceFromCloud() {
+  const profile = await getProfile();
+  if (profile) syncScanStateFromProfile(profile);
+  return profile;
+}
+
+export function syncVoucherCreditsFromRedemption(result = {}) {
+  if (result.plan) setPlan(result.plan);
+  if (result.topup_balance != null) syncTopUpFromCloud(result.topup_balance);
+  else if (result.scansAdded || result.topupScans) {
+    addTopUpCredits(Number(result.scansAdded || result.topupScans) || 0);
+  }
+  if (result.sub_scan_balance != null) {
+    localStorage.setItem(SUB_BALANCE_KEY, String(Math.max(0, Number(result.sub_scan_balance) || 0)));
+  }
+  return result.displayBalance ?? (getSubScanBalance() || getTopUpBalance());
+}
+
+export async function requestPlanChange(planId, { annual = false } = {}) {
+  const { openPlanChangeModal } = await import('./plan-change-modal.js');
+  const action = await openPlanChangeModal({
+    fromPlanId: getPlan(),
+    toPlanId: normalizePlanId(planId),
+    remainingSubScans: getSubScanBalance(),
+    topUpCredits: getTopUpBalance(),
+  });
+  if (action === 'cancelled') return { cancelled: true };
+  if (action === 'portal') return openBillingPortal();
+  return startPlanCheckout(planId, { annual });
+}

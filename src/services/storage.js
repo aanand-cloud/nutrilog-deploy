@@ -29,7 +29,7 @@ export function generateId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-async function putMealLocal(meal) {
+export async function putMealLocal(meal) {
   const db = await openDb();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(MEALS_STORE, 'readwrite');

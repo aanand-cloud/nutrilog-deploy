@@ -255,6 +255,8 @@ export default defineConfig(({ mode }) => {
           globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}'],
           // Keep HTML out of the Workbox precache — navigations use NetworkFirst in sw.js.
           globIgnores: ['**/index.html', '**/404.html'],
+          // Food-ref v4 chunk is ~2.1 MiB; Workbox default is 2 MiB.
+          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         },
         devOptions: {
           enabled: false,

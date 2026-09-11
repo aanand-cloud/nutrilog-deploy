@@ -114,19 +114,91 @@ export const PLANS = {
 
   },
 
+  essential: {
+
+    id: 'essential',
+
+    name: 'Essential',
+
+    tagline: '200 photo scans / month · weekly macros',
+
+    monthlyScans: 200,
+
+    reportsAccess: true,
+
+    reportTier: 'weekly',
+
+    aiTips: false,
+
+    priceStandard: 2.49,
+
+    priceDiscount: 1.74,
+
+    billing: 'monthly',
+
+    bullets: [
+
+      '200 AI photo scans per month',
+
+      'Weekly macro report',
+
+      'Barcode, search and Describe stay free',
+
+    ],
+
+  },
+
+  plus: {
+
+    id: 'plus',
+
+    name: 'Plus',
+
+    tagline: '300 photo scans / month · reports & AI coach',
+
+    monthlyScans: 300,
+
+    reportsAccess: true,
+
+    reportTier: 'plus',
+
+    aiTips: true,
+
+    priceStandard: 3.49,
+
+    priceDiscount: 2.44,
+
+    billing: 'monthly',
+
+    bullets: [
+
+      '300 AI photo scans per month',
+
+      '7- and 30-day reports including fibre, sugar and salt',
+
+      'AI coach tips',
+
+    ],
+
+  },
+
   pro: {
 
     id: 'pro',
 
     name: 'Pro',
 
-    tagline: 'Coming soon',
+    tagline: 'Fair-use AI scans · full reports',
 
     fairUseDailyCap: PRO_DAILY_FAIR_USE,
 
     monthlyCap: PRO_MONTHLY_CAP,
 
     reportsAccess: true,
+
+    reportTier: 'full',
+
+    aiTips: true,
 
     priceStandard: 5.99,
 
@@ -135,6 +207,58 @@ export const PLANS = {
     priceAnnual: 39.99,
 
     priceAnnualDiscount: 27.99,
+
+    billing: 'monthly',
+
+    bullets: [
+
+      `Up to ${PRO_DAILY_FAIR_USE} AI photo scans per day`,
+
+      'Full reports and AI coach',
+
+      `About ${PRO_MONTHLY_CAP.toLocaleString()} scans / month fair use`,
+
+    ],
+
+  },
+
+  pro_annual: {
+
+    id: 'pro_annual',
+
+    name: 'Pro Annual',
+
+    tagline: 'Pro billed yearly',
+
+    fairUseDailyCap: PRO_DAILY_FAIR_USE,
+
+    monthlyCap: PRO_MONTHLY_CAP,
+
+    reportsAccess: true,
+
+    reportTier: 'full',
+
+    aiTips: true,
+
+    priceStandard: 39.99,
+
+    priceDiscount: 27.99,
+
+    priceAnnual: 39.99,
+
+    priceAnnualDiscount: 27.99,
+
+    billing: 'annual',
+
+    bullets: [
+
+      `Up to ${PRO_DAILY_FAIR_USE} AI photo scans per day`,
+
+      'Full reports and AI coach',
+
+      'Billed once a year',
+
+    ],
 
   },
 
@@ -147,8 +271,6 @@ export const LEGACY_PLAN_MAP = {
   daily10: 'pro',
 
   daily25: 'pro',
-
-  pro: 'pro',
 
 };
 
@@ -168,6 +290,12 @@ export function normalizePlanId(planId) {
 
   const id = LEGACY_PLAN_MAP[planId] || planId;
 
+  if (id === 'essential' || id === 'plus' || id === 'pro' || id === 'pro_annual' || id === 'free') {
+
+    return id;
+
+  }
+
   return PLANS[id] ? id : 'free';
 
 }
@@ -176,7 +304,9 @@ export function normalizePlanId(planId) {
 
 export function isProPlan(planId) {
 
-  return normalizePlanId(planId) === 'pro';
+  const id = normalizePlanId(planId);
+
+  return id === 'pro' || id === 'pro_annual';
 
 }
 
@@ -184,7 +314,9 @@ export function isProPlan(planId) {
 
 export function isPaidPlan(planId) {
 
-  return isProPlan(planId);
+  const id = normalizePlanId(planId);
+
+  return id === 'essential' || id === 'plus' || id === 'pro' || id === 'pro_annual';
 
 }
 
@@ -240,17 +372,21 @@ export function getScanPack(packId) {
 
 export function formatPlanPrice(planId, discounted = false, { annual = false } = {}) {
 
-  const p = getPlanConfig(planId);
+  const id = normalizePlanId(planId);
 
-  if (!isPaidPlan(planId)) return 'Free';
+  if (!isPaidPlan(id)) return 'Free';
 
-  if (annual) {
+  if (id === 'pro_annual' || (annual && (id === 'pro' || id === 'pro_annual'))) {
+
+    const p = getPlanConfig('pro');
 
     const amount = discounted ? p.priceAnnualDiscount : p.priceAnnual;
 
     return `£${amount.toFixed(2)}/year`;
 
   }
+
+  const p = getPlanConfig(id);
 
   const amount = discounted ? p.priceDiscount : p.priceStandard;
 
@@ -306,6 +442,57 @@ export function monthResetLabel(date = new Date()) {
 
   return next.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
 
+}
+
+export const SUBSCRIPTION_PLAN_IDS = ['essential', 'plus', 'pro', 'pro_annual'];
+
+export function isUnlimitedPlan(planId) {
+  return isProPlan(planId);
+}
+
+export function isCreditSubscriptionPlan(planId) {
+  const id = normalizePlanId(planId);
+  return id === 'essential' || id === 'plus';
+}
+
+export function isSubscriptionPlan(planId) {
+  const id = normalizePlanId(planId);
+  return id === 'essential' || id === 'plus' || id === 'pro' || id === 'pro_annual';
+}
+
+const PLAN_TIER_RANK = {
+  free: 0,
+  essential: 1,
+  plus: 2,
+  pro: 3,
+  pro_annual: 3,
+};
+
+/** @returns {'same'|'upgrade'|'downgrade'|'lateral'} */
+export function comparePlanChange(fromPlanId, toPlanId) {
+  const from = normalizePlanId(fromPlanId);
+  const to = normalizePlanId(toPlanId);
+  if (from === to) return 'same';
+  const fromRank = PLAN_TIER_RANK[from] ?? 0;
+  const toRank = PLAN_TIER_RANK[to] ?? 0;
+  if (toRank > fromRank) return 'upgrade';
+  if (toRank < fromRank) return 'downgrade';
+  return 'lateral';
+}
+
+export function getReportTier(planId) {
+  const id = normalizePlanId(planId);
+  return getPlanConfig(id).reportTier || (id === 'free' ? 'daily' : 'full');
+}
+
+export function topUpCreditUsageNote(planId) {
+  if (isCreditSubscriptionPlan(planId)) {
+    return 'Top-up credits are used after your monthly subscription scans run out. They never expire until used.';
+  }
+  if (isUnlimitedPlan(planId)) {
+    return 'Top-up credits are not required on Pro — fair-use daily scans apply.';
+  }
+  return 'Top-up credits are used after your Daily Free Scan. They never expire until used.';
 }
 
 
