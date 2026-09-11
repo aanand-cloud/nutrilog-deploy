@@ -1,9 +1,12 @@
 /** Subtle “scanning” UI while a meal photo is analysed — CSS-only motion, honest status steps. */
 
 export const PHOTO_ANALYSIS_STEPS = [
-  'Spotting food and drinks…',
+  'Checking photo quality…',
+  'Identifying foods…',
+  'Separating components…',
   'Estimating portions…',
-  'Calculating nutrition…',
+  'Matching nutrition sources…',
+  'Preparing your review…',
 ];
 
 export const DRINK_ANALYSIS_STEPS = [

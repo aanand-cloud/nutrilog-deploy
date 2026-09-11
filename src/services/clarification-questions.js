@@ -1,4 +1,8 @@
 import { drinkCategoryForSubtype, getDrinkSubtype } from './drink-logging.js';
+import {
+  resolveIndianStarterFromAnalysis,
+  starterPortionOptions,
+} from '../../shared/indian-starter-catalog.js';
 
 /** Max quick questions after a photo scan — keeps the flow fast. */
 export const MAX_CLARIFICATION_QUESTIONS = 3;
@@ -29,9 +33,13 @@ const TOPIC_PRIORITY = [
   'drink_type',
   'portion_snack',
   'portion_solid',
+  'portion_rice',
+  'portion_starter',
   'bread_count',
   'oil_fat',
   'sauce_gravy',
+  'rice_type',
+  'accompaniments',
   'protein_type',
   'cooking_method',
   'generic_portion',
@@ -44,6 +52,8 @@ const HIGH_IMPACT_TOPICS = new Set([
   'portion_snack',
   'portion_solid',
   'oil_fat',
+  'sauce_gravy',
+  'rice_type',
   'bread_count',
 ]);
 
@@ -130,15 +140,33 @@ const OPTION_SETS = {
     '4 or more',
   ],
   oil_fat: [
-    'Very little oil / butter',
-    'Normal home cooking',
-    'Oily / restaurant-style',
-    'Deep-fried',
+    'None',
+    'About 1 teaspoon',
+    'About 1 tablespoon',
+    'More than 1 tablespoon',
   ],
   sauce_gravy: [
-    'Mostly dry — little sauce',
-    'Normal sauce / curry',
-    'Lots of gravy or sauce',
+    'Mayonnaise-based',
+    'Yoghurt-based',
+    'Tomato-based',
+    'Curry sauce',
+    'Something else',
+  ],
+  rice_type: [
+    'Plain boiled rice',
+    'Pilau rice',
+    'Fried rice',
+    'Biryani rice',
+    'Something else',
+  ],
+  accompaniments: [
+    'Sambar',
+    'Coconut chutney',
+    'Tomato chutney',
+    'Raita',
+    'Pickle',
+    'Papad',
+    'None',
   ],
   protein_type: [
     'Chicken',
@@ -148,11 +176,11 @@ const OPTION_SETS = {
     'Mixed / not sure',
   ],
   cooking_method: [
-    'Grilled / baked',
-    'Pan-fried / stir-fried',
-    'Steamed / boiled',
-    'Deep-fried',
-    'Raw / salad',
+    'Grilled',
+    'Roasted',
+    'Fried',
+    'Air-fried',
+    'Boiled',
   ],
   generic_portion: [
     'Small portion',
@@ -265,6 +293,19 @@ const STEP_UI = {
     inputPlaceholder: 'e.g. air-fried, tandoori',
     inputMode: 'text',
   },
+  rice_type: {
+    helper: 'Rice dishes vary a lot — fried and biryani rice usually have more oil.',
+    inputLabel: 'Or type the rice type',
+    inputPlaceholder: 'e.g. lemon rice',
+    inputMode: 'text',
+  },
+  accompaniments: {
+    helper: 'Select everything that was on the plate. You can add more on the next screen.',
+    inputLabel: 'Or type another side',
+    inputPlaceholder: 'e.g. mint chutney',
+    inputMode: 'text',
+    multi: true,
+  },
   generic_portion: {
     helper: 'Pick the closest match — exact numbers are not required.',
     inputLabel: 'Or type your answer',
@@ -309,6 +350,10 @@ function mealContext(analysis) {
     hasRicePasta: /\b(rice|biryani|pulao|pasta|noodle|noodles|spaghetti|udon|fried rice)\b/.test(text),
     hasCurry: /\b(curry|gravy|masala|korma|tikka|stew|dal|sambar|sauce)\b/.test(text),
     hasFried: /\b(fried|fry|deep|crisp|pakora|samosa|vada|tempura|katsu)\b/.test(text),
+    hasChicken: /\b(chicken|murgh)\b/.test(text),
+    hasIdliDosa: /\b(idli|dosa|vada)\b/.test(text),
+    riceTypeKnown: /\b(pilau|pulao|fried rice|biryani|boiled rice|steamed rice|basmati)\b/.test(text),
+    cookingKnown: /\b(grilled|roasted|air.?fried|steamed|boiled|deep.?fried)\b/.test(text),
   };
 }
 
@@ -456,6 +501,12 @@ export function classifyQuestion(question, analysis) {
   if (/\b(grill|grilled|fried|steam|steamed|bake|baked|raw|air.?fry|cook)\b/.test(q)) {
     return 'cooking_method';
   }
+  if (/\bwhat type of rice|which rice|plain boiled rice|pilau|biryani rice\b/.test(q) || (ctx.hasRicePasta && /\btype of rice|kind of rice\b/.test(q))) {
+    return 'rice_type';
+  }
+  if (/\baccompaniment|chutney|sambar|raita|papad|on the side\b/.test(q)) {
+    return 'accompaniments';
+  }
   if (
     /\b(portion|size|serving|bowl|plate|rice|pasta|noodle|gram|\bg\b|weight|how much)\b/.test(q)
     || ctx.hasRicePasta
@@ -494,6 +545,9 @@ export function normalizeClarificationQuestions(analysis) {
     }
 
     const group = topicGroup(topic);
+    if (topic === 'protein_type' && (analysis._anchored || analysis._refId) && !/\b(mixed|unknown)\b/i.test(parsed.question)) {
+      continue;
+    }
     if (seenGroups.has(group)) continue;
     seenGroups.add(group);
 
@@ -502,6 +556,8 @@ export function normalizeClarificationQuestions(analysis) {
       topic,
     });
   }
+
+  ensureEssentialQuestions(steps, analysis);
 
   if (ctx.drinkCategory === 'coffee_tea') {
     const hasSize = steps.some((s) => s.topic === 'drink_coffee_tea_size');
@@ -530,6 +586,36 @@ export function normalizeClarificationQuestions(analysis) {
   );
 
   return steps.slice(0, MAX_CLARIFICATION_QUESTIONS);
+}
+
+function ensureEssentialQuestions(steps, analysis) {
+  const ctx = mealContext(analysis);
+  const starter = resolveIndianStarterFromAnalysis(analysis);
+  const topics = new Set(steps.map((s) => s.topic));
+  const add = (topic, question) => {
+    if (topics.has(topic) || steps.length >= MAX_CLARIFICATION_QUESTIONS) return;
+    steps.push({ question, topic });
+    topics.add(topic);
+  };
+
+  if (starter) {
+    add('portion_starter', `How much ${starter.label} is on the plate?`);
+  }
+  if (ctx.hasFried || ctx.hasCurry) {
+    add('oil_fat', 'Was additional oil, butter or ghee used?');
+  }
+  if (ctx.hasRicePasta && !ctx.riceTypeKnown) {
+    add('rice_type', 'What type of rice is this?');
+  }
+  if (ctx.hasChicken && !ctx.cookingKnown && !starter) {
+    add('cooking_method', 'How was the chicken cooked?');
+  }
+  if (ctx.hasCurry) {
+    add('sauce_gravy', 'What type of sauce is this?');
+  }
+  if (ctx.hasIdliDosa) {
+    add('accompaniments', 'Which accompaniments are included?');
+  }
 }
 
 function polishQuestion(question, topic, about, analysis) {
@@ -571,16 +657,28 @@ function defaultQuestionForTopic(topic, about, analysis) {
       return `About how much of the snack${item}? (grams)`;
     case 'portion_solid':
       return `About how much${item}? (rough grams)`;
+    case 'portion_rice':
+      return /\bbiryani\b/i.test(mealContext(analysis).text)
+        ? 'How much biryani did you have?'
+        : `About how much rice${item}?`;
+    case 'portion_starter': {
+      const starter = resolveIndianStarterFromAnalysis(analysis);
+      return `How much ${starter?.label || about || 'starter'} is on the plate?`;
+    }
     case 'bread_count':
       return `How many pieces${item}?`;
     case 'oil_fat':
-      return `How much oil or fat was used${item}?`;
+      return 'Was additional oil, butter or ghee used?';
     case 'sauce_gravy':
-      return `How much sauce or gravy${item}?`;
+      return 'What type of sauce is this?';
     case 'protein_type':
       return `What is the main protein${item}?`;
     case 'cooking_method':
-      return `How was it cooked${item}?`;
+      return about ? `How was the ${about} cooked?` : 'How was it cooked?';
+    case 'rice_type':
+      return 'What type of rice is this?';
+    case 'accompaniments':
+      return 'Which accompaniments are included?';
     default:
       return `What portion size${item}?`;
   }
@@ -607,6 +705,12 @@ function drinkLabel(category) {
   }
 }
 
+function withNotSure(options = []) {
+  const list = [...options];
+  if (!list.some((o) => /^not sure$/i.test(String(o)))) list.push('Not sure');
+  return list;
+}
+
 export function getClarificationStepConfig(step, analysis) {
   const topic = resolveDrinkTopic(
     step?.topic || classifyQuestion(step?.question, analysis),
@@ -614,14 +718,19 @@ export function getClarificationStepConfig(step, analysis) {
     analysis,
   );
   const ui = STEP_UI[topic] || STEP_UI.generic_portion;
+  const starter = topic === 'portion_starter' ? resolveIndianStarterFromAnalysis(analysis) : null;
+  const options = topic === 'portion_starter'
+    ? starterPortionOptions(starter)
+    : (OPTION_SETS[topic] || OPTION_SETS.generic_portion);
   return {
     question: step?.question || defaultQuestionForTopic(topic, '', analysis),
     topic,
     helper: ui.helper,
-    options: OPTION_SETS[topic] || OPTION_SETS.generic_portion,
+    options: withNotSure(options),
     inputLabel: ui.inputLabel,
     inputPlaceholder: ui.inputPlaceholder,
     inputMode: ui.inputMode,
+    multi: Boolean(ui.multi),
   };
 }
 

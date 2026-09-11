@@ -11,8 +11,23 @@ import { isDevEnvironment } from '../lib/is-dev.mjs';
 import { getSupabaseAdmin, getAccessToken, verifyAccessToken } from '../lib/verify-auth.mjs';
 import { corsHeaders, jsonResponse, optionsResponse } from '../lib/http-utils.mjs';
 import { reportServerError } from '../lib/sentry.mjs';
+import { hasUsefulFoodItems, parseAnalysisPayload } from '../../shared/analysis-result.js';
 
 const MAX_IMAGE_CHARS = 6_000_000;
+const chargedKeys = new Map();
+
+function rememberCharged(key) {
+  if (!key) return;
+  chargedKeys.set(String(key), Date.now());
+  if (chargedKeys.size > 200) {
+    const oldest = chargedKeys.keys().next().value;
+    chargedKeys.delete(oldest);
+  }
+}
+
+function alreadyCharged(key) {
+  return Boolean(key && chargedKeys.has(String(key)));
+}
 
 export default async (req) => {
   if (req.method === 'OPTIONS') {
@@ -34,7 +49,7 @@ export default async (req) => {
     return jsonResponse({ error: 'Invalid JSON body' }, 400, req);
   }
 
-  const { image, mimeType = 'image/jpeg', context, userNotes, localDay } = body;
+  const { image, mimeType = 'image/jpeg', context, userNotes, localDay, idempotencyKey } = body;
 
   if (!image) {
     return jsonResponse({ error: 'image is required' }, 400, req);
@@ -92,13 +107,19 @@ export default async (req) => {
       userNotes,
     }, model);
 
-    // Charge only after a successful Gemini response so failed scans keep credits.
-    if (userId && supabaseAdmin && !isRefinement) {
-      const consumed = await consumeMealScan(supabaseAdmin, userId, localDay);
-      if (!consumed.ok) {
-        return jsonResponse({ error: consumed.error || 'Scan limit reached' }, 429, req);
+    const parsed = parseAnalysisPayload(analysis);
+    const useful = hasUsefulFoodItems(parsed);
+
+    // Charge only after a successful, useful analysis. Refinement and empty plates stay free.
+    if (userId && supabaseAdmin && !isRefinement && useful) {
+      if (!alreadyCharged(idempotencyKey)) {
+        const consumed = await consumeMealScan(supabaseAdmin, userId, localDay);
+        if (!consumed.ok) {
+          return jsonResponse({ error: consumed.error || 'Scan limit reached' }, 429, req);
+        }
+        usage = consumed.usage;
+        rememberCharged(idempotencyKey);
       }
-      usage = consumed.usage;
     }
 
     logGeminiUsage({

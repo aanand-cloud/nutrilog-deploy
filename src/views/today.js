@@ -377,11 +377,11 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
         <aside class="view-page__aside">
           ${!isGuest && canLogThisDay ? `
             <section class="quick-actions" aria-label="Quick log">
-              <button type="button" class="quick-action quick-action--primary" id="quickLogPhoto">
+              <button type="button" class="quick-action quick-action--primary" id="quickLogMeal">
                 <span class="quick-action__icon">${ICON_CAMERA}</span>
                 <span class="quick-action__text">
                   <span class="quick-action__label">${isFutureDay ? 'Plan meal' : isPastDay ? 'Add meal' : 'Log meal'}</span>
-                  <span class="quick-action__hint">${isViewingToday ? 'Photo scan' : `For ${formatDayShort(dateKey)}`}</span>
+                  <span class="quick-action__hint">${isViewingToday ? 'Photo, barcode or describe' : `For ${formatDayShort(dateKey)}`}</span>
                 </span>
               </button>
               <button type="button" class="quick-action" id="homeLogPackagedBtn">
@@ -501,7 +501,7 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
     </div>
   `;
 
-  const openLogForViewDate = (mealType = null, focus = 'photo') => {
+  const openLogForViewDate = (mealType = null, focus = null) => {
     setLogTargetDate(dateKey);
     if (mealType) requestLogMealType(mealType);
     onLog?.(focus);
@@ -519,10 +519,10 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
   root.querySelector('#planTomorrowBtn')?.addEventListener('click', () => {
     setTodayViewDate(tomorrowDateKey());
     setLogTargetDate(tomorrowDateKey());
-    onLog?.('photo');
+    onLog?.();
   });
   root.querySelector('#planTomorrowCalendarBtn')?.addEventListener('click', () => onCalendar?.());
-  root.querySelector('#quickLogPhoto')?.addEventListener('click', () => openLogForViewDate(null, 'photo'));
+  root.querySelector('#quickLogMeal')?.addEventListener('click', () => openLogForViewDate());
   root.querySelector('#quickLogDescribe')?.addEventListener('click', () => {
     trackDescribeLogStarted('today');
     openLogForViewDate(null, 'describe');
@@ -681,8 +681,8 @@ function mealCard(meal, prefs = getUnitPrefs()) {
     ? `<img src="${meal.photoDataUrl || ''}" alt="" class="meal-thumb" data-meal-id="${meal.id}" data-photo-path="${escapeHtml(meal.photo_path || '')}"/>`
     : `<div class="meal-thumb meal-thumb--placeholder">${ICON_PLATE}</div>`}
       <div class="meal-body">
-        <h3>${type ? `<span class="meal-type">${type}</span> ` : ''}${escapeHtml(meal.meal_summary || 'Meal')}</h3>
-        <p class="meal-meta">${formatEnergy(meal.total_calories_kcal || 0, prefs)} · P ${Math.round(n.protein_g || 0)}g · C ${Math.round(n.carbs_g || 0)}g · F ${Math.round(n.fat_g || 0)}g</p>
+        <h3>${type ? `<span class="meal-type">${type}</span> ` : ''}${escapeHtml(meal.meal_summary || 'Meal')}${meal._manuallyAdjusted ? ' <span class="meal-adjusted">Manually adjusted</span>' : ''}</h3>
+        <p class="meal-meta">${formatEnergy(meal.total_calories_kcal || 0, prefs)} · P ${n.protein_g == null ? 'unavailable' : `${Math.round(n.protein_g)}g`} · C ${n.carbs_g == null ? 'unavailable' : `${Math.round(n.carbs_g)}g`} · F ${n.fat_g == null ? 'unavailable' : `${Math.round(n.fat_g)}g`}</p>
         ${meal.meal_notes ? `<p class="meal-notes">${escapeHtml(meal.meal_notes)}</p>` : ''}
         ${meal.items?.length ? `<p class="meal-items">${meal.items.map((i) => escapeHtml(i.name)).join(', ')}</p>` : ''}
       </div>

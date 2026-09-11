@@ -51,8 +51,17 @@ export async function saveMealLocal(meal) {
   return putMealLocal(meal);
 }
 
+const recentSaves = new Map();
+
 export async function saveMeal(meal) {
-  const record = await putMealLocal(meal);
+  if (meal.save_id && recentSaves.has(meal.save_id)) {
+    return recentSaves.get(meal.save_id);
+  }
+  const record = await putMealLocal({
+    ...meal,
+    id: meal.id || (meal.save_id ? `sv-${meal.save_id}` : generateId()),
+  });
+  if (meal.save_id) recentSaves.set(meal.save_id, record);
 
   try {
     const { pushMeal } = await import('./sync.js');

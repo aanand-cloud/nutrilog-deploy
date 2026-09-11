@@ -143,8 +143,22 @@ export function computeKcalRange(analysis = {}, band = 'medium') {
   if (items.some((item) => item._unmatched || item._nutritionFallback)) {
     spread = Math.max(spread, 0.26);
   }
-  if (items.some((item) => item._accompanimentFilled || item._accompanimentGeminiPass)) {
-    spread = Math.max(spread, 0.16);
+  if (analysis._photoQualityPoor) {
+    spread = Math.max(spread, band === 'low' ? 0.32 : 0.22);
+  }
+  if (analysis._completeness === 'hidden_missing' || analysis._completeness === 'part_of_meal') {
+    spread = Math.max(spread, 0.24);
+  }
+  if (analysis._completeness === 'not_sure') {
+    spread = Math.max(spread, 0.2);
+  }
+  if (analysis._notSureAnswers > 0) {
+    spread = Math.max(spread, 0.18 + 0.04 * Math.min(analysis._notSureAnswers, 3));
+  }
+  if (analysis._unknownOil) spread = Math.max(spread, 0.22);
+  if (analysis._unknownSauce) spread = Math.max(spread, 0.2);
+  if (items.some((item) => item._weightSource === 'measured' || item._userWeightConfirmed)) {
+    spread = Math.max(0.08, spread - 0.04);
   }
 
   return {
@@ -220,6 +234,23 @@ export function scoreMealConfidence(analysis = {}) {
   if (reconciliation?.metrics?.falseDuplicates > 0.005) {
     weakest = Math.min(weakest, 0.65);
     band = band === 'high' ? 'low' : band;
+  }
+
+  if (analysis._photoQualityPoor) {
+    weakest = Math.min(weakest, 0.52);
+    band = band === 'high' ? 'medium' : band;
+  }
+  if (analysis._completeness && analysis._completeness !== 'yes_visible') {
+    weakest = Math.min(weakest, 0.62);
+    if (band === 'high') band = 'medium';
+  }
+  if (analysis._notSureAnswers > 0) {
+    weakest = Math.min(weakest, 0.6);
+    if (band === 'high') band = 'medium';
+  }
+  if (analysis._unknownOil || analysis._unknownSauce) {
+    weakest = Math.min(weakest, 0.58);
+    if (band === 'high') band = 'medium';
   }
 
   if (isVariableDishMeal(analysis)) {

@@ -1,6 +1,5 @@
-import { renderToday, renderSettings, setSettingsTab, setPasswordResetMode } from './views/today.js';
-import { renderLog, isLogBusy } from './views/log.js';
-import { renderReports } from './views/reports.js';
+import { loadLogView, loadTodayView, loadReportsView } from './app-views.js';
+import { isLogBusy } from './views/log-routing.js';
 import { onAuthChange, getUser, isSupabaseConfigured } from './services/auth.js';
 import { fullSync } from './services/sync.js';
 import { verifyCheckoutSession, syncScanStateFromProfile } from './services/subscription.js';
@@ -11,6 +10,7 @@ import { getProfile, getGreeting, getLocalDisplayName } from './services/profile
 import { openLegalModal } from './views/legal.js';
 import { openAuthModal } from './services/auth-modal.js';
 import { shouldShowOnboarding, openOnboardingWizard } from './services/onboarding-wizard.js';
+import { setSettingsTab, setPasswordResetMode } from './views/app-nav-state.js';
 
 let currentView = 'today';
 let cachedProfile = null;
@@ -84,7 +84,14 @@ export function initApp() {
       btn.classList.toggle('active', active);
       btn.toggleAttribute('aria-current', active ? 'page' : false);
     });
-    refresh();
+    refresh().then(() => focusMainHeading());
+  }
+
+  function focusMainHeading() {
+    const heading = main.querySelector('h1, h2');
+    if (!(heading instanceof HTMLElement)) return;
+    if (!heading.hasAttribute('tabindex')) heading.tabIndex = -1;
+    try { heading.focus(); } catch (_) {}
   }
 
   function handleUpgrade() {
@@ -101,14 +108,26 @@ export function initApp() {
     setView('settings');
   }
 
+  function goLog(focus) {
+    if (focus === 'photo' || focus === 'barcode' || focus === 'describe' || focus === 'search' || focus === 'upload') {
+      import('./views/log-routing.js').then(({ requestLogFocus }) => {
+        requestLogFocus(focus);
+        setView('log');
+      });
+      return;
+    }
+    setView('log');
+  }
+
   async function refresh() {
     main.setAttribute('aria-busy', 'true');
     try {
       await updateHeader();
       const profile = cachedProfile || await getProfile();
       if (currentView === 'today') {
+        const { renderToday } = await loadTodayView();
         await renderToday(main, {
-          onLog: () => setView('log'),
+          onLog: goLog,
           onRefresh: refresh,
           onReports: () => setView('reports'),
           onSettings: openSettings,
@@ -119,6 +138,7 @@ export function initApp() {
           await openOnboardingWizard({ onComplete: () => refresh() });
         }
       } else if (currentView === 'log') {
+        const { renderLog } = await loadLogView();
         renderLog(main, {
           onSaved: () => setView('today'),
           onCancel: () => setView('today'),
@@ -128,12 +148,14 @@ export function initApp() {
           profile,
         });
       } else if (currentView === 'reports') {
+        const { renderReports } = await loadReportsView();
         await renderReports(main, {
           profile,
-          onLog: () => setView('log'),
+          onLog: goLog,
         });
       } else if (currentView === 'settings') {
-        await renderSettings(main, {
+        const todayMod = await loadTodayView();
+        await todayMod.renderSettings(main, {
           onSave: refresh,
           onGoToday: () => setView('today'),
           showToast,

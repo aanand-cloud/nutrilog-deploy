@@ -27,9 +27,13 @@ async function authHeaders() {
   return headers;
 }
 
-export async function analyzeFoodPhoto(imageBase64, mimeType = 'image/jpeg', userNotes = '') {
+export async function analyzeFoodPhoto(imageBase64, mimeType = 'image/jpeg', userNotes = '', opts = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 45000);
+  if (opts.signal) {
+    if (opts.signal.aborted) controller.abort();
+    else opts.signal.addEventListener('abort', () => controller.abort(), { once: true });
+  }
   try {
     const res = await fetch('/api/analyze-food', {
       method: 'POST',
@@ -39,6 +43,7 @@ export async function analyzeFoodPhoto(imageBase64, mimeType = 'image/jpeg', use
         image: imageBase64,
         mimeType,
         userNotes: userNotes?.trim() || undefined,
+        idempotencyKey: opts.idempotencyKey || undefined,
         ...(await authPayload()),
       }),
     });

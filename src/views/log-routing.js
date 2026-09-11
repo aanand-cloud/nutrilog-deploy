@@ -1,6 +1,6 @@
 /**
  * Log entry routing — kept out of log.js so the main bundle can lazy-load the log view.
- * Do not change: photo → camera, barcode → scanner, describe → text.
+ * Main Log meal opens the method picker. Shortcuts may jump to photo, barcode, describe or search.
  */
 
 import { primeWebCameraStream } from '../services/web-camera.js';
@@ -19,9 +19,14 @@ const BUSY_STEPS = new Set([
   'weight_confirm',
   'hidden_details',
   'side_details',
+  'preview',
+  'weight',
   'analyzing',
   'clarify',
   'review',
+  'confirm',
+  'saving',
+  'failed',
 ]);
 let logSessionStep = null;
 
@@ -39,11 +44,11 @@ export function requestLogMealType(mealType) {
   }
 }
 
-export function requestLogFocus(section = 'describe') {
-  if (section === 'describe' || section === 'barcode' || section === 'photo') {
+export function requestLogFocus(section = 'method') {
+  if (section === 'describe' || section === 'barcode' || section === 'photo' || section === 'search' || section === 'upload' || section === 'method') {
     pendingLogFocus = section;
     pendingBarcodeOnly = section === 'barcode';
-    pendingPhotoOnly = section === 'photo';
+    pendingPhotoOnly = section === 'photo' || section === 'upload';
     pendingDescribeOnly = section === 'describe';
   } else {
     pendingLogFocus = null;
@@ -51,6 +56,10 @@ export function requestLogFocus(section = 'describe') {
     pendingPhotoOnly = false;
     pendingDescribeOnly = false;
   }
+}
+
+export function beginSearchLogEntry() {
+  requestLogFocus('search');
 }
 
 export function beginPhotoLogEntry() {

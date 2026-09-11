@@ -9,10 +9,12 @@ const SOURCE_LABELS = {
   cofid: 'CoFID',
   ifct: 'IFCT',
   usda: 'USDA',
-  manufacturer: 'Manufacturer label',
-  restaurant: 'Restaurant nutrition',
-  recipe: 'MealNova recipe',
+  manufacturer: 'Manufacturer data',
+  restaurant: 'Restaurant-provided data',
+  recipe: 'Estimated reference',
   internal_estimated: 'Estimated reference',
+  user_entered: 'User-entered nutrition',
+  unmatched: 'Unmatched',
 };
 
 function num(v) {
@@ -71,12 +73,15 @@ export function itemProvenanceSummary(item = {}) {
   const status = VERIFICATION_META[verified?.verificationStatus || item._canonical?.verificationStatus]?.label
     || (item._authoritative ? 'Verified' : 'Estimated');
 
-  const lines = [`Detected: ${item.name}`, `Canonical match: ${canonicalName}`];
+  const lines = [`Detected name: ${item.name}`, `Matched food: ${canonicalName}`];
   if (item._refId) lines.push(`Food ID: ${item._refId}`);
-  if (prepState) lines.push(`State: ${prepState}`);
-  if (source) lines.push(`Source: ${source}${sourceRecordId ? ` (${sourceRecordId})` : ''}`);
+  if (prepState) lines.push(`State: ${prepState} (raw/cooked/drained)`);
+  if (source) lines.push(`Nutrition source: ${source}${sourceRecordId ? ` · source reference ${sourceRecordId}` : ''}`);
+  if (item._authoritative && source && source !== 'Estimated reference') {
+    lines.push('Reference match verified by MealNova');
+  }
   if (dataVersion) lines.push(`Data version: ${dataVersion}`);
-  if (kcal100 > 0) lines.push(`Nutrition basis: ${kcal100} kcal per 100 g`);
+  if (kcal100 > 0) lines.push(`Per-100-g values: ${kcal100} kcal per 100 g`);
   if (pieceG > 0 && item._boundQuantity?.unit === 'piece') {
     lines.push(`Portion: ${item._boundQuantity.amount} × ${pieceG} g = ${Math.round(item._boundQuantity.amount * pieceG)} g`);
   } else if (grams > 0) {

@@ -215,6 +215,14 @@ export default defineConfig(({ mode }) => {
       outDir: 'dist',
       rollupOptions: {
         input: resolve(__dirname, 'index.html'),
+        output: {
+          manualChunks(id) {
+            if (id.includes('src/views/log.js') || id.includes('src\\views\\log.js')) return 'view-log';
+            if (id.includes('src/views/today.js') || id.includes('src\\views\\today.js')) return 'view-today';
+            if (id.includes('src/views/reports.js') || id.includes('src\\views\\reports.js')) return 'view-reports';
+            return undefined;
+          },
+        },
       },
     },
     plugins: [

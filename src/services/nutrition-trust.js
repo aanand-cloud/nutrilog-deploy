@@ -21,7 +21,7 @@ import { buildLabel } from '../../shared/build-info.js';
 
 const SOURCE_META = {
   label: {
-    badge: 'Label-backed',
+    badge: 'Verified product label',
     badgeClass: 'nutrition-trust--label',
     short: 'Pack label data — best for sugar & salt when listed.',
     reviewHint: '',

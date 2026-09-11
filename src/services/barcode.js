@@ -23,6 +23,15 @@ function num(v) {
   return Number.isFinite(n) ? n : 0;
 }
 
+function fromLabel(n, keys, scale = 1) {
+  for (const key of keys) {
+    if (n[key] == null || n[key] === '') continue;
+    const v = Number(n[key]);
+    if (Number.isFinite(v)) return round1(v * scale);
+  }
+  return null;
+}
+
 export function productToAnalysis(product, barcode, source = 'barcode') {
   const n = product.nutriments || {};
   const hasServing = Boolean(product.serving_quantity || product.serving_size);
@@ -30,19 +39,25 @@ export function productToAnalysis(product, barcode, source = 'barcode') {
   const factor = servingG / 100;
 
   const kcal100 = num(n['energy-kcal_100g']) || num(n.energy_kcal_100g) || (num(n.energy_100g) / 4.184);
-  const kcal = Math.round(kcal100 * factor) || Math.round(num(n['energy-kcal_serving']) || num(n.energy_kcal_serving));
+  const kcalServing = num(n['energy-kcal_serving']) || num(n.energy_kcal_serving);
+  const kcal = hasServing && kcalServing
+    ? Math.round(kcalServing)
+    : Math.round(kcal100 * factor) || Math.round(kcalServing);
 
   const nutrition = {
-    protein_g: round1(num(n.proteins_100g) * factor || num(n.proteins_serving)),
-    carbs_g: round1(num(n.carbohydrates_100g) * factor || num(n.carbohydrates_serving)),
-    fat_g: round1(num(n.fat_100g) * factor || num(n.fat_serving)),
-    fibre_g: round1(num(n.fiber_100g) * factor || num(n.fibre_100g) * factor || num(n.fiber_serving)),
-    sugar_g: round1(num(n.sugars_100g) * factor || num(n.sugars_serving)),
-    salt_mg: round1((num(n.salt_100g) || num(n.sodium_100g) * 2.5) * factor * 1000),
+    protein_g: fromLabel(n, ['proteins_serving']) ?? fromLabel(n, ['proteins_100g'], factor),
+    carbs_g: fromLabel(n, ['carbohydrates_serving']) ?? fromLabel(n, ['carbohydrates_100g'], factor),
+    fat_g: fromLabel(n, ['fat_serving']) ?? fromLabel(n, ['fat_100g'], factor),
+    fibre_g: fromLabel(n, ['fiber_serving', 'fibre_serving']) ?? fromLabel(n, ['fiber_100g', 'fibre_100g'], factor),
+    sugar_g: fromLabel(n, ['sugars_serving']) ?? fromLabel(n, ['sugars_100g'], factor),
+    salt_mg: fromLabel(n, ['salt_serving'], 1000)
+      ?? fromLabel(n, ['sodium_serving'], 2500)
+      ?? fromLabel(n, ['salt_100g'], factor * 1000)
+      ?? fromLabel(n, ['sodium_100g'], factor * 2500),
   };
 
   const name = [product.product_name, product.brands].filter(Boolean).join(' — ') || 'Packaged food';
-  const portion = product.serving_size || product.quantity || `${servingG}g serving`;
+  const portion = product.serving_size || (hasServing ? `${servingG}g serving` : 'Per 100 g — enter how much you ate');
   const confidence = hasServing ? 0.88 : 0.72;
 
   return {
@@ -55,18 +70,20 @@ export function productToAnalysis(product, barcode, source = 'barcode') {
         name,
         portion_estimate: portion,
         calories_kcal: kcal,
-        nutrition: {
-          protein_g: nutrition.protein_g,
-          carbs_g: nutrition.carbs_g,
-          fat_g: nutrition.fat_g,
-        },
+        nutrition: { ...nutrition },
         confidence,
+        _labelBacked: true,
+        _labelServing: hasServing,
+        _packServingKnown: hasServing,
+        _weightSource: hasServing ? 'label_serving' : 'per_100g',
       },
     ],
     clarification_questions: [],
     source,
     barcode,
     imageUrl: product.image_front_small_url || null,
+    _labelBacked: true,
+    _packServingKnown: hasServing,
   };
 }
 

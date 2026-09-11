@@ -440,6 +440,24 @@ body {
   cursor: pointer;
   padding: 4px;
   font-size: 1rem;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -48px;
+  z-index: 100;
+  padding: 8px 12px;
+  background: var(--teal);
+  color: #fff;
+  border-radius: 8px;
+}
+.skip-link:focus {
+  top: 12px;
 }
 
 .btn {
@@ -468,6 +486,105 @@ body {
   font-size: 0.9rem;
   line-height: 1.45;
   color: var(--text3);
+}
+.log-method__list {
+  display: grid;
+  gap: 10px;
+}
+.log-method__card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+  min-height: 44px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+.log-method__card:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+.log-method__card strong { font-size: 1rem; }
+.log-method__card span { color: var(--text2); font-size: 0.88rem; line-height: 1.4; }
+.log-method__card em { font-style: normal; color: var(--teal); font-weight: 600; }
+.log-quality { padding: 10px 12px; border-radius: 10px; font-size: 0.9rem; }
+.log-quality--ok { background: var(--teal-dim); color: var(--teal); }
+.log-quality--warn { background: #fef3c7; color: #92400e; }
+.log-preview__tools, .log-weight {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+.option-btn.is-active {
+  border-color: var(--teal);
+  background: var(--teal-dim);
+}
+.eaten-amount {
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 12px;
+  margin: 12px 0;
+}
+.eaten-amount__opt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+.log-confirm__facts {
+  padding-left: 1.1rem;
+  line-height: 1.5;
+}
+.log-progress {
+  margin: 0 0 12px;
+  font-size: 0.82rem;
+  color: var(--text3);
+}
+.photo-drop {
+  margin-top: 10px;
+  padding: 16px;
+  min-height: 44px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  text-align: center;
+  color: var(--text3);
+  font-size: 0.88rem;
+}
+.photo-drop.is-over {
+  border-color: var(--teal);
+  background: var(--teal-dim);
+}
+.option-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+.meal-review-item-actions,
+.meal-review-bulk {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.meal-review-unit { min-width: 7rem; }
+.meal-adjusted {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text2);
+}
+.btn:focus-visible,
+.option-btn:focus-visible,
+.back-link:focus-visible,
+.photo-drop:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
 }
 .drink-subtype-label {
   margin-bottom: 10px;

@@ -39,7 +39,10 @@ export function needsPortionEmphasis(analysis = {}) {
  */
 export function portionCheckLeadText(analysis = {}, sourceType = 'ai_estimate') {
   if (sourceType === 'label') {
-    return 'Serving size from the pack label — adjust grams or ml if you ate a different amount.';
+    if (analysis._packServingKnown) {
+      return 'Serving size from the pack label — adjust grams or ml if you ate a different amount.';
+    }
+    return 'Nutrition is per 100 g from the product data — enter how much you ate.';
   }
   if (needsPortionEmphasis(analysis)) {
     return 'Quick check: does the portion look about right? Tweak grams or ml — even a small change helps here.';

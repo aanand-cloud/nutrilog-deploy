@@ -42,6 +42,20 @@ import {
   speechInputUnavailableMessage,
   stopSpeechInput,
 } from '../services/speech-input.js';
+import { estimateMealFromDescription } from '../services/voice-quick-log.js';
+import { takePendingLogRouting, setLogSessionStep } from './log-routing.js';
+import { getLogTargetDate } from './app-nav-state.js';
+import {
+  PHOTO_ACCEPT,
+  validatePhotoFile,
+  cameraErrorMessage,
+  assessPhotoQuality,
+  rotateDataUrl,
+  cropCentreDataUrl,
+} from '../services/photo-quality.js';
+import { parseMealWeight, roundDisplay, applyMeasuredMealWeight, formatNutrientLine } from '../services/eaten-amount.js';
+import { hasUsefulFoodItems } from '../../shared/analysis-result.js';
+import { scoreMealConfidence } from '../../shared/nutrition-confidence.js';
 
 /** Keeps photo flow alive if the screen re-renders mid-upload */
 let activeLogState = null;
@@ -77,25 +91,39 @@ function speechHintHtml() {
 }
 
 export function isLogBusy() {
-  return activeLogState?.step === 'analyzing' || activeLogState?.step === 'clarify' || activeLogState?.step === 'review';
+  return ['preview', 'weight', 'analyzing', 'clarify', 'review', 'confirm', 'saving'].includes(activeLogState?.step);
 }
 
 export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profile, onSignIn }) {
+  const routing = takePendingLogRouting();
+  const initialStep = routing.photoOnly ? 'photo' : routing.barcodeOnly ? 'barcode_redirect' : routing.describeOnly ? 'describe' : routing.focus === 'search' ? 'search_redirect' : 'method';
+  let analysisAbort = null;
   let state = activeLogState || {
-    step: 'capture',
+    step: initialStep,
     image: null,
     analysis: null,
     answers: [],
     scanRecorded: false,
     status: '',
-    mealType: defaultMealType(),
+    mealType: routing.mealType || defaultMealType(),
     mealNotes: '',
     mainlyDrink: false,
     source: null,
+    completeness: null,
+    mealWeightGrams: null,
+    photoQuality: null,
+    analysisId: null,
+    saveId: null,
+    analyzing: false,
+    saving: false,
+    slowHint: false,
+    openGalleryOnMount: routing.focus === 'upload',
+    describeText: '',
   };
 
   function persist() {
     activeLogState = state;
+    setLogSessionStep(state.step);
   }
 
   function clearSession() {
@@ -107,6 +135,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     speechInputCleanup = null;
     stopSpeechInput();
     activeLogState = null;
+    setLogSessionStep(null);
   }
 
   function bindSpeechField(inputSelector, buttonSelector, { append = false } = {}) {
@@ -202,7 +231,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
           </button>
         ` : `
           <div class="picker-wrap camera-zone">
-            <input type="file" accept="image/*" capture="environment" id="photoInput" class="picker-overlay" aria-label="Take photo"/>
+            <input type="file" accept="${PHOTO_ACCEPT}" capture="environment" id="photoInput" class="picker-overlay" aria-label="Take photo"/>
             <div class="picker-label">
               <span class="camera-icon">📷</span>
               <span class="camera-text">Take photo</span>
@@ -210,8 +239,9 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
             </div>
           </div>
         `}
-        <input type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/bmp,.jpg,.jpeg,.png,.webp" id="galleryInput" class="file-input-offscreen" aria-hidden="true" tabindex="-1"/>
-        <button type="button" class="btn btn-ghost full" id="galleryBtn">Choose from gallery</button>
+        <input type="file" accept="${PHOTO_ACCEPT}" id="galleryInput" class="file-input-offscreen" aria-hidden="true" tabindex="-1"/>
+        <button type="button" class="btn btn-ghost full" id="galleryBtn">Choose from gallery or device</button>
+        <div class="photo-drop" id="photoDrop" tabindex="0">Drop a photo here (JPEG, PNG, WebP or HEIC)</div>
         ${needsHttpsHint ? `<p class="fine-print warn-text log-section__warn">${import.meta.env.DEV ? `For phone camera: open <strong>https://${window.location.host}</strong> (not http). Gallery upload works on both.` : 'For phone camera on mobile, open NutriLog over a secure (HTTPS) connection. Gallery upload works either way.'}</p>` : ''}
       `}
       ${tipText ? `<p class="fine-print log-section__tip">${tipText}</p>` : ''}
@@ -233,6 +263,38 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     } else if (galleryBtn) {
       galleryBtn.addEventListener('click', openGallery);
     }
+    const drop = root.querySelector('#photoDrop');
+    if (drop) {
+      drop.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        drop.classList.add('is-over');
+      });
+      drop.addEventListener('dragleave', () => drop.classList.remove('is-over'));
+      drop.addEventListener('drop', (e) => {
+        e.preventDefault();
+        drop.classList.remove('is-over');
+        const file = e.dataTransfer?.files?.[0];
+        if (file) onPhotoFile(file);
+      });
+    }
+  }
+
+  function logProgress(current) {
+    const order = ['method', 'photo', 'preview', 'weight', 'analyzing', 'clarify', 'review', 'confirm'];
+    const labels = {
+      method: 'Choose method',
+      photo: 'Select photo',
+      preview: 'Check photo',
+      weight: 'Meal weight',
+      analyzing: 'Analyse',
+      failed: 'Try again',
+      clarify: 'Quick questions',
+      review: 'Review foods',
+      confirm: 'Save',
+      describe: 'Describe meal',
+    };
+    const idx = Math.max(1, order.indexOf(current) + 1);
+    return `<p class="log-progress" aria-live="polite"><span aria-current="step">${escapeHtml(labels[current] || current)}</span> · Step ${idx} of ${order.length}</p>`;
   }
 
   function renderCapture() {
@@ -241,19 +303,20 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     const liveCamera = !native && canUseWebCamera();
     const needsHttpsHint = !native && !window.isSecureContext;
     const needsSignIn = isSupabaseConfigured() && !profile?.loggedIn;
-    const photoBlocked = !needsSignIn && !scan.allowed;
+    const photoBlocked = false;
     const photoOpts = { needsSignIn, photoBlocked, native, liveCamera, needsHttpsHint };
 
     root.innerHTML = `
       <section class="log-screen">
         <button type="button" class="back-link" id="cancelLog">← Back</button>
-        <h2>Log food &amp; drinks</h2>
-        <p class="log-screen__lead">Take a photo of your meal or drink, or scan packaged food below.</p>
+        ${logProgress('photo')}
+        <h2>Take or upload a photo</h2>
+        <p class="log-screen__lead">Photograph the whole meal, or choose a picture from this device. Credits are only used after a successful analysis.</p>
 
         <section class="log-section log-section--photo" aria-labelledby="logPhotoHeading">
           <header class="log-section__head">
-            <h3 class="log-section__title" id="logPhotoHeading">Take a photo</h3>
-            <p class="log-section__desc">Works for plates, cups, and glasses — we detect food and drinks automatically.</p>
+            <h3 class="log-section__title" id="logPhotoHeading">Your photo</h3>
+            <p class="log-section__desc">Works for plates, cups and glasses. Barcode, describe and food search are on the previous screen and stay free.</p>
           </header>
           ${!needsSignIn ? `<p class="scan-badge ${scan.allowed ? '' : 'scan-badge--limit'}">${scansLabel()}</p>` : ''}
           <label class="field full meal-hints-field">
@@ -272,38 +335,23 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
           ${disclaimerBlock(DISCLAIMERS.aiPhoto, 'fine-print health-disclaimer log-section__disclaimer')}
         </section>
 
-        <section class="log-section log-section--packaged" aria-labelledby="logPackagedHeading">
-          <header class="log-section__head">
-            <h3 class="log-section__title" id="logPackagedHeading">Packaged food</h3>
-            <p class="log-section__desc">Supermarket items with a barcode or brand name — ready meals, cereals, snacks, and labelled products.</p>
-            <p class="log-section__note">Free with sign-in</p>
-          </header>
-          ${needsSignIn ? `
-            <section class="login-banner">
-              <p><strong>Sign in required</strong> for free barcode logging.</p>
-              <button type="button" class="btn btn-primary btn-sm" id="packagedSignInBtn">Sign in</button>
-            </section>
-          ` : `
-          <div class="log-section__actions">
-            <button type="button" class="btn btn-ghost full" id="barcodeBtn">Scan barcode</button>
-            <button type="button" class="btn btn-ghost full" id="foodSearchBtn">Search brand or product</button>
-          </div>
-          `}
-          ${disclaimerBlock(DISCLAIMERS.packagedFood, 'fine-print health-disclaimer log-section__disclaimer')}
-        </section>
-
-        ${state.status ? `<p class="log-status" id="logStatus">${escapeHtml(state.status)}</p>` : ''}
+        ${state.status ? `<p class="log-status" id="logStatus" aria-live="polite">${escapeHtml(state.status)}</p>` : ''}
       </section>
     `;
 
-    root.querySelector('#cancelLog')?.addEventListener('click', () => { clearSession(); onCancel(); });
+    root.querySelector('#cancelLog')?.addEventListener('click', () => {
+      state.step = 'method';
+      persist();
+      render();
+    });
     root.querySelector('#logSignInBtn')?.addEventListener('click', () => onSignIn?.());
-    root.querySelector('#packagedSignInBtn')?.addEventListener('click', () => onSignIn?.());
     bindPhotoControls();
-    root.querySelector('#barcodeBtn')?.addEventListener('click', openBarcode);
-    root.querySelector('#foodSearchBtn')?.addEventListener('click', openFoodSearch);
     root.querySelectorAll('#upgradeBtn').forEach((btn) => btn.addEventListener('click', () => onUpgrade?.()));
     bindSpeechField('#photoNotesInput', '#photoNotesMic', { append: true });
+    if (state.openGalleryOnMount) {
+      state.openGalleryOnMount = false;
+      root.querySelector('#galleryBtn')?.click();
+    }
   }
 
   function render() {
@@ -311,12 +359,140 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       analyzeStatusCleanup();
       analyzeStatusCleanup = null;
     }
-    if (state.step !== 'capture') persist();
-    if (state.step === 'capture') renderCapture();
+    if (state.step === 'method') setLogSessionStep(null);
+    else persist();
+    if (state.step === 'barcode_redirect') {
+      state.step = 'method';
+      persist();
+      renderMethod();
+      openBarcode();
+      return;
+    }
+    if (state.step === 'search_redirect') {
+      state.step = 'method';
+      persist();
+      renderMethod();
+      openFoodSearch();
+      return;
+    }
+    if (state.step === 'method') renderMethod();
+    else if (state.step === 'describe') renderDescribe();
+    else if (state.step === 'photo' || state.step === 'capture') renderCapture();
+    else if (state.step === 'preview') renderPreview();
+    else if (state.step === 'weight') renderWeight();
     else if (state.step === 'paywall') renderPaywall();
+    else if (state.step === 'failed') renderFailed();
     else if (state.step === 'analyzing') renderAnalyzing();
     else if (state.step === 'clarify') renderClarify();
+    else if (state.step === 'confirm') renderConfirm();
     else if (state.step === 'review') showReviewFlow();
+  }
+
+  function renderMethod() {
+    root.innerHTML = `
+      <section class="log-screen log-method">
+        <button type="button" class="back-link" id="cancelLog">← Back</button>
+        ${logProgress('method')}
+        <h2>How would you like to log your meal?</h2>
+        <p class="log-screen__lead">Pick one way in. You can always go back and choose another.</p>
+        <div class="log-method__list">
+          <button type="button" class="log-method__card" data-method="photo">
+            <strong>Take a photo</strong>
+            <span>Photograph your meal now.</span>
+          </button>
+          <button type="button" class="log-method__card" data-method="upload">
+            <strong>Upload a photo</strong>
+            <span>Choose an existing image from your phone, tablet or computer.</span>
+          </button>
+          <button type="button" class="log-method__card" data-method="barcode">
+            <strong>Scan barcode</strong>
+            <span>For packaged food. <em>Free — no photo-scan credits.</em></span>
+          </button>
+          <button type="button" class="log-method__card" data-method="describe">
+            <strong>Describe meal</strong>
+            <span>Type or dictate what you ate. <em>Free — no photo-scan credits.</em></span>
+          </button>
+          <button type="button" class="log-method__card" data-method="search">
+            <strong>Search foods</strong>
+            <span>Find foods and build the meal manually. <em>Free — no photo-scan credits.</em></span>
+          </button>
+        </div>
+      </section>
+    `;
+    root.querySelector('#cancelLog')?.addEventListener('click', () => { clearSession(); onCancel(); });
+    root.querySelectorAll('[data-method]').forEach((btn) => {
+      btn.addEventListener('click', () => chooseMethod(btn.dataset.method));
+    });
+  }
+
+  function chooseMethod(method) {
+    if (method === 'photo') {
+      state.step = 'photo';
+      persist();
+      render();
+      return;
+    }
+    if (method === 'upload') {
+      state.step = 'photo';
+      state.openGalleryOnMount = true;
+      persist();
+      render();
+      return;
+    }
+    if (method === 'barcode') {
+      openBarcode();
+      return;
+    }
+    if (method === 'search') {
+      openFoodSearch();
+      return;
+    }
+    if (method === 'describe') {
+      state.step = 'describe';
+      persist();
+      render();
+    }
+  }
+
+  function renderDescribe() {
+    root.innerHTML = `
+      <section class="log-screen">
+        <button type="button" class="back-link" id="backMethod">← Back</button>
+        <h2>Describe your meal</h2>
+        <p class="log-screen__lead">Type or dictate what you ate. This is free and does not use photo-scan credits.</p>
+        <label class="field full">
+          <span>Meal description</span>
+          <div class="speech-field">
+            <textarea id="describeInput" rows="4" maxlength="500" placeholder="e.g. 3 medium idlis, sambar and coconut chutney">${escapeHtml(state.describeText || '')}</textarea>
+            ${speechMicButton('describeMic', 'Speak your meal')}
+          </div>
+          ${speechHintHtml()}
+        </label>
+        <button type="button" class="btn btn-primary full" id="describeContinue">Review estimate</button>
+        ${disclaimerBlock(DISCLAIMERS.nutritionEstimate, 'fine-print health-disclaimer')}
+      </section>
+    `;
+    root.querySelector('#backMethod')?.addEventListener('click', () => {
+      state.describeText = root.querySelector('#describeInput')?.value || '';
+      state.step = 'method';
+      persist();
+      render();
+    });
+    root.querySelector('#describeContinue')?.addEventListener('click', () => {
+      const text = root.querySelector('#describeInput')?.value.trim() || '';
+      state.describeText = text;
+      const analysis = estimateMealFromDescription(text);
+      if (!analysis?.items?.length) {
+        showToast('Add a little more detail — for example foods and amounts.');
+        return;
+      }
+      state.analysis = analysis;
+      state.source = 'describe';
+      state.step = 'review';
+      persist();
+      render();
+    });
+    bindSpeechField('#describeInput', '#describeMic', { append: true });
   }
 
   async function openBarcode() {
@@ -332,7 +508,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       await lookupPackagedFood(code, 'barcode');
     } catch (err) {
       showToast(err.message || 'Barcode lookup failed');
-      state.step = 'capture';
+      state.step = 'method';
       state.source = null;
       persist();
       render();
@@ -352,7 +528,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       await lookupPackagedFood(code, 'food_search');
     } catch (err) {
       showToast(err.message || 'Food lookup failed');
-      state.step = 'capture';
+      state.step = 'method';
       state.source = null;
       persist();
       render();
@@ -378,16 +554,13 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
 
   async function openLiveCamera() {
     preparePhotoFlow();
-    if (!canScan().allowed) {
-      state.step = 'paywall';
-      render();
-      return;
-    }
     try {
       const img = await openWebCameraModal();
       if (img) await useImage(img);
     } catch (err) {
-      showToast(err.message || 'Camera failed');
+      const info = cameraErrorMessage(err);
+      showToast(info.message);
+      if (info.offerUpload) root.querySelector('#galleryBtn')?.click();
     }
   }
 
@@ -403,7 +576,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     `;
     root.querySelector('#upgradeBtn').addEventListener('click', () => onUpgrade?.());
     root.querySelector('#backCapture').addEventListener('click', () => {
-      state.step = 'capture';
+      state.step = 'photo';
       clearPhotoFlow();
       render();
     });
@@ -411,26 +584,18 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
 
   async function openCamera() {
     preparePhotoFlow();
-    if (!canScan().allowed) {
-      state.step = 'paywall';
-      render();
-      return;
-    }
     try {
       const native = await captureMealPhoto();
       if (native) await useImage(native);
     } catch (err) {
-      showToast(err.message || 'Camera failed');
+      const info = cameraErrorMessage(err);
+      showToast(info.message);
+      if (info.offerUpload) root.querySelector('#galleryBtn')?.click();
     }
   }
 
   async function openGallery() {
     preparePhotoFlow();
-    if (!canScan().allowed) {
-      state.step = 'paywall';
-      render();
-      return;
-    }
     try {
       const img = await pickMealPhotoFromGallery();
       if (img) await useImage(img);
@@ -439,40 +604,34 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     }
   }
 
-  async function onPhotoSelected(e) {
+  async function onPhotoFile(file) {
     preparePhotoFlow();
-    const input = e.target;
-    const file = input.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/') && !/\.(jpe?g|png|webp|gif|bmp|heic|heif)$/i.test(file.name || '')) {
-      setStatus('Please choose a photo (JPG, PNG, or WebP)');
-      state.step = 'capture';
-      persist();
-      render();
-      return;
-    }
-    if (!canScan().allowed) {
-      state.step = 'paywall';
-      persist();
-      render();
+    const check = validatePhotoFile(file);
+    if (!check.ok) {
+      setStatus(check.message);
       return;
     }
     state.status = `Reading ${file.name || 'photo'}…`;
-    state.step = 'capture';
     persist();
-    render();
     try {
       const compressed = await compressImage(file);
       if (!compressed?.base64) throw new Error('Photo was empty — try another image');
-      input.value = '';
       await useImage(compressed);
     } catch (err) {
       state.status = err.message || 'Could not read photo — try JPG or PNG';
-      state.step = 'capture';
+      state.step = 'photo';
       persist();
       render();
       showToast(state.status, 5000);
     }
+  }
+
+  async function onPhotoSelected(e) {
+    const input = e.target;
+    const file = input.files?.[0];
+    if (!file) return;
+    input.value = '';
+    await onPhotoFile(file);
   }
 
   async function useImage(image) {
@@ -496,11 +655,10 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
         }
       }
       state.image = image;
-      state.step = 'analyzing';
-      state.status = 'Analysing your photo…';
+      state.step = 'preview';
+      state.status = '';
       persist();
       render();
-      await runAnalysis();
     } catch (err) {
       setStatus(err.message || 'Something went wrong — try again');
       state.step = 'capture';
@@ -509,14 +667,225 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     }
   }
 
+  async function renderPreview() {
+    const quality = state.photoQuality || await assessPhotoQuality(state.image?.dataUrl);
+    state.photoQuality = quality;
+    persist();
+    const qualityLine = quality.ok
+      ? '<p class="log-quality log-quality--ok">Photo looks clear</p>'
+      : `<p class="log-quality log-quality--warn">${escapeHtml(quality.summary)}</p>`;
+    root.innerHTML = `
+      <section class="log-screen log-preview">
+        <button type="button" class="back-link" id="backPhoto">← Back</button>
+        ${logProgress('preview')}
+        <h2>Check this photo</h2>
+        ${state.image?.dataUrl ? `<img src="${state.image.dataUrl}" alt="Selected meal photo" class="preview-img"/>` : ''}
+        ${qualityLine}
+        <p class="log-screen__lead">Is the complete meal visible?</p>
+        <div class="option-grid" id="completeGrid">
+          <button type="button" class="option-btn${state.completeness === 'yes_visible' ? ' is-active' : ''}" data-complete="yes_visible">Yes, everything is visible</button>
+          <button type="button" class="option-btn${state.completeness === 'hidden_missing' ? ' is-active' : ''}" data-complete="hidden_missing">Some food is hidden or missing</button>
+          <button type="button" class="option-btn${state.completeness === 'part_of_meal' ? ' is-active' : ''}" data-complete="part_of_meal">This is only part of the meal</button>
+          <button type="button" class="option-btn${state.completeness === 'not_sure' ? ' is-active' : ''}" data-complete="not_sure">Not sure</button>
+        </div>
+        <div class="log-preview__tools">
+          <button type="button" class="btn btn-ghost btn-sm" id="rotatePhoto">Rotate</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="cropPhoto">Crop centre</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="retakePhoto">Retake</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="removePhoto">Remove</button>
+        </div>
+        <button type="button" class="btn btn-primary full" id="continuePhoto">${quality.ok ? 'Continue with this photo' : 'Continue anyway'}</button>
+      </section>
+    `;
+    root.querySelector('#backPhoto')?.addEventListener('click', () => { state.step = 'photo'; persist(); render(); });
+    root.querySelectorAll('[data-complete]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        state.completeness = btn.dataset.complete;
+        root.querySelectorAll('[data-complete]').forEach((b) => b.classList.toggle('is-active', b === btn));
+      });
+    });
+    root.querySelector('#rotatePhoto')?.addEventListener('click', async () => {
+      if (!state.image?.dataUrl) return;
+      const rotated = await rotateDataUrl(state.image.dataUrl);
+      state.image = { ...state.image, dataUrl: rotated, base64: rotated.split(',')[1], mimeType: 'image/jpeg' };
+      state.photoQuality = null;
+      persist();
+      render();
+    });
+    root.querySelector('#cropPhoto')?.addEventListener('click', async () => {
+      if (!state.image?.dataUrl) return;
+      const cropped = await cropCentreDataUrl(state.image.dataUrl);
+      state.image = { ...state.image, dataUrl: cropped, base64: cropped.split(',')[1], mimeType: 'image/jpeg' };
+      state.photoQuality = null;
+      persist();
+      render();
+    });
+    root.querySelector('#retakePhoto')?.addEventListener('click', () => {
+      state.image = null;
+      state.photoQuality = null;
+      state.analysisId = null;
+      state.scanRecorded = false;
+      state.step = 'photo';
+      persist();
+      render();
+    });
+    root.querySelector('#removePhoto')?.addEventListener('click', () => {
+      state.image = null;
+      state.photoQuality = null;
+      state.analysisId = null;
+      state.scanRecorded = false;
+      state.step = 'method';
+      persist();
+      render();
+    });
+    root.querySelector('#continuePhoto')?.addEventListener('click', () => {
+      if (!state.completeness) {
+        showToast('Please say whether the complete meal is visible.');
+        return;
+      }
+      state.step = 'weight';
+      persist();
+      render();
+    });
+  }
+
+  function renderWeight() {
+    root.innerHTML = `
+      <section class="log-screen">
+        <button type="button" class="back-link" id="backPreview">← Back</button>
+        ${logProgress('weight')}
+        <h2>Do you know the total weight of the complete meal?</h2>
+        <p class="log-screen__lead">Enter the weight of the entire finished meal, including all visible foods, sauces and accompaniments. You can skip this.</p>
+        <div class="log-weight">
+          <label class="field">
+            <span>Weight</span>
+            <input type="number" id="mealWeightInput" min="1" step="1" inputmode="decimal" placeholder="e.g. 355"/>
+          </label>
+          <label class="field">
+            <span>Unit</span>
+            <select id="mealWeightUnit">
+              <option value="g">g</option>
+              <option value="kg">kg</option>
+              <option value="oz">oz</option>
+              <option value="lb">lb</option>
+            </select>
+          </label>
+        </div>
+        <button type="button" class="btn btn-primary full" id="useWeight">Use this weight</button>
+        <button type="button" class="btn btn-ghost full" id="skipWeight">I don’t know</button>
+      </section>
+    `;
+    root.querySelector('#backPreview')?.addEventListener('click', () => { state.step = 'preview'; persist(); render(); });
+    root.querySelector('#skipWeight')?.addEventListener('click', () => startAnalysis());
+    root.querySelector('#useWeight')?.addEventListener('click', () => {
+      const parsed = parseMealWeight(root.querySelector('#mealWeightInput')?.value, root.querySelector('#mealWeightUnit')?.value);
+      if (!parsed.ok) {
+        showToast(parsed.message);
+        return;
+      }
+      state.mealWeightGrams = parsed.grams;
+      startAnalysis();
+    });
+  }
+
+  function startAnalysis() {
+    if (state.analyzing) return;
+    if (!canScan().allowed) {
+      state.step = 'paywall';
+      persist();
+      render();
+      return;
+    }
+    state.analyzing = true;
+    state.cancelled = false;
+    state.analysisId = state.analysisId || (crypto.randomUUID?.() || `an-${Date.now()}`);
+    state.step = 'analyzing';
+    persist();
+    render();
+    runAnalysis();
+  }
+
+  function renderConfirm() {
+    const a = state.analysis || {};
+    const items = a.items || [];
+    const unmatched = items.filter((i) => i._unmatched).length;
+    const nutrients = formatNutrientLine(a.total_nutrition || {});
+    const low = a._confidence?.band === 'low';
+    root.innerHTML = `
+      <section class="log-screen log-confirm">
+        <button type="button" class="back-link" id="backReview">← Review portions</button>
+        ${logProgress('confirm')}
+        <h2>Does everything look right?</h2>
+        <ul class="log-confirm__facts">
+          <li><strong>${escapeHtml(a.meal_summary || 'Meal')}</strong></li>
+          <li>${escapeHtml(state.mealType)} · ${escapeHtml(getLogTargetDate() || todayKey())}</li>
+          <li>${items.length} foods · ${roundDisplay(a._consumedGrams || 0)} g eaten</li>
+          <li>Estimated ${Math.round(a.total_calories_kcal || 0)} kcal${a._confidence?.kcalRange ? ` · likely ${a._confidence.kcalRange.min}–${a._confidence.kcalRange.max} kcal` : ''}</li>
+          ${a._confidence ? `<li>${escapeHtml(a._confidence.band)} confidence${a._confidence.primaryUncertainty ? ` · ${escapeHtml(a._confidence.primaryUncertainty)}` : ''}</li>` : ''}
+          ${nutrients.line ? `<li>${escapeHtml(nutrients.line)}</li>` : ''}
+          ${nutrients.notes ? `<li>${escapeHtml(nutrients.notes)}</li>` : ''}
+          ${unmatched ? `<li class="warn-text">${unmatched} food${unmatched === 1 ? '' : 's'} still need a nutrition match</li>` : ''}
+          ${low ? '<li class="warn-text">Low confidence — you can still save. The uncertainty reason is kept with this meal.</li>' : ''}
+        </ul>
+        <button type="button" class="btn btn-primary full" id="saveMealBtn">Save meal</button>
+        <button type="button" class="btn btn-ghost full" id="backReviewBtn">Review portions</button>
+        <button type="button" class="btn btn-ghost full" id="changeFoodBtn">Change a food</button>
+        <button type="button" class="btn btn-ghost full" id="addMissingBtn">Add missing food</button>
+        <button type="button" class="btn btn-ghost full" id="anotherPhotoBtn">Analyse another photo</button>
+        <button type="button" class="btn btn-ghost full" id="cancelConfirm">Cancel</button>
+      </section>
+    `;
+    const goReview = () => { state.step = 'review'; persist(); render(); };
+    root.querySelector('#backReview')?.addEventListener('click', goReview);
+    root.querySelector('#backReviewBtn')?.addEventListener('click', goReview);
+    root.querySelector('#saveMealBtn')?.addEventListener('click', () => commitMealSave());
+    root.querySelector('#changeFoodBtn')?.addEventListener('click', goReview);
+    root.querySelector('#addMissingBtn')?.addEventListener('click', goReview);
+    root.querySelector('#anotherPhotoBtn')?.addEventListener('click', () => {
+      state.image = null;
+      state.analysis = null;
+      state.scanRecorded = false;
+      state.analysisId = null;
+      state.step = 'photo';
+      persist();
+      render();
+    });
+    root.querySelector('#cancelConfirm')?.addEventListener('click', () => { clearSession(); onCancel(); });
+  }
+
   async function runAnalysis() {
     const notes = effectiveAnalysisNotes();
+    const requestId = state.analysisId;
+    state.cancelled = false;
+    analysisAbort?.abort();
+    analysisAbort = new AbortController();
     try {
-      state.analysis = await analyzeFoodPhoto(
+      const analysis = await analyzeFoodPhoto(
         state.image.base64,
         state.image.mimeType,
-        notes
+        notes,
+        { idempotencyKey: requestId, signal: analysisAbort.signal },
       );
+      if (state.cancelled || state.analysisId !== requestId) return;
+      if (!hasUsefulFoodItems(analysis)) {
+        state.analyzing = false;
+        state.status = 'No food was found in that photo. No scan credit was used.';
+        state.step = 'failed';
+        persist();
+        render();
+        showToast(state.status, 6000);
+        return;
+      }
+      let next = analysis;
+      if (state.mealWeightGrams) {
+        next = applyMeasuredMealWeight(next, state.mealWeightGrams);
+      }
+      next._photoQualityPoor = Boolean(state.photoQuality?.reduceConfidence);
+      next._completeness = state.completeness;
+      next._mealWeightGrams = state.mealWeightGrams || null;
+      next.source = 'photo';
+      if (state.completeness === 'not_sure') next._notSureAnswers = (next._notSureAnswers || 0) + 1;
+      state.analysis = next;
       enrichDrinkContext(state.analysis);
       if (!isSupabaseConfigured() && !state.scanRecorded) {
         recordScan();
@@ -524,10 +893,17 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       }
       state.status = '';
     } catch (err) {
+      state.analyzing = false;
+      if (state.cancelled || err?.name === 'AbortError') {
+        state.step = 'preview';
+        persist();
+        render();
+        return;
+      }
       if (err?.requiresAuth) {
         showToast('Sign in to log meals with AI', 5000);
         onSignIn?.();
-        state.step = 'capture';
+        state.step = 'preview';
         persist();
         render();
         return;
@@ -544,24 +920,19 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
         state.analysis = { ...demoAnalysis(), demoEstimate: true };
         enrichDrinkContext(state.analysis);
         state.status = 'Sample estimate only — connect AI for your actual photo';
-      } else if (needsKey) {
-        const msg = 'Photo logging is temporarily unavailable. You can still log packaged food by barcode or product search.';
-        state.status = msg;
-        state.step = 'capture';
-        persist();
-        render();
-        showToast(msg, 6000);
-        return;
       } else {
-        const msg = friendlyAnalysisError(err.message);
+        const msg = needsKey
+          ? 'Photo logging is temporarily unavailable. Try Describe or Search foods instead.'
+          : friendlyAnalysisError(err.message);
         state.status = msg;
-        state.step = 'capture';
+        state.step = 'failed';
         persist();
         render();
         showToast(msg, 6000);
         return;
       }
     }
+    state.analyzing = false;
     if (needsClarification(state.analysis)) {
       state.clarificationSteps = normalizeClarificationQuestions(state.analysis);
       state.step = 'clarify';
@@ -571,6 +942,33 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     }
     persist();
     render();
+  }
+
+  function renderFailed() {
+    root.innerHTML = `
+      <section class="log-screen">
+        <button type="button" class="back-link" id="backPreview">← Back</button>
+        ${logProgress('failed')}
+        <h2>We could not finish this analysis</h2>
+        <p class="log-screen__lead">${escapeHtml(state.status || 'Something went wrong. Your photo and notes are still here.')}</p>
+        ${state.image?.dataUrl ? `<img src="${state.image.dataUrl}" alt="Selected meal photo" class="preview-img"/>` : ''}
+        <button type="button" class="btn btn-primary full" id="retryAnalysis">Try again</button>
+        <button type="button" class="btn btn-ghost full" id="failDescribe">Describe the meal</button>
+        <button type="button" class="btn btn-ghost full" id="failSearch">Search foods manually</button>
+        <button type="button" class="btn btn-ghost full" id="failPhoto">Choose another photo</button>
+      </section>
+    `;
+    root.querySelector('#backPreview')?.addEventListener('click', () => { state.step = 'preview'; persist(); render(); });
+    root.querySelector('#retryAnalysis')?.addEventListener('click', () => startAnalysis());
+    root.querySelector('#failDescribe')?.addEventListener('click', () => { state.step = 'describe'; persist(); render(); });
+    root.querySelector('#failSearch')?.addEventListener('click', () => openFoodSearch());
+    root.querySelector('#failPhoto')?.addEventListener('click', () => {
+      state.analysisId = null;
+      state.scanRecorded = false;
+      state.step = 'photo';
+      persist();
+      render();
+    });
   }
 
   function renderAnalyzing() {
@@ -589,13 +987,28 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
 
     root.innerHTML = `
       <section class="log-screen log-screen--analyzing ${isLookup ? 'center' : ''}">
+        ${logProgress('analyzing')}
         ${scanPanel}
+        ${!isLookup ? `<p class="fine-print" id="analysisSlowHint" hidden>This meal is taking a little longer to analyse.</p>` : ''}
+        ${!isLookup ? `<button type="button" class="btn btn-ghost full" id="cancelAnalysis">Cancel</button>` : ''}
         ${!isLookup ? disclaimerBlock(DISCLAIMERS.nutritionEstimate, 'fine-print health-disclaimer meal-scan__disclaimer') : ''}
       </section>
     `;
 
     if (!isLookup) {
       analyzeStatusCleanup = startPhotoScanStatusCycle(root, PHOTO_ANALYSIS_STEPS);
+      window.setTimeout(() => {
+        const hint = root.querySelector('#analysisSlowHint');
+        if (hint && state.step === 'analyzing') hint.hidden = false;
+      }, 8000);
+      root.querySelector('#cancelAnalysis')?.addEventListener('click', () => {
+        state.cancelled = true;
+        state.analyzing = false;
+        analysisAbort?.abort();
+        state.step = 'preview';
+        persist();
+        render();
+      });
     }
   }
 
@@ -613,14 +1026,19 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     const ui = getClarificationStepConfig(step, state.analysis);
     const total = steps.length;
 
+    const optionHtml = ui.multi
+      ? ui.options.map((o) => `<label class="option-check"><input type="checkbox" data-answer="${escapeAttr(o)}"/> ${escapeHtml(o)}</label>`).join('')
+      : ui.options.map((o) => `<button type="button" class="option-btn" data-answer="${escapeAttr(o)}">${escapeHtml(o)}</button>`).join('');
+
     root.innerHTML = `
       <section class="log-screen log-screen--clarify">
+        ${logProgress('clarify')}
         ${state.image?.dataUrl ? `<img src="${state.image.dataUrl}" alt="" class="preview-img preview-img--small"/>` : ''}
         <p class="step-label">Quick question ${current + 1} of ${total}</p>
         <h2 class="clarify-question">${escapeHtml(ui.question)}</h2>
         <p class="clarify-helper">${escapeHtml(ui.helper)}</p>
         <div class="option-grid" id="optionGrid">
-          ${ui.options.map((o) => `<button type="button" class="option-btn" data-answer="${escapeAttr(o)}">${escapeHtml(o)}</button>`).join('')}
+          ${optionHtml}
         </div>
         <label class="field">
           <span>${escapeHtml(ui.inputLabel)}</span>
@@ -631,20 +1049,33 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
           ${speechHintHtml()}
         </label>
         <button type="button" class="btn btn-primary full" id="submitAnswer">Continue</button>
-        <button type="button" class="btn btn-ghost full" id="skipClarify">Skip — use best guess</button>
+        <button type="button" class="btn btn-ghost full" id="skipClarify">Skip and review meal</button>
         ${disclaimerBlock(DISCLAIMERS.nutritionEstimate, 'fine-print health-disclaimer')}
       </section>
     `;
 
-    root.querySelectorAll('.option-btn').forEach((btn) => {
-      btn.addEventListener('click', () => submitAnswer(btn.dataset.answer));
-    });
-    root.querySelector('#submitAnswer').addEventListener('click', () => {
-      const custom = root.querySelector('#customAnswer').value.trim();
-      if (custom) submitAnswer(custom);
-      else showToast('Pick an option or type an answer');
-    });
-    root.querySelector('#skipClarify').addEventListener('click', () => {
+    if (ui.multi) {
+      root.querySelector('#submitAnswer').addEventListener('click', () => {
+        const custom = root.querySelector('#customAnswer').value.trim();
+        const selected = [...root.querySelectorAll('#optionGrid input:checked')].map((el) => el.dataset.answer);
+        if (custom) selected.push(custom);
+        if (!selected.length) {
+          showToast('Pick at least one option, or Skip and review meal');
+          return;
+        }
+        submitAnswer(selected.join(', '));
+      });
+    } else {
+      root.querySelectorAll('.option-btn').forEach((btn) => {
+        btn.addEventListener('click', () => submitAnswer(btn.dataset.answer));
+      });
+      root.querySelector('#submitAnswer').addEventListener('click', () => {
+        const custom = root.querySelector('#customAnswer').value.trim();
+        if (custom) submitAnswer(custom);
+        else showToast('Pick an option or type an answer');
+      });
+    }
+    root.querySelector('#skipClarify')?.addEventListener('click', () => {
       state.step = 'review';
       render();
     });
@@ -661,6 +1092,11 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       answer,
       topic: steps[idx].topic,
     });
+    if (/^not sure$/i.test(String(answer))) {
+      state.analysis._notSureAnswers = (state.analysis._notSureAnswers || 0) + 1;
+      if (/oil|butter|ghee/i.test(steps[idx].question + steps[idx].topic)) state.analysis._unknownOil = true;
+      if (/sauce/i.test(steps[idx].question + steps[idx].topic)) state.analysis._unknownSauce = true;
+    }
     if (state.answers.length < steps.length) {
       render();
       return;
@@ -700,8 +1136,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     });
 
     if (!result) {
-      state.step = 'capture';
-      clearPhotoFlow();
+      state.step = 'method';
       persist();
       render();
       return;
@@ -709,12 +1144,38 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
 
     state.analysis = result.analysis;
     state.mealType = result.mealType;
-    await commitMealSave();
+    state.step = 'confirm';
+    persist();
+    render();
   }
 
   async function commitMealSave() {
+    if (state.saving) return;
     const a = state.analysis;
+    const items = a?.items || [];
+    if (!items.length) {
+      showToast('Add at least one food before saving.');
+      state.step = 'review';
+      persist();
+      render();
+      return;
+    }
+    if (items.every((item) => item._unmatched)) {
+      showToast('Match at least one food to nutrition data before saving.');
+      return;
+    }
+    if (items.some((item) => Number(item.calories_kcal) < 0 || Number(item.grams) < 0)) {
+      showToast('A food has an invalid amount. Check portions before saving.');
+      return;
+    }
+    if (items.some((item) => !(Number(item._originalGrams ?? item.grams) > 0) && !item._unmatched)) {
+      showToast('A required serving is missing.');
+      return;
+    }
+    state.saving = true;
+    state.saveId = state.saveId || (crypto.randomUUID?.() || `sv-${Date.now()}`);
     const drinkSubtype = a._drinkLogSubtype || null;
+    const scored = a._confidence || scoreMealConfidence(a);
     root.innerHTML = `
       <section class="log-screen center">
         <div class="spinner" aria-hidden="true"></div>
@@ -723,18 +1184,30 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     `;
     try {
       const saved = await saveMeal({
-        date: todayKey(),
+        date: getLogTargetDate() || todayKey(),
         meal_type: state.mealType,
         meal_notes: state.mainlyDrink
           ? formatDrinkMealNotes(drinkSubtype, state.mealNotes) || undefined
           : state.mealNotes || undefined,
         meal_summary: a.meal_summary,
-        total_calories_kcal: a.total_calories_kcal,
+        total_calories_kcal: Math.round(a.total_calories_kcal),
         total_nutrition: a.total_nutrition,
         items: a.items,
-        confidence_score: a.confidence_score,
+        source: a.source || state.source || 'photo',
+        confidence_score: scored.score,
+        confidence_band: scored.band,
+        kcal_range: scored.kcalRange || null,
+        primary_uncertainty: scored.primaryUncertainty || '',
         clarifications: state.answers,
         photoDataUrl: state.image?.external ? undefined : state.image?.dataUrl,
+        save_id: state.saveId,
+        eaten_factor: a._eatenFactor || 1,
+        _confidence: scored,
+        _originalEstimate: a._originalEstimate || {
+          total_calories_kcal: a.total_calories_kcal,
+          total_nutrition: a.total_nutrition,
+          items: a.items,
+        },
       });
       clearSession();
       if (saved?.cloudSynced === false && profile?.loggedIn) {
@@ -744,10 +1217,11 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       }
       onSaved();
     } catch (err) {
-      showToast(err.message || 'Could not save meal');
-      state.step = 'review';
+      state.saving = false;
+      showToast(err.message || 'Could not save meal. Your review is still here — try Save again.');
+      state.step = 'confirm';
       persist();
-      showReviewFlow();
+      render();
     }
   }
 

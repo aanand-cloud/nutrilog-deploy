@@ -37,7 +37,7 @@
  */
 
 export const VERIFICATION_META = {
-  verified: { label: 'MealNova Verified', score: 95 },
+  verified: { label: 'Reference match verified by MealNova', score: 95 },
   manufacturer: { label: 'Manufacturer label', score: 90 },
   restaurant_reviewed: { label: 'Reviewed restaurant data', score: 75 },
   recipe_derived: { label: 'Recipe model', score: 70 },

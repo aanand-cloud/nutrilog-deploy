@@ -176,6 +176,15 @@ function multiplierFromAnswer(answer = '', topic = '') {
     return cookingMethodMultiplier(answer);
   }
   const t = String(answer).toLowerCase();
+  if (/^not sure$/i.test(t)) return null;
+  if (/^none$|no additional oil|without (oil|butter|ghee)/.test(t)) return 1.0;
+  if (/more than 1 tablespoon|more than one tablespoon/.test(t)) return 1.28;
+  if (/1 tablespoon|one tablespoon|1 tbsp/.test(t)) return 1.15;
+  if (/1 teaspoon|one teaspoon|1 tsp/.test(t)) return 1.08;
+  if (/mayonnaise/.test(t)) return 1.2;
+  if (/yoghurt|yogurt/.test(t)) return 0.95;
+  if (/tomato-based|tomato based/.test(t)) return 1.0;
+  if (/curry sauce/.test(t)) return 1.12;
   if (/deep.?fried|deep fried/.test(t)) return 1.5;
   if (/oily|restaurant|greasy|lots of (oil|ghee)/.test(t)) return 1.25;
   if (/very little|light|minimal|dry/.test(t)) return 0.85;

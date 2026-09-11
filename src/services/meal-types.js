@@ -5,11 +5,14 @@ export const MEAL_TYPES = [
   { id: 'snack', label: 'Snack', icon: '🍎' },
 ];
 
-export function defaultMealType() {
-  const h = new Date().getHours();
-  if (h < 11) return 'breakfast';
-  if (h < 15) return 'lunch';
-  if (h < 21) return 'dinner';
+/** Local-timezone meal type from the user's clock — never the server timezone. */
+export function defaultMealType(now = new Date()) {
+  const h = now.getHours();
+  const m = now.getMinutes();
+  const minutes = h * 60 + m;
+  if (minutes >= 4 * 60 && minutes < 11 * 60) return 'breakfast';
+  if (minutes >= 11 * 60 && minutes < 16 * 60) return 'lunch';
+  if (minutes >= 16 * 60 && minutes < 22 * 60) return 'dinner';
   return 'snack';
 }
 
