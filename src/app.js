@@ -11,6 +11,7 @@ import { openLegalModal } from './views/legal.js';
 import { openAuthModal } from './services/auth-modal.js';
 import { shouldShowOnboarding, openOnboardingWizard } from './services/onboarding-wizard.js';
 import { setSettingsTab, setPasswordResetMode } from './views/app-nav-state.js';
+import { APP_NAME, APP_TAGLINE } from './services/brand.js';
 
 let currentView = 'today';
 let cachedProfile = null;
@@ -20,6 +21,86 @@ export function initApp() {
   const headerDate = document.getElementById('headerDate');
   const headerGreeting = document.getElementById('headerGreeting');
   const toast = document.getElementById('toast');
+  let siteHeaderScrollHandler = null;
+  let guestStickyScrollHandler = null;
+
+  function applyGuestShell(profile) {
+    const isGuest = !profile?.loggedIn;
+    document.documentElement.classList.toggle('is-guest', isGuest);
+
+    const siteHeader = document.getElementById('siteHeader');
+    const appHeader = document.querySelector('.app-header');
+    const bottomNav = document.querySelector('.bottom-nav');
+    const disclaimerStrip = document.querySelector('.app-disclaimer-strip');
+    const sidebarGuest = document.getElementById('sidebarGuest');
+
+    if (siteHeader) siteHeader.hidden = !isGuest;
+    if (appHeader) appHeader.hidden = isGuest;
+    if (bottomNav) bottomNav.hidden = isGuest;
+    if (disclaimerStrip) disclaimerStrip.hidden = isGuest;
+    if (sidebarGuest) sidebarGuest.hidden = !isGuest;
+
+    headerGreeting.textContent = profile?.loggedIn
+      ? getGreeting(profile.displayName)
+      : `${APP_NAME} — ${APP_TAGLINE}`;
+
+    const authBtn = document.getElementById('headerAuthBtn');
+    if (authBtn) {
+      authBtn.hidden = Boolean(profile?.loggedIn) || currentView === 'today';
+      authBtn.textContent = 'Sign in';
+    }
+  }
+
+  function bindSiteHeaderUi() {
+    const header = document.getElementById('siteHeader');
+    if (siteHeaderScrollHandler) {
+      window.removeEventListener('scroll', siteHeaderScrollHandler);
+      siteHeaderScrollHandler = null;
+    }
+    if (header && !header.hidden) {
+      siteHeaderScrollHandler = () => {
+        header.classList.toggle('site-header--scrolled', window.scrollY > 8);
+      };
+      window.addEventListener('scroll', siteHeaderScrollHandler, { passive: true });
+      siteHeaderScrollHandler();
+    }
+  }
+
+  function bindGuestStickyCta() {
+    const bar = document.getElementById('guestStickyCta');
+    if (!bar) return;
+    const isGuest = document.documentElement.classList.contains('is-guest');
+    const showBar = isGuest && currentView === 'today';
+    bar.hidden = !showBar;
+    if (guestStickyScrollHandler) {
+      window.removeEventListener('scroll', guestStickyScrollHandler);
+      guestStickyScrollHandler = null;
+    }
+    if (!showBar) {
+      bar.classList.remove('guest-sticky-cta--visible');
+      return;
+    }
+    const hero = main.querySelector('.landing-hero-v2, .landing-hero, .welcome-panel');
+    if (!hero) return;
+    guestStickyScrollHandler = () => {
+      const pastHero = hero.getBoundingClientRect().bottom < 72;
+      bar.classList.toggle('guest-sticky-cta--visible', pastHero);
+    };
+    window.addEventListener('scroll', guestStickyScrollHandler, { passive: true });
+    guestStickyScrollHandler();
+  }
+
+  function scrollToLandingSection(sectionId) {
+    const scroll = () => {
+      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    if (currentView !== 'today') {
+      setView('today');
+      window.setTimeout(scroll, 120);
+    } else {
+      scroll();
+    }
+  }
 
   async function updateHeader() {
     try {
@@ -35,13 +116,7 @@ export function initApp() {
         : { displayName: '', loggedIn: false };
     }
 
-    headerGreeting.textContent = getGreeting(
-      cachedProfile.loggedIn ? cachedProfile.displayName : ''
-    );
-    const authBtn = document.getElementById('headerAuthBtn');
-    if (authBtn) {
-      authBtn.hidden = Boolean(cachedProfile.loggedIn) || currentView === 'today';
-    }
+    applyGuestShell(cachedProfile);
 
     if (cachedProfile.loggedIn) {
       syncScanStateFromProfile(cachedProfile);
@@ -88,6 +163,7 @@ export function initApp() {
   }
 
   function focusMainHeading() {
+    if (document.documentElement.classList.contains('is-guest')) return;
     const heading = main.querySelector('h1, h2');
     if (!(heading instanceof HTMLElement)) return;
     if (!heading.hasAttribute('tabindex')) heading.tabIndex = -1;
@@ -165,6 +241,8 @@ export function initApp() {
       }
     } finally {
       main.removeAttribute('aria-busy');
+      bindGuestStickyCta();
+      bindSiteHeaderUi();
     }
   }
 
@@ -177,6 +255,31 @@ export function initApp() {
   });
 
   document.getElementById('headerAuthBtn')?.addEventListener('click', () => openSignIn('signin'));
+  document.getElementById('guestStickySignup')?.addEventListener('click', () => openSignIn('signup'));
+  document.getElementById('guestStickySignIn')?.addEventListener('click', () => openSignIn('signin'));
+  document.getElementById('siteHeaderHome')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    setView('today');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  document.getElementById('siteHeaderSignIn')?.addEventListener('click', () => openSignIn('signin'));
+  document.getElementById('siteHeaderTryFree')?.addEventListener('click', () => openSignIn('signup'));
+  document.getElementById('siteHeaderMenuBtn')?.addEventListener('click', () => {
+    const nav = document.getElementById('siteHeaderNav');
+    const menuBtn = document.getElementById('siteHeaderMenuBtn');
+    const open = nav?.classList.toggle('site-header__nav--open');
+    menuBtn?.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  document.querySelectorAll('[data-site-anchor]').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('siteHeaderNav')?.classList.remove('site-header__nav--open');
+      document.getElementById('siteHeaderMenuBtn')?.setAttribute('aria-expanded', 'false');
+      scrollToLandingSection(link.dataset.siteAnchor);
+    });
+  });
+  document.getElementById('sidebarGetStarted')?.addEventListener('click', () => openSignIn('signup'));
+  document.getElementById('sidebarSignIn')?.addEventListener('click', () => openSignIn('signin'));
 
   onAuthChange(async (session, event) => {
     if (event === 'PASSWORD_RECOVERY') {
