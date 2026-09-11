@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "updated": "2026-09-06",
+  "sources": {
+    "cofid": {
+      "name": "McCance & Widdowson's Composition of Foods Integrated Dataset",
+      "version": "2021",
+      "region": "UK",
+      "url": "https://www.gov.uk/government/publications/composition-of-foods-integrated-dataset-cofid"
+    },
+    "ifct": {
+      "name": "Indian Food Composition Tables",
+      "version": "2017",
+      "region": "India",
+      "url": "https://www.ifct2017.com/"
+    }
+  },
+  "notes": "Curated top-staple overlays for MealNova Phase 2. Full dataset import scripts live in scripts/import/."
+}

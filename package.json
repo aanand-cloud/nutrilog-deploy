@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --host",
     "dev:https": "vite --host --mode https",
-    "prebuild": "node scripts/build-verified-nutrition-index.mjs && node scripts/build-recipe-catalog-index.mjs && npm test",
+    "prebuild": "node scripts/build-verified-nutrition-index.mjs && node scripts/build-recipe-catalog-index.mjs && node scripts/prebuild-tests.mjs",
     "build": "node scripts/build-food-ref-v4-index.mjs && node scripts/build-verified-nutrition-index.mjs && node scripts/build-recipe-catalog-index.mjs && node scripts/build-marketing-pages.mjs && node scripts/generate-icons.mjs && node scripts/generate-landing-placeholders.mjs && node scripts/optimize-landing-images.mjs && vite build",
     "landing:demo:capture": "node scripts/capture-landing-demo-frames.mjs",
     "landing:demo:video": "node scripts/build-landing-demo-video.mjs",

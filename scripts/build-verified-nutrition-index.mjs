@@ -3,13 +3,21 @@
  * Run: node scripts/build-verified-nutrition-index.mjs
  */
 
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const srcPath = resolve(root, 'data/verified/verified-nutrition.json');
 const outPath = resolve(root, 'shared/verified-nutrition.generated.js');
+
+if (!existsSync(srcPath)) {
+  if (existsSync(outPath)) {
+    console.log('verified-nutrition source missing; keeping committed generated index');
+    process.exit(0);
+  }
+  throw new Error(`Missing ${srcPath}`);
+}
 
 const catalog = JSON.parse(readFileSync(srcPath, 'utf8'));
 const records = catalog.records || [];

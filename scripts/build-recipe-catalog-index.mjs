@@ -3,7 +3,7 @@
  * Run: node scripts/build-recipe-catalog-index.mjs
  */
 
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { normalizeFoodAlias } from '../shared/food-ref-v4-normalize.js';
@@ -11,6 +11,14 @@ import { normalizeFoodAlias } from '../shared/food-ref-v4-normalize.js';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const srcPath = resolve(root, 'data/recipes/recipe-catalog.json');
 const outPath = resolve(root, 'shared/recipe-catalog-index.generated.js');
+
+if (!existsSync(srcPath)) {
+  if (existsSync(outPath)) {
+    console.log('recipe-catalog source missing; keeping committed generated index');
+    process.exit(0);
+  }
+  throw new Error(`Missing ${srcPath}`);
+}
 
 const catalog = JSON.parse(readFileSync(srcPath, 'utf8'));
 const recipes = catalog.recipes || [];
