@@ -261,19 +261,18 @@ export function landingProductDemoHtml() {
         <h2 id="landingDemoTitle" class="landing-section__title">From meal to nutrition in seconds</h2>
         <p class="landing-section__lead">${APP_NAME} does the searching and splitting. You stay in control of every food and portion.</p>
         <div class="landing-product-demo landing-product-demo--static">
-          <p class="landing-product-demo__label">Static preview — genuine MealNova screens</p>
           <ol class="landing-product-demo__steps" aria-describedby="landingDemoAltText">
             ${STATIC_DEMO_STEPS.map((step, i) => `
               <li class="landing-product-demo__step">
-                ${landingPhoto(step.img, step.alt, { className: 'landing-photo--demo', width: 390, height: 520 })}
+                ${landingPhoto(step.img, step.alt, { className: 'landing-photo--demo', width: 800, height: 600 })}
                 <p class="landing-product-demo__step-title"><span class="landing-product-demo__step-num">${i + 1}.</span> ${escapeHtml(step.title)}</p>
               </li>
             `).join('')}
           </ol>
           <p class="visually-hidden" id="landingDemoAltText">
-            MealNova flow preview: photograph or describe a meal, review identified foods with portions and confidence ranges, adjust portions, then save to your diary. A full screen recording is coming soon.
+            MealNova flow: photograph or describe a meal, review identified foods with portions and confidence ranges, adjust portions, then save to your diary.
           </p>
-          <p class="fine-print">Production ${APP_NAME} interface captured as a static preview. Estimates only — review before saving.</p>
+          <p class="fine-print">Estimates only — always review foods and portions before saving.</p>
         </div>
       </div>
     </section>
