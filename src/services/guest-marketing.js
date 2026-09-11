@@ -218,25 +218,18 @@ function startFreeBtn(id = '', extraClass = '') {
 
 export function landingHeroSectionHtml() {
   return `
-    <section class="landing-hero-v2 landing-section landing-section--open" aria-label="Welcome">
-      <div class="landing-section__inner landing-hero-v2__grid">
-        <div class="landing-hero-v2__copy">
-          <h1 class="landing-hero-v2__headline">Track any meal in seconds.</h1>
-          <p class="landing-section__lead">Photograph or describe your meal. Review every food and portion, then track calories and nutrition with transparent sources and confidence ranges.</p>
-          <p class="landing-hero-v2__intl">From home cooking and restaurant meals to foods from around the world.</p>
-          <div class="landing-hero-v2__actions">
-            ${startFreeBtn('guestGetStarted')}
-            <a class="btn btn-ghost btn-ghost--secondary" href="#how-it-works" data-site-anchor="how-it-works">Watch how it works</a>
-          </div>
-          <p class="landing-hero-v2__trust-row">
-            <span>✓ Editable portions</span>
-            <span>✓ Confidence ranges</span>
-            <span>✓ Transparent nutrition sources</span>
-          </p>
-        </div>
-        <div class="landing-hero-v2__visual">
-          ${landingPhoto(DEMO_MEAL.img, DEMO_MEAL.alt, { priority: true, className: 'landing-photo--hero' })}
-          ${landingResultCard(DEMO_MEAL)}
+    <section class="landing-hero-v2" aria-label="Welcome">
+      <div class="landing-hero-v2__media" aria-hidden="true">
+        ${landingPhoto(DEMO_MEAL.img, '', { priority: true, className: 'landing-photo--hero-bleed', width: 1600, height: 1000 })}
+        <div class="landing-hero-v2__scrim"></div>
+      </div>
+      <div class="landing-hero-v2__content">
+        <p class="landing-hero-v2__brand">${escapeHtml(APP_NAME)}</p>
+        <h1 class="landing-hero-v2__headline">Track any meal in seconds.</h1>
+        <p class="landing-hero-v2__lead">Photograph your plate, review every food and portion, then save with clear confidence ranges.</p>
+        <div class="landing-hero-v2__actions">
+          ${startFreeBtn('guestGetStarted')}
+          <a class="btn btn-ghost landing-hero-v2__secondary" href="#how-it-works" data-site-anchor="how-it-works">See how it works</a>
         </div>
       </div>
     </section>

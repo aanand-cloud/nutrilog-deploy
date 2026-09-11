@@ -44,6 +44,12 @@ export function initApp() {
       ? getGreeting(profile.displayName)
       : `${APP_NAME} — ${APP_TAGLINE}`;
 
+    if (headerDate) {
+      if (isGuest) {
+        headerDate.textContent = '';
+      }
+    }
+
     const authBtn = document.getElementById('headerAuthBtn');
     if (authBtn) {
       authBtn.hidden = Boolean(profile?.loggedIn) || currentView === 'today';
@@ -122,24 +128,25 @@ export function initApp() {
       syncScanStateFromProfile(cachedProfile);
     }
 
-    const viewTitles = {
-      today: '',
-      log: 'Log a meal',
-      reports: 'Your reports',
-      settings: 'Goals & settings',
-    };
-    const viewSub = viewTitles[currentView] || '';
+    if (cachedProfile.loggedIn) {
+      const viewTitles = {
+        today: '',
+        log: 'Log a meal',
+        reports: 'Your reports',
+        settings: 'Goals & settings',
+      };
+      const viewSub = viewTitles[currentView] || '';
 
-    const parts = [
-      new Date().toLocaleDateString(undefined, {
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric',
-      }),
-    ];
-    if (viewSub) parts.unshift(viewSub);
-    headerDate.textContent = parts.filter(Boolean).join(' · ');
-  }
+      const parts = [
+        new Date().toLocaleDateString(undefined, {
+          weekday: 'long',
+          month: 'long',
+          day: 'numeric',
+        }),
+      ];
+      if (viewSub) parts.unshift(viewSub);
+      headerDate.textContent = parts.filter(Boolean).join(' · ');
+    }
 
   function showToast(msg, ms = 3200) {
     toast.textContent = msg;
