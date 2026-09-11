@@ -1,4 +1,10 @@
-import { loadLogView, loadTodayView, loadReportsView } from './app-views.js';
+import {
+  loadLogView,
+  loadTodayView,
+  loadReportsView,
+  loadCalendarView,
+  loadSupplementsView,
+} from './app-views.js';
 import { isLogBusy } from './views/log-routing.js';
 import { onAuthChange, getUser, isSupabaseConfigured } from './services/auth.js';
 import { fullSync } from './services/sync.js';
@@ -10,7 +16,14 @@ import { getProfile, getGreeting, getLocalDisplayName } from './services/profile
 import { openLegalModal } from './views/legal.js';
 import { openAuthModal } from './services/auth-modal.js';
 import { shouldShowOnboarding, openOnboardingWizard } from './services/onboarding-wizard.js';
-import { setSettingsTab, setPasswordResetMode } from './views/app-nav-state.js';
+import {
+  setSettingsTab,
+  setPasswordResetMode,
+  getTodayViewDate,
+  setTodayViewDate,
+  setLogTargetDate,
+  clearLogTargetDate,
+} from './views/app-nav-state.js';
 import { APP_NAME, APP_TAGLINE } from './services/brand.js';
 
 let currentView = 'today';
@@ -132,6 +145,8 @@ export function initApp() {
       const viewTitles = {
         today: '',
         log: 'Log a meal',
+        supplements: 'Supplement log',
+        calendar: 'Meal calendar',
         reports: 'Your reports',
         settings: 'Goals & settings',
       };
@@ -215,6 +230,13 @@ export function initApp() {
           onRefresh: refresh,
           onReports: () => setView('reports'),
           onSettings: openSettings,
+          onSupplements: () => setView('supplements'),
+          onCalendar: async () => {
+            const calendar = await loadCalendarView();
+            const dk = getTodayViewDate();
+            if (dk) calendar.openCalendarOnDate(dk);
+            setView('calendar');
+          },
           onSignIn: openSignIn,
           profile,
         });
@@ -224,18 +246,59 @@ export function initApp() {
       } else if (currentView === 'log') {
         const { renderLog } = await loadLogView();
         renderLog(main, {
-          onSaved: () => setView('today'),
-          onCancel: () => setView('today'),
+          onSaved: () => {
+            clearLogTargetDate();
+            setView('today');
+          },
+          onCancel: () => {
+            clearLogTargetDate();
+            setView('today');
+          },
           showToast,
           onUpgrade: handleUpgrade,
           onSignIn: () => openSignIn('signin'),
           profile,
+        });
+      } else if (currentView === 'supplements') {
+        const supplements = await loadSupplementsView();
+        await supplements.renderSupplements(main, {
+          profile,
+          showToast,
+          onRefresh: refresh,
+          onSignIn: openSignIn,
+        });
+      } else if (currentView === 'calendar') {
+        const calendar = await loadCalendarView();
+        await calendar.renderCalendar(main, {
+          profile,
+          onBack: () => setView('today'),
+          onViewDay: (dateKey) => {
+            setTodayViewDate(dateKey);
+            setView('today');
+          },
+          onLogForDate: (dateKey) => {
+            setTodayViewDate(dateKey);
+            setLogTargetDate(dateKey);
+            setView('log');
+          },
+          onSignIn: openSignIn,
         });
       } else if (currentView === 'reports') {
         const { renderReports } = await loadReportsView();
         await renderReports(main, {
           profile,
           onLog: goLog,
+          onUpgrade: handleUpgrade,
+          onOpenDay: (dateKey) => {
+            setTodayViewDate(dateKey);
+            setView('today');
+          },
+          onOpenCalendar: async () => {
+            const calendar = await loadCalendarView();
+            calendar.openCalendarOnDate(getTodayViewDate() || todayKey());
+            setView('calendar');
+          },
+          onSignIn: openSignIn,
         });
       } else if (currentView === 'settings') {
         const todayMod = await loadTodayView();
@@ -255,7 +318,12 @@ export function initApp() {
   }
 
   document.querySelectorAll('.nav-btn').forEach((btn) => {
-    btn.addEventListener('click', () => setView(btn.dataset.view));
+    btn.addEventListener('click', () => {
+      if (btn.dataset.view === 'supplements') {
+        loadSupplementsView().then((mod) => mod.clearSupplementsViewDate()).catch(() => {});
+      }
+      setView(btn.dataset.view);
+    });
   });
 
   document.querySelectorAll('[data-legal]').forEach((btn) => {
@@ -313,7 +381,7 @@ export function initApp() {
     await runNotificationChecks();
     const url = new URL(window.location.href);
     const view = url.searchParams.get('view');
-    if (view === 'reports' || view === 'settings' || view === 'log' || view === 'today') {
+    if (view === 'reports' || view === 'settings' || view === 'log' || view === 'today' || view === 'supplements' || view === 'calendar') {
       url.searchParams.delete('view');
       window.history.replaceState({}, '', url.pathname + url.search);
       setView(view);
