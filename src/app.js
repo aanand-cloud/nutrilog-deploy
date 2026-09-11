@@ -147,6 +147,7 @@ export function initApp() {
       if (viewSub) parts.unshift(viewSub);
       headerDate.textContent = parts.filter(Boolean).join(' · ');
     }
+  }
 
   function showToast(msg, ms = 3200) {
     toast.textContent = msg;
