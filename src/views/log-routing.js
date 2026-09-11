@@ -3,7 +3,6 @@
  * Main Log meal opens the method picker. Shortcuts may jump to photo, barcode, describe or search.
  */
 
-import { primeWebCameraStream } from '../services/web-camera.js';
 import { MEAL_TYPES } from '../services/meal-types.js';
 
 let pendingLogFocus = null;
@@ -64,7 +63,6 @@ export function beginSearchLogEntry() {
 
 export function beginPhotoLogEntry() {
   requestLogFocus('photo');
-  primeWebCameraStream();
 }
 
 export function beginBarcodeLogEntry() {
