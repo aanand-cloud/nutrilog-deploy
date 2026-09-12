@@ -183,7 +183,7 @@ export function applyAuthoritativeNutritionToItem(item, ref = null) {
     ...item,
     _refId: canonicalId,
     _authoritative: Boolean(verified),
-    _nutritionSource: verified?.dataSource || ref?.dataSource || 'internal_estimated',
+    _nutritionSource: ref?.nutrition_source || verified?.dataSource || ref?.dataSource || 'internal_estimated',
     _provenanceLabel: verifiedProvenanceLabel(verified || ref),
   };
 

@@ -17,7 +17,7 @@ import {
   per100FromReference,
   attachPer100ToItem,
 } from './nutrition-density.js';
-import { refDisplayName, isStrongDescriptionMatch, servingGramsForReference, dishRefCoversCompound } from './description-anchor.js';
+import { refDisplayName, isStrongDescriptionMatch, servingGramsMeta, dishRefCoversCompound } from './description-anchor.js';
 import { applyMealValidation, sanitizeAnalysisTotals, sumItemNutritionTotals, reconcileTotalNutrition } from './nutrition-sanitize.js';
 import { scoreMealConfidence } from './nutrition-confidence.js';
 import { enforceRangeIntegrity } from './range-integrity.js';
@@ -165,6 +165,7 @@ function resolvePhraseToItemCore(phrase, q, match, ref) {
   if (ref && (phraseHasExplicitQuantity(q) || isStrongDescriptionMatch(foodText, ref))) {
     let nutritionGrams = 0;
     let volumeMl = null;
+    let portionMeta = null;
 
     if (phraseHasExplicitQuantity(q)) {
       if (q.unit === 'g') nutritionGrams = q.amount;
@@ -175,7 +176,8 @@ function resolvePhraseToItemCore(phrase, q, match, ref) {
         nutritionGrams = countToNutritionGrams(q.amount, foodText, { size: q.size });
       }
     } else {
-      nutritionGrams = servingGramsForReference(ref, foodText);
+      portionMeta = servingGramsMeta(ref, foodText);
+      nutritionGrams = portionMeta.grams;
     }
 
     const scaled = nutritionForAuthoritativeAmount(ref, nutritionGrams)
@@ -197,6 +199,8 @@ function resolvePhraseToItemCore(phrase, q, match, ref) {
       _baselineWeightGrams: nutritionGrams,
       _volumeMl: volumeMl,
       _weightSource: phraseHasExplicitQuantity(q) ? 'measured' : 'default',
+      _portionSource: phraseHasExplicitQuantity(q) ? 'user_measured' : (portionMeta?.portionSource || 'default_fallback'),
+      _portionSourceDetail: portionMeta?.portionSourceDetail || null,
       _matchMeta: match.meta,
     });
     item._canonical = canonicalFromReference(ref, match.meta);
@@ -207,7 +211,8 @@ function resolvePhraseToItemCore(phrase, q, match, ref) {
   }
 
   if (ref) {
-    const grams = servingGramsForReference(ref, foodText);
+    const serving = servingGramsMeta(ref, foodText);
+    const grams = serving.grams;
     const scaled = nutritionForAuthoritativeAmount(ref, grams)
       || nutritionForAmount(per100FromReference(ref), grams);
     let item = attachPer100ToItem({
@@ -220,6 +225,8 @@ function resolvePhraseToItemCore(phrase, q, match, ref) {
       _hiddenGrams: grams,
       _baselineWeightGrams: grams,
       _weightSource: 'default',
+      _portionSource: serving.portionSource,
+      _portionSourceDetail: serving.portionSourceDetail,
       _matchMeta: match?.meta,
     });
     if (isFlagEnabled('authoritativeNutrition')) {

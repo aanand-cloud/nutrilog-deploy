@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { V4_BY_ID } from '../shared/food-ref-v4-index.generated.js';
-import { getVerifiedRecord, enrichReferenceWithVerified } from '../shared/verified-nutrition.js';
+import { getVerifiedRecord } from '../shared/verified-nutrition.js';
 import { matchFoodReferenceDetailed } from '../shared/nutrition-density.js';
 import {
   INDIA_APPROVED_BY_V4_ID,
@@ -56,8 +56,9 @@ const blocked = evaluateIndiaValidationPromotion(first, {
 assert('provisional pack cannot promote', blocked.ok === false, blocked.errors.join('; '));
 
 const live = matchFoodReferenceDetailed('dindigul mutton biryani', { useCache: false, logV4: false });
-assert('core matcher still uses V4 dindigul nutrition', live.ref?.kcal100 === 210, String(live.ref?.kcal100));
-assert('enrich does not apply provisional overlay', enrichReferenceWithVerified(live.ref)?.kcal100 === 210);
+assert('V4 catalog still holds dindigul estimated nutrition', V4_BY_ID.dindigul_mutton_biryani[0] === 210);
+assert('core matcher still resolves the same V4 id', live.ref?.id === 'dindigul_mutton_biryani');
+assert('2.2 provisional overlay is still not approved', getApprovedIndiaNutrition('dindigul_mutton_biryani') == null);
 assert('verified overlay unchanged', !getVerifiedRecord('dindigul_mutton_biryani'));
 assert('approved map has no provisional keys', Object.keys(INDIA_APPROVED_BY_V4_ID).length === 0);
 

@@ -108,6 +108,8 @@ export function buildWeightProvenance(item = {}, opts = {}) {
     currentScale,
     weightOrigin,
     weightScope,
+    portionSource: item._portionSource || weightOrigin,
+    portionSourceDetail: item._portionSourceDetail || null,
     portionDescription,
     isEditable: !item._labelBacked && !item._unmatched,
   };

@@ -110,9 +110,10 @@ for (const row of records.slice(0, 8)) {
 const biryani = matchFoodReferenceDetailed('dindigul mutton biryani', { useCache: false, logV4: false });
 assert('core matcher still resolves dindigul mutton biryani', biryani.ref?.id === 'dindigul_mutton_biryani');
 assert(
-  'core matcher still uses existing estimated kcal',
-  biryani.ref?.kcal100 === first.current_nutrition.kcal100,
-  String(biryani.ref?.kcal100),
+  'V4 catalog still holds the estimated snapshot',
+  Array.isArray(V4_BY_ID.dindigul_mutton_biryani)
+    && V4_BY_ID.dindigul_mutton_biryani[0] === first.current_nutrition.kcal100,
+  String(V4_BY_ID.dindigul_mutton_biryani?.[0]),
 );
 
 console.log('\nIndia repair queue:', records.length, 'priority records');

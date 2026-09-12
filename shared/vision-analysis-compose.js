@@ -135,6 +135,7 @@ function visionItemToStub(visionItem = {}) {
       cooking_method: visionItem.cooking_method || '',
       visible_oil: Boolean(visionItem.visible_oil),
     },
+    _portionSource: 'photo_estimated',
     _hiddenGrams: unit === 'g' ? amount : undefined,
     ...(unit === 'ml' ? { _volumeMl: amount } : {}),
   };

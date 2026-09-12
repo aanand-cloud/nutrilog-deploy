@@ -6,6 +6,7 @@ import { VERIFIED_BY_ID, VERIFIED_NUTRITION_STATS, VERIFIED_ALIAS_TO_ID } from '
 import { VERIFICATION_META } from './canonical-food-model.js';
 import { normalizeCanonicalFoodText } from './canonical-food-identity.js';
 import { getApprovedIndiaNutrition } from './india-nutrition-validation.js';
+import { applyLevel23Overlay, resolveLevel23Nutrition } from './india-nutrition-l23.js';
 
 export { VERIFIED_NUTRITION_STATS, VERIFIED_BY_ID, VERIFIED_ALIAS_TO_ID };
 
@@ -92,12 +93,23 @@ export function canonicalVerifiedId(refId = '') {
  * @param {object|null} ref
  * @returns {object|null}
  */
-export function enrichReferenceWithVerified(ref) {
+export function enrichReferenceWithVerified(ref, context = {}) {
   if (!ref?.id) return ref;
+
+  const level23 = resolveLevel23Nutrition(ref.id, { exactName: context.exactName || '' });
+  if (level23?.nutrition_source === 'exact_brand') {
+    return applyLevel23Overlay(ref, level23);
+  }
+
   const verified = getVerifiedRecord(ref.id);
   if (!verified) {
+    if (level23?.nutrition_source === 'level2_3_generic') {
+      return applyLevel23Overlay(ref, level23);
+    }
     const approved = getApprovedIndiaNutrition(ref.id);
-    if (!approved) return ref;
+    if (!approved) {
+      return ref.nutrition_source ? ref : { ...ref, nutrition_source: 'v4_fallback' };
+    }
     return {
       ...ref,
       kcal100: approved.kcal100,
@@ -110,6 +122,7 @@ export function enrichReferenceWithVerified(ref) {
       nutrition_basis: approved.nutrition_basis,
       lastReviewedAt: approved.lastReviewedAt,
       dataQualityScore: VERIFICATION_META[approved.verificationStatus]?.score ?? 70,
+      nutrition_source: 'v4_fallback',
       _indiaValidated: true,
     };
   }

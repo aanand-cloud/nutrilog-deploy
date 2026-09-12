@@ -113,6 +113,7 @@ export function per100FromReference(ref) {
     salt_mg: ref.salt100 != null ? ref.salt100 : null,
     refId: ref.id,
     dataSource: ref.dataSource,
+    nutrition_source: ref.nutrition_source || null,
     sourceRecordId: ref.sourceRecordId,
     verificationStatus: ref.verificationStatus,
     nutritionBasis: ref.nutrition_basis,
@@ -346,6 +347,10 @@ export function calibrateItemWithReference(item) {
     else grams = 120;
     item = {
       ...item,
+      _portionSource: 'default_fallback',
+      _portionSourceDetail: /biryani/.test(ref.id) && !/shorba|side/.test(ref.id)
+        ? (/hyderabadi_/.test(ref.id) ? 'hyderabadi_biryani_default_380g' : 'biryani_default_350g')
+        : 'catalog_default',
       portion_estimate: ref.id === 'egg'
         ? '1 medium egg (~58g)'
         : /^(coffee|tea|beer|wine|soft_drink|juice|lassi|chai|water|irn_bru|pimms|gin_tonic)/.test(ref.id)

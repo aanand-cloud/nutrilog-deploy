@@ -4,7 +4,8 @@
  * regex → verified → Level 1 recognition hash → fuzzy
  *
  * Level 1 aliases are recognition-only and never override V4, collision, regex, or verified hits.
- * Nutrition still comes from V4 / Tier-1 / verified records.
+ * Nutrition still comes from V4 / Tier-1 / verified records, then the
+ * Level 2.3 override map. Matcher steps and recognition aliases are unchanged.
  */
 
 import { normalizeFoodAlias } from './food-ref-v4-normalize.js';
@@ -62,7 +63,7 @@ function cacheKey(text, context = {}) {
 }
 
 function tier1Meta(ref, text = '') {
-  const enriched = enrichReferenceWithVerified(ref);
+  const enriched = enrichReferenceWithVerified(ref, { exactName: text });
   return buildFoodMatchMeta({
     id: enriched.id,
     food_type: 'dish',
@@ -106,7 +107,7 @@ function packV4(id, matchedAlias, matchMethod, confidence, opts, collisionIds) {
     return { ref: null, meta };
   }
 
-  const ref = enrichReferenceWithVerified(v4RefById(id));
+  const ref = enrichReferenceWithVerified(v4RefById(id), { exactName: matchedAlias });
   const meta = buildFoodMatchMeta({ ...record, ...ref }, {
     matched_alias: matchedAlias,
     match_method: matchMethod,
@@ -184,7 +185,7 @@ export function matchFoodReferenceDetailed(text = '', opts = {}) {
       const v4ForTier1 = packV4(tier1.id, normalized, 'canonical_id', 'high', opts);
       if (v4ForTier1.ref) return finish(v4ForTier1);
     }
-    const enriched = enrichReferenceWithVerified(tier1);
+    const enriched = enrichReferenceWithVerified(tier1, { exactName: text });
     return finish({ ref: enriched, meta: tier1Meta(enriched, text) });
   }
 
@@ -203,7 +204,7 @@ export function matchFoodReferenceDetailed(text = '', opts = {}) {
       salt100: verified.salt100,
       canonicalName: verified.canonicalName,
       preparationState: verified.preparationState,
-    });
+    }, { exactName: normalized || text });
     return finish({ ref, meta: tier1Meta(ref, normalized || text) });
   }
 
@@ -218,7 +219,7 @@ export function matchFoodReferenceDetailed(text = '', opts = {}) {
         const v4ForTier1 = packV4(tier1ById.id, normalized, 'canonical_id', 'high', opts);
         if (v4ForTier1.ref) return finish(v4ForTier1);
       }
-      const enriched = enrichReferenceWithVerified(tier1ById);
+      const enriched = enrichReferenceWithVerified(tier1ById, { exactName: text });
       return finish({ ref: enriched, meta: tier1Meta(enriched, text) });
     }
     const level1Verified = getVerifiedRecord(level1Id);
@@ -234,7 +235,7 @@ export function matchFoodReferenceDetailed(text = '', opts = {}) {
         salt100: level1Verified.salt100,
         canonicalName: level1Verified.canonicalName,
         preparationState: level1Verified.preparationState,
-      });
+      }, { exactName: text });
       return finish({ ref, meta: tier1Meta(ref, normalized || text) });
     }
   }

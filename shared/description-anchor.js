@@ -700,8 +700,32 @@ function gramsForRef(ref, userText = '') {
 
 /** Default plate/serving grams for a matched reference (describe/voice pipeline). */
 export function servingGramsForReference(ref, userText = '') {
-  if (!ref) return DEFAULT_GRAMS.default;
-  return gramsForRef(ref, userText);
+  return servingGramsMeta(ref, userText).grams;
+}
+
+/**
+ * Same grams as servingGramsForReference, plus a benchmarkable portion source.
+ * Photo/vision amounts are not computed here.
+ */
+export function servingGramsMeta(ref, userText = '') {
+  if (!ref) {
+    return { grams: DEFAULT_GRAMS.default, portionSource: 'default_fallback', portionSourceDetail: 'catalog_default' };
+  }
+  const fromText = parseGramsFromText(userText);
+  if (fromText > 0) {
+    return { grams: fromText, portionSource: 'user_declared', portionSourceDetail: 'explicit_grams' };
+  }
+  const grams = gramsForRef(ref, userText);
+  const biryaniDefault = Boolean(ref.id && /biryani/.test(ref.id) && !/shorba|side/.test(ref.id));
+  if (biryaniDefault) {
+    const hyderabadi = ref.id.startsWith('hyderabadi_');
+    return {
+      grams,
+      portionSource: 'default_fallback',
+      portionSourceDetail: hyderabadi ? 'hyderabadi_biryani_default_380g' : 'biryani_default_350g',
+    };
+  }
+  return { grams, portionSource: 'default_fallback', portionSourceDetail: 'catalog_default' };
 }
 
 function analysisText(analysis = {}, extra = '') {
