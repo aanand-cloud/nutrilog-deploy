@@ -26,6 +26,225 @@ html:not(.is-guest) .view-page__main {
   min-width: 0;
 }
 
+.today-plan {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--radius);
+  background: #fff;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 28px rgba(15, 118, 110, 0.07);
+}
+
+.today-plan--plan {
+  background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 70%);
+}
+
+.today-plan--past {
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 70%);
+}
+
+.today-plan__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.today-plan__copy {
+  min-width: 0;
+}
+
+.today-plan__eyebrow {
+  margin: 0 0 2px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+.today-plan--past .today-plan__eyebrow {
+  color: var(--text3);
+}
+
+.today-plan__title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.today-plan__lead {
+  margin: 4px 0 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--text3);
+}
+
+.today-plan__tools {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.today-plan__cal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgba(13, 107, 100, 0.2);
+  border-radius: 999px;
+  background: #ecfdf5;
+  color: var(--teal);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.today-plan__nav {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.today-plan__step {
+  flex-shrink: 0;
+  width: 36px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--teal);
+  font: inherit;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.today-plan__step:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.today-plan__strip {
+  display: flex;
+  flex: 1;
+  gap: 6px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.today-plan__strip::-webkit-scrollbar {
+  display: none;
+}
+
+.today-plan__chip {
+  flex: 1 0 46px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  min-height: 72px;
+  padding: 8px 4px 7px;
+  border: 1px solid rgba(13, 107, 100, 0.14);
+  border-radius: 14px;
+  background: #f8fffe;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.today-plan__chip--today {
+  border-color: rgba(13, 107, 100, 0.35);
+  background: #ecfdf5;
+}
+
+.today-plan__chip--plan:not(.is-selected) {
+  background: #fff;
+}
+
+.today-plan__chip.is-selected {
+  border-color: transparent;
+  background: linear-gradient(160deg, #0a5c56 0%, var(--teal) 100%);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(13, 107, 100, 0.22);
+}
+
+.today-plan__chip-day {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+
+.today-plan__chip-num {
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.today-plan__chip-meta {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.today-plan__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.today-plan__pick {
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--teal);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.today-plan__window {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text3);
+}
+
+.today-plan__nudge {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--teal-dim);
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.day-date-nav__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .today-log {
   display: flex;
   flex-direction: column;
@@ -211,10 +430,15 @@ html:not(.is-guest) .view-page__main {
     display: grid;
     grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
     grid-template-areas:
+      'plan plan'
       'log log'
       'aside main';
     gap: 20px 24px;
     align-items: start;
+  }
+
+  html:not(.is-guest) .today-plan {
+    grid-area: plan;
   }
 
   html:not(.is-guest) .today-log {

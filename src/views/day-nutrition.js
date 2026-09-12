@@ -2,6 +2,7 @@ import { formatEnergy, formatEnergyParts } from '../services/goals.js';
 import {
   formatDayHeading,
   formatDayShort,
+  parseDateKey,
   shiftDateKey,
   weekComparisonLines,
   mealTypeBreakdown,
@@ -9,8 +10,33 @@ import {
 import { todayKey } from '../services/storage.js';
 import { disclaimerBlock, DISCLAIMERS } from '../services/disclaimers.js';
 
-import { minCalendarDateKey, maxPlanDateKey } from '../services/meal-calendar.js';
-import { PLAN_AHEAD_PHASE1_ENABLED, dayDateNavPickHintPhase1 } from '../services/plan-ahead-phase1.js';
+import { formatPlanDateLabel, minCalendarDateKey, maxPlanDateKey } from '../services/meal-calendar.js';
+
+/** Seven visible days around the selected date, clamped to history → 3-week plan window. */
+export function planWeekDateKeys(selectedKey) {
+  const today = todayKey();
+  const minDate = minCalendarDateKey();
+  const maxDate = maxPlanDateKey();
+  let start;
+  if (selectedKey >= today && selectedKey <= shiftDateKey(today, 6)) {
+    start = today;
+  } else if (selectedKey > today) {
+    start = shiftDateKey(selectedKey, -3);
+    if (start < today) start = today;
+    if (shiftDateKey(start, 6) > maxDate) start = shiftDateKey(maxDate, -6);
+  } else {
+    start = shiftDateKey(selectedKey, -3);
+    if (shiftDateKey(start, 6) > today) start = shiftDateKey(today, -6);
+  }
+  if (start < minDate) start = minDate;
+  const keys = [];
+  for (let i = 0; i < 7; i += 1) {
+    const key = shiftDateKey(start, i);
+    if (key > maxDate) break;
+    if (key >= minDate) keys.push(key);
+  }
+  return keys;
+}
 
 export function minViewDateKey() {
   return minCalendarDateKey();
@@ -40,37 +66,85 @@ function microChip(label, value, goal, unit, invertLow = false) {
   `;
 }
 
-/** Date picker row for Today / day views */
-export function dayDateNavHtml(dateKey, { showCalendarBtn = false } = {}) {
+/** Date picker + 3-week plan strip for Today / day views */
+export function dayDateNavHtml(dateKey, {
+  showCalendarBtn = false,
+  mealCounts = {},
+  emptyTomorrow = false,
+} = {}) {
   const today = todayKey();
   const minDate = minViewDateKey();
   const maxDate = maxPlanDateKey();
   const canPrev = dateKey > minDate;
   const canNext = dateKey < maxDate;
   const heading = formatDayHeading(dateKey);
+  const isToday = dateKey === today;
+  const isFuture = dateKey > today;
+  const mode = isToday ? 'today' : isFuture ? 'plan' : 'past';
+  const eyebrow = isToday ? 'Today' : isFuture ? 'Planning ahead' : 'Looking back';
+  const lead = isToday
+    ? 'Tap a day to plan up to 3 weeks ahead. Meals save to that day, not today.'
+    : isFuture
+      ? `${heading} — planned meals stay on this day and do not count toward today.`
+      : `${heading} — you can still add a meal to this day.`;
+  const maxLabel = formatPlanDateLabel(maxDate);
+  const weekKeys = planWeekDateKeys(dateKey);
+  const chips = weekKeys.map((key) => {
+    const d = parseDateKey(key);
+    const weekday = d.toLocaleDateString(undefined, { weekday: 'short' });
+    const dayNum = String(d.getDate());
+    const selected = key === dateKey;
+    const isChipToday = key === today;
+    const count = mealCounts[key] || 0;
+    const chipMode = isChipToday ? 'today' : key > today ? 'plan' : 'past';
+    return `
+      <button type="button" class="today-plan__chip today-plan__chip--${chipMode}${selected ? ' is-selected' : ''}"
+        data-plan-date="${key}" role="option" aria-selected="${selected ? 'true' : 'false'}"
+        aria-label="${escapeHtml(formatDayHeading(key))}${count ? `, ${count} meal${count === 1 ? '' : 's'}` : ''}">
+        <span class="today-plan__chip-day">${escapeHtml(weekday)}</span>
+        <span class="today-plan__chip-num">${dayNum}</span>
+        <span class="today-plan__chip-meta">${isChipToday ? 'Today' : count ? `${count}` : key > today ? 'Plan' : '·'}</span>
+      </button>
+    `;
+  }).join('');
+
   return `
-    <nav class="day-date-nav" aria-label="Choose day">
-      <button type="button" class="day-date-nav__btn" id="dayNavPrev" ${canPrev ? '' : 'disabled'} aria-label="Previous day">←</button>
-      <div class="day-date-nav__center">
-        <button type="button" class="day-date-nav__label-btn" id="dayNavPickBtn" aria-label="Pick a date, ${escapeHtml(heading)}">
-          <span class="day-date-nav__label">${escapeHtml(heading)}</span>
-          <span class="day-date-nav__pick-hint">${PLAN_AHEAD_PHASE1_ENABLED
-    ? dayDateNavPickHintPhase1({ showCalendarBtn })
-    : (showCalendarBtn ? 'Pick any date' : 'Tap to pick date')}</span>
+    <section class="today-plan today-plan--${mode}" aria-label="Choose day">
+      <header class="today-plan__head">
+        <div class="today-plan__copy">
+          <p class="today-plan__eyebrow">${eyebrow}</p>
+          <h2 class="today-plan__title">${escapeHtml(heading)}</h2>
+          <p class="today-plan__lead">${lead}</p>
+        </div>
+        <div class="today-plan__tools">
+          ${!isToday ? `<button type="button" class="btn btn-ghost btn-sm" id="dayNavToday">Back to today</button>` : ''}
+          ${showCalendarBtn ? `
+            <button type="button" class="today-plan__cal-btn" id="dayNavCalendar" aria-label="Open meal calendar">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+              </svg>
+              <span>Calendar</span>
+            </button>
+          ` : ''}
+        </div>
+      </header>
+      <nav class="today-plan__nav" aria-label="Week">
+        <button type="button" class="today-plan__step" id="dayNavPrev" ${canPrev ? '' : 'disabled'} aria-label="Previous day">←</button>
+        <div class="today-plan__strip" role="listbox" aria-label="Plan week">${chips}</div>
+        <button type="button" class="today-plan__step" id="dayNavNext" ${canNext ? '' : 'disabled'} aria-label="Next day">→</button>
+      </nav>
+      <footer class="today-plan__foot">
+        <button type="button" class="today-plan__pick" id="dayNavPickBtn" aria-label="Pick any date, ${escapeHtml(heading)}">
+          Pick any date
         </button>
+        <p class="today-plan__window">Plan through ${escapeHtml(maxLabel)} · 3 weeks</p>
         <input type="date" id="dayNavPick" class="day-date-nav__input" value="${dateKey}"
           min="${minDate}" max="${maxDate}" tabindex="-1" aria-hidden="true"/>
-        ${dateKey !== today ? `<button type="button" class="link-btn day-date-nav__today" id="dayNavToday">Back to today</button>` : ''}
-      </div>
-      ${showCalendarBtn ? `
-        <button type="button" class="day-date-nav__calendar-btn" id="dayNavCalendar" aria-label="${PLAN_AHEAD_PHASE1_ENABLED ? 'Open meal calendar — plan your week' : 'Open meal calendar'}" title="${PLAN_AHEAD_PHASE1_ENABLED ? 'Plan week — meal calendar' : 'Meal calendar'}">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
-          </svg>
-        </button>
+      </footer>
+      ${emptyTomorrow && isToday ? `
+        <p class="today-plan__nudge">Nothing planned for tomorrow — tap the next day to start.</p>
       ` : ''}
-      <button type="button" class="day-date-nav__btn" id="dayNavNext" ${canNext ? '' : 'disabled'} aria-label="Next day">→</button>
-    </nav>
+    </section>
   `;
 }
 
@@ -254,6 +328,12 @@ export function bindDayDateNav(root, { dateKey, onDateChange }) {
     const maxDate = maxPlanDateKey();
     const clamped = val > maxDate ? maxDate : val < minViewDateKey() ? minViewDateKey() : val;
     onDateChange?.(clamped);
+  });
+  root.querySelectorAll('[data-plan-date]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const next = btn.dataset.planDate;
+      if (next && next !== dateKey) onDateChange?.(next);
+    });
   });
 }
 

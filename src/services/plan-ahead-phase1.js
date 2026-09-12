@@ -83,7 +83,7 @@ export function futureDayEmptyPlanHtml({ dayHeading = '' } = {}) {
     : 'Pick a meal slot or scan as usual — saved to this day, not today.'}</p>
       <div class="plan-meal-quick" role="group" aria-label="Plan by meal type">
         <div class="plan-meal-quick__types">${typeButtons}</div>
-        <button type="button" class="btn btn-primary" id="emptyLogBtn">Plan any meal</button>
+        <button type="button" class="btn btn-primary" id="emptyLogBtn" data-log-focus="photo">Plan any meal</button>
       </div>
     </div>
   `;

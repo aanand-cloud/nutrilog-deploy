@@ -16,7 +16,7 @@ import {
   weeklyInsightTeaserHtml,
   consistencyStripHtml,
   bindDayDateNav,
-  planAheadHintHtml,
+  planWeekDateKeys,
 } from './day-nutrition.js';
 import { getUser, getSession, signOut, updatePassword, resetPassword, isSupabaseConfigured } from '../services/auth.js';
 import { getProfile, saveDisplayName, saveLocalDisplayName, getLocalDisplayName, clearLocalDisplayName } from '../services/profile.js';
@@ -59,7 +59,6 @@ export {
 } from './app-nav-state.js';
 import {
   PLAN_AHEAD_PHASE1_ENABLED,
-  planTomorrowCardHtml,
   futureDayEmptyPlanHtml,
   tomorrowDateKey,
 } from '../services/plan-ahead-phase1.js';
@@ -306,10 +305,20 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
   const dayHeading = formatDayHeading(dateKey);
   const mealsHeading = isViewingToday ? "Today's meals" : isFutureDay ? `Planned meals · ${dayHeading}` : `Meals · ${dayHeading}`;
   let showPlanTomorrowCard = false;
-  if (PLAN_AHEAD_PHASE1_ENABLED && !isGuest && isViewingToday) {
-    const tomorrowMeals = await getMealsForDate(tomorrowDateKey());
-    const { food: tomorrowFoodMeals } = partitionMealsByKind(tomorrowMeals);
-    showPlanTomorrowCard = tomorrowFoodMeals.length === 0;
+  const planMealCounts = {};
+  if (!isGuest) {
+    const stripKeys = planWeekDateKeys(dateKey);
+    if (stripKeys.length) {
+      const stripMeals = await getMealsInRange(stripKeys[0], stripKeys[stripKeys.length - 1]);
+      const { food: stripFood } = partitionMealsByKind(stripMeals);
+      for (const meal of stripFood) {
+        if (!meal?.date) continue;
+        planMealCounts[meal.date] = (planMealCounts[meal.date] || 0) + 1;
+      }
+    }
+    if (PLAN_AHEAD_PHASE1_ENABLED && isViewingToday) {
+      showPlanTomorrowCard = (planMealCounts[tomorrowDateKey()] || 0) === 0;
+    }
   }
   const duplicateAlerts = !isGuest && foodMeals.length > 1 ? findDuplicateAlertsForDay(foodMeals) : [];
 
@@ -380,18 +389,6 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
         ` : ''}
         ${consistencyHtml}
         ${offlineQueueBannerHtml}
-        ${!isGuest && isFutureDay ? `
-          <section class="day-view-banner day-view-banner--plan muted-card" aria-live="polite">
-            <p>Planning for <strong>${escapeHtml(dayHeading)}</strong></p>
-            <button type="button" class="link-btn" id="dayBannerToday">Back to today</button>
-          </section>
-        ` : ''}
-        ${!isGuest && isPastDay ? `
-          <section class="day-view-banner muted-card" aria-live="polite">
-            <p>Viewing <strong>${escapeHtml(dayHeading)}</strong> · tap Log to add a meal.</p>
-            <button type="button" class="link-btn" id="dayBannerToday">Jump to today</button>
-          </section>
-        ` : ''}
       </div>
 
       ${isGuest ? `
@@ -412,6 +409,11 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
       </div>
       ` : `
       <div class="view-page__dashboard">
+        ${!isGuest ? dayDateNavHtml(dateKey, {
+          showCalendarBtn: true,
+          mealCounts: planMealCounts,
+          emptyTomorrow: showPlanTomorrowCard,
+        }) : ''}
         ${!isGuest && canLogThisDay ? todayLogPanelHtml({ isFutureDay, isPastDay, isViewingToday, dateKey }) : ''}
         <aside class="view-page__aside">
           ${dayDashboardHtml({
@@ -463,13 +465,6 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
         </aside>
 
         <div class="view-page__main">
-          ${!isGuest ? dayDateNavHtml(dateKey, { showCalendarBtn: true }) : ''}
-          ${!isGuest && isViewingToday ? (
-            PLAN_AHEAD_PHASE1_ENABLED
-              ? (showPlanTomorrowCard ? planTomorrowCardHtml() : '')
-              : planAheadHintHtml({ variant: 'today' })
-          ) : ''}
-
           ${remainingCoachCard}
 
           ${dayWrapUpHtml}
@@ -540,12 +535,6 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
       openLogForViewDate(btn.dataset.planMealType);
     });
   });
-  root.querySelector('#planTomorrowBtn')?.addEventListener('click', () => {
-    setTodayViewDate(tomorrowDateKey());
-    setLogTargetDate(tomorrowDateKey());
-    onLog?.();
-  });
-  root.querySelector('#planTomorrowCalendarBtn')?.addEventListener('click', () => onCalendar?.());
   root.querySelector('#todayOpenSupplements')?.addEventListener('click', () => onSupplements?.());
   root.querySelectorAll('.js-guest-scan').forEach((btn) => {
     btn.addEventListener('click', () => onSignIn?.('signup'));
@@ -564,10 +553,6 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
   root.querySelector('#weeklyInsightTeaserPlans')?.addEventListener('click', () => onSettings?.('plans'));
   root.querySelector('#todayUpgrade')?.addEventListener('click', () => onSettings?.('plans'));
   root.querySelector('#todayViewPlans')?.addEventListener('click', () => onSettings?.('plans'));
-  root.querySelector('#dayBannerToday')?.addEventListener('click', () => {
-    clearTodayViewDate();
-    onRefresh?.();
-  });
   root.querySelector('[data-offline-resume]')?.addEventListener('click', (e) => {
     resumeOfflinePhotoMeal(e.currentTarget.dataset.offlineResume);
     onLog?.();
