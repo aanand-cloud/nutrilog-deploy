@@ -70,10 +70,10 @@ const GLOBAL_MEALS = [
   { region: 'India', ...DEMO_MEAL_INDIAN },
   {
     region: 'Italy',
-    name: 'Pasta with tomato sauce & parmesan',
+    name: 'Spaghetti with tomato sauce & basil',
     img: '/images/meal-italy-pasta.jpg',
-    alt: 'Spaghetti with tomato sauce and grated parmesan on a plate',
-    portions: '180 g spaghetti · 120 g tomato sauce · 10 g parmesan',
+    alt: 'Spaghetti with tomato sauce, cherry tomatoes and fresh basil on a plate',
+    portions: '180 g spaghetti · 120 g tomato sauce · cherry tomatoes · basil',
     servingNote: 'Estimated serving · ~310 g total',
     kcal: '520',
     protein: '18',

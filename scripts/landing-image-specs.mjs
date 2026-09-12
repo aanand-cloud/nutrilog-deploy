@@ -2,7 +2,7 @@
 export const LANDING_IMAGES = [
   { base: 'hero-meal', file: 'hero-meal.jpg', width: 800, height: 600, position: 'centre' },
   { base: 'meal-india-idli', file: 'meal-india-idli.jpg', width: 800, height: 600, position: 'centre' },
-  { base: 'meal-italy-pasta', file: 'meal-italy-pasta.jpg', width: 800, height: 600, position: 'centre' },
+  { base: 'meal-italy-pasta', file: 'meal-italy-pasta.jpg', width: 800, height: 600, position: 'south' },
   { base: 'meal-asia-thai-curry', file: 'meal-asia-thai-curry.jpg', width: 800, height: 600, position: 'centre' },
   { base: 'meal-middle-east-platter', file: 'meal-middle-east-platter.jpg', width: 800, height: 600, position: 'centre' },
   { base: 'meal-africa-jollof', file: 'meal-africa-jollof.jpg', width: 800, height: 600, position: 'centre' },

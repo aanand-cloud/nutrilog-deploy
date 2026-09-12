@@ -79,7 +79,7 @@ async function main() {
     if (realPath && fs.existsSync(realPath)) {
       await sharp(realPath)
         .rotate()
-        .resize(spec.width, spec.height, { fit: 'cover', position: 'centre' })
+        .resize(spec.width, spec.height, { fit: 'cover', position: spec.position || 'centre' })
         .jpeg({ quality: 92, mozjpeg: true })
         .toFile(dest);
       console.log(`processed real photo ${spec.file}`);

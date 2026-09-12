@@ -55,7 +55,7 @@ export function idliSambarSvg() {
 
 /** Italy — pasta with tomato sauce and parmesan */
 export function pastaTomatoSvg() {
-  return plateScene('Pasta with tomato sauce &amp; parmesan', `
+  return plateScene('Spaghetti with tomato sauce &amp; basil', `
     <ellipse cx="400" cy="345" rx="245" ry="88" fill="#ffffff" stroke="#e2e8f0" stroke-width="3"/>
     <ellipse cx="400" cy="340" rx="150" ry="58" fill="#dc2626" opacity="0.78"/>
     <path d="M280 320 Q320 280 360 300 Q400 270 440 295 Q480 275 520 315 Q490 360 430 370 Q370 378 320 360 Q280 345 280 320 Z" fill="#ef4444" opacity="0.88"/>
