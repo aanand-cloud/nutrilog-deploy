@@ -209,6 +209,44 @@ const ICON_EDIT = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" s
 const ICON_DELETE = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
 const ICON_CHART = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 5-6"/></svg>`;
 
+function todayLogPanelHtml({ isFutureDay, isPastDay, isViewingToday, dateKey }) {
+  const photoLabel = isFutureDay ? 'Plan with photo' : isPastDay ? 'Add meal photo' : 'Log meal photo';
+  const photoHint = isViewingToday ? 'Plate, bowl or glass · uses a scan' : `Photo for ${formatDayShort(dateKey)}`;
+  return `
+    <section class="today-log" aria-label="Log a meal">
+      <header class="today-log__head">
+        <h2 class="today-log__title">How do you want to log?</h2>
+        <p class="today-log__lead">Photo uses a scan credit. Barcode and Describe stay free with your account.</p>
+      </header>
+      <div class="today-log__grid">
+        <button type="button" class="today-log__btn today-log__btn--photo" id="quickLogMeal" data-log-focus="photo">
+          <span class="today-log__icon" aria-hidden="true">${ICON_CAMERA}</span>
+          <span class="today-log__copy">
+            <span class="today-log__label">${photoLabel}</span>
+            <span class="today-log__hint">${photoHint}</span>
+          </span>
+        </button>
+        <button type="button" class="today-log__btn today-log__btn--free" id="homeLogPackagedBtn" data-log-focus="barcode">
+          <span class="today-log__badge">${BARCODE_COPY.badge}</span>
+          <span class="today-log__icon" aria-hidden="true">${ICON_BARCODE}</span>
+          <span class="today-log__copy">
+            <span class="today-log__label">Barcode</span>
+            <span class="today-log__hint">${BARCODE_COPY.quickHint}</span>
+          </span>
+        </button>
+        <button type="button" class="today-log__btn today-log__btn--free" id="quickLogDescribe" data-log-focus="describe">
+          <span class="today-log__badge">${DESCRIBE_COPY.badge}</span>
+          <span class="today-log__icon" aria-hidden="true">${ICON_DESCRIBE}</span>
+          <span class="today-log__copy">
+            <span class="today-log__label">Describe</span>
+            <span class="today-log__hint">${DESCRIBE_COPY.quickHint}</span>
+          </span>
+        </button>
+      </div>
+    </section>
+  `;
+}
+
 /** Expand discount eligibility in Settings → Plans. */
 export function revealDiscountSection(root) {
   const extras = root.querySelector('#plansExtrasDetails');
@@ -374,33 +412,8 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
       </div>
       ` : `
       <div class="view-page__dashboard">
+        ${!isGuest && canLogThisDay ? todayLogPanelHtml({ isFutureDay, isPastDay, isViewingToday, dateKey }) : ''}
         <aside class="view-page__aside">
-          ${!isGuest && canLogThisDay ? `
-            <section class="quick-actions" aria-label="Quick log">
-              <button type="button" class="quick-action quick-action--primary" id="quickLogMeal">
-                <span class="quick-action__icon">${ICON_CAMERA}</span>
-                <span class="quick-action__text">
-                  <span class="quick-action__label">${isFutureDay ? 'Plan meal' : isPastDay ? 'Add meal' : 'Log meal'}</span>
-                  <span class="quick-action__hint">${isViewingToday ? 'Photo, barcode or describe' : `For ${formatDayShort(dateKey)}`}</span>
-                </span>
-              </button>
-              <button type="button" class="quick-action" id="homeLogPackagedBtn">
-                <span class="quick-action__icon">${ICON_BARCODE}</span>
-                <span class="quick-action__text">
-                  <span class="quick-action__label">Barcode</span>
-                  <span class="quick-action__hint">${BARCODE_COPY.quickHint}</span>
-                </span>
-              </button>
-              <button type="button" class="quick-action" id="quickLogDescribe">
-                <span class="quick-action__icon">${ICON_DESCRIBE}</span>
-                <span class="quick-action__text">
-                  <span class="quick-action__label">Describe</span>
-                  <span class="quick-action__hint">${DESCRIBE_COPY.quickHint}</span>
-                </span>
-              </button>
-            </section>
-          ` : ''}
-
           ${dayDashboardHtml({
             dateKey,
             totals,
@@ -484,9 +497,13 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
                 : `
               <div class="empty-state empty-state--meals">
                 <div class="empty-state__icon">${ICON_PLATE}</div>
-                <p class="empty-state__title">No meals logged yet</p>
-                <p class="empty-state__hint">${isGuest ? 'Create an account to start tracking today.' : isFutureDay ? 'Plan what you expect to eat — photo scan or barcode.' : 'Snap a photo or scan a barcode to log your first meal.'}</p>
-                <button type="button" class="btn btn-primary" id="emptyLogBtn">${isGuest ? 'Get started' : isFutureDay ? 'Plan a meal' : 'Log a meal'}</button>
+                <p class="empty-state__title">${isFutureDay ? 'Nothing planned yet' : 'No meals logged yet'}</p>
+                <p class="empty-state__hint">${isGuest ? 'Create an account to start tracking today.' : 'Use the green buttons above — photo, barcode, or type/voice. Barcode and Describe stay free.'}</p>
+                <div class="empty-state__actions">
+                  <button type="button" class="btn btn-primary" data-log-focus="photo">${isFutureDay ? 'Plan with photo' : 'Log meal photo'}</button>
+                  <button type="button" class="btn btn-ghost" data-log-focus="barcode">Barcode — always free</button>
+                  <button type="button" class="btn btn-ghost" data-log-focus="describe">Describe — always free</button>
+                </div>
               </div>
             `
             ) : `
@@ -507,9 +524,16 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
     onLog?.(focus);
   };
 
-  root.querySelector('#emptyLogBtn')?.addEventListener('click', () => {
-    if (isGuest && isSupabaseConfigured()) onSignIn?.('signup');
-    else openLogForViewDate();
+  const startLog = (focus) => {
+    if (isGuest && isSupabaseConfigured()) {
+      onSignIn?.(focus ? 'signin' : 'signup');
+      return;
+    }
+    if (focus === 'describe') trackDescribeLogStarted('today');
+    openLogForViewDate(null, focus || null);
+  };
+  root.querySelectorAll('[data-log-focus]').forEach((btn) => {
+    btn.addEventListener('click', () => startLog(btn.dataset.logFocus));
   });
   root.querySelectorAll('[data-plan-meal-type]').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -522,11 +546,6 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
     onLog?.();
   });
   root.querySelector('#planTomorrowCalendarBtn')?.addEventListener('click', () => onCalendar?.());
-  root.querySelector('#quickLogMeal')?.addEventListener('click', () => openLogForViewDate());
-  root.querySelector('#quickLogDescribe')?.addEventListener('click', () => {
-    trackDescribeLogStarted('today');
-    openLogForViewDate(null, 'describe');
-  });
   root.querySelector('#todayOpenSupplements')?.addEventListener('click', () => onSupplements?.());
   root.querySelectorAll('.js-guest-scan').forEach((btn) => {
     btn.addEventListener('click', () => onSignIn?.('signup'));
@@ -539,10 +558,6 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
       btn.addEventListener('click', () => openLegalModal(btn.dataset.legal));
     });
   }
-  root.querySelector('#homeLogPackagedBtn')?.addEventListener('click', () => {
-    if (!profile?.loggedIn && isSupabaseConfigured()) onSignIn?.('signin');
-    else openLogForViewDate(null, 'barcode');
-  });
   root.querySelector('#viewReportsBtn')?.addEventListener('click', () => onReports?.());
   root.querySelector('#moreTipsBtn')?.addEventListener('click', () => onReports?.());
   root.querySelector('#microsTeaserPlans')?.addEventListener('click', () => onSettings?.('plans'));
