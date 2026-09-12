@@ -1,0 +1,376 @@
+/* Meal calendar — 7-column month grid + selected-day panel */
+
+html:not(.is-guest) .main:has(.view-page--calendar) {
+  max-width: min(760px, 100%);
+}
+
+.view-page--calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.meal-cal__header {
+  padding: 16px 16px 14px;
+}
+
+.meal-cal__header .back-link {
+  margin-bottom: 10px;
+}
+
+.meal-cal__head-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.meal-cal__eyebrow {
+  margin: 0 0 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+.meal-cal__title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.meal-cal__sub {
+  margin: 6px 0 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--text3);
+}
+
+.meal-cal__nav {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.meal-cal__nav-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--teal);
+  font: inherit;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.meal-cal__nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.meal-cal {
+  padding: 14px 12px 16px;
+}
+
+.meal-cal__weekdays,
+.meal-cal__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  column-gap: 6px;
+}
+
+.meal-cal__weekdays {
+  margin-bottom: 8px;
+}
+
+.meal-cal__weekday {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+
+.meal-cal__weekday-full {
+  display: none;
+}
+
+.meal-cal__grid {
+  row-gap: 6px;
+}
+
+.meal-cal__day {
+  appearance: none;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  aspect-ratio: 1;
+  min-width: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: #f8fffe;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.meal-cal__day--pad {
+  visibility: hidden;
+  pointer-events: none;
+  background: transparent;
+  border: none;
+}
+
+.meal-cal__day--disabled {
+  opacity: 0.28;
+  cursor: not-allowed;
+}
+
+.meal-cal__day--today:not(.meal-cal__day--selected) {
+  border-color: var(--teal);
+  box-shadow: inset 0 0 0 1px rgba(13, 107, 100, 0.12);
+}
+
+.meal-cal__day--logged:not(.meal-cal__day--selected) {
+  background: #ecfdf5;
+}
+
+.meal-cal__day--planned:not(.meal-cal__day--selected) {
+  background: #fff;
+  border-style: dashed;
+  border-color: rgba(13, 107, 100, 0.28);
+}
+
+.meal-cal__day--selected {
+  background: linear-gradient(160deg, #0a5c56 0%, var(--teal) 100%);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(13, 107, 100, 0.24);
+}
+
+.meal-cal__day-num {
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.meal-cal__day-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--teal);
+}
+
+.meal-cal__day--selected .meal-cal__day-dot {
+  background: #fff;
+}
+
+.meal-cal__legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 14px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.meal-cal__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text3);
+}
+
+.meal-cal__legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+}
+
+.meal-cal__legend-swatch--logged {
+  background: #ecfdf5;
+  border-color: rgba(13, 107, 100, 0.2);
+}
+
+.meal-cal__legend-swatch--planned {
+  background: #fff;
+  border-style: dashed;
+  border-color: rgba(13, 107, 100, 0.35);
+}
+
+.meal-cal__legend-swatch--today {
+  background: #fff;
+  border-color: var(--teal);
+}
+
+.meal-cal-detail {
+  padding: 16px;
+}
+
+.meal-cal-detail__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.meal-cal-detail__label {
+  margin: 0 0 2px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+.meal-cal-detail__title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.meal-cal-detail__kcal {
+  margin: 10px 0 0;
+  color: var(--text3);
+}
+
+.meal-cal-detail__kcal strong {
+  color: var(--text);
+  font-size: 1.15rem;
+}
+
+.meal-cal-detail__empty {
+  margin: 10px 0 0;
+  color: var(--text3);
+  font-size: 0.9rem;
+}
+
+.meal-cal-detail__list {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.meal-cal-detail__meal {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #f8fffe;
+  border: 1px solid var(--border);
+}
+
+.meal-cal-detail__meal-type {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+.meal-cal-detail__meal-meta {
+  font-size: 0.8rem;
+  color: var(--text3);
+}
+
+.meal-cal-detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.meal-cal-detail__actions .btn {
+  flex: 1 1 140px;
+}
+
+.meal-cal-guest {
+  padding: 22px 18px;
+}
+
+.meal-cal-guest__eyebrow {
+  margin: 0 0 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+.meal-cal-guest__title {
+  margin: 0 0 8px;
+}
+
+.meal-cal-guest__lead {
+  margin: 0 0 12px;
+  color: var(--text3);
+}
+
+.meal-cal-guest__list {
+  margin: 0 0 18px;
+  padding-left: 18px;
+  color: var(--text);
+}
+
+@media (min-width: 640px) {
+  .meal-cal {
+    padding: 18px 18px 20px;
+  }
+
+  .meal-cal__weekdays,
+  .meal-cal__grid {
+    column-gap: 8px;
+  }
+
+  .meal-cal__grid {
+    row-gap: 8px;
+  }
+
+  .meal-cal__weekday-short {
+    display: none;
+  }
+
+  .meal-cal__weekday-full {
+    display: inline;
+  }
+
+  .meal-cal__weekday {
+    font-size: 0.78rem;
+  }
+
+  .meal-cal__day-num {
+    font-size: 1.05rem;
+  }
+}
+
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  html:not(.is-guest) .main:has(.view-page--calendar) {
+    max-width: 800px;
+  }
+
+  .meal-cal__day:hover:not(:disabled):not(.meal-cal__day--selected) {
+    border-color: var(--teal2);
+    transform: translateY(-1px);
+  }
+}

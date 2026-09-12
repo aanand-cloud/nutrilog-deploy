@@ -17,10 +17,16 @@ import {
 import { formatDayHeading, formatDayShort, foodMealsOnly } from '../services/reports.js';
 import { formatEnergy, formatEnergyParts, getGoals, getUnitPrefs } from '../services/goals.js';
 import { mealTypeLabel } from '../services/meal-types.js';
-import { planAheadHintHtml } from './day-nutrition.js';
-import { PLAN_AHEAD_PHASE1_ENABLED, calendarPlanAheadHintHtml } from '../services/plan-ahead-phase1.js';
 
-const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const WEEKDAYS = [
+  { full: 'Mon', short: 'Mo' },
+  { full: 'Tue', short: 'Tu' },
+  { full: 'Wed', short: 'We' },
+  { full: 'Thu', short: 'Th' },
+  { full: 'Fri', short: 'Fr' },
+  { full: 'Sat', short: 'Sa' },
+  { full: 'Sun', short: 'Su' },
+];
 
 let calendarMonth = null;
 let calendarSelectedDate = null;
@@ -39,11 +45,6 @@ function currentMonthAnchor() {
 function resolveMonth() {
   if (!calendarMonth) return currentMonthAnchor();
   return calendarMonth;
-}
-
-function mealDots(count) {
-  const n = Math.min(count, 3);
-  return Array.from({ length: n }, () => '<span class="meal-cal__dot"></span>').join('');
 }
 
 function calendarDayCell(cell, summary, selectedDate) {
@@ -70,11 +71,7 @@ function calendarDayCell(cell, summary, selectedDate) {
       aria-label="${escapeHtml(aria)}"
       aria-pressed="${cell.dateKey === selectedDate ? 'true' : 'false'}">
       <span class="meal-cal__day-num">${cell.day}</span>
-      ${summary ? `
-        <span class="meal-cal__day-kcal">${summary.calories_kcal}</span>
-        <span class="meal-cal__day-dots" aria-hidden="true">${mealDots(summary.mealCount)}</span>
-        <span class="meal-cal__day-bar" style="--pct:${summary.calPct}%" aria-hidden="true"></span>
-      ` : ''}
+      ${summary ? `<span class="meal-cal__day-dot" aria-hidden="true"></span>` : ''}
     </button>
   `;
 }
@@ -186,11 +183,14 @@ export async function renderCalendar(root, { profile, onViewDay, onLogForDate, o
         </div>
       </header>
 
-      ${PLAN_AHEAD_PHASE1_ENABLED ? calendarPlanAheadHintHtml() : planAheadHintHtml({ variant: 'calendar' })}
-
       <section class="meal-cal card" aria-label="Calendar for ${escapeHtml(heading)}">
         <div class="meal-cal__weekdays" aria-hidden="true">
-          ${WEEKDAYS.map((d) => `<span class="meal-cal__weekday">${d}</span>`).join('')}
+          ${WEEKDAYS.map((d) => `
+            <span class="meal-cal__weekday">
+              <span class="meal-cal__weekday-full">${d.full}</span>
+              <span class="meal-cal__weekday-short">${d.short}</span>
+            </span>
+          `).join('')}
         </div>
         <div class="meal-cal__grid" role="grid">
           ${grid.map((cell) => calendarDayCell(cell, summaryByDate[cell.dateKey], selectedDate)).join('')}
