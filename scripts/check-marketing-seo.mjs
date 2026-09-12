@@ -76,5 +76,20 @@ if (!sitemapBuilt.includes('<loc>https://www.mealnova.co.uk/</loc>')) {
   fail('sitemap builder must include homepage');
 }
 
+const vercel = readFileSync(join(root, 'vercel.json'), 'utf8');
+const viteConfig = readFileSync(join(root, 'vite.config.js'), 'utf8');
+const sw = readFileSync(join(root, 'src/sw.js'), 'utf8');
+if (!viteConfig.includes('MARKETING_PAGE_SLUGS')) {
+  fail('vite.config.js must build marketing pages as extra HTML inputs');
+}
+for (const slug of MARKETING_PAGE_SLUGS) {
+  if (!vercel.includes(slug)) fail(`vercel.json rewrite must exclude ${slug}`);
+  if (!sw.includes(slug)) fail(`sw.js navigation denylist must exclude ${slug}`);
+  const distPage = join(root, 'dist', slug, 'index.html');
+  if (existsSync(join(root, 'dist', 'index.html')) && !existsSync(distPage)) {
+    fail(`dist/${slug}/index.html missing — Vite must emit marketing pages`);
+  }
+}
+
 if (failed) process.exit(1);
 console.log('check-marketing-seo: ok');

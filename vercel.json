@@ -5,7 +5,7 @@
   "framework": "vite",
   "rewrites": [
     {
-      "source": "/((?!api/|assets/|icons/|sw\\.js$|registerSW\\.js$|manifest\\.webmanifest$|workbox-).*)",
+      "source": "/((?!api/|assets/|icons/|photo-calorie-tracker|uk-calorie-tracker|indian-food-calorie-tracker|barcode-nutrition-scanner|meal-planning-reports|accuracy-methodology|privacy-security|help-centre|sitemap\\.xml|robots\\.txt|faq-schema\\.json|sw\\.js$|registerSW\\.js$|manifest\\.webmanifest$|workbox-).*)",
       "destination": "/index.html"
     }
   ],

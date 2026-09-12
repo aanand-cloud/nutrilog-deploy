@@ -2,6 +2,7 @@ import { resolve } from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import basicSsl from '@vitejs/plugin-basic-ssl';
+import { MARKETING_PAGE_SLUGS } from './src/services/marketing-seo.js';
 import { analyzeFoodWithGemini } from './netlify/lib/gemini.mjs';
 import { logGeminiUsage, geminiUsageSummary } from './netlify/lib/gemini-usage.mjs';
 import { ANALYSIS_PROMPT, CLARIFY_PROMPT } from './netlify/lib/prompts.mjs';
@@ -214,7 +215,10 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: 'dist',
       rollupOptions: {
-        input: resolve(__dirname, 'index.html'),
+        input: [
+          resolve(__dirname, 'index.html'),
+          ...MARKETING_PAGE_SLUGS.map((slug) => resolve(__dirname, slug, 'index.html')),
+        ],
         output: {
           manualChunks(id) {
             if (id.includes('src/views/log.js') || id.includes('src\\views\\log.js')) return 'view-log';

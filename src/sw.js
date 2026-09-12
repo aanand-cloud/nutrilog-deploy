@@ -20,11 +20,16 @@ registerRoute(({ url }) => url.pathname.startsWith('/api/'), new NetworkOnly());
 registerRoute(
   new NavigationRoute(
     new NetworkFirst({
-      cacheName: 'pages-v1',
+      cacheName: 'pages-v2',
       networkTimeoutSeconds: 4,
     }),
     {
-      denylist: [/^\/api\//, /^\/assets\//, /^\/icons\//],
+      denylist: [
+        /^\/api\//,
+        /^\/assets\//,
+        /^\/icons\//,
+        /^\/(photo-calorie-tracker|uk-calorie-tracker|indian-food-calorie-tracker|barcode-nutrition-scanner|meal-planning-reports|accuracy-methodology|privacy-security|help-centre)(\/|$)/,
+      ],
     }
   )
 );
@@ -38,6 +43,9 @@ self.addEventListener('activate', (event) => {
     (async () => {
       // Drop any legacy HTML shells that used to live in the precache.
       const keys = await caches.keys();
+      await Promise.all(
+        keys.filter((k) => k === 'pages-v1').map((k) => caches.delete(k))
+      );
       await Promise.all(
         keys
           .filter((k) => k.includes('pages-') === false && k.includes('precache'))
