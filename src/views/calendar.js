@@ -8,7 +8,6 @@ import {
   formatMonthHeading,
   formatPlanDateLabel,
   isDateInCalendarRange,
-  maxPlanDateKey,
   monthRange,
   shiftMonth,
   summarizeDayMeals,
@@ -174,7 +173,7 @@ export async function renderCalendar(root, { profile, onViewDay, onLogForDate, o
           <div class="meal-cal__head-copy">
             <p class="meal-cal__eyebrow">Meal calendar</p>
             <h2 class="meal-cal__title">${escapeHtml(heading)}</h2>
-            <p class="meal-cal__sub">${loggedDays} day${loggedDays === 1 ? '' : 's'} logged this month · plan up to ${escapeHtml(formatPlanDateLabel(maxPlanDateKey()))}</p>
+            <p class="meal-cal__sub">${loggedDays} day${loggedDays === 1 ? '' : 's'} logged · 3 weeks ahead</p>
           </div>
           <div class="meal-cal__nav" aria-label="Change month">
             <button type="button" class="meal-cal__nav-btn" id="calPrev" ${canPrev ? '' : 'disabled'} aria-label="Previous month">←</button>
@@ -217,7 +216,7 @@ export async function renderCalendar(root, { profile, onViewDay, onLogForDate, o
             ${goals.calories_kcal ? `<span class="meal-cal-detail__goal"> · ${selectedSummary.calPct}% of goal</span>` : ''}
           </p>
         ` : `
-          <p class="meal-cal-detail__empty">${isSelectedFuture ? 'No meals planned yet — add what you expect to eat.' : supplementCount ? 'No food meals logged for this day.' : 'No meals logged for this day.'}</p>
+          <p class="meal-cal-detail__empty">${isSelectedFuture ? 'Nothing planned.' : supplementCount ? 'No food meals.' : 'No meals yet.'}</p>
         `}
 
         ${supplementCount ? `<p class="meal-cal-detail__supp-note fine-print">${supplementCount} supplement${supplementCount === 1 ? '' : 's'} logged — see Supplements tab (not included in food calories).</p>` : ''}

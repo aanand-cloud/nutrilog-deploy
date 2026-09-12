@@ -77,10 +77,10 @@ export function futureDayEmptyPlanHtml({ dayHeading = '' } = {}) {
           <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
         </svg>
       </div>
-      <p class="empty-state__title">Nothing planned yet</p>
+      <p class="empty-state__title">Nothing planned</p>
       <p class="empty-state__hint">${dayHeading
-    ? `Planning for <strong>${escapeHtml(dayHeading)}</strong> — pick a meal slot or scan as usual.`
-    : 'Pick a meal slot or scan as usual — saved to this day, not today.'}</p>
+    ? `For <strong>${escapeHtml(dayHeading)}</strong>`
+    : 'Saves to this day.'}</p>
       <div class="plan-meal-quick" role="group" aria-label="Plan by meal type">
         <div class="plan-meal-quick__types">${typeButtons}</div>
         <button type="button" class="btn btn-primary" id="emptyLogBtn" data-log-focus="photo">Plan any meal</button>
@@ -91,9 +91,9 @@ export function futureDayEmptyPlanHtml({ dayHeading = '' } = {}) {
 
 /** Extra copy on Log capture when planning a future day. */
 export function logPlanningCaptureLeadHtml() {
-  return 'You\'re planning ahead — photo, barcode, or describe what you expect to eat.';
+  return 'Planning ahead — photo, barcode or describe.';
 }
 
 export function logPlanningBannerSubtextHtml() {
-  return '<p class="log-date-banner__sub">Saved to this day — won\'t count toward today\'s totals.</p>';
+  return '<p class="log-date-banner__sub">Saves to this day, not today.</p>';
 }

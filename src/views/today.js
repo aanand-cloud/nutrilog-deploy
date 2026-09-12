@@ -210,12 +210,11 @@ const ICON_CHART = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" 
 
 function todayLogPanelHtml({ isFutureDay, isPastDay, isViewingToday, dateKey }) {
   const photoLabel = isFutureDay ? 'Plan with photo' : isPastDay ? 'Add meal photo' : 'Log meal photo';
-  const photoHint = isViewingToday ? 'Plate, bowl or glass · uses a scan' : `Photo for ${formatDayShort(dateKey)}`;
+  const photoHint = isViewingToday ? 'Uses a scan' : formatDayShort(dateKey);
   return `
     <section class="today-log" aria-label="Log a meal">
       <header class="today-log__head">
-        <h2 class="today-log__title">How do you want to log?</h2>
-        <p class="today-log__lead">Photo uses a scan credit. Barcode and Describe stay free with your account.</p>
+        <h2 class="today-log__title">Log a meal</h2>
       </header>
       <div class="today-log__grid">
         <button type="button" class="today-log__btn today-log__btn--photo" id="quickLogMeal" data-log-focus="photo">
@@ -230,7 +229,7 @@ function todayLogPanelHtml({ isFutureDay, isPastDay, isViewingToday, dateKey }) 
           <span class="today-log__icon" aria-hidden="true">${ICON_BARCODE}</span>
           <span class="today-log__copy">
             <span class="today-log__label">Barcode</span>
-            <span class="today-log__hint">${BARCODE_COPY.quickHint}</span>
+            <span class="today-log__hint">Packaged food</span>
           </span>
         </button>
         <button type="button" class="today-log__btn today-log__btn--free" id="quickLogDescribe" data-log-focus="describe">
@@ -238,7 +237,7 @@ function todayLogPanelHtml({ isFutureDay, isPastDay, isViewingToday, dateKey }) 
           <span class="today-log__icon" aria-hidden="true">${ICON_DESCRIBE}</span>
           <span class="today-log__copy">
             <span class="today-log__label">Describe</span>
-            <span class="today-log__hint">${DESCRIBE_COPY.quickHint}</span>
+            <span class="today-log__hint">Type or voice</span>
           </span>
         </button>
       </div>
@@ -421,18 +420,6 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
       ` : `
       <div class="view-page__dashboard">
         ${!isGuest && canLogThisDay ? todayLogPanelHtml({ isFutureDay, isPastDay, isViewingToday, dateKey }) : ''}
-        ${!isGuest ? (() => {
-          try {
-            return dayDateNavHtml(dateKey, {
-              showCalendarBtn: true,
-              mealCounts: planMealCounts,
-              emptyTomorrow: showPlanTomorrowCard,
-            });
-          } catch (err) {
-            console.error(err);
-            return '';
-          }
-        })() : ''}
         <aside class="view-page__aside">
           ${dayDashboardHtml({
             dateKey,
@@ -450,9 +437,9 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
           ${!isGuest ? `
             <section class="supplements-teaser muted-card" aria-label="Supplement log">
               <p class="supplements-teaser__text">${supplementEntries.length
-                ? `<strong>${supplementEntries.length}</strong> supplement${supplementEntries.length === 1 ? '' : 's'} logged ${isViewingToday ? 'today' : `on ${formatDayShort(dateKey)}`}`
-                : 'Supplements have their own tab'}</p>
-              <button type="button" class="btn btn-ghost btn-sm full" id="todayOpenSupplements">${supplementEntries.length ? 'Open supplement log →' : 'Go to Supplements tab'}</button>
+                ? `<strong>${supplementEntries.length}</strong> supplement${supplementEntries.length === 1 ? '' : 's'}`
+                : 'No supplements yet'}</p>
+              <button type="button" class="btn btn-ghost btn-sm full" id="todayOpenSupplements">Supplements</button>
             </section>
           ` : ''}
 
@@ -510,13 +497,8 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
                 : `
               <div class="empty-state empty-state--meals">
                 <div class="empty-state__icon">${ICON_PLATE}</div>
-                <p class="empty-state__title">${isFutureDay ? 'Nothing planned yet' : 'No meals logged yet'}</p>
-                <p class="empty-state__hint">${isGuest ? 'Create an account to start tracking today.' : 'Use the green buttons above — photo, barcode, or type/voice. Barcode and Describe stay free.'}</p>
-                <div class="empty-state__actions">
-                  <button type="button" class="btn btn-primary" data-log-focus="photo">${isFutureDay ? 'Plan with photo' : 'Log meal photo'}</button>
-                  <button type="button" class="btn btn-ghost" data-log-focus="barcode">Barcode — always free</button>
-                  <button type="button" class="btn btn-ghost" data-log-focus="describe">Describe — always free</button>
-                </div>
+                <p class="empty-state__title">${isFutureDay ? 'Nothing planned' : 'No meals yet'}</p>
+                <p class="empty-state__hint">${isGuest ? 'Create a free account to start.' : 'Use Photo, Barcode or Describe above.'}</p>
               </div>
             `
             ) : `
@@ -526,6 +508,18 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
             `}
           </section>
         </div>
+        ${!isGuest ? (() => {
+          try {
+            return dayDateNavHtml(dateKey, {
+              showCalendarBtn: true,
+              mealCounts: planMealCounts,
+              emptyTomorrow: showPlanTomorrowCard,
+            });
+          } catch (err) {
+            console.error(err);
+            return '';
+          }
+        })() : ''}
       </div>
       `}
     </div>

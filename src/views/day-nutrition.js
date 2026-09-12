@@ -81,12 +81,12 @@ export function dayDateNavHtml(dateKey, {
   const isToday = dateKey === today;
   const isFuture = dateKey > today;
   const mode = isToday ? 'today' : isFuture ? 'plan' : 'past';
-  const eyebrow = isToday ? 'Today' : isFuture ? 'Planning ahead' : 'Looking back';
+  const eyebrow = isToday ? 'Today' : isFuture ? 'Planning' : 'Past day';
   const lead = isToday
-    ? 'Tap a day to plan up to 3 weeks ahead. Meals save to that day, not today.'
+    ? 'Plan up to 3 weeks ahead.'
     : isFuture
-      ? `${heading} — planned meals stay on this day and do not count toward today.`
-      : `${heading} — you can still add a meal to this day.`;
+      ? 'Saves to this day, not today.'
+      : 'You can still add a meal.';
   const maxLabel = formatPlanDateLabel(maxDate);
   const weekKeys = planWeekDateKeys(dateKey);
   const chips = weekKeys.map((key) => {
@@ -135,14 +135,14 @@ export function dayDateNavHtml(dateKey, {
       </nav>
       <footer class="today-plan__foot">
         <button type="button" class="today-plan__pick" id="dayNavPickBtn" aria-label="Pick any date, ${escapeHtml(heading)}">
-          Pick any date
+          Any date
         </button>
-        <p class="today-plan__window">Plan through ${escapeHtml(maxLabel)} · 3 weeks</p>
+        <p class="today-plan__window">Through ${escapeHtml(maxLabel)}</p>
         <input type="date" id="dayNavPick" class="day-date-nav__input" value="${dateKey}"
           min="${minDate}" max="${maxDate}" tabindex="-1" aria-hidden="true"/>
       </footer>
       ${emptyTomorrow && isToday ? `
-        <p class="today-plan__nudge">Nothing planned for tomorrow — tap the next day to start.</p>
+        <p class="today-plan__nudge">Nothing planned for tomorrow.</p>
       ` : ''}
     </section>
   `;

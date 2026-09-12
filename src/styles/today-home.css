@@ -444,8 +444,8 @@ html:not(.is-guest) .view-page__main {
     grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
     grid-template-areas:
       'log log'
-      'plan plan'
-      'aside main';
+      'aside main'
+      'plan plan';
     gap: 20px 24px;
     align-items: start;
   }
