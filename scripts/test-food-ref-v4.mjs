@@ -21,6 +21,7 @@ function assert(label, ok, detail = '') {
 
 assert('normalize trims and lowercases', normalizeFoodAlias('  Chicken Biryani! ') === 'chicken biryani');
 assert('normalize spelling channa→chana', normalizeFoodAlias('Channa Masala') === 'chana masala');
+assert('normalize spelling dindugal→dindigul', normalizeFoodAlias('Dindugal mutton biriyani') === 'dindigul mutton biryani');
 
 assert('tier1 regex still works', matchFoodReferenceTier1('chicken curry')?.id === 'chicken_curry');
 

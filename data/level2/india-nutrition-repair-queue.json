@@ -1,0 +1,5506 @@
+{
+  "version": "2.1.0",
+  "purpose": "MealNova India nutrition repair queue for high-priority foods",
+  "important_note": "This file intentionally does not invent replacement nutrition values. It identifies the first 250 records to validate and defines the repair/QA contract.",
+  "accuracy_definition": {
+    "food_name_recognition": "Measure top-1 canonical dish identification separately from calorie/macros.",
+    "calories": "Do not define 95% accuracy as exact numeric equality. Use tolerance bands; highly variable mixed dishes require ranges and confidence.",
+    "macros": "Score protein, carbs, and fat separately and only against recipe/portion-grounded benchmark cases."
+  },
+  "authoritative_sources": [
+    {
+      "name": "ICMR-NIN Indian Food Composition Tables 2017",
+      "role": "primary ingredient/simple-food composition anchor",
+      "caution": "mostly raw-food analytical data; do not treat as direct cooked mixed-dish values"
+    },
+    {
+      "name": "USDA FoodData Central",
+      "role": "secondary ingredient/prepared-food cross-check"
+    },
+    {
+      "name": "standardized recipe calculation",
+      "role": "primary method for mixed Indian dishes",
+      "method": "sum ingredient nutrients, account for edible yield/cooking yield, normalize to final cooked weight, record range for oil/sugar/portion variability"
+    },
+    {
+      "name": "restaurant/manufacturer nutrition",
+      "role": "exact branded/restaurant dish only; not generic dish truth"
+    }
+  ],
+  "repair_pipeline": [
+    "normalize canonical dish and aliases",
+    "assign standard recipe and cooking yield",
+    "source ingredient nutrients",
+    "calculate cooked batch nutrition",
+    "normalize per 100 g",
+    "define realistic low/central/high range",
+    "define portion distribution",
+    "cross-check against independent source/recipe",
+    "flag hidden-fat/sugar sensitivity",
+    "benchmark with images",
+    "promote only after QA pass"
+  ],
+  "promotion_gate": {
+    "nutrition_value_requires": "at least 2 independent evidence paths for high-variability dishes; 1 authoritative composition source may suffice for simple foods",
+    "no_placeholder_values": true,
+    "range_required_for_high_variability": true,
+    "provenance_required": true
+  },
+  "priority_window": {
+    "min": 1,
+    "max": 250
+  },
+  "updated": "2026-09-12",
+  "records": [
+    {
+      "rank": 1,
+      "source_v4_id": "dindigul_mutton_biryani",
+      "display_name": "dindigul mutton biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 2,
+      "source_v4_id": "ambur_mutton_biryani",
+      "display_name": "ambur mutton biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 3,
+      "source_v4_id": "hyderabadi_paneer_biryani",
+      "display_name": "hyderabadi paneer biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 4,
+      "source_v4_id": "dindigul_paneer_biryani",
+      "display_name": "dindigul paneer biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 5,
+      "source_v4_id": "chettinad_paneer_biryani",
+      "display_name": "chettinad paneer biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 6,
+      "source_v4_id": "ambur_paneer_biryani",
+      "display_name": "ambur paneer biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 7,
+      "source_v4_id": "hyderabadi_mutton_biryani",
+      "display_name": "hyderabadi mutton biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 8,
+      "source_v4_id": "chettinad_mutton_biryani",
+      "display_name": "chettinad mutton biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 9,
+      "source_v4_id": "ghee_podi_idli",
+      "display_name": "ghee podi idli",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 10,
+      "source_v4_id": "samosa_chaat",
+      "display_name": "samosa chaat",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 11,
+      "source_v4_id": "paneer_samosa",
+      "display_name": "paneer samosa",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 12,
+      "source_v4_id": "paneer_paratha",
+      "display_name": "paneer paratha",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 240,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 13,
+      "source_v4_id": "kachori_chaat",
+      "display_name": "kachori chaat",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 14,
+      "source_v4_id": "ghee_roast_dosa",
+      "display_name": "ghee roast dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 245,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 15,
+      "source_v4_id": "thalassery_mutton_biryani",
+      "display_name": "thalassery mutton biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 16,
+      "source_v4_id": "schezwan_vada_pav",
+      "display_name": "schezwan vada pav",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 285,
+        "protein100": 7,
+        "carbs100": 31,
+        "fat100": 15,
+        "fibre100": 3,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 17,
+      "source_v4_id": "paneer_bread_pakora",
+      "display_name": "paneer bread pakora",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 18,
+      "source_v4_id": "mutton_biryani",
+      "display_name": "mutton biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 175,
+        "protein100": 6,
+        "carbs100": 26,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 19,
+      "source_v4_id": "keema_samosa",
+      "display_name": "keema samosa",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 20,
+      "source_v4_id": "jodhpuri_mawa_kachori",
+      "display_name": "jodhpuri mawa kachori",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 280,
+        "protein100": 8,
+        "carbs100": 45,
+        "fat100": 8,
+        "fibre100": 3,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 21,
+      "source_v4_id": "cheese_vada_pav",
+      "display_name": "cheese vada pav",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 22,
+      "source_v4_id": "sambar_vada",
+      "display_name": "sambar vada",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 8,
+        "carbs100": 11,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 23,
+      "source_v4_id": "sambar_idli",
+      "display_name": "sambar idli",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 8,
+        "carbs100": 11,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 24,
+      "source_v4_id": "paneer_tikka_masala",
+      "display_name": "paneer tikka masala",
+      "category": "curries_and_protein_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 195,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 10,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 25,
+      "source_v4_id": "madhya_pradesh_poha_jalebi",
+      "display_name": "madhya pradesh poha jalebi",
+      "category": "breakfast_and_tiffin",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 310,
+        "protein100": 5,
+        "carbs100": 44,
+        "fat100": 13,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 26,
+      "source_v4_id": "kolhapuri_mutton",
+      "display_name": "kolhapuri mutton",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 27,
+      "source_v4_id": "jodhpuri_mirchi_vada",
+      "display_name": "jodhpuri mirchi vada",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 280,
+        "protein100": 8,
+        "carbs100": 45,
+        "fat100": 8,
+        "fibre100": 3,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 28,
+      "source_v4_id": "dindigul_chicken_biryani",
+      "display_name": "dindigul chicken biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 18,
+        "carbs100": 9,
+        "fat100": 8,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 29,
+      "source_v4_id": "dindigul_biryani",
+      "display_name": "dindigul biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 6,
+        "carbs100": 27,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 30,
+      "source_v4_id": "dal_kachori",
+      "display_name": "dal kachori",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 7,
+        "carbs100": 20,
+        "fat100": 3,
+        "fibre100": 5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 31,
+      "source_v4_id": "ambur_chicken_biryani",
+      "display_name": "ambur chicken biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 18,
+        "carbs100": 9,
+        "fat100": 8,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 32,
+      "source_v4_id": "ambur_biryani",
+      "display_name": "ambur biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 6,
+        "carbs100": 27,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 33,
+      "source_v4_id": "vaniyambadi_paneer_biryani",
+      "display_name": "vaniyambadi paneer biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 34,
+      "source_v4_id": "thalassery_paneer_biryani",
+      "display_name": "thalassery paneer biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 35,
+      "source_v4_id": "telangana_paneer_biryani",
+      "display_name": "telangana paneer biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 36,
+      "source_v4_id": "tamil_paneer_biryani",
+      "display_name": "tamil paneer biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 37,
+      "source_v4_id": "sindhi_style_paneer_biryani",
+      "display_name": "sindhi style paneer biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 38,
+      "source_v4_id": "podi_dosa",
+      "display_name": "podi dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 245,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 39,
+      "source_v4_id": "paneer_paratha_grilled",
+      "display_name": "paneer paratha grilled",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 240,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 40,
+      "source_v4_id": "paneer_dosa",
+      "display_name": "paneer dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 41,
+      "source_v4_id": "palak_paneer_dosa",
+      "display_name": "palak paneer dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 42,
+      "source_v4_id": "mughlai_paneer_biryani",
+      "display_name": "mughlai paneer biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 43,
+      "source_v4_id": "moong_dal_halwa",
+      "display_name": "moong dal halwa",
+      "category": "sweets_and_desserts",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 8,
+        "carbs100": 11,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 44,
+      "source_v4_id": "memoni_style_paneer_biryani",
+      "display_name": "memoni style paneer biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 45,
+      "source_v4_id": "malabar_paneer_biryani",
+      "display_name": "malabar paneer biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 46,
+      "source_v4_id": "lucknowi_paneer_biryani",
+      "display_name": "lucknowi paneer biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 47,
+      "source_v4_id": "kolkata_paneer_biryani",
+      "display_name": "kolkata paneer biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 48,
+      "source_v4_id": "kerala_paneer_biryani",
+      "display_name": "kerala paneer biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 49,
+      "source_v4_id": "kashmiri_paneer_biryani",
+      "display_name": "kashmiri paneer biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 50,
+      "source_v4_id": "karnataka_paneer_biryani",
+      "display_name": "karnataka paneer biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 51,
+      "source_v4_id": "ghee_dosa",
+      "display_name": "ghee dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 52,
+      "source_v4_id": "donne_paneer_biryani",
+      "display_name": "donne paneer biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 53,
+      "source_v4_id": "chettinad_mutton_curry",
+      "display_name": "chettinad mutton curry",
+      "category": "curries_and_protein_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 54,
+      "source_v4_id": "chettinad_fish_chettinad_mutton",
+      "display_name": "chettinad fish chettinad mutton",
+      "category": "curries_and_protein_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 225,
+        "protein100": 20,
+        "carbs100": 8,
+        "fat100": 14,
+        "fibre100": 1,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 55,
+      "source_v4_id": "chettinad_chicken_curry",
+      "display_name": "chettinad chicken curry",
+      "category": "curries_and_protein_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 18,
+        "carbs100": 9,
+        "fat100": 8,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 56,
+      "source_v4_id": "bombay_paneer_biryani",
+      "display_name": "bombay paneer biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 57,
+      "source_v4_id": "awadhi_paneer_biryani",
+      "display_name": "awadhi paneer biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 58,
+      "source_v4_id": "arcot_paneer_biryani",
+      "display_name": "arcot paneer biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 59,
+      "source_v4_id": "andhra_paneer_biryani",
+      "display_name": "andhra paneer biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 60,
+      "source_v4_id": "amritsari_kulcha_chole",
+      "display_name": "amritsari kulcha chole",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 61,
+      "source_v4_id": "vindaloo_goan",
+      "display_name": "vindaloo goan",
+      "category": "curries_and_protein_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 8,
+        "carbs100": 11,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 62,
+      "source_v4_id": "vaniyambadi_mutton_biryani",
+      "display_name": "vaniyambadi mutton biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 63,
+      "source_v4_id": "telangana_mutton_biryani",
+      "display_name": "telangana mutton biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 64,
+      "source_v4_id": "tamil_mutton_biryani",
+      "display_name": "tamil mutton biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 65,
+      "source_v4_id": "sindhi_style_mutton_biryani",
+      "display_name": "sindhi style mutton biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 66,
+      "source_v4_id": "pork_vindaloo",
+      "display_name": "pork vindaloo",
+      "category": "curries_and_protein_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 7,
+        "carbs100": 20,
+        "fat100": 3,
+        "fibre100": 5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 67,
+      "source_v4_id": "mutton_biryani_grilled",
+      "display_name": "mutton biryani grilled",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 175,
+        "protein100": 6,
+        "carbs100": 26,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 68,
+      "source_v4_id": "mughlai_mutton_biryani",
+      "display_name": "mughlai mutton biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 69,
+      "source_v4_id": "memoni_style_mutton_biryani",
+      "display_name": "memoni style mutton biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 70,
+      "source_v4_id": "malabar_mutton_biryani",
+      "display_name": "malabar mutton biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 71,
+      "source_v4_id": "lucknowi_mutton_biryani",
+      "display_name": "lucknowi mutton biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 72,
+      "source_v4_id": "kolkata_mutton_biryani",
+      "display_name": "kolkata mutton biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 73,
+      "source_v4_id": "kerala_mutton_biryani",
+      "display_name": "kerala mutton biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 74,
+      "source_v4_id": "keema_paratha",
+      "display_name": "keema paratha",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 280,
+        "protein100": 8,
+        "carbs100": 45,
+        "fat100": 8,
+        "fibre100": 3,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 75,
+      "source_v4_id": "kashmiri_mutton_biryani",
+      "display_name": "kashmiri mutton biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 76,
+      "source_v4_id": "karnataka_mutton_biryani",
+      "display_name": "karnataka mutton biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 77,
+      "source_v4_id": "indian_paneer_kolhapuri_masala",
+      "display_name": "indian paneer kolhapuri masala",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 78,
+      "source_v4_id": "idli_podi",
+      "display_name": "idli podi",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 79,
+      "source_v4_id": "donne_mutton_biryani",
+      "display_name": "donne mutton biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 80,
+      "source_v4_id": "chicken_keema_dosa",
+      "display_name": "chicken keema dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 18,
+        "carbs100": 9,
+        "fat100": 8,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 81,
+      "source_v4_id": "chettinad_fish_curry",
+      "display_name": "chettinad fish curry",
+      "category": "curries_and_protein_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 165,
+        "protein100": 16,
+        "carbs100": 8,
+        "fat100": 7,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 82,
+      "source_v4_id": "bombay_mutton_biryani",
+      "display_name": "bombay mutton biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 83,
+      "source_v4_id": "awadhi_mutton_biryani",
+      "display_name": "awadhi mutton biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 84,
+      "source_v4_id": "arcot_mutton_biryani",
+      "display_name": "arcot mutton biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 85,
+      "source_v4_id": "andhra_mutton_biryani",
+      "display_name": "andhra mutton biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 86,
+      "source_v4_id": "urad_dal_paratha",
+      "display_name": "urad dal paratha",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 7,
+        "carbs100": 20,
+        "fat100": 3,
+        "fibre100": 5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 87,
+      "source_v4_id": "urad_dal_chutney",
+      "display_name": "urad dal chutney",
+      "category": "sides_condiments",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 7,
+        "carbs100": 20,
+        "fat100": 3,
+        "fibre100": 5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 88,
+      "source_v4_id": "puttu_kadala",
+      "display_name": "puttu kadala",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 8,
+        "carbs100": 11,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 89,
+      "source_v4_id": "pottukadalai_chutney",
+      "display_name": "pottukadalai chutney",
+      "category": "sides_condiments",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 7,
+        "carbs100": 20,
+        "fat100": 3,
+        "fibre100": 5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 90,
+      "source_v4_id": "paneer_stuffed_kulcha",
+      "display_name": "paneer stuffed kulcha",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 91,
+      "source_v4_id": "moong_dal_paratha",
+      "display_name": "moong dal paratha",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 7,
+        "carbs100": 20,
+        "fat100": 3,
+        "fibre100": 5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 92,
+      "source_v4_id": "moong_dal_dosa",
+      "display_name": "moong dal dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 7,
+        "carbs100": 20,
+        "fat100": 3,
+        "fibre100": 5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 93,
+      "source_v4_id": "madurai_idiyappam_paaya",
+      "display_name": "madurai idiyappam paaya",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 94,
+      "source_v4_id": "indian_rajma_kolhapuri_masala",
+      "display_name": "indian rajma kolhapuri masala",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 7,
+        "carbs100": 20,
+        "fat100": 3,
+        "fibre100": 5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 95,
+      "source_v4_id": "indian_paneer_chettinad_masala",
+      "display_name": "indian paneer chettinad masala",
+      "category": "curries_and_protein_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 96,
+      "source_v4_id": "indian_mutton_kolhapuri_masala",
+      "display_name": "indian mutton kolhapuri masala",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 97,
+      "source_v4_id": "idiyappam_vegetable",
+      "display_name": "idiyappam vegetable",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 245,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 98,
+      "source_v4_id": "idiyappam_stew",
+      "display_name": "idiyappam stew",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 8,
+        "carbs100": 11,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 99,
+      "source_v4_id": "idiyappam_kerala",
+      "display_name": "idiyappam kerala",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 100,
+      "source_v4_id": "idiyappam_egg",
+      "display_name": "idiyappam egg",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 245,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 101,
+      "source_v4_id": "hyderabadi_vegetable_biryani",
+      "display_name": "hyderabadi vegetable biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 190,
+        "protein100": 6,
+        "carbs100": 30,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 102,
+      "source_v4_id": "hyderabadi_prawn_biryani",
+      "display_name": "hyderabadi prawn biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 165,
+        "protein100": 16,
+        "carbs100": 8,
+        "fat100": 7,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 103,
+      "source_v4_id": "hyderabadi_mushroom_biryani",
+      "display_name": "hyderabadi mushroom biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 190,
+        "protein100": 6,
+        "carbs100": 30,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 104,
+      "source_v4_id": "hyderabadi_lamb_biryani",
+      "display_name": "hyderabadi lamb biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 105,
+      "source_v4_id": "hyderabadi_fish_biryani",
+      "display_name": "hyderabadi fish biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 165,
+        "protein100": 16,
+        "carbs100": 8,
+        "fat100": 7,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 106,
+      "source_v4_id": "hyderabadi_egg_biryani",
+      "display_name": "hyderabadi egg biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 190,
+        "protein100": 6,
+        "carbs100": 30,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 107,
+      "source_v4_id": "hyderabadi_chicken_biryani",
+      "display_name": "hyderabadi chicken biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 18,
+        "carbs100": 9,
+        "fat100": 8,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 108,
+      "source_v4_id": "hyderabadi_beef_biryani",
+      "display_name": "hyderabadi beef biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 109,
+      "source_v4_id": "fried_rice_indian",
+      "display_name": "fried rice indian",
+      "category": "rice_and_grain_dishes",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 175,
+        "protein100": 6,
+        "carbs100": 26,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 110,
+      "source_v4_id": "dindigul_vegetable_biryani",
+      "display_name": "dindigul vegetable biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 190,
+        "protein100": 6,
+        "carbs100": 30,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 111,
+      "source_v4_id": "dindigul_prawn_biryani",
+      "display_name": "dindigul prawn biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 165,
+        "protein100": 16,
+        "carbs100": 8,
+        "fat100": 7,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 112,
+      "source_v4_id": "dindigul_mushroom_biryani",
+      "display_name": "dindigul mushroom biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 190,
+        "protein100": 6,
+        "carbs100": 30,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 113,
+      "source_v4_id": "dindigul_lamb_biryani",
+      "display_name": "dindigul lamb biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 114,
+      "source_v4_id": "dindigul_fish_biryani",
+      "display_name": "dindigul fish biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 165,
+        "protein100": 16,
+        "carbs100": 8,
+        "fat100": 7,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 115,
+      "source_v4_id": "dindigul_egg_biryani",
+      "display_name": "dindigul egg biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 190,
+        "protein100": 6,
+        "carbs100": 30,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 116,
+      "source_v4_id": "dindigul_beef_biryani",
+      "display_name": "dindigul beef biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 117,
+      "source_v4_id": "dal_paratha",
+      "display_name": "dal paratha",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 7,
+        "carbs100": 20,
+        "fat100": 3,
+        "fibre100": 5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 118,
+      "source_v4_id": "chettinad_vegetable_biryani",
+      "display_name": "chettinad vegetable biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 190,
+        "protein100": 6,
+        "carbs100": 30,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 119,
+      "source_v4_id": "chettinad_prawn_biryani",
+      "display_name": "chettinad prawn biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 165,
+        "protein100": 16,
+        "carbs100": 8,
+        "fat100": 7,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 120,
+      "source_v4_id": "chettinad_mushroom_biryani",
+      "display_name": "chettinad mushroom biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 190,
+        "protein100": 6,
+        "carbs100": 30,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 121,
+      "source_v4_id": "chettinad_lamb_biryani",
+      "display_name": "chettinad lamb biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 122,
+      "source_v4_id": "chettinad_fish_biryani",
+      "display_name": "chettinad fish biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 165,
+        "protein100": 16,
+        "carbs100": 8,
+        "fat100": 7,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 123,
+      "source_v4_id": "chettinad_egg_biryani",
+      "display_name": "chettinad egg biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 190,
+        "protein100": 6,
+        "carbs100": 30,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 124,
+      "source_v4_id": "chettinad_chicken_biryani",
+      "display_name": "chettinad chicken biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 18,
+        "carbs100": 9,
+        "fat100": 8,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 125,
+      "source_v4_id": "chettinad_beef_biryani",
+      "display_name": "chettinad beef biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 126,
+      "source_v4_id": "chana_dal_paratha",
+      "display_name": "chana dal paratha",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 7,
+        "carbs100": 20,
+        "fat100": 3,
+        "fibre100": 5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 127,
+      "source_v4_id": "chana_dal_chutney",
+      "display_name": "chana dal chutney",
+      "category": "sides_condiments",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 7,
+        "carbs100": 20,
+        "fat100": 3,
+        "fibre100": 5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 128,
+      "source_v4_id": "ambur_vegetable_biryani",
+      "display_name": "ambur vegetable biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 190,
+        "protein100": 6,
+        "carbs100": 30,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 129,
+      "source_v4_id": "ambur_prawn_biryani",
+      "display_name": "ambur prawn biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 165,
+        "protein100": 16,
+        "carbs100": 8,
+        "fat100": 7,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 130,
+      "source_v4_id": "ambur_mushroom_biryani",
+      "display_name": "ambur mushroom biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 190,
+        "protein100": 6,
+        "carbs100": 30,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 131,
+      "source_v4_id": "ambur_lamb_biryani",
+      "display_name": "ambur lamb biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 132,
+      "source_v4_id": "ambur_fish_biryani",
+      "display_name": "ambur fish biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 165,
+        "protein100": 16,
+        "carbs100": 8,
+        "fat100": 7,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 133,
+      "source_v4_id": "ambur_egg_biryani",
+      "display_name": "ambur egg biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 190,
+        "protein100": 6,
+        "carbs100": 30,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 134,
+      "source_v4_id": "ambur_beef_biryani",
+      "display_name": "ambur beef biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 135,
+      "source_v4_id": "vada_pav",
+      "display_name": "vada pav · wada pav",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 245,
+        "protein100": 6,
+        "carbs100": 32,
+        "fat100": 10,
+        "fibre100": 3,
+        "nutrition_basis": "existing_reference"
+      },
+      "repair_flags": [
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 136,
+      "source_v4_id": "rasam_rice",
+      "display_name": "rasam rice",
+      "category": "rice_and_grain_dishes",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 8,
+        "carbs100": 11,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 137,
+      "source_v4_id": "pickle_paratha",
+      "display_name": "pickle paratha",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 280,
+        "protein100": 8,
+        "carbs100": 45,
+        "fat100": 8,
+        "fibre100": 3,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 138,
+      "source_v4_id": "keema_stuffed_kulcha",
+      "display_name": "keema stuffed kulcha",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 139,
+      "source_v4_id": "indian_rajma_chettinad_masala",
+      "display_name": "indian rajma chettinad masala",
+      "category": "curries_and_protein_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 7,
+        "carbs100": 20,
+        "fat100": 3,
+        "fibre100": 5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 140,
+      "source_v4_id": "indian_mutton_chettinad_masala",
+      "display_name": "indian mutton chettinad masala",
+      "category": "curries_and_protein_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 13,
+        "fibre100": 1.2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 141,
+      "source_v4_id": "fried_idli",
+      "display_name": "fried idli",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 285,
+        "protein100": 7,
+        "carbs100": 31,
+        "fat100": 15,
+        "fibre100": 3,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 142,
+      "source_v4_id": "urad_dal_stuffed_kulcha",
+      "display_name": "urad dal stuffed kulcha",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 7,
+        "carbs100": 20,
+        "fat100": 3,
+        "fibre100": 5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 143,
+      "source_v4_id": "podi_idli",
+      "display_name": "podi idli",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 144,
+      "source_v4_id": "paneer_tikka",
+      "display_name": "paneer tikka · paneer masala",
+      "category": "curries_and_protein_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 210,
+        "protein100": 12,
+        "carbs100": 6,
+        "fat100": 16,
+        "fibre100": 1,
+        "nutrition_basis": "existing_reference"
+      },
+      "repair_flags": [
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 145,
+      "source_v4_id": "moong_dal_stuffed_kulcha",
+      "display_name": "moong dal stuffed kulcha",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 7,
+        "carbs100": 20,
+        "fat100": 3,
+        "fibre100": 5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 146,
+      "source_v4_id": "dal_stuffed_kulcha",
+      "display_name": "dal stuffed kulcha",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 7,
+        "carbs100": 20,
+        "fat100": 3,
+        "fibre100": 5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 147,
+      "source_v4_id": "chana_dal_stuffed_kulcha",
+      "display_name": "chana dal stuffed kulcha",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 7,
+        "carbs100": 20,
+        "fat100": 3,
+        "fibre100": 5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 148,
+      "source_v4_id": "pickle_stuffed_kulcha",
+      "display_name": "pickle stuffed kulcha",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 90,
+        "protein100": 2,
+        "carbs100": 13,
+        "fat100": 3,
+        "fibre100": 3,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 149,
+      "source_v4_id": "fried_rice_indian_grilled",
+      "display_name": "fried rice indian grilled",
+      "category": "rice_and_grain_dishes",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 175,
+        "protein100": 6,
+        "carbs100": 26,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 150,
+      "source_v4_id": "chana_dal_tempered_chutney",
+      "display_name": "chana dal tempered chutney",
+      "category": "sides_condiments",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 7,
+        "carbs100": 20,
+        "fat100": 3,
+        "fibre100": 5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 151,
+      "source_v4_id": "chana_dal_tamil_chutney",
+      "display_name": "chana dal tamil chutney",
+      "category": "sides_condiments",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 7,
+        "carbs100": 20,
+        "fat100": 3,
+        "fibre100": 5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 152,
+      "source_v4_id": "chana_dal_spicy_chutney",
+      "display_name": "chana dal spicy chutney",
+      "category": "sides_condiments",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 7,
+        "carbs100": 20,
+        "fat100": 3,
+        "fibre100": 5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 153,
+      "source_v4_id": "chana_dal_south_indian_chutney",
+      "display_name": "chana dal south indian chutney",
+      "category": "sides_condiments",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 7,
+        "carbs100": 20,
+        "fat100": 3,
+        "fibre100": 5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 154,
+      "source_v4_id": "chana_dal_roasted_chutney",
+      "display_name": "chana dal roasted chutney",
+      "category": "sides_condiments",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 195,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 10,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 155,
+      "source_v4_id": "chana_dal_fresh_chutney",
+      "display_name": "chana dal fresh chutney",
+      "category": "sides_condiments",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 7,
+        "carbs100": 20,
+        "fat100": 3,
+        "fibre100": 5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 156,
+      "source_v4_id": "chana_dal_andhra_chutney",
+      "display_name": "chana dal andhra chutney",
+      "category": "sides_condiments",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 7,
+        "carbs100": 20,
+        "fat100": 3,
+        "fibre100": 5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 157,
+      "source_v4_id": "vaniyambadi_biryani",
+      "display_name": "vaniyambadi biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 190,
+        "protein100": 6,
+        "carbs100": 30,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 158,
+      "source_v4_id": "uttar_pradesh_awadhi_biryani",
+      "display_name": "uttar pradesh awadhi biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 6,
+        "carbs100": 27,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 159,
+      "source_v4_id": "tokri_chaat",
+      "display_name": "tokri chaat",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 160,
+      "source_v4_id": "thalassery_chicken_biryani",
+      "display_name": "thalassery chicken biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 18,
+        "carbs100": 9,
+        "fat100": 8,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 161,
+      "source_v4_id": "thalassery_biryani",
+      "display_name": "thalassery biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 6,
+        "carbs100": 27,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 162,
+      "source_v4_id": "thalappakatti_style_biryani",
+      "display_name": "thalappakatti style biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 190,
+        "protein100": 6,
+        "carbs100": 30,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 163,
+      "source_v4_id": "thalappakatti_biryani",
+      "display_name": "thalappakatti biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 6,
+        "carbs100": 27,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 164,
+      "source_v4_id": "tamatar_chaat",
+      "display_name": "tamatar chaat",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 185,
+        "protein100": 8,
+        "carbs100": 21,
+        "fat100": 8,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "generic_placeholder_pattern",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 165,
+      "source_v4_id": "sprouts_chaat",
+      "display_name": "sprouts chaat",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 166,
+      "source_v4_id": "shahi_paneer",
+      "display_name": "shahi paneer",
+      "category": "curries_and_protein_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 170,
+        "protein100": 10,
+        "carbs100": 18,
+        "fat100": 7,
+        "fibre100": 4,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 167,
+      "source_v4_id": "set_dosa_karnataka",
+      "display_name": "set dosa karnataka",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 245,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 168,
+      "source_v4_id": "set_dosa",
+      "display_name": "set dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 240,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 169,
+      "source_v4_id": "seeraga_samba_biryani",
+      "display_name": "seeraga samba biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 6,
+        "carbs100": 27,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 170,
+      "source_v4_id": "schezwan_dosa",
+      "display_name": "schezwan dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 171,
+      "source_v4_id": "sattu_paratha",
+      "display_name": "sattu paratha",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 245,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 172,
+      "source_v4_id": "samosa_pav",
+      "display_name": "samosa pav",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 173,
+      "source_v4_id": "roadside_kal_dosa",
+      "display_name": "roadside kal dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 174,
+      "source_v4_id": "rava_dosa",
+      "display_name": "rava dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 240,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 175,
+      "source_v4_id": "raj_kachori",
+      "display_name": "raj kachori",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 176,
+      "source_v4_id": "ragi_dosa",
+      "display_name": "ragi dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 245,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 177,
+      "source_v4_id": "pyaz_ki_kachori",
+      "display_name": "pyaz ki kachori",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 185,
+        "protein100": 8,
+        "carbs100": 21,
+        "fat100": 8,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "generic_placeholder_pattern",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 178,
+      "source_v4_id": "pyaz_kachori",
+      "display_name": "pyaz kachori",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 179,
+      "source_v4_id": "pyaaz_tamatar_kachori",
+      "display_name": "pyaaz tamatar kachori",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 185,
+        "protein100": 8,
+        "carbs100": 21,
+        "fat100": 8,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "generic_placeholder_pattern",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 180,
+      "source_v4_id": "punjabi_samosa",
+      "display_name": "punjabi samosa",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 181,
+      "source_v4_id": "prawn_ghee_roast",
+      "display_name": "prawn ghee roast",
+      "category": "other_indian_dish",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 195,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 10,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 182,
+      "source_v4_id": "pav_bhaji_mumbai",
+      "display_name": "pav bhaji mumbai",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 185,
+        "protein100": 8,
+        "carbs100": 21,
+        "fat100": 8,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "generic_placeholder_pattern",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 183,
+      "source_v4_id": "papdi_chaat",
+      "display_name": "papdi chaat",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 185,
+        "protein100": 8,
+        "carbs100": 21,
+        "fat100": 8,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "generic_placeholder_pattern",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 184,
+      "source_v4_id": "paneer_kathi_roll",
+      "display_name": "paneer kathi roll",
+      "category": "curries_and_protein_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 185,
+      "source_v4_id": "paneer_frankie",
+      "display_name": "paneer frankie",
+      "category": "curries_and_protein_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 186,
+      "source_v4_id": "paneer_butter_masala",
+      "display_name": "paneer butter masala",
+      "category": "curries_and_protein_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 170,
+        "protein100": 10,
+        "carbs100": 18,
+        "fat100": 7,
+        "fibre100": 4,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 187,
+      "source_v4_id": "palak_patta_chaat",
+      "display_name": "palak patta chaat",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 188,
+      "source_v4_id": "onion_samosa",
+      "display_name": "onion samosa",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 189,
+      "source_v4_id": "onion_dosa",
+      "display_name": "onion dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 245,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 190,
+      "source_v4_id": "neer_dosa_karnataka",
+      "display_name": "neer dosa karnataka",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 245,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 191,
+      "source_v4_id": "neer_dosa_chicken",
+      "display_name": "neer dosa chicken",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 245,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 192,
+      "source_v4_id": "neer_dosa",
+      "display_name": "neer dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 240,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 193,
+      "source_v4_id": "mysore_masala_dosa",
+      "display_name": "mysore masala dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 245,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 194,
+      "source_v4_id": "mumbai_masala_dosa",
+      "display_name": "mumbai masala dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 155,
+        "protein100": 8,
+        "carbs100": 12,
+        "fat100": 9,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 195,
+      "source_v4_id": "moghlai_paratha",
+      "display_name": "moghlai paratha",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 245,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 196,
+      "source_v4_id": "methi_matar_malai",
+      "display_name": "methi matar malai",
+      "category": "other_indian_dish",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 8,
+        "carbs100": 20,
+        "fat100": 8,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 197,
+      "source_v4_id": "matar_kachori",
+      "display_name": "matar kachori",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 198,
+      "source_v4_id": "matar_chaat",
+      "display_name": "matar chaat",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 185,
+        "protein100": 8,
+        "carbs100": 21,
+        "fat100": 8,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "generic_placeholder_pattern",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 199,
+      "source_v4_id": "masala_dosa_rava",
+      "display_name": "masala dosa rava",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 245,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 200,
+      "source_v4_id": "masala_dosa",
+      "display_name": "masala dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 240,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 201,
+      "source_v4_id": "madurai_kari_dosa",
+      "display_name": "madurai kari dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 202,
+      "source_v4_id": "lilva_kachori",
+      "display_name": "lilva kachori",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 185,
+        "protein100": 8,
+        "carbs100": 21,
+        "fat100": 8,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "generic_placeholder_pattern",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 203,
+      "source_v4_id": "laccha_tokri_chaat",
+      "display_name": "laccha tokri chaat",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 204,
+      "source_v4_id": "khasta_kachori",
+      "display_name": "khasta kachori",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 205,
+      "source_v4_id": "khada_pav_bhaji",
+      "display_name": "khada pav bhaji",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 285,
+        "protein100": 7,
+        "carbs100": 31,
+        "fat100": 15,
+        "fibre100": 3,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 206,
+      "source_v4_id": "kari_dosa",
+      "display_name": "kari dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 207,
+      "source_v4_id": "kappa_biryani",
+      "display_name": "kappa biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 190,
+        "protein100": 6,
+        "carbs100": 30,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 208,
+      "source_v4_id": "kambu_dosa",
+      "display_name": "kambu dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 209,
+      "source_v4_id": "kal_dosa_chicken",
+      "display_name": "kal dosa chicken",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 245,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 210,
+      "source_v4_id": "kal_dosa",
+      "display_name": "kal dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 245,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 211,
+      "source_v4_id": "kadai_paneer",
+      "display_name": "kadai paneer",
+      "category": "curries_and_protein_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 212,
+      "source_v4_id": "kachori_sabzi",
+      "display_name": "kachori sabzi",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 185,
+        "protein100": 8,
+        "carbs100": 21,
+        "fat100": 8,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "generic_placeholder_pattern",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 213,
+      "source_v4_id": "gobi_paratha",
+      "display_name": "gobi paratha",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 240,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 214,
+      "source_v4_id": "garadu_chaat",
+      "display_name": "garadu chaat",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 215,
+      "source_v4_id": "fruit_chaat",
+      "display_name": "fruit chaat",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 216,
+      "source_v4_id": "fish_ghee_roast",
+      "display_name": "fish ghee roast",
+      "category": "curries_and_protein_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 195,
+        "protein100": 17,
+        "carbs100": 8,
+        "fat100": 10,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 217,
+      "source_v4_id": "fish_biryani",
+      "display_name": "fish biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 175,
+        "protein100": 6,
+        "carbs100": 26,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 218,
+      "source_v4_id": "fafda_jalebi_khakhra",
+      "display_name": "fafda jalebi khakhra",
+      "category": "sweets_and_desserts",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 340,
+        "protein100": 5,
+        "carbs100": 45,
+        "fat100": 16,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 219,
+      "source_v4_id": "egg_biryani",
+      "display_name": "egg biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 175,
+        "protein100": 6,
+        "carbs100": 26,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 220,
+      "source_v4_id": "dosakaya_pappu",
+      "display_name": "dosakaya pappu",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 221,
+      "source_v4_id": "dosakaya_pachadi",
+      "display_name": "dosakaya pachadi",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 222,
+      "source_v4_id": "davangere_benne_dosa",
+      "display_name": "davangere benne dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 223,
+      "source_v4_id": "davanagere_benne_dosa",
+      "display_name": "davanagere benne dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 224,
+      "source_v4_id": "daulat_ki_chaat",
+      "display_name": "daulat ki chaat",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 225,
+      "source_v4_id": "dahi_papdi_chaat",
+      "display_name": "dahi papdi chaat",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 226,
+      "source_v4_id": "corn_chaat",
+      "display_name": "corn chaat",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 227,
+      "source_v4_id": "cocktail_samosa",
+      "display_name": "cocktail samosa",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 228,
+      "source_v4_id": "cholam_dosa",
+      "display_name": "cholam dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 229,
+      "source_v4_id": "chicken_samosa",
+      "display_name": "chicken samosa",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 18,
+        "carbs100": 9,
+        "fat100": 8,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 230,
+      "source_v4_id": "cheese_pav_bhaji",
+      "display_name": "cheese pav bhaji",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 230,
+        "protein100": 10,
+        "carbs100": 10,
+        "fat100": 17,
+        "fibre100": 1.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 231,
+      "source_v4_id": "cheese_dosa",
+      "display_name": "cheese dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 245,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 232,
+      "source_v4_id": "chana_chaat",
+      "display_name": "chana chaat",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 135,
+        "protein100": 7,
+        "carbs100": 20,
+        "fat100": 3,
+        "fibre100": 5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 233,
+      "source_v4_id": "butter_chicken_delhi",
+      "display_name": "butter chicken delhi",
+      "category": "curries_and_protein_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 225,
+        "protein100": 20,
+        "carbs100": 8,
+        "fat100": 14,
+        "fibre100": 1,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 234,
+      "source_v4_id": "benne_dosa",
+      "display_name": "benne dosa",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 245,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 235,
+      "source_v4_id": "basket_chaat",
+      "display_name": "basket chaat",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 185,
+        "protein100": 8,
+        "carbs100": 21,
+        "fat100": 8,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "generic_placeholder_pattern",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 236,
+      "source_v4_id": "banarasi_tamatar_chaat",
+      "display_name": "banarasi tamatar chaat",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 237,
+      "source_v4_id": "banarasi_kachori_sabzi",
+      "display_name": "banarasi kachori sabzi",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 238,
+      "source_v4_id": "banarasi_kachori",
+      "display_name": "banarasi kachori",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 185,
+        "protein100": 8,
+        "carbs100": 21,
+        "fat100": 8,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "generic_placeholder_pattern",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 239,
+      "source_v4_id": "awadhi_biryani",
+      "display_name": "awadhi biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 190,
+        "protein100": 6,
+        "carbs100": 30,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 240,
+      "source_v4_id": "avakaya_biryani",
+      "display_name": "avakaya biryani",
+      "category": "rice_and_grain_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 6,
+        "carbs100": 27,
+        "fat100": 5,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 241,
+      "source_v4_id": "andhra_dosakaya_pachadi",
+      "display_name": "andhra dosakaya pachadi",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 242,
+      "source_v4_id": "aloo_tikki_chaat",
+      "display_name": "aloo tikki chaat",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 185,
+        "protein100": 8,
+        "carbs100": 21,
+        "fat100": 8,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "generic_placeholder_pattern",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 243,
+      "source_v4_id": "afghani_paneer",
+      "display_name": "afghani paneer",
+      "category": "curries_and_protein_dishes",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 175,
+        "protein100": 10,
+        "carbs100": 18,
+        "fat100": 7,
+        "fibre100": 4,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 244,
+      "source_v4_id": "vazhaipoo_vadai",
+      "display_name": "vazhaipoo vadai",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 285,
+        "protein100": 7,
+        "carbs100": 31,
+        "fat100": 15,
+        "fibre100": 3,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 245,
+      "source_v4_id": "uzhunnu_vada",
+      "display_name": "uzhunnu vada",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 185,
+        "protein100": 8,
+        "carbs100": 21,
+        "fat100": 8,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "generic_placeholder_pattern",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 246,
+      "source_v4_id": "up_bedmi_puri",
+      "display_name": "up bedmi puri",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 280,
+        "protein100": 8,
+        "carbs100": 45,
+        "fat100": 8,
+        "fibre100": 3,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 247,
+      "source_v4_id": "thayir_vada",
+      "display_name": "thayir vada",
+      "category": "street_food_and_snacks",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 185,
+        "protein100": 8,
+        "carbs100": 21,
+        "fat100": 8,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "generic_placeholder_pattern",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    },
+    {
+      "rank": 248,
+      "source_v4_id": "thatte_idli_street_style",
+      "display_name": "thatte idli street style",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 7,
+        "carbs100": 22,
+        "fat100": 7,
+        "fibre100": 2.5,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 249,
+      "source_v4_id": "thatte_idli",
+      "display_name": "thatte idli",
+      "category": "breakfast_and_tiffin",
+      "variability": "medium",
+      "current_nutrition": {
+        "kcal100": 245,
+        "protein100": 7,
+        "carbs100": 38,
+        "fat100": 7,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability"
+      ],
+      "repair_action": "validate_current_values_and_recalculate_if_outside_source_range"
+    },
+    {
+      "rank": 250,
+      "source_v4_id": "sev_puri",
+      "display_name": "sev puri",
+      "category": "breads",
+      "variability": "high",
+      "current_nutrition": {
+        "kcal100": 180,
+        "protein100": 8,
+        "carbs100": 20,
+        "fat100": 8,
+        "fibre100": 2,
+        "nutrition_basis": "estimated_reference"
+      },
+      "repair_flags": [
+        "estimated_reference",
+        "recipe_variability",
+        "portion_variability",
+        "hidden_fat_or_sugar_risk"
+      ],
+      "repair_action": "recalculate_from_standard_recipe_and_validate_range"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "version": "2.1.0",
+  "notes": [
+    "Validated India repairs only. Do not copy current_nutrition snapshots here.",
+    "Promotion requires provenance, ranges, and confidence (see shared/india-nutrition-repair.js)."
+  ],
+  "records": []
+}

@@ -48,6 +48,8 @@ const DEFAULT_GRAMS = {
   dal_tadka: 250,
   dal_makhani: 250,
   biryani: 350,
+  chicken_biryani: 350,
+  mutton_biryani: 350,
   hyderabadi_biryani: 380,
   chicken_65: 180,
   gobi_65: 160,
@@ -689,6 +691,9 @@ function gramsForRef(ref, userText = '') {
   }
   if ((ref?.id === 'oats' || ref?.id === 'porridge') && /\bdry\b|\braw\b/.test(lower)) {
     return DEFAULT_GRAMS.oats;
+  }
+  if (ref?.id && /biryani/.test(ref.id) && !/shorba|side/.test(ref.id)) {
+    return DEFAULT_GRAMS[ref.id] || (ref.id.startsWith('hyderabadi_') ? DEFAULT_GRAMS.hyderabadi_biryani : DEFAULT_GRAMS.biryani);
   }
   return DEFAULT_GRAMS[ref.id] || DEFAULT_GRAMS.default;
 }

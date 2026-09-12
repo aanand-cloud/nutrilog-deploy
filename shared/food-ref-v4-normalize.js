@@ -11,6 +11,7 @@ const SPELLING_VARIANTS = [
   ['yoghurt', 'yogurt'],
   ['biriyani', 'biryani'],
   ['biriani', 'biryani'],
+  ['dindugal', 'dindigul'],
   ['idly', 'idli'],
   ['idlies', 'idli'],
   ['idlys', 'idli'],

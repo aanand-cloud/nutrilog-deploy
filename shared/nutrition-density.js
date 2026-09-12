@@ -342,6 +342,7 @@ export function calibrateItemWithReference(item) {
     else if (ref.id === 'samosa' || ref.id === 'dumpling' || ref.id === 'scotch_egg' || ref.id === 'sausage_roll') grams = 80;
     else if (ref.id === 'crumpet' || ref.id === 'scone') grams = 55;
     else if (ref.id === 'mince_pie' || ref.id === 'eccles_cake') grams = 60;
+    else if (/biryani/.test(ref.id) && !/shorba|side/.test(ref.id)) grams = /hyderabadi_/.test(ref.id) ? 380 : 350;
     else grams = 120;
     item = {
       ...item,
