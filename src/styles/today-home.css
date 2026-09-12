@@ -32,7 +32,8 @@ html:not(.is-guest) .view-page__dashboard {
 }
 
 html:not(.is-guest) .view-page__aside,
-html:not(.is-guest) .view-page__main {
+html:not(.is-guest) .view-page__main,
+html:not(.is-guest) .view-page__extra {
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -445,7 +446,8 @@ html:not(.is-guest) .view-page__main {
     grid-template-areas:
       'log log'
       'aside main'
-      'plan plan';
+      'plan plan'
+      'extra extra';
     gap: 20px 24px;
     align-items: start;
   }
@@ -464,6 +466,10 @@ html:not(.is-guest) .view-page__main {
 
   html:not(.is-guest) .view-page__main {
     grid-area: main;
+  }
+
+  html:not(.is-guest) .view-page__extra {
+    grid-area: extra;
   }
 
   .today-log__btn:hover {

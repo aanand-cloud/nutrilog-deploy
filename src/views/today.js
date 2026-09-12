@@ -429,57 +429,10 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
             weekReport: weekStats,
             showMicros,
           })}
-
-          ${!isGuest && !showMicros ? microsTeaserHtml() : ''}
-
           ${mealTypeBreakdownHtml(foodMeals, prefs)}
-
-          ${!isGuest ? `
-            <section class="supplements-teaser muted-card" aria-label="Supplement log">
-              <p class="supplements-teaser__text">${supplementEntries.length
-                ? `<strong>${supplementEntries.length}</strong> supplement${supplementEntries.length === 1 ? '' : 's'}`
-                : 'No supplements yet'}</p>
-              <button type="button" class="btn btn-ghost btn-sm full" id="todayOpenSupplements">Supplements</button>
-            </section>
-          ` : ''}
-
-          ${weeklyTip ? `
-            <section class="insight-card low insight-card--compact" id="weeklyTip">
-              <span class="insight-badge">↓ ${weeklyTip.label} ${weeklyTip.periodLabel || 'this week'}</span>
-              <p>${escapeHtml(weeklyTip.message)}</p>
-              ${weeklyTip.daysUnderTarget ? `<p class="insight-meta">${weeklyTip.daysUnderTarget} day(s) below target</p>` : ''}
-              <button type="button" class="btn btn-ghost btn-sm" id="viewReportsBtn">View full report →</button>
-              ${disclaimerBlock(DISCLAIMERS.goalInsights, 'fine-print health-disclaimer health-disclaimer--inline')}
-            </section>
-          ` : ''}
-
-          ${showWeeklyInsightTeaser ? weeklyInsightTeaserHtml() : ''}
-
-          ${cuisine.tips?.length ? `
-            <section class="card tip-card">
-              <h2 class="card-title">Coach tip for your meals</h2>
-              <article class="cuisine-tip">
-                <span class="cuisine-tag">${escapeHtml(cuisine.tips[0].cuisine || 'Tip')}</span>
-                <h3>${escapeHtml(cuisine.tips[0].title)}</h3>
-                <p>${escapeHtml(cuisine.tips[0].body)}</p>
-              </article>
-              ${cuisine.tips.length > 1 ? `<button type="button" class="btn btn-ghost btn-sm full" id="moreTipsBtn">More tips in Reports →</button>` : ''}
-              ${disclaimerBlock(DISCLAIMERS.aiCoach, 'fine-print health-disclaimer health-disclaimer--inline')}
-            </section>
-          ` : ''}
         </aside>
 
         <div class="view-page__main">
-          ${remainingCoachCard}
-
-          ${dayWrapUpHtml}
-
-          ${habitScoreCard}
-
-          ${logAgainHtml}
-
-          ${referralHtml}
-
           <section class="section section--meals">
             <div class="section-head">
               <h2>${mealsHeading}</h2>
@@ -508,6 +461,7 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
             `}
           </section>
         </div>
+
         ${!isGuest ? (() => {
           try {
             return dayDateNavHtml(dateKey, {
@@ -520,6 +474,45 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
             return '';
           }
         })() : ''}
+
+        <div class="view-page__extra">
+          ${remainingCoachCard}
+          ${dayWrapUpHtml}
+          ${habitScoreCard}
+          ${logAgainHtml}
+          ${referralHtml}
+          ${!isGuest && !showMicros ? microsTeaserHtml() : ''}
+          ${!isGuest ? `
+            <section class="supplements-teaser muted-card" aria-label="Supplement log">
+              <p class="supplements-teaser__text">${supplementEntries.length
+                ? `<strong>${supplementEntries.length}</strong> supplement${supplementEntries.length === 1 ? '' : 's'}`
+                : 'No supplements yet'}</p>
+              <button type="button" class="btn btn-ghost btn-sm full" id="todayOpenSupplements">Supplements</button>
+            </section>
+          ` : ''}
+          ${weeklyTip ? `
+            <section class="insight-card low insight-card--compact" id="weeklyTip">
+              <span class="insight-badge">↓ ${weeklyTip.label} ${weeklyTip.periodLabel || 'this week'}</span>
+              <p>${escapeHtml(weeklyTip.message)}</p>
+              ${weeklyTip.daysUnderTarget ? `<p class="insight-meta">${weeklyTip.daysUnderTarget} day(s) below target</p>` : ''}
+              <button type="button" class="btn btn-ghost btn-sm" id="viewReportsBtn">View full report →</button>
+              ${disclaimerBlock(DISCLAIMERS.goalInsights, 'fine-print health-disclaimer health-disclaimer--inline')}
+            </section>
+          ` : ''}
+          ${showWeeklyInsightTeaser ? weeklyInsightTeaserHtml() : ''}
+          ${cuisine.tips?.length ? `
+            <section class="card tip-card">
+              <h2 class="card-title">Coach tip for your meals</h2>
+              <article class="cuisine-tip">
+                <span class="cuisine-tag">${escapeHtml(cuisine.tips[0].cuisine || 'Tip')}</span>
+                <h3>${escapeHtml(cuisine.tips[0].title)}</h3>
+                <p>${escapeHtml(cuisine.tips[0].body)}</p>
+              </article>
+              ${cuisine.tips.length > 1 ? `<button type="button" class="btn btn-ghost btn-sm full" id="moreTipsBtn">More tips in Reports →</button>` : ''}
+              ${disclaimerBlock(DISCLAIMERS.aiCoach, 'fine-print health-disclaimer health-disclaimer--inline')}
+            </section>
+          ` : ''}
+        </div>
       </div>
       `}
     </div>
