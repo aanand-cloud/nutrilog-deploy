@@ -409,12 +409,12 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
       </div>
       ` : `
       <div class="view-page__dashboard">
+        ${!isGuest && canLogThisDay ? todayLogPanelHtml({ isFutureDay, isPastDay, isViewingToday, dateKey }) : ''}
         ${!isGuest ? dayDateNavHtml(dateKey, {
           showCalendarBtn: true,
           mealCounts: planMealCounts,
           emptyTomorrow: showPlanTomorrowCard,
         }) : ''}
-        ${!isGuest && canLogThisDay ? todayLogPanelHtml({ isFutureDay, isPastDay, isViewingToday, dateKey }) : ''}
         <aside class="view-page__aside">
           ${dayDashboardHtml({
             dateKey,
