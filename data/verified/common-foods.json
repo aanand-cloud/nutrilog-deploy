@@ -41,6 +41,13 @@
     { "id": "peanut_butter", "label": "Peanut butter" },
     { "id": "olive_oil", "label": "Olive oil" },
     { "id": "sugar", "label": "Sugar" },
-    { "id": "honey", "label": "Honey" }
+    { "id": "honey", "label": "Honey" },
+    { "id": "tuna", "label": "Tuna" },
+    { "id": "hummus", "label": "Hummus" },
+    { "id": "avocado", "label": "Avocado" },
+    { "id": "couscous", "label": "Couscous" },
+    { "id": "greek_yogurt", "label": "Greek yogurt" },
+    { "id": "mozzarella", "label": "Mozzarella" },
+    { "id": "spaghetti", "label": "Spaghetti" }
   ]
 }

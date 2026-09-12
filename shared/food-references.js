@@ -8,6 +8,7 @@ import { BIRYANI_SIDE_FOOD_REFERENCES } from './biryani-side-catalog.js';
 import { INDIAN_BREAD_FOOD_REFERENCES, INDIAN_BREAD_SIDE_FOOD_REFERENCES } from './indian-bread-catalog.js';
 import { INDIAN_STARTER_FOOD_REFERENCES } from './indian-starter-catalog.js';
 import { COVERAGE_PHASE5_PRIORITY, COVERAGE_PHASE5_REFERENCES } from './coverage-phase5-catalog.js';
+import { EVERYDAY_FOODS_PRIORITY } from './everyday-foods-catalog.js';
 
 /** @typedef {{ id: string, re: RegExp, kcal100: number, protein100: number, carbs100: number, fat100: number, fibre100?: number, sugar100?: number, salt100?: number }} FoodRef */
 
@@ -89,6 +90,7 @@ export const FOOD_REFERENCES = [
   { id: 'wiener_schnitzel', re: /\bwiener\s+schnitzel\b|\bschnitzel\b|\bjaeger\s+schnitzel\b|\bjägerschnitzel\b/i, kcal100: 250, protein100: 16, carbs100: 16, fat100: 14, fibre100: 1, salt100: 520 },
   { id: 'moussaka', re: /\bmoussaka\b/i, kcal100: 130, protein100: 7, carbs100: 8, fat100: 8, fibre100: 2, salt100: 480 },
   { id: 'souvlaki', re: /\bsouvlaki\b|\bgyros\b(?!\s+wrap)/i, kcal100: 195, protein100: 18, carbs100: 6, fat100: 11, fibre100: 1, salt100: 620 },
+  ...EVERYDAY_FOODS_PRIORITY,
   ...COVERAGE_PHASE5_PRIORITY,
   { id: 'chicken', re: /\bchicken\b|\bpollo\b/i, kcal100: 190, protein100: 27, carbs100: 0, fat100: 8 },
   { id: 'lamb_curry', re: /\blamb\s+curry\b|\bmutton\s+curry\b|\bkeema\b|\bkeema\s+curry\b/i, kcal100: 185, protein100: 15, carbs100: 4, fat100: 12, fibre100: 1.2, salt100: 560 },

@@ -16,7 +16,7 @@ function assert(label, ok, detail = '') {
 }
 
 resetMealNovaFlagsCache();
-assert('recipe catalog loaded', RECIPE_CATALOG_STATS.count >= 20, `${RECIPE_CATALOG_STATS.count} recipes`);
+assert('recipe catalog loaded', RECIPE_CATALOG_STATS.count >= 35, `${RECIPE_CATALOG_STATS.count} recipes`);
 assert('recipeEngine flag on', getMealNovaFlags().recipeEngine === true);
 
 const fishChips = resolveMealFromText('fish and chips');

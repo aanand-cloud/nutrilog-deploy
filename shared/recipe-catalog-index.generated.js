@@ -1,5 +1,5 @@
 /** AUTO-GENERATED — do not edit. Run: node scripts/build-recipe-catalog-index.mjs */
-export const RECIPE_CATALOG_STATS = {"count":21,"aliases":70,"version":"1.1"};
+export const RECIPE_CATALOG_STATS = {"count":40,"aliases":133,"version":"1.2"};
 
 export const RECIPE_ALIAS_TO_ID = {
   "fish and chips": "fish_and_chips",
@@ -71,7 +71,70 @@ export const RECIPE_ALIAS_TO_ID = {
   "korma rice": "korma_rice",
   "shepherds pie": "shepherds_pie",
   "shepherd's pie": "shepherds_pie",
-  "cottage pie": "shepherds_pie"
+  "cottage pie": "shepherds_pie",
+  "cheeseburger and fries": "burger_and_fries",
+  "burger and fries": "burger_and_fries",
+  "burger with fries": "burger_and_fries",
+  "hamburger and fries": "burger_and_fries",
+  "kebab and chips": "kebab_and_chips",
+  "doner and chips": "kebab_and_chips",
+  "doner kebab and chips": "kebab_and_chips",
+  "kebab chips": "kebab_and_chips",
+  "shawarma with rice": "shawarma_and_rice",
+  "shawarma and rice": "shawarma_and_rice",
+  "chicken shawarma with rice": "shawarma_and_rice",
+  "falafel wrap with hummus": "falafel_hummus_pita",
+  "falafel hummus and pitta": "falafel_hummus_pita",
+  "falafel and hummus": "falafel_hummus_pita",
+  "falafel hummus pita": "falafel_hummus_pita",
+  "spaghetti bolognese": "spaghetti_bolognese_plate",
+  "spag bol": "spaghetti_bolognese_plate",
+  "tagliatelle bolognese": "spaghetti_bolognese_plate",
+  "spaghetti bolognese plate": "spaghetti_bolognese_plate",
+  "spaghetti with tomato sauce": "pasta_tomato_basil",
+  "pasta with tomato sauce": "pasta_tomato_basil",
+  "spaghetti tomato basil": "pasta_tomato_basil",
+  "pasta tomato basil": "pasta_tomato_basil",
+  "jacket potato with beans and cheese": "jacket_potato_beans_cheese",
+  "baked potato beans and cheese": "jacket_potato_beans_cheese",
+  "jacket potato cheese and beans": "jacket_potato_beans_cheese",
+  "jacket potato beans cheese": "jacket_potato_beans_cheese",
+  "jollof rice and chicken": "jollof_and_chicken",
+  "jollof and chicken": "jollof_and_chicken",
+  "jollof rice with chicken": "jollof_and_chicken",
+  "porridge with banana": "porridge_and_banana",
+  "porridge and banana": "porridge_and_banana",
+  "oatmeal with banana": "porridge_and_banana",
+  "avocado on toast": "avocado_on_toast",
+  "smashed avocado on toast": "avocado_on_toast",
+  "avocado toast": "avocado_on_toast",
+  "tagine with couscous": "tagine_and_couscous",
+  "chicken tagine with couscous": "tagine_and_couscous",
+  "moroccan tagine and couscous": "tagine_and_couscous",
+  "tagine and couscous": "tagine_and_couscous",
+  "feijoada with rice": "feijoada_and_rice",
+  "feijoada and rice": "feijoada_and_rice",
+  "peri peri chicken and chips": "peri_peri_and_chips",
+  "nandos chicken and chips": "peri_peri_and_chips",
+  "peri peri and chips": "peri_peri_and_chips",
+  "chicken caesar salad": "chicken_caesar_plate",
+  "chicken caesar": "chicken_caesar_plate",
+  "chicken caesar plate": "chicken_caesar_plate",
+  "chilli con carne with rice": "chilli_and_rice",
+  "chili con carne with rice": "chilli_and_rice",
+  "chilli and rice": "chilli_and_rice",
+  "thai green curry with rice": "thai_green_curry_rice",
+  "green curry with rice": "thai_green_curry_rice",
+  "thai green curry and rice": "thai_green_curry_rice",
+  "thai green curry rice": "thai_green_curry_rice",
+  "tuna pasta": "tuna_pasta",
+  "tuna mayo pasta": "tuna_pasta",
+  "pasta with tuna": "tuna_pasta",
+  "sausage and chips": "sausage_and_chips",
+  "sausages and chips": "sausage_and_chips",
+  "fish fingers and chips": "fish_fingers_and_chips",
+  "fish fingers with chips": "fish_fingers_and_chips",
+  "fish sticks and fries": "fish_fingers_and_chips"
 };
 
 export const RECIPE_BY_REF_ID = {
@@ -808,6 +871,505 @@ export const RECIPE_BY_ID = {
         "refId": "potatoes",
         "grams": 200,
         "label": "Mash topping",
+        "role": "carb"
+      }
+    ]
+  },
+  "burger_and_fries": {
+    "id": "burger_and_fries",
+    "aliases": [
+      "cheeseburger and fries",
+      "burger and fries",
+      "burger with fries",
+      "hamburger and fries"
+    ],
+    "displayName": "Burger and fries",
+    "defaultServingGrams": 420,
+    "cuisine": "American",
+    "components": [
+      {
+        "refId": "burger",
+        "grams": 220,
+        "label": "Cheeseburger",
+        "role": "main"
+      },
+      {
+        "refId": "fries",
+        "grams": 150,
+        "label": "Fries",
+        "role": "carb"
+      }
+    ]
+  },
+  "kebab_and_chips": {
+    "id": "kebab_and_chips",
+    "aliases": [
+      "kebab and chips",
+      "doner and chips",
+      "doner kebab and chips",
+      "kebab chips"
+    ],
+    "displayName": "Kebab and chips",
+    "defaultServingGrams": 450,
+    "cuisine": "British",
+    "components": [
+      {
+        "refId": "kebab",
+        "grams": 220,
+        "label": "Doner kebab",
+        "role": "protein"
+      },
+      {
+        "refId": "fries",
+        "grams": 180,
+        "label": "Chips",
+        "role": "carb"
+      }
+    ]
+  },
+  "shawarma_and_rice": {
+    "id": "shawarma_and_rice",
+    "aliases": [
+      "shawarma with rice",
+      "shawarma and rice",
+      "chicken shawarma with rice"
+    ],
+    "displayName": "Shawarma with rice",
+    "defaultServingGrams": 430,
+    "cuisine": "Middle Eastern",
+    "components": [
+      {
+        "refId": "shawarma",
+        "grams": 220,
+        "label": "Chicken shawarma",
+        "role": "protein"
+      },
+      {
+        "refId": "plain_rice",
+        "grams": 180,
+        "label": "Rice",
+        "role": "carb"
+      }
+    ]
+  },
+  "falafel_hummus_pita": {
+    "id": "falafel_hummus_pita",
+    "aliases": [
+      "falafel wrap with hummus",
+      "falafel hummus and pitta",
+      "falafel and hummus"
+    ],
+    "displayName": "Falafel, hummus and pitta",
+    "defaultServingGrams": 360,
+    "cuisine": "Middle Eastern",
+    "components": [
+      {
+        "refId": "falafel",
+        "grams": 120,
+        "label": "Falafel",
+        "role": "protein"
+      },
+      {
+        "refId": "hummus",
+        "grams": 80,
+        "label": "Hummus",
+        "role": "side"
+      },
+      {
+        "refId": "flatbread",
+        "grams": 80,
+        "label": "Pitta",
+        "role": "bread"
+      }
+    ]
+  },
+  "spaghetti_bolognese_plate": {
+    "id": "spaghetti_bolognese_plate",
+    "aliases": [
+      "spaghetti bolognese",
+      "spag bol",
+      "tagliatelle bolognese"
+    ],
+    "displayName": "Spaghetti bolognese",
+    "defaultServingGrams": 420,
+    "cuisine": "Italian",
+    "components": [
+      {
+        "refId": "spaghetti",
+        "grams": 200,
+        "label": "Spaghetti",
+        "role": "carb"
+      },
+      {
+        "refId": "beef",
+        "grams": 140,
+        "label": "Bolognese sauce",
+        "role": "protein"
+      },
+      {
+        "refId": "tomato",
+        "grams": 80,
+        "label": "Tomato sauce",
+        "role": "sauce"
+      }
+    ]
+  },
+  "pasta_tomato_basil": {
+    "id": "pasta_tomato_basil",
+    "aliases": [
+      "spaghetti with tomato sauce",
+      "pasta with tomato sauce",
+      "spaghetti tomato basil"
+    ],
+    "displayName": "Spaghetti with tomato sauce",
+    "defaultServingGrams": 350,
+    "cuisine": "Italian",
+    "components": [
+      {
+        "refId": "spaghetti",
+        "grams": 200,
+        "label": "Spaghetti",
+        "role": "carb"
+      },
+      {
+        "refId": "tomato",
+        "grams": 140,
+        "label": "Tomato sauce",
+        "role": "sauce"
+      },
+      {
+        "refId": "parmesan",
+        "grams": 10,
+        "label": "Parmesan",
+        "role": "topping",
+        "optional": true
+      }
+    ]
+  },
+  "jacket_potato_beans_cheese": {
+    "id": "jacket_potato_beans_cheese",
+    "aliases": [
+      "jacket potato with beans and cheese",
+      "baked potato beans and cheese",
+      "jacket potato cheese and beans"
+    ],
+    "displayName": "Jacket potato with beans and cheese",
+    "defaultServingGrams": 420,
+    "cuisine": "British",
+    "components": [
+      {
+        "refId": "jacket_potato",
+        "grams": 250,
+        "label": "Jacket potato",
+        "role": "carb"
+      },
+      {
+        "refId": "baked_beans",
+        "grams": 120,
+        "label": "Baked beans",
+        "role": "protein"
+      },
+      {
+        "refId": "cheese",
+        "grams": 40,
+        "label": "Cheddar",
+        "role": "topping"
+      }
+    ]
+  },
+  "jollof_and_chicken": {
+    "id": "jollof_and_chicken",
+    "aliases": [
+      "jollof rice and chicken",
+      "jollof and chicken",
+      "jollof rice with chicken"
+    ],
+    "displayName": "Jollof rice and chicken",
+    "defaultServingGrams": 450,
+    "cuisine": "West African",
+    "components": [
+      {
+        "refId": "jollof_rice",
+        "grams": 280,
+        "label": "Jollof rice",
+        "role": "carb"
+      },
+      {
+        "refId": "chicken",
+        "grams": 150,
+        "label": "Chicken",
+        "role": "protein"
+      }
+    ]
+  },
+  "porridge_and_banana": {
+    "id": "porridge_and_banana",
+    "aliases": [
+      "porridge with banana",
+      "porridge and banana",
+      "oatmeal with banana"
+    ],
+    "displayName": "Porridge with banana",
+    "defaultServingGrams": 380,
+    "cuisine": "British",
+    "components": [
+      {
+        "refId": "porridge",
+        "grams": 280,
+        "label": "Porridge",
+        "role": "main"
+      },
+      {
+        "refId": "banana",
+        "grams": 100,
+        "label": "Banana",
+        "role": "fruit"
+      }
+    ]
+  },
+  "avocado_on_toast": {
+    "id": "avocado_on_toast",
+    "aliases": [
+      "avocado on toast",
+      "smashed avocado on toast",
+      "avocado toast"
+    ],
+    "displayName": "Avocado on toast",
+    "defaultServingGrams": 180,
+    "cuisine": "British",
+    "components": [
+      {
+        "refId": "avocado",
+        "grams": 80,
+        "label": "Avocado",
+        "role": "fat"
+      },
+      {
+        "refId": "bread",
+        "grams": 70,
+        "label": "Toast",
+        "role": "carb"
+      }
+    ]
+  },
+  "tagine_and_couscous": {
+    "id": "tagine_and_couscous",
+    "aliases": [
+      "tagine with couscous",
+      "chicken tagine with couscous",
+      "moroccan tagine and couscous"
+    ],
+    "displayName": "Tagine with couscous",
+    "defaultServingGrams": 430,
+    "cuisine": "Moroccan",
+    "components": [
+      {
+        "refId": "tagine",
+        "grams": 250,
+        "label": "Tagine",
+        "role": "main"
+      },
+      {
+        "refId": "couscous",
+        "grams": 180,
+        "label": "Couscous",
+        "role": "carb"
+      }
+    ]
+  },
+  "feijoada_and_rice": {
+    "id": "feijoada_and_rice",
+    "aliases": [
+      "feijoada with rice",
+      "feijoada and rice"
+    ],
+    "displayName": "Feijoada with rice",
+    "defaultServingGrams": 430,
+    "cuisine": "Brazilian",
+    "components": [
+      {
+        "refId": "feijoada",
+        "grams": 250,
+        "label": "Feijoada",
+        "role": "main"
+      },
+      {
+        "refId": "plain_rice",
+        "grams": 180,
+        "label": "Rice",
+        "role": "carb"
+      }
+    ]
+  },
+  "peri_peri_and_chips": {
+    "id": "peri_peri_and_chips",
+    "aliases": [
+      "peri peri chicken and chips",
+      "nandos chicken and chips",
+      "peri peri and chips"
+    ],
+    "displayName": "Peri-peri chicken and chips",
+    "defaultServingGrams": 400,
+    "cuisine": "British",
+    "components": [
+      {
+        "refId": "peri_peri_chicken",
+        "grams": 200,
+        "label": "Peri-peri chicken",
+        "role": "protein"
+      },
+      {
+        "refId": "fries",
+        "grams": 160,
+        "label": "Chips",
+        "role": "carb"
+      }
+    ]
+  },
+  "chicken_caesar_plate": {
+    "id": "chicken_caesar_plate",
+    "aliases": [
+      "chicken caesar salad",
+      "chicken caesar"
+    ],
+    "displayName": "Chicken Caesar salad",
+    "defaultServingGrams": 350,
+    "cuisine": "American",
+    "components": [
+      {
+        "refId": "chicken",
+        "grams": 140,
+        "label": "Grilled chicken",
+        "role": "protein"
+      },
+      {
+        "refId": "caesar_salad",
+        "grams": 180,
+        "label": "Caesar salad",
+        "role": "veg"
+      }
+    ]
+  },
+  "chilli_and_rice": {
+    "id": "chilli_and_rice",
+    "aliases": [
+      "chilli con carne with rice",
+      "chili con carne with rice",
+      "chilli and rice"
+    ],
+    "displayName": "Chilli con carne with rice",
+    "defaultServingGrams": 430,
+    "cuisine": "British",
+    "components": [
+      {
+        "refId": "chilli_con_carne",
+        "grams": 250,
+        "label": "Chilli con carne",
+        "role": "main"
+      },
+      {
+        "refId": "plain_rice",
+        "grams": 180,
+        "label": "Rice",
+        "role": "carb"
+      }
+    ]
+  },
+  "thai_green_curry_rice": {
+    "id": "thai_green_curry_rice",
+    "aliases": [
+      "thai green curry with rice",
+      "green curry with rice",
+      "thai green curry and rice"
+    ],
+    "displayName": "Thai green curry with rice",
+    "defaultServingGrams": 430,
+    "cuisine": "Thai",
+    "components": [
+      {
+        "refId": "thai_green_curry",
+        "grams": 250,
+        "label": "Thai green curry",
+        "role": "main"
+      },
+      {
+        "refId": "plain_rice",
+        "grams": 180,
+        "label": "Jasmine rice",
+        "role": "carb"
+      }
+    ]
+  },
+  "tuna_pasta": {
+    "id": "tuna_pasta",
+    "aliases": [
+      "tuna pasta",
+      "tuna mayo pasta",
+      "pasta with tuna"
+    ],
+    "displayName": "Tuna pasta",
+    "defaultServingGrams": 360,
+    "cuisine": "British",
+    "components": [
+      {
+        "refId": "pasta",
+        "grams": 220,
+        "label": "Pasta",
+        "role": "carb"
+      },
+      {
+        "refId": "tuna",
+        "grams": 100,
+        "label": "Tuna",
+        "role": "protein"
+      }
+    ]
+  },
+  "sausage_and_chips": {
+    "id": "sausage_and_chips",
+    "aliases": [
+      "sausage and chips",
+      "sausages and chips"
+    ],
+    "displayName": "Sausage and chips",
+    "defaultServingGrams": 380,
+    "cuisine": "British",
+    "components": [
+      {
+        "refId": "sausage",
+        "grams": 140,
+        "label": "Sausages",
+        "role": "protein"
+      },
+      {
+        "refId": "fries",
+        "grams": 180,
+        "label": "Chips",
+        "role": "carb"
+      }
+    ]
+  },
+  "fish_fingers_and_chips": {
+    "id": "fish_fingers_and_chips",
+    "aliases": [
+      "fish fingers and chips",
+      "fish fingers with chips",
+      "fish sticks and fries"
+    ],
+    "displayName": "Fish fingers and chips",
+    "defaultServingGrams": 360,
+    "cuisine": "British",
+    "components": [
+      {
+        "refId": "fish_fingers",
+        "grams": 140,
+        "label": "Fish fingers",
+        "role": "protein"
+      },
+      {
+        "refId": "fries",
+        "grams": 160,
+        "label": "Chips",
         "role": "carb"
       }
     ]
