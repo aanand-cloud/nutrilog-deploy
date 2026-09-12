@@ -10,6 +10,7 @@ import {
   canRemovePlaceholderNutrition,
   isPlaceholderNutrition,
 } from '../../shared/india-nutrition-repair.js';
+import { isIndiaProductionApproved } from '../../shared/india-nutrition-validation.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const v4Path = resolve(root, 'shared/food-ref-v4.json');
@@ -37,6 +38,10 @@ for (const item of catalog.items || []) {
 
   const indiaItem = indiaById.get(item.id);
   if (indiaItem && isPlaceholderNutrition(item)) {
+    if (!isIndiaProductionApproved(item.id)) {
+      blockedIndia += 1;
+      continue;
+    }
     const repair = {
       ...overlay,
       source_v4_id: item.id,

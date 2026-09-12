@@ -5,6 +5,7 @@
 import { VERIFIED_BY_ID, VERIFIED_NUTRITION_STATS, VERIFIED_ALIAS_TO_ID } from './verified-nutrition.generated.js';
 import { VERIFICATION_META } from './canonical-food-model.js';
 import { normalizeCanonicalFoodText } from './canonical-food-identity.js';
+import { getApprovedIndiaNutrition } from './india-nutrition-validation.js';
 
 export { VERIFIED_NUTRITION_STATS, VERIFIED_BY_ID, VERIFIED_ALIAS_TO_ID };
 
@@ -94,7 +95,24 @@ export function canonicalVerifiedId(refId = '') {
 export function enrichReferenceWithVerified(ref) {
   if (!ref?.id) return ref;
   const verified = getVerifiedRecord(ref.id);
-  if (!verified) return ref;
+  if (!verified) {
+    const approved = getApprovedIndiaNutrition(ref.id);
+    if (!approved) return ref;
+    return {
+      ...ref,
+      kcal100: approved.kcal100,
+      protein100: approved.protein100,
+      carbs100: approved.carbs100,
+      fat100: approved.fat100,
+      fibre100: approved.fibre100,
+      dataSource: approved.dataSource,
+      verificationStatus: approved.verificationStatus,
+      nutrition_basis: approved.nutrition_basis,
+      lastReviewedAt: approved.lastReviewedAt,
+      dataQualityScore: VERIFICATION_META[approved.verificationStatus]?.score ?? 70,
+      _indiaValidated: true,
+    };
+  }
 
   return {
     ...ref,

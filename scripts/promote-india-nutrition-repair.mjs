@@ -14,9 +14,11 @@ import {
   canRemovePlaceholderNutrition,
   evaluateIndiaRepairPromotion,
 } from '../shared/india-nutrition-repair.js';
+import { evaluateIndiaValidationPromotion } from '../shared/india-nutrition-validation.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const queuePath = resolve(root, 'data/level2/india-nutrition-repair-queue.json');
+const validationPath = resolve(root, 'data/level2/india-nutrition-validation.json');
 const repairsPath = resolve(root, 'data/level2/india-nutrition-repairs.json');
 const verifiedPath = resolve(root, 'data/verified/verified-nutrition.json');
 const dryRun = process.argv.includes('--dry-run');
@@ -27,9 +29,11 @@ function loadJson(path, fallback) {
 }
 
 const queue = loadJson(queuePath, { records: [] });
+const validation = loadJson(validationPath, { records: [] });
 const repairs = loadJson(repairsPath, { records: [] });
 const verified = loadJson(verifiedPath, { version: '1.0', records: [] });
 const queueById = new Map((queue.records || []).map((row) => [row.source_v4_id, row]));
+const validationById = new Map((validation.records || []).map((row) => [row.source_v4_id, row]));
 const verifiedById = new Map((verified.records || []).map((row) => [row.id, row]));
 
 const candidates = [...(repairs.records || [])].sort((a, b) => {
@@ -45,9 +49,10 @@ for (const repair of candidates) {
   const id = repair.source_v4_id || repair.id;
   const queueItem = queueById.get(id);
   const gate = evaluateIndiaRepairPromotion(queueItem, repair);
-  if (!gate.ok || !canRemovePlaceholderNutrition(queueItem, repair)) {
+  const v22 = evaluateIndiaValidationPromotion(validationById.get(id) || { source_v4_id: id }, repair);
+  if (!gate.ok || !canRemovePlaceholderNutrition(queueItem, repair) || !v22.ok) {
     blocked += 1;
-    console.warn(`BLOCK | ${id || '(missing id)'} — ${gate.errors.join('; ')}`);
+    console.warn(`BLOCK | ${id || '(missing id)'} — ${[...gate.errors, ...v22.errors].join('; ')}`);
     continue;
   }
 
