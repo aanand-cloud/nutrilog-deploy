@@ -310,6 +310,16 @@ export function initApp() {
           onSignIn: openSignIn,
         });
       }
+    } catch (err) {
+      console.error(err);
+      main.innerHTML = `
+        <div class="view-page view-page--boot">
+          <p class="app-boot__title">Couldn’t load this page</p>
+          <p class="app-boot__lead">Please try again. If it stays blank, refresh the browser.</p>
+          <button type="button" class="btn btn-primary" id="retryBoot">Try again</button>
+        </div>
+      `;
+      main.querySelector('#retryBoot')?.addEventListener('click', () => refresh());
     } finally {
       main.removeAttribute('aria-busy');
       bindGuestStickyCta();

@@ -1,5 +1,18 @@
 /* Signed-in Today home — log methods + dashboard layout */
 
+.app-boot__title,
+.view-page--boot .app-boot__title {
+  margin: 24px 8px 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.app-boot__lead {
+  margin: 0 8px 16px;
+  color: var(--text3);
+}
+
 html:not(.is-guest) .view-page--today {
   display: flex;
   flex-direction: column;

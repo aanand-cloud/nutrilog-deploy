@@ -264,6 +264,13 @@ export function revealDiscountSection(root) {
 }
 
 export async function renderToday(root, { onLog, onRefresh, onReports, onSettings, onCalendar, onSupplements, profile, onSignIn, showToast }) {
+  if (profile?.loggedIn && !root.querySelector('.today-log, .today-plan, .view-page--today')) {
+    root.innerHTML = `
+      <div class="view-page view-page--today">
+        <p class="app-boot__title">Loading today…</p>
+      </div>
+    `;
+  }
   if (profile?.loggedIn) await ensureMealDatesRepaired();
   const dateKey = getTodayViewDate();
   const isGuest = !profile?.loggedIn;
@@ -307,17 +314,21 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
   let showPlanTomorrowCard = false;
   const planMealCounts = {};
   if (!isGuest) {
-    const stripKeys = planWeekDateKeys(dateKey);
-    if (stripKeys.length) {
-      const stripMeals = await getMealsInRange(stripKeys[0], stripKeys[stripKeys.length - 1]);
-      const { food: stripFood } = partitionMealsByKind(stripMeals);
-      for (const meal of stripFood) {
-        if (!meal?.date) continue;
-        planMealCounts[meal.date] = (planMealCounts[meal.date] || 0) + 1;
+    try {
+      const stripKeys = planWeekDateKeys(dateKey);
+      if (stripKeys.length) {
+        const stripMeals = await getMealsInRange(stripKeys[0], stripKeys[stripKeys.length - 1]);
+        const { food: stripFood } = partitionMealsByKind(stripMeals);
+        for (const meal of stripFood) {
+          if (!meal?.date) continue;
+          planMealCounts[meal.date] = (planMealCounts[meal.date] || 0) + 1;
+        }
       }
-    }
-    if (PLAN_AHEAD_PHASE1_ENABLED && isViewingToday) {
-      showPlanTomorrowCard = (planMealCounts[tomorrowDateKey()] || 0) === 0;
+      if (PLAN_AHEAD_PHASE1_ENABLED && isViewingToday) {
+        showPlanTomorrowCard = (planMealCounts[tomorrowDateKey()] || 0) === 0;
+      }
+    } catch (err) {
+      console.error(err);
     }
   }
   const duplicateAlerts = !isGuest && foodMeals.length > 1 ? findDuplicateAlertsForDay(foodMeals) : [];
@@ -410,11 +421,18 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
       ` : `
       <div class="view-page__dashboard">
         ${!isGuest && canLogThisDay ? todayLogPanelHtml({ isFutureDay, isPastDay, isViewingToday, dateKey }) : ''}
-        ${!isGuest ? dayDateNavHtml(dateKey, {
-          showCalendarBtn: true,
-          mealCounts: planMealCounts,
-          emptyTomorrow: showPlanTomorrowCard,
-        }) : ''}
+        ${!isGuest ? (() => {
+          try {
+            return dayDateNavHtml(dateKey, {
+              showCalendarBtn: true,
+              mealCounts: planMealCounts,
+              emptyTomorrow: showPlanTomorrowCard,
+            });
+          } catch (err) {
+            console.error(err);
+            return '';
+          }
+        })() : ''}
         <aside class="view-page__aside">
           ${dayDashboardHtml({
             dateKey,
