@@ -35,6 +35,7 @@
     "@sentry/browser": "^10.67.0",
     "@sentry/node": "^10.67.0",
     "@supabase/supabase-js": "^2.49.8",
+    "@zxing/browser": "^0.2.1",
     "heic2any": "^0.0.4",
     "stripe": "^17.7.0",
     "web-push": "^3.6.7",
