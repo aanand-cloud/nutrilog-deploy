@@ -1,6 +1,10 @@
 /**
  * Production food-match hot path:
- * normalize → canonical id → alias hash → regex → disambiguation → fuzzy
+ * normalize → canonical id → V4 alias hash → collision disambiguation →
+ * regex → verified → Level 1 recognition hash → fuzzy
+ *
+ * Level 1 aliases are recognition-only and never override V4, collision, regex, or verified hits.
+ * Nutrition still comes from V4 / Tier-1 / verified records.
  */
 
 import { normalizeFoodAlias } from './food-ref-v4-normalize.js';
@@ -13,6 +17,7 @@ import {
   V4_BY_ID,
   V4_COLLISION_ALIASES,
 } from './food-ref-v4-index.generated.js';
+import { LEVEL1_ALIAS_TO_ID } from './level1-recognition-index.generated.js';
 import {
   v4RefById,
   v4RecordById,
@@ -200,6 +205,38 @@ export function matchFoodReferenceDetailed(text = '', opts = {}) {
       preparationState: verified.preparationState,
     });
     return finish({ ref, meta: tier1Meta(ref, normalized || text) });
+  }
+
+  // 4c. Level 1 recognition aliases — O(1), only if V4 / collision / regex / verified missed
+  const level1Id = LEVEL1_ALIAS_TO_ID[normalized];
+  if (level1Id) {
+    result = v4Hit(level1Id, normalized, 'alias_exact', 'high');
+    if (result) return finish(result);
+    const tier1ById = FOOD_REFERENCES.find((row) => row.id === level1Id);
+    if (tier1ById) {
+      if (isFlagEnabled('v4CanonicalPriority')) {
+        const v4ForTier1 = packV4(tier1ById.id, normalized, 'canonical_id', 'high', opts);
+        if (v4ForTier1.ref) return finish(v4ForTier1);
+      }
+      const enriched = enrichReferenceWithVerified(tier1ById);
+      return finish({ ref: enriched, meta: tier1Meta(enriched, text) });
+    }
+    const level1Verified = getVerifiedRecord(level1Id);
+    if (level1Verified) {
+      const ref = enrichReferenceWithVerified({
+        id: level1Verified.id,
+        kcal100: level1Verified.kcal100,
+        protein100: level1Verified.protein100,
+        carbs100: level1Verified.carbs100,
+        fat100: level1Verified.fat100,
+        fibre100: level1Verified.fibre100,
+        sugar100: level1Verified.sugar100,
+        salt100: level1Verified.salt100,
+        canonicalName: level1Verified.canonicalName,
+        preparationState: level1Verified.preparationState,
+      });
+      return finish({ ref, meta: tier1Meta(ref, normalized || text) });
+    }
   }
 
   // 5. Optional fuzzy fallback — prefix bucket, threshold, unique best
