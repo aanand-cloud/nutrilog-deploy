@@ -1,4 +1,6 @@
-import { drinkCategoryForSubtype, getDrinkSubtype } from './drink-logging.js';
+import { analysisIsMainlyDrink, drinkCategoryForSubtype, getDrinkSubtype } from './drink-logging.js';
+import { ZERO_DRINK_RE } from '../../shared/branded-uk-servings.js';
+import { filterClarificationStepsByNotes } from '../../shared/user-notes-apply.js';
 import {
   resolveIndianStarterFromAnalysis,
   starterPortionOptions,
@@ -20,16 +22,18 @@ const DRINK_SIZE_TOPICS = new Set([
 
 const TOPIC_PRIORITY = [
   'drink_coffee_tea_size',
-  'drink_coffee_tea_style',
   'drink_wine_size',
   'drink_spirits_size',
   'drink_beer_size',
   'drink_soft_size',
-  'drink_soft_type',
   'drink_juice_size',
   'drink_water_size',
   'drink_generic_size',
   'drink_volume',
+  'drink_coffee_milk',
+  'drink_coffee_sugar',
+  'drink_soft_type',
+  'drink_coffee_tea_style',
   'drink_type',
   'portion_snack',
   'portion_solid',
@@ -47,6 +51,8 @@ const TOPIC_PRIORITY = [
 
 const HIGH_IMPACT_TOPICS = new Set([
   ...DRINK_SIZE_TOPICS,
+  'drink_coffee_milk',
+  'drink_coffee_sugar',
   'drink_coffee_tea_style',
   'drink_soft_type',
   'portion_snack',
@@ -73,6 +79,19 @@ const OPTION_SETS = {
     '2 tsp sugar (~8 g)',
     'Sweetened — chai / karak / latte (~15 g sugar)',
   ],
+  drink_coffee_milk: [
+    'None',
+    'Splash (~30 ml)',
+    '50 ml',
+    '100 ml',
+    '150 ml',
+  ],
+  drink_coffee_sugar: [
+    'None',
+    '1 tsp (~4 g)',
+    '2 tsp (~8 g)',
+    '3 tsp (~12 g)',
+  ],
   drink_wine_size: [
     'Small glass (~125 ml)',
     'Standard glass (~175 ml)',
@@ -98,10 +117,8 @@ const OPTION_SETS = {
     'Large bottle (~750 ml)',
   ],
   drink_soft_type: [
-    'Regular / full sugar',
-    'Diet / zero sugar',
-    'Low sugar version',
-    'Not sure',
+    'Regular',
+    'Diet / sugar-free / zero',
   ],
   drink_juice_size: [
     'Small glass (~200 ml)',
@@ -202,6 +219,18 @@ const STEP_UI = {
     inputLabel: 'Or describe your drink',
     inputPlaceholder: 'e.g. oat latte, 2 sugars',
     inputMode: 'text',
+  },
+  drink_coffee_milk: {
+    helper: 'Milk is the biggest calorie change in tea and coffee.',
+    inputLabel: 'Or type ml',
+    inputPlaceholder: 'e.g. 40 ml',
+    inputMode: 'decimal',
+  },
+  drink_coffee_sugar: {
+    helper: 'One teaspoon of sugar is about 4 g.',
+    inputLabel: 'Or type grams',
+    inputPlaceholder: 'e.g. 8 g',
+    inputMode: 'decimal',
   },
   drink_wine_size: {
     helper: 'A standard glass is about 175 ml.',
@@ -409,6 +438,8 @@ function defaultDrinkSizeTopic(category) {
 
 function topicGroup(topic) {
   if (DRINK_SIZE_TOPICS.has(topic) || topic === 'drink_volume') return 'drink_size';
+  if (topic === 'drink_coffee_milk') return 'drink_milk';
+  if (topic === 'drink_coffee_sugar') return 'drink_sugar';
   if (topic === 'drink_coffee_tea_style' || topic === 'drink_soft_type' || topic === 'drink_type') {
     return 'drink_style';
   }
@@ -432,6 +463,12 @@ function resolveDrinkTopic(topic, question, analysis) {
 
   if (OPTION_SETS[topic]) return topic;
 
+  if (/\b(sugar|sweet)\b/.test(q) && !/\bmilk\b/.test(q) && (cat === 'coffee_tea' || /\b(coffee|tea|chai|latte)\b/.test(q))) {
+    return 'drink_coffee_sugar';
+  }
+  if (/\b(milk|splash|dairy|oat|almond|semi.?skim)\b/.test(q) && (cat === 'coffee_tea' || /\b(coffee|tea|chai|latte)\b/.test(q))) {
+    return 'drink_coffee_milk';
+  }
   if (/\b(sugar|milk|sweet|black|latte|chai|karak|cream|dairy|plant milk|oat|almond|semi.?skim)\b/.test(q)) {
     if (cat === 'coffee_tea' || /\b(coffee|tea|chai|latte)\b/.test(q)) {
       return 'drink_coffee_tea_style';
@@ -487,6 +524,13 @@ function parseQuestionItem(item) {
 export function classifyQuestion(question, analysis) {
   const q = (question || '').toLowerCase();
   const ctx = mealContext(analysis);
+
+  if (/\bhow much (milk|dairy)\b/.test(q) || (/\bml\b/.test(q) && /\bmilk\b/.test(q))) {
+    return 'drink_coffee_milk';
+  }
+  if (/\bhow much sugar\b/.test(q) || (/\b(grams?|tsp|teaspoon)\b/.test(q) && /\bsugar\b/.test(q))) {
+    return 'drink_coffee_sugar';
+  }
 
   if (/\b(sugar|milk|sweet|black|cream|dairy|oat milk|almond milk|semi.?skim)\b/.test(q)
     && /\b(coffee|tea|chai|latte|drink|beverage)\b/.test(q)) {
@@ -546,7 +590,7 @@ export function classifyQuestion(question, analysis) {
   return 'generic_portion';
 }
 
-export function normalizeClarificationQuestions(analysis) {
+export function normalizeClarificationQuestions(analysis, notes = '') {
   const raw = analysis?.clarification_questions || [];
   const ctx = mealContext(analysis);
   const seenGroups = new Set();
@@ -570,6 +614,7 @@ export function normalizeClarificationQuestions(analysis) {
     if (topic === 'generic_portion' && ctx.hasDrink) {
       topic = defaultDrinkSizeTopic(ctx.drinkCategory);
     }
+    if (topic === 'drink_coffee_tea_style') continue;
 
     const group = topicGroup(topic);
     if (topic === 'protein_type' && (analysis._anchored || analysis._refId) && !/\b(mixed|unknown)\b/i.test(parsed.question)) {
@@ -587,38 +632,48 @@ export function normalizeClarificationQuestions(analysis) {
   }
 
   ensureEssentialQuestions(steps, analysis);
+  ensureDrinkQuestions(steps, analysis);
 
-  if (ctx.drinkCategory === 'coffee_tea') {
-    const hasSize = steps.some((s) => s.topic === 'drink_coffee_tea_size');
-    const hasStyle = steps.some((s) => s.topic === 'drink_coffee_tea_style');
-    if (hasSize && !hasStyle && steps.length < MAX_CLARIFICATION_QUESTIONS) {
-      steps.push({
-        question: defaultQuestionForTopic('drink_coffee_tea_style', '', analysis),
-        topic: 'drink_coffee_tea_style',
-      });
-    }
-  }
-
-  if (ctx.drinkCategory === 'soft_drink') {
-    const hasSize = steps.some((s) => s.topic === 'drink_soft_size');
-    const hasType = steps.some((s) => s.topic === 'drink_soft_type');
-    if (hasSize && !hasType && steps.length < MAX_CLARIFICATION_QUESTIONS) {
-      steps.push({
-        question: defaultQuestionForTopic('drink_soft_type', '', analysis),
-        topic: 'drink_soft_type',
-      });
-    }
-  }
-
-  steps.sort(
+  const filtered = notes ? filterClarificationStepsByNotes(steps, notes) : steps;
+  filtered.sort(
     (a, b) => TOPIC_PRIORITY.indexOf(a.topic) - TOPIC_PRIORITY.indexOf(b.topic),
   );
 
-  return steps.slice(0, MAX_CLARIFICATION_QUESTIONS);
+  return filtered.slice(0, MAX_CLARIFICATION_QUESTIONS);
+}
+
+function drinkLooksMilky(text = '') {
+  return /\b(latte|cappuccino|mocha|flat white|macchiato|hot chocolate|milk tea|bubble tea|boba)\b/i.test(text);
+}
+
+function ensureDrinkQuestions(steps, analysis) {
+  const ctx = mealContext(analysis);
+  if (!ctx.drinkCategory) return;
+  const topics = new Set(steps.map((s) => s.topic));
+  const groups = new Set(steps.map((s) => topicGroup(s.topic)));
+  const add = (topic, question) => {
+    if (topics.has(topic) || groups.has(topicGroup(topic)) || steps.length >= MAX_CLARIFICATION_QUESTIONS) return;
+    steps.push({ question, topic });
+    topics.add(topic);
+    groups.add(topicGroup(topic));
+  };
+
+  add(defaultDrinkSizeTopic(ctx.drinkCategory), defaultQuestionForTopic(defaultDrinkSizeTopic(ctx.drinkCategory), '', analysis));
+
+  if (ctx.drinkCategory === 'coffee_tea') {
+    if (!drinkLooksMilky(ctx.text)) {
+      add('drink_coffee_milk', defaultQuestionForTopic('drink_coffee_milk', '', analysis));
+    }
+    add('drink_coffee_sugar', defaultQuestionForTopic('drink_coffee_sugar', '', analysis));
+  }
+  if (ctx.drinkCategory === 'soft_drink' && !ZERO_DRINK_RE.test(ctx.text)) {
+    add('drink_soft_type', defaultQuestionForTopic('drink_soft_type', '', analysis));
+  }
 }
 
 function ensureEssentialQuestions(steps, analysis) {
   const ctx = mealContext(analysis);
+  if (ctx.drinkCategory && analysisIsMainlyDrink(analysis)) return;
   const starter = resolveIndianStarterFromAnalysis(analysis);
   const topics = new Set(steps.map((s) => s.topic));
   const groups = new Set(steps.map((s) => topicGroup(s.topic)));
@@ -669,26 +724,30 @@ function defaultQuestionForTopic(topic, about, analysis) {
 
   switch (topic) {
     case 'drink_coffee_tea_size':
-      return `How much ${drinkName || 'coffee or tea'}?`;
+      return `How many ml of ${drinkName || 'coffee or tea'}?`;
     case 'drink_coffee_tea_style':
       return `Milk and sugar in the ${drinkName || 'drink'}?`;
+    case 'drink_coffee_milk':
+      return 'How much milk, in ml?';
+    case 'drink_coffee_sugar':
+      return 'How much sugar, in grams?';
     case 'drink_wine_size':
-      return 'How much wine?';
+      return 'How many ml of wine?';
     case 'drink_spirits_size':
       return `What spirit measure${item}?`;
     case 'drink_beer_size':
-      return 'How much beer or cider?';
+      return 'How many ml of beer or cider?';
     case 'drink_soft_size':
-      return 'How much soft drink?';
+      return 'How many ml of drink?';
     case 'drink_soft_type':
-      return 'Regular or diet / zero?';
+      return 'Regular, diet, or zero?';
     case 'drink_juice_size':
-      return 'How much juice or smoothie?';
+      return 'How many ml of juice or smoothie?';
     case 'drink_water_size':
-      return 'How much water?';
+      return 'How many ml of water?';
     case 'drink_generic_size':
     case 'drink_volume':
-      return `How much did you drink${item}?`;
+      return `How many ml did you drink${item}?`;
     case 'portion_snack':
       return `How much snack${item}?`;
     case 'portion_solid':

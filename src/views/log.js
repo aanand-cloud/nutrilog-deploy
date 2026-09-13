@@ -31,6 +31,7 @@ import {
   normalizeClarificationQuestions,
   getClarificationStepConfig,
 } from '../services/clarification-questions.js';
+import { applyClarificationsLocally } from '../../shared/clarification-apply.js';
 import {
   buildPhotoAnalysisNotes,
   formatDrinkMealNotes,
@@ -811,7 +812,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     }
     state.analyzing = false;
     if (needsClarification(state.analysis)) {
-      state.clarificationSteps = normalizeClarificationQuestions(state.analysis);
+      state.clarificationSteps = normalizeClarificationQuestions(state.analysis, state.mealNotes);
       state.step = 'clarify';
       state.answers = [];
     } else {
@@ -892,7 +893,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
   function renderClarify() {
     const steps = state.clarificationSteps?.length
       ? state.clarificationSteps
-      : normalizeClarificationQuestions(state.analysis);
+      : normalizeClarificationQuestions(state.analysis, state.mealNotes);
     const current = state.answers.length;
     const step = steps[current];
     if (!step) {
@@ -962,7 +963,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
   async function submitAnswer(answer) {
     const steps = state.clarificationSteps?.length
       ? state.clarificationSteps
-      : normalizeClarificationQuestions(state.analysis);
+      : normalizeClarificationQuestions(state.analysis, state.mealNotes);
     const idx = state.answers.length;
     state.answers.push({
       question: steps[idx].question,
@@ -975,6 +976,15 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       if (/sauce/i.test(steps[idx].question + steps[idx].topic)) state.analysis._unknownSauce = true;
     }
     if (state.answers.length < steps.length) {
+      render();
+      return;
+    }
+    const drinkOnly = state.answers.every((a) => /^drink_/.test(a.topic || ''));
+    if (drinkOnly) {
+      state.analysis = applyClarificationsLocally(state.analysis, state.answers);
+      enrichDrinkContext(state.analysis);
+      state.step = 'review';
+      persist();
       render();
       return;
     }

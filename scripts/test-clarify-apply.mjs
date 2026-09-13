@@ -139,6 +139,101 @@ run('Latte large + 2 sugars', meal({
   { topic: 'drink_coffee_tea_style', answer: '2 tsp sugar (~8 g)' },
 ], { direction: 'up', minAfter: 180 });
 
+const teaSteps = normalizeClarificationQuestions({
+  meal_summary: 'Black tea',
+  confidence_score: 0.9,
+  items: [{ name: 'Black tea', portion_estimate: '1 mug (~250ml)', calories_kcal: 8, nutrition: { protein_g: 0, carbs_g: 2, fat_g: 0 } }],
+  clarification_questions: [],
+}).map((s) => s.topic);
+results.push({
+  label: 'Tea photo asks ml, milk, and sugar',
+  pass: teaSteps.includes('drink_coffee_tea_size') && teaSteps.includes('drink_coffee_milk') && teaSteps.includes('drink_coffee_sugar'),
+  before: null,
+  after: null,
+  delta: 0,
+  items: teaSteps,
+  notes: teaSteps.includes('drink_coffee_milk') ? [] : ['expected milk + sugar questions'],
+});
+
+const latteSteps = normalizeClarificationQuestions({
+  meal_summary: 'Latte',
+  confidence_score: 0.9,
+  items: [{ name: 'Latte', portion_estimate: '1 cup (~250ml)', calories_kcal: 120, nutrition: { protein_g: 6, carbs_g: 10, fat_g: 5 } }],
+  clarification_questions: [],
+}).map((s) => s.topic);
+results.push({
+  label: 'Latte skips extra milk question',
+  pass: latteSteps.includes('drink_coffee_tea_size') && latteSteps.includes('drink_coffee_sugar') && !latteSteps.includes('drink_coffee_milk'),
+  before: null,
+  after: null,
+  delta: 0,
+  items: latteSteps,
+  notes: latteSteps.includes('drink_coffee_milk') ? ['latte already includes milk'] : [],
+});
+
+const colaSteps = normalizeClarificationQuestions({
+  meal_summary: 'Coca-Cola',
+  confidence_score: 0.9,
+  items: [{ name: 'Coca-Cola', portion_estimate: '1 can (~330ml)', calories_kcal: 139, nutrition: { protein_g: 0, carbs_g: 35, fat_g: 0, sugar_g: 35 } }],
+  clarification_questions: [],
+}).map((s) => s.topic);
+results.push({
+  label: 'Cola photo asks ml and regular vs diet',
+  pass: colaSteps.includes('drink_soft_size') && colaSteps.includes('drink_soft_type'),
+  before: null,
+  after: null,
+  delta: 0,
+  items: colaSteps,
+  notes: colaSteps.includes('drink_soft_type') ? [] : ['expected diet/regular question'],
+});
+
+const zeroSteps = normalizeClarificationQuestions({
+  meal_summary: 'Coke Zero',
+  confidence_score: 0.9,
+  items: [{ name: 'Coke Zero', portion_estimate: '1 can (~330ml)', calories_kcal: 2, nutrition: { protein_g: 0, carbs_g: 0, fat_g: 0, sugar_g: 0 } }],
+  clarification_questions: [],
+}).map((s) => s.topic);
+results.push({
+  label: 'Coke Zero skips diet question',
+  pass: zeroSteps.includes('drink_soft_size') && !zeroSteps.includes('drink_soft_type'),
+  before: null,
+  after: null,
+  delta: 0,
+  items: zeroSteps,
+  notes: zeroSteps.includes('drink_soft_type') ? ['type already known from name'] : [],
+});
+
+const juiceSteps = normalizeClarificationQuestions({
+  meal_summary: 'Orange juice',
+  confidence_score: 0.9,
+  items: [{ name: 'Orange juice', portion_estimate: '1 glass (~250ml)', calories_kcal: 110, nutrition: { protein_g: 1, carbs_g: 26, fat_g: 0 } }],
+  clarification_questions: [],
+}).map((s) => s.topic);
+results.push({
+  label: 'Juice photo asks ml only',
+  pass: juiceSteps.includes('drink_juice_size') && juiceSteps.length === 1,
+  before: null,
+  after: null,
+  delta: 0,
+  items: juiceSteps,
+  notes: juiceSteps.length === 1 ? [] : ['juice should only ask volume'],
+});
+
+run('Tea + 50 ml milk + 8 g sugar', meal({
+  summary: 'Black tea',
+  kcal: 8,
+  items: [{ name: 'Black tea', portion_estimate: '1 mug (~250ml)', calories_kcal: 8, nutrition: { protein_g: 0, carbs_g: 2, fat_g: 0, sugar_g: 0 } }],
+}), [
+  { topic: 'drink_coffee_milk', answer: '50 ml' },
+  { topic: 'drink_coffee_sugar', answer: '2 tsp (~8 g)' },
+], { direction: 'up', minAfter: 40, mustInclude: 'milk' });
+
+run('Cola marked diet', meal({
+  summary: 'Coca-Cola',
+  kcal: 139,
+  items: [{ name: 'Coca-Cola', portion_estimate: '1 can (~330ml)', calories_kcal: 139, nutrition: { protein_g: 0, carbs_g: 35, fat_g: 0, sugar_g: 35 } }],
+}), [{ topic: 'drink_soft_type', answer: 'Diet / sugar-free / zero' }], { direction: 'down', maxAfter: 10 });
+
 const aviyal = {
   meal_summary: 'Aviyal',
   total_calories_kcal: 190,

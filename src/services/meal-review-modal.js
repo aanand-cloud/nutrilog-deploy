@@ -87,6 +87,10 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
       };
     }
 
+    function drinkOnlyReview() {
+      return items.length > 0 && items.every((item) => isDrinkReviewItem(item) || item._drinkAddon);
+    }
+
     function render() {
       const focusToken = captureFocusToken(overlay);
       const t = totals();
@@ -98,6 +102,7 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
       const scored = scoreMealConfidence(preview);
       const band = CONFIDENCE_BAND_META[scored.band] || CONFIDENCE_BAND_META.medium;
       const nutrients = formatNutrientLine(t.total_nutrition);
+      const hideOil = drinkOnlyReview();
       overlay.innerHTML = `
         <div class="camera-modal__panel meal-review-panel">
           <header class="meal-review-head">
@@ -113,9 +118,9 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
             <p class="fine-print">P ${fmtMaybe(t.total_nutrition.protein_g)} · C ${fmtMaybe(t.total_nutrition.carbs_g)} · F ${fmtMaybe(t.total_nutrition.fat_g)}</p>
             <p class="fine-print">${escapeHtml(nutrients.line)}</p>
             ${nutrients.notes ? `<p class="fine-print">${escapeHtml(nutrients.notes)}</p>` : ''}
-            <p class="fine-print">${roundDisplay(t.consumedGrams)} g on the plate</p>
+            <p class="fine-print">${hideOil ? `${roundDisplay(t.consumedGrams)} ml` : `${roundDisplay(t.consumedGrams)} g on the plate`}</p>
           </div>
-          ${visionMode ? `
+          ${visionMode && !hideOil ? `
           <div class="meal-review-oil" role="group" aria-label="Cooking oil">
             <span>Cooking oil / ghee</span>
             <div class="meal-review-stepper">
@@ -140,11 +145,11 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
             <div class="meal-review-add-form">
               <label class="field full">
                 <span>Name</span>
-                <input type="text" id="addItemName" placeholder="e.g. Cooking oil — 1 tbsp" value="${escapeAttr(addName)}"/>
+                <input type="text" id="addItemName" placeholder="${hideOil ? 'e.g. Oat milk' : 'e.g. Cooking oil — 1 tbsp'}" value="${escapeAttr(addName)}"/>
               </label>
               <div class="meal-review-add-row">
                 <label class="field">
-                  <span>Amount (g)</span>
+                  <span>${hideOil ? 'Amount (ml)' : 'Amount (g)'}</span>
                   <input type="number" id="addItemGrams" min="1" step="1" value="${addGrams}"/>
                 </label>
                 <label class="field">
@@ -176,12 +181,17 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
     }
 
     function itemRow(item) {
-      const unitId = item._displayUnit || 'g';
+      const drinkItem = isDrinkReviewItem(item);
+      const sugarAddon = item._drinkAddon === 'sugar';
+      const unitId = sugarAddon ? 'g' : (drinkItem ? 'ml' : (item._displayUnit || 'g'));
       const original = item._originalGrams ?? item.grams;
       const amount = displayAmountFromGrams(original, unitId);
       const match = item._unmatched ? 'Nutrition match needed' : 'Matched';
       const source = portionSourceLabel(item);
       const low = isLowConfidenceItem(item);
+      const amountLabel = drinkItem && !sugarAddon
+        ? `${roundDisplay(amount)} ml`
+        : householdEquivalentLabel(original, unitId, amount);
       return `
         <li class="meal-review-item${low ? ' meal-review-item--low' : ''}${item._visionOil ? ' meal-review-item--oil' : ''}" data-id="${item.id}">
           <div class="meal-review-item-head">
@@ -189,10 +199,10 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
             ${low ? '<span class="meal-review-low">Check this</span>' : ''}
             <button type="button" class="btn-icon meal-review-delete" data-delete="${item.id}" aria-label="Remove ${escapeAttr(item.name)}">✕</button>
           </div>
-          <p class="fine-print">${escapeHtml(householdEquivalentLabel(original, unitId, amount))} · ${source} · ${match}</p>
+          <p class="fine-print">${escapeHtml(amountLabel)} · ${source} · ${match}</p>
           <p class="fine-print">${escapeHtml(item.portion_estimate || '')}</p>
           <div class="meal-review-item-controls">
-            ${visionMode && !item._visionOil ? `
+            ${visionMode && !item._visionOil && !drinkItem ? `
             <div class="meal-review-stepper meal-review-stepper--grams">
               <button type="button" class="btn btn-ghost btn-sm" data-gram-delta="${item.id}" data-step="-10" aria-label="Less ${escapeAttr(item.name)}">−</button>
               <button type="button" class="btn btn-ghost btn-sm" data-gram-delta="${item.id}" data-step="10" aria-label="More ${escapeAttr(item.name)}">+</button>
@@ -201,12 +211,14 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
               <span>Amount</span>
               <input type="number" min="0.1" step="0.1" value="${roundDisplay(amount, 1)}" data-weight="${item.id}"/>
             </label>
+            ${drinkItem && !sugarAddon ? `
+            <span class="meal-review-unit fine-print">ml</span>` : `
             <label class="field meal-review-unit">
               <span>Unit</span>
               <select data-unit="${item.id}" aria-label="Portion unit for ${escapeAttr(item.name)}">
                 ${PORTION_UNITS.map((u) => `<option value="${u.id}" ${u.id === unitId ? 'selected' : ''}>${escapeHtml(u.label)}</option>`).join('')}
               </select>
-            </label>
+            </label>`}
             <span class="meal-review-item-kcal">${formatEnergy(Math.round(item.calories_kcal), prefs)}</span>
           </div>
           <div class="meal-review-item-actions">
@@ -380,11 +392,12 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
         addGrams = Number(overlay.querySelector('#addItemGrams')?.value) || 15;
         addCalories = Number(overlay.querySelector('#addItemCalories')?.value) || 0;
         if (!addName) return;
+        const added = createManualItem(addName, addGrams, addCalories, drinkOnlyReview() ? 'ml' : 'g');
         if (changeTargetId) {
-          items = items.map((i) => (i.id === changeTargetId ? { ...createManualItem(addName, addGrams, addCalories), id: i.id } : i));
+          items = items.map((i) => (i.id === changeTargetId ? { ...added, id: i.id } : i));
           changeTargetId = null;
         } else {
-          items.push(createManualItem(addName, addGrams, addCalories));
+          items.push(added);
         }
         addName = '';
         render();
@@ -436,11 +449,22 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
   });
 }
 
+function isDrinkReviewItem(item = {}) {
+  if (item._drinkAddon === 'sugar') return false;
+  if (item._drinkAddon === 'milk' || Number(item._volumeMl) > 0 || item._displayUnit === 'ml') return true;
+  const text = `${item.name || ''} ${item.portion_estimate || ''}`.toLowerCase();
+  return /\b(coffee|tea|latte|chai|juice|cola|soda|wine|beer|water|smoothie|drink|coke|pepsi|milk|americano|espresso|cappuccino|lemonade)\b/.test(text);
+}
+
 function normalizeEditableItems(items) {
   return items.map((item, idx) => {
-    const grams = Number(item._originalGrams) || parseGrams(item.portion_estimate) || Number(item.grams) || 100;
+    const drinkItem = isDrinkReviewItem(item);
+    const grams = Number(item._originalGrams) || parseGrams(item.portion_estimate) || Number(item.grams) || (drinkItem ? 250 : 100);
     const calories = Number(item._originalCalories ?? item.calories_kcal) || 0;
     const nutrition = { ...(item._originalNutrition || item.nutrition || {}) };
+    const displayUnit = item._drinkAddon === 'sugar'
+      ? 'g'
+      : (drinkItem ? 'ml' : (item._displayUnit || 'g'));
     return {
       ...item,
       id: item.id || `item-${idx}-${Date.now()}`,
@@ -454,14 +478,15 @@ function normalizeEditableItems(items) {
       baseCalories: calories,
       nutrition: { ...nutrition },
       baseNutrition: { ...nutrition },
-      portion_estimate: item.portion_estimate || `Estimated ${grams} g`,
+      portion_estimate: item.portion_estimate || (drinkItem ? `Estimated ${grams} ml` : `Estimated ${grams} g`),
       _unmatched: Boolean(item._unmatched),
-      _displayUnit: item._displayUnit || 'g',
+      _displayUnit: displayUnit,
+      _volumeMl: drinkItem ? (Number(item._volumeMl) || grams) : item._volumeMl,
     };
   });
 }
 
-function createManualItem(name, grams, calories) {
+function createManualItem(name, grams, calories, unit = 'g') {
   const protein_g = Math.round(calories * 0.05);
   const fat_g = Math.round(calories * 0.8 / 9);
   const carbs_g = Math.max(0, Math.round((calories - protein_g * 4 - fat_g * 9) / 4));
@@ -478,9 +503,10 @@ function createManualItem(name, grams, calories) {
     baseCalories: calories,
     nutrition,
     baseNutrition: { ...nutrition },
-    portion_estimate: `User-entered ${Math.round(grams)} g`,
+    portion_estimate: `User-entered ${Math.round(grams)} ${unit}`,
     _userEnteredWeight: true,
-    _displayUnit: 'g',
+    _displayUnit: unit,
+    _volumeMl: unit === 'ml' ? grams : undefined,
   };
 }
 

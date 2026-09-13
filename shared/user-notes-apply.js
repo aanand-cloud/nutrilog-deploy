@@ -508,17 +508,22 @@ function parseUserMealNotes(notes = '') {
 
   if (/\bno\s+sugar\b|\bunsweetened\b|\bzero\s+sugar\b|\bsugar.?free\b/.test(t) || (hasHiddenSugar && /\bno\s+sugar\b/.test(t))) {
     clarifyAnswers.push({ topic: 'drink_coffee_tea_style', answer: 'Black / no sugar' });
+    clarifyAnswers.push({ topic: 'drink_coffee_sugar', answer: 'None' });
     skipTopics.add('drink_coffee_tea_style');
+    skipTopics.add('drink_coffee_sugar');
   } else if (/\b\d+\s*(tsp|teaspoon)s?\s+sugar\b|\bwith\s+sugar\b|\bsweetened\b/.test(t) || hasHiddenSugar) {
     skipTopics.add('drink_coffee_tea_style');
+    skipTopics.add('drink_coffee_sugar');
   }
   if (/\bskim\s+milk\b|\bsemi.?skimmed\b|\bsemi\s+skim\b/.test(t)) {
     clarifyAnswers.push({ topic: 'drink_coffee_tea_style', answer: 'Semi-skimmed milk, no sugar' });
     skipTopics.add('drink_coffee_tea_style');
+    skipTopics.add('drink_coffee_milk');
   }
   if (/\boat\s+milk\b/.test(t)) {
     clarifyAnswers.push({ topic: 'drink_coffee_tea_style', answer: 'Oat milk' });
     skipTopics.add('drink_coffee_tea_style');
+    skipTopics.add('drink_coffee_milk');
   }
   if (/\b(diet|zero|sugar.?free)\s+(cola|coke|soda|soft\s+drink|fizzy)\b|\bdiet\s+(cola|coke|pepsi)\b/.test(t)) {
     clarifyAnswers.push({ topic: 'drink_soft_type', answer: 'Diet / zero sugar' });

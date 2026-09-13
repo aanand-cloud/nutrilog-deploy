@@ -202,6 +202,14 @@ function multiplierFromAnswer(answer = '', topic = '') {
 }
 
 function parsePresetAmount(answer = '') {
+  const t = String(answer || '').toLowerCase();
+  if (/^none$|^no\b|no milk|no sugar|black/.test(t) && !/\d/.test(t)) {
+    return { amount: 0, unit: /\bml\b/.test(t) ? 'ml' : 'g' };
+  }
+  const ml = t.match(/(\d+(?:\.\d+)?)\s*ml\b/);
+  if (ml) return { amount: Number(ml[1]), unit: 'ml' };
+  const tsp = t.match(/(\d+(?:\.\d+)?)\s*(tsp|teaspoons?)\b/);
+  if (tsp) return { amount: Number(tsp[1]) * 4, unit: 'g' };
   const direct = parseGramsFromText(answer);
   if (direct > 0) return { amount: direct, unit: /\bml\b/i.test(answer) ? 'ml' : 'g' };
   const approx = String(answer).match(/~\s*(\d+(?:\.\d+)?)\s*(g|ml)?/i);
@@ -272,6 +280,52 @@ function applyPortionTopic(items, topic, answer, ctxText) {
   return markPortionClarifyHints(updated, topic, answer);
 }
 
+function isSoftDrinkItem(item) {
+  return /\b(coke|cola|pepsi|soda|soft drink|fizzy|lemonade|sprite|fanta|irn.?bru|dr pepper|energy drink)\b/.test(itemText(item));
+}
+
+function isHotDrinkItem(item) {
+  return /\b(coffee|tea|chai|latte|cappuccino|americano|espresso|mocha|drink|beverage|matcha)\b/.test(itemText(item));
+}
+
+function buildVerifiedAddon(name, query, grams, unit, kind) {
+  const ref = matchFoodReference(query);
+  if (!ref || !(grams > 0)) return null;
+  const scaled = nutritionForAmount(per100FromReference(ref), grams);
+  return {
+    name,
+    portion_estimate: `${name} (~${Math.round(grams)}${unit})`,
+    calories_kcal: scaled.calories_kcal,
+    nutrition: scaled.nutrition,
+    grams,
+    _refId: ref.id,
+    _authoritative: true,
+    _clarifyAdjusted: true,
+    _localClarify: true,
+    _drinkAddon: kind,
+    _displayUnit: unit,
+    _volumeMl: unit === 'ml' ? grams : undefined,
+    _reviewHint: `Added from your ${kind} answer`,
+  };
+}
+
+function replaceDrinkAddon(items, kind, grams, unit, query, name) {
+  const without = (items || []).filter((item) => item._drinkAddon !== kind);
+  if (!(grams > 0)) return without;
+  const addon = buildVerifiedAddon(name, query, grams, unit, kind);
+  return addon ? [...without, addon] : without;
+}
+
+function applyDrinkMilk(items, answer) {
+  const { amount } = parsePresetAmount(answer);
+  return replaceDrinkAddon(items, 'milk', amount, 'ml', 'semi-skimmed milk', 'Semi-skimmed milk');
+}
+
+function applyDrinkSugar(items, answer) {
+  const { amount } = parsePresetAmount(answer);
+  return replaceDrinkAddon(items, 'sugar', amount, 'g', 'sugar', 'Sugar');
+}
+
 function applyDrinkStyle(items, answer) {
   const t = String(answer).toLowerCase();
   let sugarG = 0;
@@ -291,8 +345,7 @@ function applyDrinkStyle(items, answer) {
   else if (/sweetened|chai|karak|latte|15 g sugar/.test(t)) sugarG = 15;
 
   return items.map((item) => {
-    const text = itemText(item);
-    if (!/\b(coffee|tea|chai|latte|cappuccino|drink|beverage)\b/.test(text)) return item;
+    if (!isHotDrinkItem(item)) return item;
     const baseKcal = num(item.calories_kcal);
     const addedKcal = milkKcal + sugarG * 4;
     const factor = baseKcal > 0 ? (baseKcal + addedKcal) / baseKcal : 1 + addedKcal / 40;
@@ -310,27 +363,51 @@ function applyDrinkStyle(items, answer) {
 }
 
 function applySoftDrinkType(items, answer) {
-  const factor = multiplierFromAnswer(answer);
-  if (factor == null || factor >= 0.5) return items;
-  return items.map((item) => {
-    if (!/\b(coke|cola|pepsi|soda|soft drink|fizzy|lemonade|sprite|irn.?bru)\b/.test(itemText(item))) {
-      return item;
-    }
+  const t = String(answer || '').toLowerCase();
+  if (/not sure/.test(t)) return items;
+  const wantZero = /diet|zero|sugar.?free/.test(t);
+  const wantRegular = /regular|full sugar|normal/.test(t);
+  if (!wantZero && !wantRegular) return items;
+
+  return items.map((item, index) => {
+    if (!isSoftDrinkItem(item) && items.length > 1 && index > 0) return item;
     const ml = Math.max(1, inferItemGrams(item));
+    if (wantZero) {
+      return {
+        ...item,
+        calories_kcal: Math.max(1, Math.round(ml * 0.008)),
+        nutrition: {
+          ...(item.nutrition || {}),
+          protein_g: 0,
+          carbs_g: 0,
+          fat_g: 0,
+          sugar_g: 0,
+        },
+        grams: ml,
+        _displayUnit: 'ml',
+        _volumeMl: ml,
+        _localClarify: true,
+        _clarifyAdjusted: true,
+        _refId: 'zero_sugar_soft_drink',
+        _authoritative: true,
+        _nutritionSource: 'zero_drink_guard',
+      };
+    }
+    const ref = matchFoodReference(String(item.name || '').replace(/\b(diet|zero|sugar[ -]?free)\b/gi, 'cola') || 'cola')
+      || matchFoodReference('cola');
+    if (!ref) return item;
+    const scaled = nutritionForAmount(per100FromReference(ref), ml);
     return {
       ...item,
-      calories_kcal: Math.max(1, Math.round(ml * 0.008)),
-      nutrition: {
-        ...(item.nutrition || {}),
-        protein_g: 0,
-        carbs_g: 0,
-        fat_g: 0,
-        sugar_g: 0,
-      },
+      calories_kcal: scaled.calories_kcal,
+      nutrition: scaled.nutrition,
+      grams: ml,
+      _displayUnit: 'ml',
+      _volumeMl: ml,
       _localClarify: true,
-      _refId: 'zero_sugar_soft_drink',
+      _clarifyAdjusted: true,
+      _refId: ref.id,
       _authoritative: true,
-      _nutritionSource: 'zero_drink_guard',
     };
   });
 }
@@ -405,11 +482,21 @@ function applySingleAnswer(analysis, { topic, answer }) {
         const isDrink = /\b(drink|coffee|tea|wine|beer|juice|soda|cola|latte|lassi|smoothie|water|ml\b)\b/.test(itemText(item));
         if (!isDrink && items.length > 1) return item;
         if (items.length === 1 || isDrink || index === 0) {
-          return rescaleItemToAmount(item, amount, unit);
+          return {
+            ...rescaleItemToAmount(item, amount, unit === 'ml' ? 'ml' : unit),
+            _displayUnit: unit === 'ml' ? 'ml' : item._displayUnit,
+            _volumeMl: unit === 'ml' ? amount : item._volumeMl,
+            _clarifyAdjusted: true,
+            _localClarify: true,
+          };
         }
         return item;
       });
     }
+  } else if (topic === 'drink_coffee_milk') {
+    items = applyDrinkMilk(items, answer);
+  } else if (topic === 'drink_coffee_sugar') {
+    items = applyDrinkSugar(items, answer);
   } else if (topic === 'drink_coffee_tea_style') {
     items = applyDrinkStyle(items, answer);
   } else if (topic === 'drink_soft_type') {
