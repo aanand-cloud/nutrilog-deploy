@@ -192,122 +192,122 @@ const OPTION_SETS = {
 
 const STEP_UI = {
   drink_coffee_tea_size: {
-    helper: 'Pick the cup size — millilitres (ml) are in brackets.',
+    helper: 'Pick the closest cup size.',
     inputLabel: 'Or type volume',
     inputPlaceholder: 'e.g. 350 ml',
     inputMode: 'decimal',
   },
   drink_coffee_tea_style: {
-    helper: 'Milk and sugar change calories a lot. Pick the closest match — sugar is in grams (g).',
+    helper: 'Milk and sugar change calories the most.',
     inputLabel: 'Or describe your drink',
     inputPlaceholder: 'e.g. oat latte, 2 sugars',
     inputMode: 'text',
   },
   drink_wine_size: {
-    helper: 'Wine is counted in millilitres (ml) — a standard pub glass is about 175 ml.',
+    helper: 'A standard glass is about 175 ml.',
     inputLabel: 'Or type volume',
     inputPlaceholder: 'e.g. 175 ml red wine',
     inputMode: 'decimal',
   },
   drink_spirits_size: {
-    helper: 'Spirits are usually measured in ml — a single is about 25 ml.',
+    helper: 'A single measure is about 25 ml.',
     inputLabel: 'Or type measure',
     inputPlaceholder: 'e.g. 25 ml whisky, 50 ml rum',
     inputMode: 'decimal',
   },
   drink_beer_size: {
-    helper: 'Beer and cider are counted in millilitres (ml).',
+    helper: 'Pick the closest pour.',
     inputLabel: 'Or type volume',
     inputPlaceholder: 'e.g. 568 ml pint',
     inputMode: 'decimal',
   },
   drink_soft_size: {
-    helper: 'Soft drinks are counted in millilitres (ml).',
+    helper: 'Pick the closest drink size.',
     inputLabel: 'Or type volume',
     inputPlaceholder: 'e.g. 330 ml can',
     inputMode: 'decimal',
   },
   drink_soft_type: {
-    helper: 'Regular vs diet/zero changes sugar and calories significantly.',
+    helper: 'Regular vs diet changes sugar a lot.',
     inputLabel: 'Or name the drink',
     inputPlaceholder: 'e.g. diet cola, regular lemonade',
     inputMode: 'text',
   },
   drink_juice_size: {
-    helper: 'Juice and smoothies are counted in millilitres (ml).',
+    helper: 'Pick the closest glass size.',
     inputLabel: 'Or type volume',
     inputPlaceholder: 'e.g. 300 ml orange juice',
     inputMode: 'decimal',
   },
   drink_water_size: {
-    helper: 'Water has no calories — volume is optional but helps your log stay accurate.',
+    helper: 'Volume is optional for water.',
     inputLabel: 'Or type volume',
     inputPlaceholder: 'e.g. 500 ml',
     inputMode: 'decimal',
   },
   drink_generic_size: {
-    helper: 'Drinks are counted in millilitres (ml). A rough estimate is fine.',
+    helper: 'A rough pour is fine.',
     inputLabel: 'Or type volume',
     inputPlaceholder: 'e.g. 250 ml',
     inputMode: 'decimal',
   },
   portion_snack: {
-    helper: 'Snacks are easiest to estimate in grams (g).',
+    helper: 'A rough gram weight is enough.',
     inputLabel: 'Or type weight',
     inputPlaceholder: 'e.g. 40 g',
     inputMode: 'decimal',
   },
   portion_solid: {
-    helper: 'A rough gram (g) weight improves accuracy for solid food.',
+    helper: 'A rough gram weight is enough.',
     inputLabel: 'Or type weight',
     inputPlaceholder: 'e.g. 180 g',
     inputMode: 'decimal',
   },
   bread_count: {
-    helper: 'Count pieces if easier — we convert to a sensible portion.',
+    helper: 'Count the pieces if that is easier.',
     inputLabel: 'Or type your answer',
     inputPlaceholder: 'e.g. 2 roti, 1 naan',
     inputMode: 'text',
   },
   oil_fat: {
-    helper: 'Oil and frying style change calories more than most people expect.',
+    helper: 'Oil changes calories more than portion tweaks.',
     inputLabel: 'Or describe',
     inputPlaceholder: 'e.g. shallow fried in ghee',
     inputMode: 'text',
   },
   sauce_gravy: {
-    helper: 'Sauces and curry gravies can add a lot of hidden calories.',
+    helper: 'Sauce type can hide extra calories.',
     inputLabel: 'Or describe',
     inputPlaceholder: 'e.g. thick coconut curry',
     inputMode: 'text',
   },
   protein_type: {
-    helper: 'Pick the main protein if the dish is mixed.',
+    helper: 'Pick the main protein.',
     inputLabel: 'Or type protein',
     inputPlaceholder: 'e.g. prawns, soya chunks',
     inputMode: 'text',
   },
   cooking_method: {
-    helper: 'How it was cooked affects fat and calories.',
+    helper: 'Cooking style changes fat.',
     inputLabel: 'Or describe',
     inputPlaceholder: 'e.g. air-fried, tandoori',
     inputMode: 'text',
   },
   rice_type: {
-    helper: 'Rice dishes vary a lot — fried and biryani rice usually have more oil.',
+    helper: 'Fried and biryani rice usually have more oil.',
     inputLabel: 'Or type the rice type',
     inputPlaceholder: 'e.g. lemon rice',
     inputMode: 'text',
   },
   accompaniments: {
-    helper: 'Select everything that was on the plate. You can add more on the next screen.',
+    helper: 'Select every side on the plate.',
     inputLabel: 'Or type another side',
     inputPlaceholder: 'e.g. mint chutney',
     inputMode: 'text',
     multi: true,
   },
   generic_portion: {
-    helper: 'Pick the closest match — exact numbers are not required.',
+    helper: 'Pick the closest match.',
     inputLabel: 'Or type your answer',
     inputPlaceholder: 'Your answer…',
     inputMode: 'text',
@@ -411,6 +411,16 @@ function topicGroup(topic) {
   if (DRINK_SIZE_TOPICS.has(topic) || topic === 'drink_volume') return 'drink_size';
   if (topic === 'drink_coffee_tea_style' || topic === 'drink_soft_type' || topic === 'drink_type') {
     return 'drink_style';
+  }
+  if (topic === 'oil_fat' || topic === 'cooking_method') return 'fat_cook';
+  if (
+    topic === 'portion_solid'
+    || topic === 'portion_snack'
+    || topic === 'portion_rice'
+    || topic === 'portion_starter'
+    || topic === 'generic_portion'
+  ) {
+    return 'portion';
   }
   return topic;
 }
@@ -611,17 +621,19 @@ function ensureEssentialQuestions(steps, analysis) {
   const ctx = mealContext(analysis);
   const starter = resolveIndianStarterFromAnalysis(analysis);
   const topics = new Set(steps.map((s) => s.topic));
+  const groups = new Set(steps.map((s) => topicGroup(s.topic)));
   const add = (topic, question) => {
-    if (topics.has(topic) || steps.length >= MAX_CLARIFICATION_QUESTIONS) return;
+    if (topics.has(topic) || groups.has(topicGroup(topic)) || steps.length >= MAX_CLARIFICATION_QUESTIONS) return;
     steps.push({ question, topic });
     topics.add(topic);
+    groups.add(topicGroup(topic));
   };
 
   if (starter) {
     add('portion_starter', `How much ${starter.label} is on the plate?`);
   }
   if (ctx.hasFried || ctx.hasCurry) {
-    add('oil_fat', 'Was additional oil, butter or ghee used?');
+    add('oil_fat', 'How much oil or ghee?');
   }
   if (ctx.hasRicePasta && !ctx.riceTypeKnown) {
     add('rice_type', 'What type of rice is this?');
@@ -633,16 +645,21 @@ function ensureEssentialQuestions(steps, analysis) {
     add('sauce_gravy', 'What type of sauce is this?');
   }
   if (ctx.hasIdliDosa) {
-    add('accompaniments', 'Which accompaniments are included?');
+    add('accompaniments', 'Which sides are on the plate?');
   }
 }
 
+export function wordCount(text = '') {
+  return String(text || '').trim().split(/\s+/).filter(Boolean).length;
+}
+
 function polishQuestion(question, topic, about, analysis) {
-  const q = question.replace(/\?$/, '').trim();
-  if (q.length > 90) {
+  const q = String(question || '').replace(/\?+$/, '').trim();
+  const withMark = q ? `${q}?` : defaultQuestionForTopic(topic, about, analysis);
+  if (wordCount(withMark) > 14) {
     return defaultQuestionForTopic(topic, about, analysis);
   }
-  return `${q}?`;
+  return withMark;
 }
 
 function defaultQuestionForTopic(topic, about, analysis) {
@@ -652,42 +669,42 @@ function defaultQuestionForTopic(topic, about, analysis) {
 
   switch (topic) {
     case 'drink_coffee_tea_size':
-      return `How much ${drinkName || 'coffee or tea'} did you have?`;
+      return `How much ${drinkName || 'coffee or tea'}?`;
     case 'drink_coffee_tea_style':
-      return `How was your ${drinkName || 'coffee or tea'} prepared? (milk & sugar)`;
+      return `Milk and sugar in the ${drinkName || 'drink'}?`;
     case 'drink_wine_size':
-      return `How much wine did you have?`;
+      return 'How much wine?';
     case 'drink_spirits_size':
-      return `What measure of spirits${item}? (whisky, vodka, rum, etc.)`;
+      return `What spirit measure${item}?`;
     case 'drink_beer_size':
-      return `How much beer or cider did you have?`;
+      return 'How much beer or cider?';
     case 'drink_soft_size':
-      return `How much of the soft drink did you have?`;
+      return 'How much soft drink?';
     case 'drink_soft_type':
-      return `Was it regular sugar or diet / zero?`;
+      return 'Regular or diet / zero?';
     case 'drink_juice_size':
-      return `How much juice or smoothie did you have?`;
+      return 'How much juice or smoothie?';
     case 'drink_water_size':
-      return `How much water did you drink?`;
+      return 'How much water?';
     case 'drink_generic_size':
     case 'drink_volume':
-      return `Roughly how much did you drink${item}?`;
+      return `How much did you drink${item}?`;
     case 'portion_snack':
-      return `About how much of the snack${item}? (grams)`;
+      return `How much snack${item}?`;
     case 'portion_solid':
-      return `About how much${item}? (rough grams)`;
+      return `How much${item || ' food'}?`;
     case 'portion_rice':
       return /\bbiryani\b/i.test(mealContext(analysis).text)
-        ? 'How much biryani did you have?'
-        : `About how much rice${item}?`;
+        ? 'How much biryani?'
+        : `How much rice${item}?`;
     case 'portion_starter': {
       const starter = resolveIndianStarterFromAnalysis(analysis);
-      return `How much ${starter?.label || about || 'starter'} is on the plate?`;
+      return `How much ${starter?.label || about || 'starter'}?`;
     }
     case 'bread_count':
       return `How many pieces${item}?`;
     case 'oil_fat':
-      return 'Was additional oil, butter or ghee used?';
+      return 'How much oil or ghee?';
     case 'sauce_gravy':
       return 'What type of sauce is this?';
     case 'protein_type':
@@ -697,7 +714,7 @@ function defaultQuestionForTopic(topic, about, analysis) {
     case 'rice_type':
       return 'What type of rice is this?';
     case 'accompaniments':
-      return 'Which accompaniments are included?';
+      return 'Which sides are on the plate?';
     default:
       return `What portion size${item}?`;
   }

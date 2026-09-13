@@ -24,6 +24,13 @@ import { bindModalA11y } from './modal-a11y.js';
 import { openConfirmModal } from './confirm-modal.js';
 import { openFoodSearchModal } from './food-search-modal.js';
 import { lookupFoodProduct } from './food-search.js';
+import {
+  clampOilTbsp,
+  isLowConfidenceItem,
+  isVisionReviewMeal,
+  mealOilTbspFromItems,
+  rebuildVisionReview,
+} from '../../shared/vision-review-adjust.js';
 
 /** Interactive review before saving an AI scan. */
 export function openMealReviewModal(analysis, { mealType = defaultMealType(), imageDataUrl = null } = {}) {
@@ -38,6 +45,29 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
     let addCalories = 120;
     let a11yCleanup = null;
     let changeTargetId = null;
+    const visionMode = isVisionReviewMeal(analysis);
+    let mealOilTbsp = mealOilTbspFromItems(items);
+
+    function applyVisionRebuild(nextItems, oilTbsp) {
+      const rebuilt = rebuildVisionReview(analysis, nextItems, oilTbsp);
+      analysis = rebuilt.analysis;
+      items = normalizeEditableItems(rebuilt.items);
+      mealOilTbsp = clampOilTbsp(oilTbsp);
+    }
+
+    function setItemGrams(id, grams) {
+      const amount = Math.max(1, Math.round(Number(grams) || 0));
+      items = items.map((item) => {
+        if (item.id !== id) return item;
+        return {
+          ...item,
+          grams: amount,
+          _originalGrams: amount,
+          _hiddenGrams: item._volumeMl ? item._hiddenGrams : amount,
+          _visionMeta: item._visionMeta ? { ...item._visionMeta, amount } : item._visionMeta,
+        };
+      });
+    }
 
     const overlay = document.createElement('div');
     overlay.className = 'camera-modal meal-review-modal';
@@ -98,6 +128,15 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
             `).join('')}
             ${eatenId === 'custom' ? `<label class="field"><span>Percent eaten</span><input type="number" id="customEatenPct" min="1" max="100" value="${Math.round(eatenFactor * 100)}"/></label>` : ''}
           </fieldset>
+          ${visionMode ? `
+          <div class="meal-review-oil" role="group" aria-label="Cooking oil">
+            <span>Cooking oil / ghee</span>
+            <div class="meal-review-stepper">
+              <button type="button" class="btn btn-ghost btn-sm" data-oil-delta="-0.5" aria-label="Less oil">−</button>
+              <strong>${mealOilTbsp} tbsp</strong>
+              <button type="button" class="btn btn-ghost btn-sm" data-oil-delta="0.5" aria-label="More oil">+</button>
+            </div>
+          </div>` : ''}
           <ul class="meal-review-items" id="reviewItemsList">
             ${t.scaled.map((item) => itemRow(item)).join('')}
           </ul>
@@ -155,15 +194,22 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
       const amount = displayAmountFromGrams(original, unitId);
       const match = item._unmatched ? 'Nutrition match needed' : 'Matched';
       const source = portionSourceLabel(item);
+      const low = isLowConfidenceItem(item);
       return `
-        <li class="meal-review-item" data-id="${item.id}">
+        <li class="meal-review-item${low ? ' meal-review-item--low' : ''}${item._visionOil ? ' meal-review-item--oil' : ''}" data-id="${item.id}">
           <div class="meal-review-item-head">
             <strong>${escapeHtml(item.name)}</strong>
+            ${low ? '<span class="meal-review-low">Check this</span>' : ''}
             <button type="button" class="btn-icon meal-review-delete" data-delete="${item.id}" aria-label="Remove ${escapeAttr(item.name)}">✕</button>
           </div>
           <p class="fine-print">${escapeHtml(householdEquivalentLabel(original, unitId, amount))} · ${source} · ${match}</p>
           <p class="fine-print">${escapeHtml(item.portion_estimate || '')}</p>
           <div class="meal-review-item-controls">
+            ${visionMode && !item._visionOil ? `
+            <div class="meal-review-stepper meal-review-stepper--grams">
+              <button type="button" class="btn btn-ghost btn-sm" data-gram-delta="${item.id}" data-step="-10" aria-label="Less ${escapeAttr(item.name)}">−</button>
+              <button type="button" class="btn btn-ghost btn-sm" data-gram-delta="${item.id}" data-step="10" aria-label="More ${escapeAttr(item.name)}">+</button>
+            </div>` : ''}
             <label class="field meal-review-weight">
               <span>Amount</span>
               <input type="number" min="0.1" step="0.1" value="${roundDisplay(amount, 1)}" data-weight="${item.id}"/>
@@ -242,7 +288,32 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
           if (!item) return;
           const unitId = item._displayUnit || 'g';
           const grams = gramsFromDisplayAmount(Number(input.value), unitId, item.baseGrams);
-          items = items.map((i) => (i.id === id ? scaleItem(i, grams) : i));
+          if (visionMode && !item._userEnteredWeight && !item._labelBacked) {
+            setItemGrams(id, grams);
+            applyVisionRebuild(items, mealOilTbsp);
+          } else {
+            items = items.map((i) => (i.id === id ? scaleItem(i, grams) : i));
+          }
+          render();
+        });
+      });
+
+      overlay.querySelectorAll('[data-gram-delta]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.gramDelta;
+          const item = items.find((i) => i.id === id);
+          if (!item) return;
+          const step = Number(btn.dataset.step) || 10;
+          const next = Math.max(1, Math.round((Number(item._originalGrams || item.grams) || 100) + step));
+          setItemGrams(id, next);
+          applyVisionRebuild(items, mealOilTbsp);
+          render();
+        });
+      });
+
+      overlay.querySelectorAll('[data-oil-delta]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          applyVisionRebuild(items, clampOilTbsp(mealOilTbsp + Number(btn.dataset.oilDelta)));
           render();
         });
       });
