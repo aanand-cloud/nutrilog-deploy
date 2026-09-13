@@ -112,7 +112,7 @@ const riceMeal = {
 };
 const steps = normalizeClarificationQuestions(riceMeal);
 assert('asks at most 3 questions', steps.length <= MAX_CLARIFICATION_QUESTIONS, String(steps.length));
-assert('oil or rice question for mixed meal', steps.some((s) => s.topic === 'oil_fat' || s.topic === 'rice_type'), steps.map((s) => s.topic).join(','));
+assert('asks grams for foods on the plate', steps.some((s) => s.topic === 'portion_item' && /chicken|rice/i.test(s.about || s.question)), steps.map((s) => `${s.topic}:${s.about || s.question}`).join(','));
 for (const step of steps) {
   const cfg = getClarificationStepConfig(step, riceMeal);
   assert(`Not sure on ${step.topic}`, cfg.options.some((o) => /^not sure$/i.test(o)));

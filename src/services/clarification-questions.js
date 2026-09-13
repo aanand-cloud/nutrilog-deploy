@@ -2,6 +2,7 @@ import { analysisIsMainlyDrink, drinkCategoryForSubtype, getDrinkSubtype } from 
 import { ZERO_DRINK_RE } from '../../shared/branded-uk-servings.js';
 import { filterClarificationStepsByNotes } from '../../shared/user-notes-apply.js';
 import {
+  matchIndianStarterRef,
   resolveIndianStarterFromAnalysis,
   starterPortionOptions,
 } from '../../shared/indian-starter-catalog.js';
@@ -35,6 +36,7 @@ const TOPIC_PRIORITY = [
   'drink_soft_type',
   'drink_coffee_tea_style',
   'drink_type',
+  'portion_item',
   'portion_snack',
   'portion_solid',
   'portion_rice',
@@ -55,6 +57,7 @@ const HIGH_IMPACT_TOPICS = new Set([
   'drink_coffee_sugar',
   'drink_coffee_tea_style',
   'drink_soft_type',
+  'portion_item',
   'portion_snack',
   'portion_solid',
   'oil_fat',
@@ -137,6 +140,12 @@ const OPTION_SETS = {
     'Regular (~250 ml)',
     'Can / bottle (~330 ml)',
     'Large (~500 ml)',
+  ],
+  portion_item: [
+    'About 80 g',
+    'About 120 g',
+    'About 180 g',
+    'About 250 g',
   ],
   portion_snack: [
     'Small handful (~30 g)',
@@ -278,6 +287,12 @@ const STEP_UI = {
     helper: 'A rough pour is fine.',
     inputLabel: 'Or type volume',
     inputPlaceholder: 'e.g. 250 ml',
+    inputMode: 'decimal',
+  },
+  portion_item: {
+    helper: 'A rough gram weight is enough.',
+    inputLabel: 'Or type grams',
+    inputPlaceholder: 'e.g. 120 g',
     inputMode: 'decimal',
   },
   portion_snack: {
@@ -436,7 +451,11 @@ function defaultDrinkSizeTopic(category) {
   }
 }
 
-function topicGroup(topic) {
+function topicGroup(topic, about = '') {
+  if (topic === 'portion_item') {
+    const key = String(about || '').toLowerCase().replace(/\s+/g, ' ').trim();
+    return key ? `portion_item:${key}` : 'portion_item';
+  }
   if (DRINK_SIZE_TOPICS.has(topic) || topic === 'drink_volume') return 'drink_size';
   if (topic === 'drink_coffee_milk') return 'drink_milk';
   if (topic === 'drink_coffee_sugar') return 'drink_sugar';
@@ -524,6 +543,10 @@ function parseQuestionItem(item) {
 export function classifyQuestion(question, analysis) {
   const q = (question || '').toLowerCase();
   const ctx = mealContext(analysis);
+  const namedGrams = q.match(/how many grams of\s+(.+?)\??$/i) || q.match(/how much\s+(.+?)\s+did you (eat|have)\??$/i);
+  if (namedGrams?.[1] && !/\b(oil|ghee|milk|sugar|sauce)\b/.test(namedGrams[1])) {
+    return 'portion_item';
+  }
 
   if (/\bhow much (milk|dairy)\b/.test(q) || (/\bml\b/.test(q) && /\bmilk\b/.test(q))) {
     return 'drink_coffee_milk';
@@ -616,7 +639,11 @@ export function normalizeClarificationQuestions(analysis, notes = '') {
     }
     if (topic === 'drink_coffee_tea_style') continue;
 
-    const group = topicGroup(topic);
+    if ((topic === 'portion_solid' || topic === 'generic_portion') && parsed.about) {
+      topic = 'portion_item';
+    }
+
+    const group = topicGroup(topic, parsed.about);
     if (topic === 'protein_type' && (analysis._anchored || analysis._refId) && !/\b(mixed|unknown)\b/i.test(parsed.question)) {
       continue;
     }
@@ -652,7 +679,7 @@ function uniqueByGroup(list = []) {
   const seen = new Set();
   const out = [];
   for (const step of list) {
-    const group = topicGroup(step.topic);
+    const group = topicGroup(step.topic, step.about);
     if (seen.has(group)) continue;
     seen.add(group);
     out.push(step);
@@ -716,33 +743,95 @@ function planDrinkQuestions(analysis) {
   return steps;
 }
 
+const SKIP_PORTION_ITEM_RE = /\b(cooking oil|vegetable oil|ghee|butter|salt|black pepper|garnish|lemon wedge|ice cube|water)\b/i;
+const BREAD_COUNT_RE = /\b(roti|chapati|naan|paratha|dosa|idli|puri|bhature)\b/i;
+const PROTEIN_ITEM_RE = /\b(chicken|mutton|lamb|beef|fish|prawn|shrimp|pork|turkey|paneer|tofu|egg|murgh)\b/i;
+const VEG_ITEM_RE = /\b(spinach|cabbage|potato|aloo|okra|okro|bhindi|lad(?:y|ies)[\s-]?finger|aubergine|eggplant|brinjal|broccoli|cauliflower|gobi|carrot|beans|peas|tomato|onion|pepper|capsicum|courgette|zucchini|mushroom|kale|lettuce|salad|palak|methi|lauki|karela|bitter\s+gourd|drumstick|pumpkin|beetroot|beets?|yam|olives?|ivy[\s-]?gou?rd|tendli|tindora|kovakkai|kovai|kundru|mixed\s+veg)\b/i;
+const FRUIT_ITEM_RE = /\b(apple|banana|mango|orange|grape|strawberry|blueberry|berries|avocado|papaya|pineapple|watermelon|melon|guava|pomegranate|pear|peach|plum|litchi|lychee|kiwi|date|fig|jackfruit|chikoo|sapota|amla|custard\s+apple|sitaphal|raisin|pomegranate|anar)\b/i;
+const STEREOTYPE_FOOD_TOPICS = new Set([
+  'oil_fat',
+  'rice_type',
+  'sauce_gravy',
+  'cooking_method',
+  'accompaniments',
+  'generic_portion',
+]);
+
+function parseItemGramsGuess(item = {}) {
+  const fromText = String(item.portion_estimate || item.name || '').match(/(\d+(?:\.\d+)?)\s*g\b/i);
+  if (fromText) return Math.round(Number(fromText[1]));
+  const n = Number(item.grams || item._originalGrams || item.estimated_amount);
+  return Number.isFinite(n) && n > 0 ? Math.round(n) : 120;
+}
+
+function portionOptionsForItem(item = {}) {
+  const grams = parseItemGramsGuess(item);
+  const step = grams >= 200 ? 20 : 10;
+  const roundTo = (value) => Math.max(step, Math.round(value / step) * step);
+  return [
+    `About ${roundTo(grams * 0.6)} g`,
+    `About ${roundTo(grams)} g`,
+    `About ${roundTo(grams * 1.5)} g`,
+  ];
+}
+
+function itemPortionPriority(item = {}) {
+  const text = itemLineText(item);
+  const confidence = Number(item.confidence);
+  let score = 0;
+  if (confidence > 0 && confidence < 0.75) score += 50;
+  if (PROTEIN_ITEM_RE.test(text)) score += 40;
+  if (VEG_ITEM_RE.test(text) || FRUIT_ITEM_RE.test(text)) score += 35;
+  if (/\b(rice|biryani|pasta|noodle|bread)\b/i.test(text)) score += 25;
+  score += Math.min(20, (Number(item.calories_kcal) || 0) / 20);
+  return score;
+}
+
+function isSkippableFoodItem(item = {}) {
+  if (item._visionOil || item._drinkAddon === 'milk' || item._drinkAddon === 'sugar') return true;
+  const text = itemLineText(item);
+  if (detectDrinkCategory(text)) return true;
+  return SKIP_PORTION_ITEM_RE.test(text) && !PROTEIN_ITEM_RE.test(text) && !VEG_ITEM_RE.test(text) && !FRUIT_ITEM_RE.test(text);
+}
+
 function planFoodQuestions(analysis) {
   if (analysisIsMainlyDrink(analysis)) return [];
-  const ctx = mealContext(analysis);
   const starter = resolveIndianStarterFromAnalysis(analysis);
-  const steps = [];
-  const add = (topic, question) => {
-    if (steps.some((s) => topicGroup(s.topic) === topicGroup(topic))) return;
-    steps.push({ question, topic });
-  };
+  const drinks = scannedDrinkItems(analysis);
+  const foods = (analysis?.items || [])
+    .filter((item) => !drinks.includes(item) && !isSkippableFoodItem(item))
+    .sort((a, b) => itemPortionPriority(b) - itemPortionPriority(a));
 
+  const steps = [];
   if (starter) {
-    add('portion_starter', `How much ${starter.label} is on the plate?`);
+    steps.push({
+      topic: 'portion_starter',
+      about: starter.label,
+      question: `How much ${starter.label} is on the plate?`,
+    });
   }
-  if (ctx.hasFried || ctx.hasCurry) {
-    add('oil_fat', 'How much oil or ghee?');
+
+  const hasBread = foods.some((item) => BREAD_COUNT_RE.test(itemLineText(item)));
+  if (hasBread && !starter) {
+    steps.push({
+      topic: 'bread_count',
+      about: '',
+      question: 'How many pieces?',
+    });
   }
-  if (ctx.hasRicePasta && !ctx.riceTypeKnown) {
-    add('rice_type', 'What type of rice is this?');
-  }
-  if (ctx.hasChicken && !ctx.cookingKnown && !starter) {
-    add('cooking_method', 'How was the chicken cooked?');
-  }
-  if (ctx.hasCurry) {
-    add('sauce_gravy', 'What type of sauce is this?');
-  }
-  if (ctx.hasIdliDosa) {
-    add('accompaniments', 'Which sides are on the plate?');
+
+  for (const item of foods) {
+    const name = String(item.name || '').replace(/\s+/g, ' ').trim();
+    if (!name) continue;
+    if (starter && matchIndianStarterRef(itemLineText(item))) continue;
+    if (hasBread && BREAD_COUNT_RE.test(itemLineText(item))) continue;
+    if (steps.some((s) => topicGroup(s.topic, s.about) === topicGroup('portion_item', name))) continue;
+    steps.push({
+      topic: 'portion_item',
+      about: name,
+      question: `How many grams of ${name}?`,
+      options: portionOptionsForItem(item),
+    });
   }
   return steps;
 }
@@ -757,8 +846,9 @@ function mergePhotoQuestions(geminiSteps, analysis) {
     ...planDrinkQuestions(analysis),
   ]);
   const food = uniqueByGroup([
-    ...geminiSteps.filter((s) => !isDrinkTopic(s.topic)),
+    ...geminiSteps.filter((s) => s.topic === 'protein_type'),
     ...planFoodQuestions(analysis),
+    ...geminiSteps.filter((s) => !isDrinkTopic(s.topic) && s.topic !== 'protein_type' && !STEREOTYPE_FOOD_TOPICS.has(s.topic)),
   ]);
 
   return [
@@ -815,6 +905,8 @@ function defaultQuestionForTopic(topic, about, analysis) {
     case 'drink_generic_size':
     case 'drink_volume':
       return `How many ml did you drink${item}?`;
+    case 'portion_item':
+      return about ? `How many grams of ${about}?` : 'How many grams is this?';
     case 'portion_snack':
       return `How much snack${item}?`;
     case 'portion_solid':
@@ -881,13 +973,20 @@ export function getClarificationStepConfig(step, analysis) {
   );
   const ui = STEP_UI[topic] || STEP_UI.generic_portion;
   const starter = topic === 'portion_starter' ? resolveIndianStarterFromAnalysis(analysis) : null;
+  const namedItem = (analysis?.items || []).find((item) => {
+    const name = String(item.name || '').toLowerCase();
+    const about = String(step?.about || '').toLowerCase();
+    return about && (name === about || name.includes(about) || about.includes(name));
+  });
   const options = step?.options?.length >= 2
     ? step.options
     : (topic === 'portion_starter'
       ? starterPortionOptions(starter)
-      : (OPTION_SETS[topic] || OPTION_SETS.generic_portion));
+      : (topic === 'portion_item'
+        ? portionOptionsForItem(namedItem)
+        : (OPTION_SETS[topic] || OPTION_SETS.generic_portion)));
   return {
-    question: step?.question || defaultQuestionForTopic(topic, '', analysis),
+    question: step?.question || defaultQuestionForTopic(topic, step?.about || '', analysis),
     topic,
     helper: ui.helper,
     options: withNotSure(options),

@@ -200,6 +200,7 @@ const PORTION_CLARIFY_TOPICS = new Set([
   'dessert_portion',
   'bread_count',
   'generic_portion',
+  'portion_item',
 ]);
 
 const FAT_CLARIFY_TOPICS = new Set([

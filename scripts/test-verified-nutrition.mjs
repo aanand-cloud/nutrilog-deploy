@@ -51,4 +51,39 @@ assert('rice verified or existing', ['verified', 'estimated'].includes(riceCanon
 assert('isVerifiedFoodId roti', isVerifiedFoodId('roti'));
 assert('isVerifiedFoodId unknown', !isVerifiedFoodId('xyzzy_food'));
 
+const okra = getVerifiedRecord('okra');
+assert('okra IFCT source', okra?.dataSource === 'ifct' && okra?.sourceRecordId === 'D056');
+assert('okra kcal', okra?.kcal100 === 28);
+
+const ladiesFinger = matchFoodReferenceDetailed('ladies finger');
+assert('match ladies finger → okra', ladiesFinger.ref?.id === 'okra', ladiesFinger.ref?.id);
+assert('okra overlay', enrichReferenceWithVerified(ladiesFinger.ref)._verified === true);
+
+const beans = matchFoodReferenceDetailed('french beans');
+assert('match french beans', beans.ref?.id === 'french_beans', beans.ref?.id);
+
+const plainBeans = matchFoodReferenceDetailed('beans');
+assert('plain beans are french beans not baked', plainBeans.ref?.id === 'french_beans', plainBeans.ref?.id);
+
+const bakedStill = matchFoodReferenceDetailed('200g baked beans');
+assert('baked beans still baked', bakedStill.ref?.id === 'baked_beans', bakedStill.ref?.id);
+
+const ivy = matchFoodReferenceDetailed('ivy gourd');
+assert('match ivy gourd', ivy.ref?.id === 'ivy_gourd', ivy.ref?.id);
+
+const karela = matchFoodReferenceDetailed('karela');
+assert('match karela', karela.ref?.id === 'karela', karela.ref?.id);
+
+const gobi = matchFoodReferenceDetailed('cauliflower');
+assert('cauliflower not broccoli', gobi.ref?.id === 'cauliflower', gobi.ref?.id);
+
+const mango = getVerifiedRecord('mango');
+assert('mango IFCT source', mango?.dataSource === 'ifct' && mango?.sourceRecordId === 'E036');
+assert('mango fibre', mango?.fibre100 === 1.88);
+assert('match mango', matchFoodReferenceDetailed('ripe mango').ref?.id === 'mango', matchFoodReferenceDetailed('ripe mango').ref?.id);
+assert('match guava fibre overlay', enrichReferenceWithVerified(matchFoodReferenceDetailed('guava').ref).fibre100 === 8.59);
+assert('match raisins not grapes', matchFoodReferenceDetailed('raisins').ref?.id === 'raisins', matchFoodReferenceDetailed('raisins').ref?.id);
+assert('match kiwi', matchFoodReferenceDetailed('kiwi').ref?.id === 'kiwi', matchFoodReferenceDetailed('kiwi').ref?.id);
+assert('banana still banana', matchFoodReferenceDetailed('banana').ref?.id === 'banana', matchFoodReferenceDetailed('banana').ref?.id);
+
 console.log('\nDone.');

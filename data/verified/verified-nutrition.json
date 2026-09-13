@@ -2,8 +2,26 @@
   "version": "1.0",
   "records": [
     {
+      "id": "amla",
+      "canonicalName": "Gooseberry",
+      "aliases": ["amla", "indian gooseberry", "nellikai", "nellika"],
+      "dataSource": "ifct",
+      "sourceRecordId": "E021",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 24,
+      "protein100": 0.34,
+      "carbs100": 4.39,
+      "fat100": 0.16,
+      "fibre100": 7.75,
+      "salt100": 1
+    },
+    {
       "id": "apple",
       "canonicalName": "Apple, eating, flesh and skin",
+      "aliases": ["apple", "apples", "seb"],
       "dataSource": "cofid",
       "sourceRecordId": "13-287",
       "verificationStatus": "verified",
@@ -21,6 +39,7 @@
     {
       "id": "avocado",
       "canonicalName": "Avocado, flesh only",
+      "aliases": ["avocado", "avocados"],
       "dataSource": "cofid",
       "sourceRecordId": "13-293",
       "verificationStatus": "verified",
@@ -89,6 +108,7 @@
     {
       "id": "banana",
       "canonicalName": "Banana, flesh only",
+      "aliases": ["banana", "bananas", "kela"],
       "dataSource": "cofid",
       "sourceRecordId": "13-342",
       "verificationStatus": "verified",
@@ -135,6 +155,23 @@
       "fibre100": 0,
       "sugar100": 0,
       "salt100": 60
+    },
+    {
+      "id": "beetroot",
+      "canonicalName": "Beet root",
+      "aliases": ["beetroot", "beetroots", "beet", "beets", "beet root"],
+      "dataSource": "ifct",
+      "sourceRecordId": "F001",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 36,
+      "protein100": 1.95,
+      "carbs100": 6.18,
+      "fat100": 0.14,
+      "fibre100": 3.31,
+      "salt100": 69
     },
     {
       "id": "biryani",
@@ -202,6 +239,24 @@
       "salt100": 490
     },
     {
+      "id": "blueberries",
+      "canonicalName": "Blueberries, raw",
+      "aliases": ["blueberry", "blueberries"],
+      "dataSource": "usda",
+      "sourceRecordId": "171711",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_usda",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 57,
+      "protein100": 0.74,
+      "carbs100": 14.49,
+      "fat100": 0.33,
+      "fibre100": 2.4,
+      "sugar100": 9.96,
+      "salt100": 1
+    },
+    {
       "id": "broccoli",
       "canonicalName": "Broccoli, boiled",
       "dataSource": "cofid",
@@ -254,6 +309,7 @@
     {
       "id": "carrots",
       "canonicalName": "Carrots, boiled",
+      "aliases": ["carrot", "carrots", "gajar", "gajjar"],
       "dataSource": "cofid",
       "sourceRecordId": "13-463",
       "verificationStatus": "verified",
@@ -270,6 +326,7 @@
     {
       "id": "cauliflower",
       "canonicalName": "Cauliflower, boiled",
+      "aliases": ["cauliflower", "gobi", "phool gobi", "phoolgobi"],
       "dataSource": "cofid",
       "sourceRecordId": "13-445",
       "verificationStatus": "verified",
@@ -553,6 +610,23 @@
       "salt100": 2
     },
     {
+      "id": "custard_apple",
+      "canonicalName": "Custard apple",
+      "aliases": ["custard apple", "sitaphal", "sitafal", "sharifa"],
+      "dataSource": "ifct",
+      "sourceRecordId": "E016",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 99,
+      "protein100": 1.62,
+      "carbs100": 20.38,
+      "fat100": 0.67,
+      "fibre100": 5.1,
+      "salt100": 1
+    },
+    {
       "id": "dal",
       "canonicalName": "Dal tadka",
       "dataSource": "ifct",
@@ -569,6 +643,23 @@
       "salt100": 350
     },
     {
+      "id": "dates",
+      "canonicalName": "Dates, dry, pale brown",
+      "aliases": ["date", "dates", "khajur", "khajoor"],
+      "dataSource": "ifct",
+      "sourceRecordId": "E017",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "dried",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 321,
+      "protein100": 2.45,
+      "carbs100": 74.91,
+      "fat100": 0.35,
+      "fibre100": 8.95,
+      "salt100": 2
+    },
+    {
       "id": "dosa",
       "canonicalName": "Dosa, plain",
       "dataSource": "ifct",
@@ -583,6 +674,23 @@
       "fat100": 4,
       "fibre100": 1,
       "salt100": 250
+    },
+    {
+      "id": "drumstick",
+      "canonicalName": "Drumstick",
+      "aliases": ["drumstick", "drumsticks", "moringa", "moringa pods", "murungakkai", "sajana"],
+      "dataSource": "ifct",
+      "sourceRecordId": "D046",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 29,
+      "protein100": 2.62,
+      "carbs100": 3.76,
+      "fat100": 0.12,
+      "fibre100": 6.83,
+      "salt100": 22
     },
     {
       "id": "edamame",
@@ -618,6 +726,23 @@
       "salt100": 124
     },
     {
+      "id": "fig",
+      "canonicalName": "Fig",
+      "aliases": ["fig", "figs", "anjeer"],
+      "dataSource": "ifct",
+      "sourceRecordId": "E020",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 82,
+      "protein100": 2.03,
+      "carbs100": 16.28,
+      "fat100": 0.37,
+      "fibre100": 4.64,
+      "salt100": 1
+    },
+    {
       "id": "fries",
       "canonicalName": "Chips, fried",
       "dataSource": "cofid",
@@ -634,8 +759,26 @@
       "salt100": 280
     },
     {
+      "id": "french_beans",
+      "canonicalName": "French beans, country",
+      "aliases": ["french beans", "green beans", "runner beans", "string beans", "snap beans", "cluster beans", "beans"],
+      "dataSource": "ifct",
+      "sourceRecordId": "D049",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 24,
+      "protein100": 2.49,
+      "carbs100": 2.68,
+      "fat100": 0.26,
+      "fibre100": 4.38,
+      "salt100": 9
+    },
+    {
       "id": "grapes",
       "canonicalName": "Grapes, raw",
+      "aliases": ["grape", "grapes", "angoor"],
       "dataSource": "cofid",
       "sourceRecordId": "13-476",
       "verificationStatus": "verified",
@@ -682,6 +825,23 @@
       "fibre100": 0,
       "sugar100": 4,
       "salt100": 60
+    },
+    {
+      "id": "guava",
+      "canonicalName": "Guava, white flesh",
+      "aliases": ["guava", "amrud"],
+      "dataSource": "ifct",
+      "sourceRecordId": "E028",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 32,
+      "protein100": 1.44,
+      "carbs100": 5.13,
+      "fat100": 0.32,
+      "fibre100": 8.59,
+      "salt100": 3
     },
     {
       "id": "honey",
@@ -755,6 +915,40 @@
       "salt100": 200
     },
     {
+      "id": "ivy_gourd",
+      "canonicalName": "Kovai, big",
+      "aliases": ["ivy gourd", "ivy guard", "tendli", "tindora", "tindori", "kovakkai", "kovai", "kundru", "coccinia"],
+      "dataSource": "ifct",
+      "sourceRecordId": "D054",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 17,
+      "protein100": 1.39,
+      "carbs100": 2.01,
+      "fat100": 0.24,
+      "fibre100": 3,
+      "salt100": 2
+    },
+    {
+      "id": "jackfruit",
+      "canonicalName": "Jack fruit, ripe",
+      "aliases": ["jackfruit", "jack fruit", "kathal", "chakka"],
+      "dataSource": "ifct",
+      "sourceRecordId": "E030",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 72,
+      "protein100": 2.74,
+      "carbs100": 14.01,
+      "fat100": 0.15,
+      "fibre100": 3.62,
+      "salt100": 1
+    },
+    {
       "id": "jam",
       "canonicalName": "Jam, strawberry",
       "dataSource": "cofid",
@@ -772,6 +966,23 @@
       "salt100": 20
     },
     {
+      "id": "karela",
+      "canonicalName": "Bitter gourd, jagged, teeth ridges, elongate",
+      "aliases": ["karela", "karelas", "bitter gourd", "bitter melon", "pavakkai", "pagarkai"],
+      "dataSource": "ifct",
+      "sourceRecordId": "D004",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 21,
+      "protein100": 1.44,
+      "carbs100": 2.82,
+      "fat100": 0.24,
+      "fibre100": 3.78,
+      "salt100": 13
+    },
+    {
       "id": "ketchup",
       "canonicalName": "Tomato ketchup",
       "dataSource": "cofid",
@@ -787,6 +998,24 @@
       "fibre100": 0.5,
       "sugar100": 22,
       "salt100": 900
+    },
+    {
+      "id": "kiwi",
+      "canonicalName": "Kiwifruit, green, raw",
+      "aliases": ["kiwi", "kiwifruit", "kiwis"],
+      "dataSource": "usda",
+      "sourceRecordId": "168153",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_usda",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 61,
+      "protein100": 1.14,
+      "carbs100": 14.66,
+      "fat100": 0.52,
+      "fibre100": 3,
+      "sugar100": 8.99,
+      "salt100": 3
     },
     {
       "id": "lamb",
@@ -838,6 +1067,40 @@
       "fibre100": 1,
       "sugar100": 0,
       "salt100": 20
+    },
+    {
+      "id": "litchi",
+      "canonicalName": "Litchi",
+      "aliases": ["litchi", "lychee", "lychees", "litchis"],
+      "dataSource": "ifct",
+      "sourceRecordId": "E035",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 54,
+      "protein100": 0.99,
+      "carbs100": 11.41,
+      "fat100": 0.26,
+      "fibre100": 1.34,
+      "salt100": 1
+    },
+    {
+      "id": "mango",
+      "canonicalName": "Mango, ripe, banganapalli",
+      "aliases": ["mango", "mangoes", "aam"],
+      "dataSource": "ifct",
+      "sourceRecordId": "E036",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 42,
+      "protein100": 0.54,
+      "carbs100": 8.18,
+      "fat100": 0.55,
+      "fibre100": 1.88,
+      "salt100": 1
     },
     {
       "id": "marmite",
@@ -908,6 +1171,24 @@
       "salt100": 55
     },
     {
+      "id": "mixed_vegetables",
+      "canonicalName": "Vegetables, mixed, frozen, cooked, boiled, drained, without salt",
+      "aliases": ["mixed vegetables", "mixed vegetable", "mixed veg", "mixed veggies"],
+      "dataSource": "usda",
+      "sourceRecordId": "170472",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_usda",
+      "preparationState": "boiled",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 65,
+      "protein100": 2.86,
+      "carbs100": 13.1,
+      "fat100": 0.15,
+      "fibre100": 4.4,
+      "sugar100": 3.12,
+      "salt100": 35
+    },
+    {
       "id": "mozzarella",
       "canonicalName": "Cheese, mozzarella",
       "dataSource": "cofid",
@@ -939,6 +1220,23 @@
       "fat100": 0.4,
       "fibre100": 5.1,
       "salt100": 5
+    },
+    {
+      "id": "musk_melon",
+      "canonicalName": "Musk melon, orange flesh",
+      "aliases": ["musk melon", "muskmelon", "cantaloupe", "kharbuja"],
+      "dataSource": "ifct",
+      "sourceRecordId": "E045",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 23,
+      "protein100": 0.42,
+      "carbs100": 4.24,
+      "fat100": 0.35,
+      "fibre100": 1.51,
+      "salt100": 1
     },
     {
       "id": "nuts",
@@ -974,6 +1272,23 @@
       "salt100": 5
     },
     {
+      "id": "okra",
+      "canonicalName": "Ladies finger",
+      "aliases": ["okra", "okro", "bhindi", "ladies finger", "lady finger", "ladies fingers", "lady fingers"],
+      "dataSource": "ifct",
+      "sourceRecordId": "D056",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 28,
+      "protein100": 2.08,
+      "carbs100": 3.62,
+      "fat100": 0.22,
+      "fibre100": 4.08,
+      "salt100": 7
+    },
+    {
       "id": "olive_oil",
       "canonicalName": "Oil, olive",
       "dataSource": "cofid",
@@ -989,6 +1304,23 @@
       "fibre100": 0,
       "sugar100": 0,
       "salt100": 0
+    },
+    {
+      "id": "olives",
+      "canonicalName": "Olives, ripe, canned (small-extra large)",
+      "aliases": ["olive", "olives"],
+      "dataSource": "usda",
+      "sourceRecordId": "169094",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_usda",
+      "preparationState": "canned",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 116,
+      "protein100": 0.84,
+      "carbs100": 6.04,
+      "fat100": 10.9,
+      "fibre100": 1.6,
+      "salt100": 735
     },
     {
       "id": "onion",
@@ -1010,6 +1342,7 @@
     {
       "id": "orange",
       "canonicalName": "Orange, flesh only",
+      "aliases": ["orange", "oranges", "clementine", "mandarin", "santra"],
       "dataSource": "cofid",
       "sourceRecordId": "13-381",
       "verificationStatus": "verified",
@@ -1058,6 +1391,23 @@
       "salt100": 350
     },
     {
+      "id": "papaya",
+      "canonicalName": "Papaya, ripe",
+      "aliases": ["papaya", "pawpaw", "papita"],
+      "dataSource": "ifct",
+      "sourceRecordId": "E049",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 24,
+      "protein100": 0.42,
+      "carbs100": 4.61,
+      "fat100": 0.16,
+      "fibre100": 2.83,
+      "salt100": 1
+    },
+    {
       "id": "pasta",
       "canonicalName": "Pasta, white, fresh, boiled",
       "dataSource": "cofid",
@@ -1073,6 +1423,23 @@
       "fibre100": 1.5,
       "sugar100": 0,
       "salt100": 5
+    },
+    {
+      "id": "peach",
+      "canonicalName": "Peach",
+      "aliases": ["peach", "peaches"],
+      "dataSource": "ifct",
+      "sourceRecordId": "E050",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 40,
+      "protein100": 0.86,
+      "carbs100": 7.82,
+      "fat100": 0.37,
+      "fibre100": 2.13,
+      "salt100": 1
     },
     {
       "id": "pav_bhaji",
@@ -1108,6 +1475,23 @@
       "salt100": 430
     },
     {
+      "id": "pear",
+      "canonicalName": "Pear",
+      "aliases": ["pear", "pears", "nashpati"],
+      "dataSource": "ifct",
+      "sourceRecordId": "E051",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 38,
+      "protein100": 0.36,
+      "carbs100": 8.09,
+      "fat100": 0.27,
+      "fibre100": 4.48,
+      "salt100": 1
+    },
+    {
       "id": "peas",
       "canonicalName": "Peas, boiled",
       "dataSource": "cofid",
@@ -1122,6 +1506,23 @@
       "fat100": 0.4,
       "fibre100": 5.1,
       "salt100": 5
+    },
+    {
+      "id": "pineapple",
+      "canonicalName": "Pineapple",
+      "aliases": ["pineapple", "ananas"],
+      "dataSource": "ifct",
+      "sourceRecordId": "E053",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 43,
+      "protein100": 0.52,
+      "carbs100": 9.42,
+      "fat100": 0.16,
+      "fibre100": 3.46,
+      "salt100": 1
     },
     {
       "id": "plain_rice",
@@ -1141,6 +1542,23 @@
       "salt100": 1
     },
     {
+      "id": "plum",
+      "canonicalName": "Plum",
+      "aliases": ["plum", "plums", "aloo bukhara"],
+      "dataSource": "ifct",
+      "sourceRecordId": "E054",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 57,
+      "protein100": 0.64,
+      "carbs100": 12.1,
+      "fat100": 0.4,
+      "fibre100": 2.07,
+      "salt100": 1
+    },
+    {
       "id": "poha",
       "canonicalName": "Poha",
       "dataSource": "ifct",
@@ -1155,6 +1573,23 @@
       "fat100": 3,
       "fibre100": 1.5,
       "salt100": 250
+    },
+    {
+      "id": "pomegranate",
+      "canonicalName": "Pomegranate, maroon seeds",
+      "aliases": ["pomegranate", "anar", "pomegranates"],
+      "dataSource": "ifct",
+      "sourceRecordId": "E055",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 55,
+      "protein100": 1.33,
+      "carbs100": 11.58,
+      "fat100": 0.15,
+      "fibre100": 2.83,
+      "salt100": 1
     },
     {
       "id": "pork",
@@ -1241,6 +1676,23 @@
       "salt100": 380
     },
     {
+      "id": "raisins",
+      "canonicalName": "Raisins, dried, black",
+      "aliases": ["raisin", "raisins", "kishmish"],
+      "dataSource": "ifct",
+      "sourceRecordId": "E057",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "dried",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 306,
+      "protein100": 2.57,
+      "carbs100": 71.29,
+      "fat100": 0.34,
+      "fibre100": 3.92,
+      "salt100": 8
+    },
+    {
       "id": "raita",
       "canonicalName": "Cucumber raita",
       "dataSource": "ifct",
@@ -1319,6 +1771,23 @@
       "fat100": 1.5,
       "fibre100": 2,
       "salt100": 350
+    },
+    {
+      "id": "sapota",
+      "canonicalName": "Sapota",
+      "aliases": ["sapota", "chikoo", "chiku", "sapodilla"],
+      "dataSource": "ifct",
+      "sourceRecordId": "E060",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 73,
+      "protein100": 0.92,
+      "carbs100": 13.9,
+      "fat100": 1.26,
+      "fibre100": 9.6,
+      "salt100": 2
     },
     {
       "id": "sausage",
@@ -1423,6 +1892,7 @@
     {
       "id": "spinach",
       "canonicalName": "Spinach, boiled",
+      "aliases": ["spinach", "palak"],
       "dataSource": "cofid",
       "sourceRecordId": "13-551",
       "verificationStatus": "verified",
@@ -1440,6 +1910,7 @@
     {
       "id": "strawberry",
       "canonicalName": "Strawberries, raw",
+      "aliases": ["strawberry", "strawberries"],
       "dataSource": "cofid",
       "sourceRecordId": "13-534",
       "verificationStatus": "verified",
@@ -1622,6 +2093,23 @@
       "salt100": 0
     },
     {
+      "id": "watermelon",
+      "canonicalName": "Water melon, pale green",
+      "aliases": ["watermelon", "water melon", "tarbooz", "tarbuj"],
+      "dataSource": "ifct",
+      "sourceRecordId": "E066",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 17,
+      "protein100": 0.59,
+      "carbs100": 3.02,
+      "fat100": 0.16,
+      "fibre100": 0.78,
+      "salt100": 1
+    },
+    {
       "id": "white_bread",
       "canonicalName": "Bread, white",
       "dataSource": "cofid",
@@ -1686,6 +2174,24 @@
       "fibre100": 0,
       "sugar100": 4.7,
       "salt100": 44
+    },
+    {
+      "id": "yam",
+      "canonicalName": "Yam, cooked, boiled, drained, or baked, without salt",
+      "aliases": ["yam", "yams", "white yam", "boiled yam"],
+      "dataSource": "usda",
+      "sourceRecordId": "170072",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_usda",
+      "preparationState": "boiled",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 116,
+      "protein100": 1.49,
+      "carbs100": 27.5,
+      "fat100": 0.14,
+      "fibre100": 3.9,
+      "sugar100": 0.49,
+      "salt100": 8
     },
     {
       "id": "yogurt",

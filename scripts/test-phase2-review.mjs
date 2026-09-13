@@ -44,7 +44,7 @@ const longQ = normalizeClarificationQuestions({
     question: 'Could you please tell us approximately how much extra cooking oil or ghee you think was used when this curry was prepared at home or in the restaurant?',
   }],
 });
-assert('long Gemini question is shortened', wordCount(longQ.find((s) => s.topic === 'oil_fat')?.question || '') <= 14);
+assert('long Gemini question is shortened', wordCount(longQ[0]?.question || '') <= 14, longQ[0]?.question);
 
 const grouped = normalizeClarificationQuestions({
   meal_summary: 'Fried chicken',
@@ -55,7 +55,7 @@ const grouped = normalizeClarificationQuestions({
     { topic: 'cooking_method', question: 'How was the chicken cooked?', options: ['Fried', 'Grilled'] },
   ],
 });
-assert('oil and cooking stay one question', grouped.filter((s) => s.topic === 'oil_fat' || s.topic === 'cooking_method').length === 1, grouped.map((s) => s.topic).join(','));
+assert('fried chicken asks item grams not two fat questions', grouped.some((s) => s.topic === 'portion_item') && grouped.filter((s) => s.topic === 'oil_fat' || s.topic === 'cooking_method').length <= 1, grouped.map((s) => s.topic).join(','));
 
 assert('low confidence below 0.90 is flagged', isLowConfidenceItem({ name: 'Rice', confidence: 0.7 }));
 assert('high confidence is not flagged', !isLowConfidenceItem({ name: 'Banana', confidence: 0.95 }));

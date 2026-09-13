@@ -1,6 +1,5 @@
 import {
   analyzeFoodPhoto,
-  refineWithClarifications,
   compressImage,
   compressDataUrl,
   needsClarification,
@@ -969,6 +968,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       question: steps[idx].question,
       answer,
       topic: steps[idx].topic,
+      about: steps[idx].about,
     });
     if (/^not sure$/i.test(String(answer))) {
       state.analysis._notSureAnswers = (state.analysis._notSureAnswers || 0) + 1;
@@ -979,30 +979,10 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       render();
       return;
     }
-    const drinkOnly = state.answers.every((a) => /^drink_/.test(a.topic || ''));
-    if (drinkOnly) {
-      state.analysis = applyClarificationsLocally(state.analysis, state.answers);
-      enrichDrinkContext(state.analysis);
-      state.step = 'review';
-      persist();
-      render();
-      return;
-    }
-    state.step = 'analyzing';
-    render();
-    try {
-      state.analysis = await refineWithClarifications(
-        state.image.base64,
-        state.image.mimeType,
-        state.analysis,
-        state.answers,
-        effectiveAnalysisNotes()
-      );
-      enrichDrinkContext(state.analysis);
-    } catch (_) {
-      showToast('Could not refine — showing previous estimate');
-    }
+    state.analysis = applyClarificationsLocally(state.analysis, state.answers);
+    enrichDrinkContext(state.analysis);
     state.step = 'review';
+    persist();
     render();
   }
 

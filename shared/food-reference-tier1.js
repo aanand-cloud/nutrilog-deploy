@@ -40,6 +40,13 @@ export function matchFoodReferenceTier1(text = '') {
     if (ref.id === 'fried_rice' && /\b(nigerian|jollof)\b/.test(t)) continue;
     if (ref.id === 'falafel' && /\b(wrap|pitta|pita|sandwich)\b/.test(t)) continue;
     if (ref.id === 'hummus' && /\b(carrot|pitta|pita|sticks)\b/.test(t)) continue;
+    if (ref.id === 'cauliflower' && /\b(aloo\s+gobi|gobi\s+manchurian|gobi\s+65|cauliflower\s+cheese|cauli\s+cheese)\b/.test(t)) continue;
+    if (ref.id === 'french_beans' && /\b(baked\s+beans|beans\s+on\s+toast|rajma|kidney\s+beans)\b/.test(t)) continue;
+    if (ref.id === 'olives' && /\bolive\s+oil\b/.test(t)) continue;
+    if (ref.id === 'berries' && /\b(strawberr|blueberr)\b/.test(t)) continue;
+    if (ref.id === 'grapes' && /\braisins?\b/.test(t)) continue;
+    if (ref.id === 'mango' && /\b(lassi|pickle|chutney)\b/.test(t)) continue;
+    if (ref.id === 'pineapple' && /\bbanana/.test(t)) continue;
     if (ref.id === 'bread' && /\b(peanut\s+butter|nutella|marmite|almond\s+butter)\b/.test(t)) continue;
     if (ref.id === 'southern_fried' && /\b(buffalo|wings?|tenders?|sandwich|waffles?)\b/.test(t)) continue;
     if (ref.id === 'chicken' && /\b(buffalo|wings?|tenders?|sandwich|waffles?|fried\s+steak|caesar)\b/.test(t)) continue;
@@ -61,7 +68,6 @@ export function matchFoodReferenceTier1(text = '') {
     if (ref.id === 'croissant' && /\b(pain\s+au\s+chocolat|chocolatine|danish|profiterole|eclair|éclair)\b/.test(t)) continue;
     if (ref.id === 'purin' && /\b(?:leche\s+)?flan\b/.test(t) && !/\bjapanese\s+flan\b|\bpurin\b/.test(t)) continue;
     if (ref.id === 'sauerkraut' && /\bbratwurst\b/.test(t)) continue;
-    if (ref.id === 'berries' && /\bstrawberr(y|ies)\b/.test(t)) continue;
     if (ref.id === 'pudding' && /\b(sticky\s+toffee|christmas|bread\s+and\s+butter|rice\s+pudding|mango\s+pudding|steamed\s+egg|purin)\b/.test(t)) continue;
     if (ref.id === 'milk' && /\b(coffee|tea|latte|cappuccino|chai|karak|mocha|hot\s+chocolate|white\s+coffee|flat\s+white|americano)\b/i.test(t)) continue;
     if (ref.id === 'coffee_black' && /\b(white\s+coffee|with\s+milk|condensed\s+milk|evaporated\s+milk|flat\s+white|latte|cappuccino|mocha|milky)\b/i.test(t)) continue;

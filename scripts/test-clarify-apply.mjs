@@ -243,7 +243,7 @@ const mixedColaTopics = mixedCola.map((s) => s.topic);
 results.push({
   label: 'Mixed plate keeps a cola diet question',
   pass: mixedColaTopics.includes('drink_soft_type')
-    && mixedColaTopics.some((t) => t === 'oil_fat' || t === 'rice_type' || t === 'sauce_gravy')
+    && mixedCola.some((s) => s.topic === 'portion_item' && /chicken|rice|naan/i.test(s.about || ''))
     && mixedCola.length === 3,
   before: null,
   after: null,
@@ -265,12 +265,57 @@ const mixedTea = normalizeClarificationQuestions({
 const mixedTeaTopics = mixedTea.map((s) => s.topic);
 results.push({
   label: 'Two foods plus tea keeps a milk question',
-  pass: mixedTeaTopics.includes('drink_coffee_milk') && mixedTea.length <= 3,
+  pass: mixedTeaTopics.includes('drink_coffee_milk')
+    && mixedTea.some((s) => s.topic === 'portion_item' || s.topic === 'drink_coffee_sugar')
+    && mixedTea.length <= 3,
   before: null,
   after: null,
   delta: 0,
   items: mixedTea.map((s) => `${s.topic}: ${s.question}`),
   notes: mixedTeaTopics.includes('drink_coffee_milk') ? [] : ['tea milk question missing'],
+});
+
+const vegSteps = normalizeClarificationQuestions({
+  meal_summary: 'Palak, cabbage and potato',
+  confidence_score: 0.8,
+  items: [
+    { name: 'Spinach', portion_estimate: '~80g', calories_kcal: 20 },
+    { name: 'Cabbage', portion_estimate: '~70g', calories_kcal: 18 },
+    { name: 'Potato', portion_estimate: '~120g', calories_kcal: 110 },
+  ],
+  clarification_questions: [],
+});
+results.push({
+  label: 'Veg plate asks grams of spinach, cabbage, potato',
+  pass: ['Spinach', 'Cabbage', 'Potato'].every((name) => vegSteps.some((s) => s.topic === 'portion_item' && s.about === name))
+    && vegSteps.length === 3
+    && !vegSteps.some((s) => s.topic === 'oil_fat' || s.topic === 'rice_type'),
+  before: null,
+  after: null,
+  delta: 0,
+  items: vegSteps.map((s) => s.question),
+  notes: vegSteps.some((s) => s.about === 'Spinach') ? [] : ['expected named veg gram questions'],
+});
+
+const spinachMeal = meal({
+  summary: 'Spinach and chicken',
+  kcal: 280,
+  items: [
+    { name: 'Spinach', portion_estimate: '~80g', calories_kcal: 20, nutrition: { protein_g: 2, carbs_g: 3, fat_g: 0, fibre_g: 2 } },
+    { name: 'Chicken', portion_estimate: '~150g', calories_kcal: 260, nutrition: { protein_g: 32, carbs_g: 0, fat_g: 14, fibre_g: 0 } },
+  ],
+});
+const spinachOut = applyClarificationsLocally(spinachMeal, [{ topic: 'portion_item', about: 'Spinach', answer: 'About 160 g' }]);
+const spinachItem = spinachOut.items.find((i) => /spinach/i.test(i.name));
+const chickenItem = spinachOut.items.find((i) => /chicken/i.test(i.name));
+results.push({
+  label: 'Spinach grams update that line only',
+  pass: /160\s*g/i.test(spinachItem?.portion_estimate || '') && /150\s*g/i.test(chickenItem?.portion_estimate || ''),
+  before: spinachMeal.total_calories_kcal,
+  after: spinachOut.total_calories_kcal,
+  delta: spinachOut.total_calories_kcal - spinachMeal.total_calories_kcal,
+  items: spinachOut.items.map((i) => `${i.name}: ${i.portion_estimate}`),
+  notes: /160\s*g/i.test(spinachItem?.portion_estimate || '') ? [] : ['spinach should become 160 g'],
 });
 
 run('Cola marked diet', meal({

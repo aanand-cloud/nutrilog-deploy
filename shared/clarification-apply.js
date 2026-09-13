@@ -82,6 +82,7 @@ const PORTION_TARGETED_TOPICS = new Set([
   'portion_snack',
   'dessert_portion',
   'generic_portion',
+  'portion_item',
   'bread_count',
 ]);
 
@@ -102,6 +103,7 @@ function buildAdjustedHint(topic, answer, itemName = '') {
     case 'portion_starter':
       return `${itemName || 'Starter'} set to ${label} from your starter answer`;
     case 'portion_solid':
+    case 'portion_item':
       return `${itemName || 'Portion'} set to ${label} from your answer`;
     case 'portion_takeaway':
       return `Takeaway portion set to ${label} from your answer`;
@@ -469,8 +471,33 @@ function applyProteinType(items, answer) {
   });
 }
 
-function applySingleAnswer(analysis, { topic, answer }) {
+function itemMatchesAbout(item, about = '') {
+  const name = String(item?.name || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  const target = String(about || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  if (!name || !target) return false;
+  return name === target || name.includes(target) || target.includes(name);
+}
+
+function applyNamedPortion(items, about, answer) {
+  const { amount, unit } = parsePresetAmount(answer);
+  if (amount <= 0) return items;
+  let matched = false;
+  const updated = items.map((item) => {
+    if (!itemMatchesAbout(item, about)) return item;
+    matched = true;
+    return {
+      ...rescaleItemToAmount(item, amount, unit === 'ml' ? 'ml' : 'g'),
+      _clarifyAdjusted: true,
+      _localClarify: true,
+    };
+  });
+  if (!matched) return applyPortionTopic(items, 'portion_solid', answer, '');
+  return markPortionClarifyHints(updated, 'portion_item', answer);
+}
+
+function applySingleAnswer(analysis, { topic, answer, about = '', question = '' }) {
   if (!topic || !answer) return analysis;
+  const namedAbout = about || (String(question).match(/grams of\s+(.+?)\??$/i) || [])[1] || '';
 
   const ctxText = mealText(analysis);
   let items = [...(analysis.items || [])];
@@ -514,6 +541,8 @@ function applySingleAnswer(analysis, { topic, answer }) {
     || topic === 'generic_portion'
   ) {
     items = applyPortionTopic(items, topic, answer, ctxText);
+  } else if (topic === 'portion_item') {
+    items = applyNamedPortion(items, namedAbout, answer);
   } else if (topic === 'meal_source') {
     const source = parseCookingSourceFromAnswer(answer);
     if (source === 'takeaway') {
