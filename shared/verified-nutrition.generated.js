@@ -1,5 +1,5 @@
 /** AUTO-GENERATED — do not edit. Run: node scripts/build-verified-nutrition-index.mjs */
-export const VERIFIED_NUTRITION_STATS = {"count":145,"version":"1.0","updated":"2026-09-06"};
+export const VERIFIED_NUTRITION_STATS = {"count":149,"version":"1.0","updated":"2026-09-06"};
 
 export const VERIFIED_BY_ID = {
   "amla": {
@@ -668,7 +668,17 @@ export const VERIFIED_BY_ID = {
   "chickpeas": {
     "id": "chickpeas",
     "canonicalName": "Chickpeas, dried, boiled",
-    "aliases": [],
+    "aliases": [
+      "chickpea",
+      "chickpeas",
+      "chick peas",
+      "chana",
+      "channa",
+      "kabuli chana",
+      "kala chana",
+      "garbanzo",
+      "garbanzo beans"
+    ],
     "dataSource": "cofid",
     "sourceRecordId": "11-201",
     "verificationStatus": "verified",
@@ -887,6 +897,35 @@ export const VERIFIED_BY_ID = {
     "fibre100": 1.5,
     "sugar100": 0,
     "salt100": 5,
+    "dataQualityScore": 95
+  },
+  "cowpeas": {
+    "id": "cowpeas",
+    "canonicalName": "Cowpeas, common (blackeyes), mature seeds, cooked, boiled, without salt",
+    "aliases": [
+      "cowpea",
+      "cowpeas",
+      "lobia",
+      "black eyed peas",
+      "black-eyed peas",
+      "black eyed pea"
+    ],
+    "dataSource": "usda",
+    "sourceRecordId": "173759",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_usda",
+    "preparationState": "boiled",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-13",
+    "kcal100": 116,
+    "protein100": 7.73,
+    "carbs100": 20.76,
+    "fat100": 0.53,
+    "fibre100": 6.5,
+    "sugar100": null,
+    "salt100": 10,
     "dataQualityScore": 95
   },
   "crisps": {
@@ -1615,7 +1654,12 @@ export const VERIFIED_BY_ID = {
   "lentils": {
     "id": "lentils",
     "canonicalName": "Lentils, green and brown, dried, boiled",
-    "aliases": [],
+    "aliases": [
+      "lentil",
+      "lentils",
+      "masoor",
+      "masoor dal"
+    ],
     "dataSource": "cofid",
     "sourceRecordId": "11-205",
     "verificationStatus": "verified",
@@ -2092,6 +2136,31 @@ export const VERIFIED_BY_ID = {
     "fibre100": 0.2,
     "sugar100": 9,
     "salt100": 1,
+    "dataQualityScore": 95
+  },
+  "paneer": {
+    "id": "paneer",
+    "canonicalName": "Paneer",
+    "aliases": [
+      "paneer",
+      "indian cottage cheese"
+    ],
+    "dataSource": "ifct",
+    "sourceRecordId": "L003",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_ifct",
+    "preparationState": "raw",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-13",
+    "kcal100": 306,
+    "protein100": 18.86,
+    "carbs100": 2.41,
+    "fat100": 24.78,
+    "fibre100": 0,
+    "sugar100": null,
+    "salt100": 485,
     "dataQualityScore": 95
   },
   "pani_puri": {
@@ -2699,6 +2768,34 @@ export const VERIFIED_BY_ID = {
     "salt100": 200,
     "dataQualityScore": 95
   },
+  "rajma": {
+    "id": "rajma",
+    "canonicalName": "Beans, kidney, red, mature seeds, cooked, boiled, without salt",
+    "aliases": [
+      "rajma",
+      "rajmah",
+      "kidney beans",
+      "kidney bean",
+      "red kidney beans"
+    ],
+    "dataSource": "usda",
+    "sourceRecordId": "175194",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_usda",
+    "preparationState": "boiled",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-13",
+    "kcal100": 127,
+    "protein100": 8.7,
+    "carbs100": 22.8,
+    "fat100": 0.5,
+    "fibre100": 7.4,
+    "sugar100": null,
+    "salt100": 5,
+    "dataQualityScore": 95
+  },
   "roast_chicken": {
     "id": "roast_chicken",
     "canonicalName": "Chicken, roast, meat only",
@@ -3158,6 +3255,32 @@ export const VERIFIED_BY_ID = {
     "salt100": 490,
     "dataQualityScore": 95
   },
+  "tofu": {
+    "id": "tofu",
+    "canonicalName": "Tofu, raw, firm, prepared with calcium sulfate",
+    "aliases": [
+      "tofu",
+      "bean curd",
+      "firm tofu"
+    ],
+    "dataSource": "usda",
+    "sourceRecordId": "172475",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_usda",
+    "preparationState": "raw",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-13",
+    "kcal100": 144,
+    "protein100": 17.3,
+    "carbs100": 2.78,
+    "fat100": 8.72,
+    "fibre100": 2.3,
+    "sugar100": null,
+    "salt100": 35,
+    "dataQualityScore": 95
+  },
   "tomato": {
     "id": "tomato",
     "canonicalName": "Tomatoes, raw",
@@ -3524,6 +3647,14 @@ export const VERIFIED_ALIAS_TO_ID = {
   "chicken_tikka_masala": "chicken_tikka_masala",
   "chicken tikka masala": "chicken_tikka_masala",
   "chickpeas": "chickpeas",
+  "chickpea": "chickpeas",
+  "chick peas": "chickpeas",
+  "chana": "chickpeas",
+  "channa": "chickpeas",
+  "kabuli chana": "chickpeas",
+  "kala chana": "chickpeas",
+  "garbanzo": "chickpeas",
+  "garbanzo beans": "chickpeas",
   "chocolate": "chocolate",
   "chole_bhature": "chole_bhature",
   "chole bhature": "chole_bhature",
@@ -3539,6 +3670,12 @@ export const VERIFIED_ALIAS_TO_ID = {
   "cooked rice": "cooked_rice",
   "cornflakes": "cornflakes",
   "couscous": "couscous",
+  "cowpeas": "cowpeas",
+  "cowpea": "cowpeas",
+  "lobia": "cowpeas",
+  "black eyed peas": "cowpeas",
+  "black-eyed peas": "cowpeas",
+  "black eyed pea": "cowpeas",
   "crisps": "crisps",
   "cucumber": "cucumber",
   "custard_apple": "custard_apple",
@@ -3627,6 +3764,9 @@ export const VERIFIED_ALIAS_TO_ID = {
   "kiwis": "kiwi",
   "lamb": "lamb",
   "lentils": "lentils",
+  "lentil": "lentils",
+  "masoor": "lentils",
+  "masoor dal": "lentils",
   "lettuce": "lettuce",
   "litchi": "litchi",
   "lychee": "litchi",
@@ -3680,6 +3820,8 @@ export const VERIFIED_ALIAS_TO_ID = {
   "santra": "orange",
   "orange_juice": "orange_juice",
   "orange juice": "orange_juice",
+  "paneer": "paneer",
+  "indian cottage cheese": "paneer",
   "pani_puri": "pani_puri",
   "pani puri": "pani_puri",
   "papaya": "papaya",
@@ -3743,6 +3885,11 @@ export const VERIFIED_ALIAS_TO_ID = {
   "raisin": "raisins",
   "kishmish": "raisins",
   "raita": "raita",
+  "rajma": "rajma",
+  "rajmah": "rajma",
+  "kidney beans": "rajma",
+  "kidney bean": "rajma",
+  "red kidney beans": "rajma",
   "roast_chicken": "roast_chicken",
   "roast chicken": "roast_chicken",
   "roti": "roti",
@@ -3781,6 +3928,9 @@ export const VERIFIED_ALIAS_TO_ID = {
   "sweet potato": "sweet_potato",
   "tea": "tea",
   "toast": "toast",
+  "tofu": "tofu",
+  "bean curd": "tofu",
+  "firm tofu": "tofu",
   "tomato": "tomato",
   "tuna": "tuna",
   "uttapam": "uttapam",

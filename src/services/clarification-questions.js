@@ -745,7 +745,7 @@ function planDrinkQuestions(analysis) {
 
 const SKIP_PORTION_ITEM_RE = /\b(cooking oil|vegetable oil|ghee|butter|salt|black pepper|garnish|lemon wedge|ice cube|water)\b/i;
 const BREAD_COUNT_RE = /\b(roti|chapati|naan|paratha|dosa|idli|puri|bhature)\b/i;
-const PROTEIN_ITEM_RE = /\b(chicken|mutton|lamb|beef|fish|prawn|shrimp|pork|turkey|paneer|tofu|egg|murgh)\b/i;
+const PROTEIN_ITEM_RE = /\b(chicken|mutton|lamb|beef|fish|prawn|shrimp|pork|turkey|paneer|tofu|egg|murgh|chickpea|channa?|chole|rajma|lentil|masoor|lobia|hummus|edamame|soya)\b/i;
 const VEG_ITEM_RE = /\b(spinach|cabbage|potato|aloo|okra|okro|bhindi|lad(?:y|ies)[\s-]?finger|aubergine|eggplant|brinjal|broccoli|cauliflower|gobi|carrot|beans|peas|tomato|onion|pepper|capsicum|courgette|zucchini|mushroom|kale|lettuce|salad|palak|methi|lauki|karela|bitter\s+gourd|drumstick|pumpkin|beetroot|beets?|yam|olives?|ivy[\s-]?gou?rd|tendli|tindora|kovakkai|kovai|kundru|mixed\s+veg)\b/i;
 const FRUIT_ITEM_RE = /\b(apple|banana|mango|orange|grape|strawberry|blueberry|berries|avocado|papaya|pineapple|watermelon|melon|guava|pomegranate|pear|peach|plum|litchi|lychee|kiwi|date|fig|jackfruit|chikoo|sapota|amla|custard\s+apple|sitaphal|raisin|pomegranate|anar)\b/i;
 const NUTS_SEEDS_RE = /\b(almonds?|badam|cashews?|kaju|peanuts?|ground[\s-]?nuts?|moongphali|walnuts?|akhrot|pistachios?|pista|hazelnuts?|pine[\s-]?nuts?|chilgoza|coconut|chia|flax|linseeds?|alsi|sesame\s+seeds?|poppy\s+seeds?|pumpkin\s+seeds?|pepitas?|sunflower\s+seeds?|mixed\s+nuts|nuts)\b/i;

@@ -479,6 +479,7 @@
     {
       "id": "chickpeas",
       "canonicalName": "Chickpeas, dried, boiled",
+      "aliases": ["chickpea", "chickpeas", "chick peas", "chana", "channa", "kabuli chana", "kala chana", "garbanzo", "garbanzo beans"],
       "dataSource": "cofid",
       "sourceRecordId": "11-201",
       "verificationStatus": "verified",
@@ -642,6 +643,23 @@
       "fibre100": 1.5,
       "sugar100": 0,
       "salt100": 5
+    },
+    {
+      "id": "cowpeas",
+      "canonicalName": "Cowpeas, common (blackeyes), mature seeds, cooked, boiled, without salt",
+      "aliases": ["cowpea", "cowpeas", "lobia", "black eyed peas", "black-eyed peas", "black eyed pea"],
+      "dataSource": "usda",
+      "sourceRecordId": "173759",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_usda",
+      "preparationState": "boiled",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 116,
+      "protein100": 7.73,
+      "carbs100": 20.76,
+      "fat100": 0.53,
+      "fibre100": 6.5,
+      "salt100": 10
     },
     {
       "id": "crisps",
@@ -1139,6 +1157,7 @@
     {
       "id": "lentils",
       "canonicalName": "Lentils, green and brown, dried, boiled",
+      "aliases": ["lentil", "lentils", "masoor", "masoor dal"],
       "dataSource": "cofid",
       "sourceRecordId": "11-205",
       "verificationStatus": "verified",
@@ -1475,6 +1494,23 @@
       "fibre100": 0.2,
       "sugar100": 9,
       "salt100": 1
+    },
+    {
+      "id": "paneer",
+      "canonicalName": "Paneer",
+      "aliases": ["paneer", "indian cottage cheese"],
+      "dataSource": "ifct",
+      "sourceRecordId": "L003",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 306,
+      "protein100": 18.86,
+      "carbs100": 2.41,
+      "fat100": 24.78,
+      "fibre100": 0,
+      "salt100": 485
     },
     {
       "id": "pani_puri",
@@ -1896,6 +1932,23 @@
       "salt100": 200
     },
     {
+      "id": "rajma",
+      "canonicalName": "Beans, kidney, red, mature seeds, cooked, boiled, without salt",
+      "aliases": ["rajma", "rajmah", "kidney beans", "kidney bean", "red kidney beans"],
+      "dataSource": "usda",
+      "sourceRecordId": "175194",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_usda",
+      "preparationState": "boiled",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 127,
+      "protein100": 8.7,
+      "carbs100": 22.8,
+      "fat100": 0.5,
+      "fibre100": 7.4,
+      "salt100": 5
+    },
+    {
       "id": "roast_chicken",
       "canonicalName": "Chicken, roast, meat only",
       "dataSource": "cofid",
@@ -2229,6 +2282,23 @@
       "fat100": 2.5,
       "fibre100": 7,
       "salt100": 490
+    },
+    {
+      "id": "tofu",
+      "canonicalName": "Tofu, raw, firm, prepared with calcium sulfate",
+      "aliases": ["tofu", "bean curd", "firm tofu"],
+      "dataSource": "usda",
+      "sourceRecordId": "172475",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_usda",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 144,
+      "protein100": 17.3,
+      "carbs100": 2.78,
+      "fat100": 8.72,
+      "fibre100": 2.3,
+      "salt100": 35
     },
     {
       "id": "tomato",

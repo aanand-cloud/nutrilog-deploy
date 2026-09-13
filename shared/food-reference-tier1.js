@@ -42,6 +42,10 @@ export function matchFoodReferenceTier1(text = '') {
     if (ref.id === 'hummus' && /\b(carrot|pitta|pita|sticks)\b/.test(t)) continue;
     if (ref.id === 'cauliflower' && /\b(aloo\s+gobi|gobi\s+manchurian|gobi\s+65|cauliflower\s+cheese|cauli\s+cheese)\b/.test(t)) continue;
     if (ref.id === 'french_beans' && /\b(baked\s+beans|beans\s+on\s+toast|rajma|kidney\s+beans)\b/.test(t)) continue;
+    if (ref.id === 'chickpeas' && /\b(masala|chole|curry|bhature|bhatura|madra)\b/.test(t)) continue;
+    if (ref.id === 'lentils' && /\b(dal\s+tadka|dal\s+makhani|lentil\s+dal)\b/.test(t)) continue;
+    if (ref.id === 'tofu' && /\b(mapo|ma\s+po)\b/.test(t)) continue;
+    if (ref.id === 'cowpeas' && /\b(soup|stew)\b/.test(t)) continue;
     if (ref.id === 'olives' && /\bolive\s+oil\b/.test(t)) continue;
     if (ref.id === 'berries' && /\b(strawberr|blueberr)\b/.test(t)) continue;
     if (ref.id === 'grapes' && /\braisins?\b/.test(t)) continue;

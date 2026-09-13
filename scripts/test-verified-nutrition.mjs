@@ -96,4 +96,20 @@ assert('chia fibre overlay', enrichReferenceWithVerified(matchFoodReferenceDetai
 assert('match sesame seeds', matchFoodReferenceDetailed('sesame seeds').ref?.id === 'sesame_seeds', matchFoodReferenceDetailed('sesame seeds').ref?.id);
 assert('match walnuts', matchFoodReferenceDetailed('walnuts').ref?.id === 'walnuts', matchFoodReferenceDetailed('walnuts').ref?.id);
 
+const paneer = getVerifiedRecord('paneer');
+assert('paneer IFCT source', paneer?.dataSource === 'ifct' && paneer?.sourceRecordId === 'L003');
+assert('paneer protein', paneer?.protein100 === 18.86);
+assert('match paneer cubes', matchFoodReferenceDetailed('paneer').ref?.id === 'paneer', matchFoodReferenceDetailed('paneer').ref?.id);
+assert('palak paneer stays dish', matchFoodReferenceDetailed('palak paneer').ref?.id === 'palak_paneer', matchFoodReferenceDetailed('palak paneer').ref?.id);
+const chanaHit = matchFoodReferenceDetailed('chana');
+const chanaEnriched = enrichReferenceWithVerified(chanaHit.ref);
+assert('chana uses chickpea nutrition', chanaEnriched?.kcal100 === 121 && chanaEnriched?.fibre100 === 5.5 && chanaEnriched?._verified === true, `${chanaHit.ref?.id} ${chanaEnriched?.kcal100}`);
+assert('chana is not chana masala', chanaHit.ref?.id !== 'chana_masala', chanaHit.ref?.id);
+assert('match chick peas', matchFoodReferenceDetailed('chick peas').ref?.id === 'chickpeas', matchFoodReferenceDetailed('chick peas').ref?.id);
+assert('chana masala stays curry', matchFoodReferenceDetailed('chana masala').ref?.id === 'chana_masala', matchFoodReferenceDetailed('chana masala').ref?.id);
+assert('match tofu fibre', enrichReferenceWithVerified(matchFoodReferenceDetailed('firm tofu').ref).fibre100 === 2.3);
+assert('mapo tofu stays mapo', matchFoodReferenceDetailed('mapo tofu').ref?.id === 'mapo_tofu', matchFoodReferenceDetailed('mapo tofu').ref?.id);
+assert('match rajma', matchFoodReferenceDetailed('rajma').ref?.id === 'rajma', matchFoodReferenceDetailed('rajma').ref?.id);
+assert('chickpeas CoFID kept', getVerifiedRecord('chickpeas')?.dataSource === 'cofid' && getVerifiedRecord('chickpeas')?.sourceRecordId === '11-201');
+
 console.log('\nDone.');
