@@ -220,12 +220,17 @@ export function composeAnalysisFromVision(vision = {}) {
   const { recipeItems, remainingStubs, decomposed } = decomposeVisionWithRecipes(stubs, vision);
   const oilItems = [];
 
-  const stubsForOil = decomposed ? recipeItems : remainingStubs;
-  for (const stub of stubsForOil) {
-    const meta = stub._visionMeta || {};
-    if (!meta.visible_oil) continue;
-    if (/steam|boil|raw|salad/.test(String(meta.cooking_method).toLowerCase())) continue;
-    oilItems.push(buildOilLineItem(oilGramsForMethod(meta.cooking_method)));
+  // Oil is a meal-level uncertainty, not one extra serving per detected dish.
+  // Recipe decompositions already include their cooking fat.
+  if (!decomposed) {
+    const oilyStub = remainingStubs.find((stub) => {
+      const meta = stub._visionMeta || {};
+      return meta.visible_oil
+        && !/steam|boil|raw|salad/.test(String(meta.cooking_method).toLowerCase());
+    });
+    if (oilyStub) {
+      oilItems.push(buildOilLineItem(oilGramsForMethod(oilyStub._visionMeta?.cooking_method)));
+    }
   }
 
   const calibratedRest = decomposed ? [] : remainingStubs.map(calibrateVisionItem);

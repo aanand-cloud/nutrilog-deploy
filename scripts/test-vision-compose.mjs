@@ -66,6 +66,18 @@ assert('items have per100 anchor', composed.items.every((i) => i._per100?.protei
 assert('totals calculated', composed.total_calories_kcal > 0, `${composed.total_calories_kcal} kcal`);
 assert('vision flag set', composed._visionComposed === true);
 assert('adds oil line when visible_oil', composed.items.some((i) => i._visionOil || i.name === 'Cooking oil'));
+assert('adds no more than one meal-level oil item', composed.items.filter((i) => i._visionOil).length <= 1);
+
+const oilyPlatter = composeAnalysisFromVision({
+  meal_summary: 'Mixed fried platter',
+  items: [
+    { name: 'Chicken wings', unit: 'g', estimated_amount: 150, cooking_method: 'fried', visible_oil: true },
+    { name: 'Stir-fried vegetables', unit: 'g', estimated_amount: 200, cooking_method: 'stir_fried', visible_oil: true },
+    { name: 'Fish cakes', unit: 'g', estimated_amount: 120, cooking_method: 'fried', visible_oil: true },
+  ],
+  clarification_questions: [],
+});
+assert('multiple oily dishes do not create duplicate oil servings', oilyPlatter.items.filter((i) => i._visionOil).length === 1);
 
 const normalized = normalizePhotoAnalysis(vision);
 assert('normalize routes vision to composed', normalized._visionComposed === true);
