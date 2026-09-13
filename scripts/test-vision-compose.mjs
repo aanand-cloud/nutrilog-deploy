@@ -99,6 +99,21 @@ const jollof = composeAnalysisFromVision({
 assert('meal context preserves regional rice identity', jollof.items.some((i) => /jollof/.test(i._refId || '')), jollof.items.map((i) => i._refId).join(', '));
 assert('regional rice name remains visible', jollof.items.some((i) => /jollof/i.test(i.name)), jollof.items.map((i) => i.name).join(', '));
 
+const oversizedSides = composeAnalysisFromVision({
+  meal_summary: 'Idli plate',
+  items: [
+    { name: 'Idli', unit: 'g', estimated_amount: 300, cooking_method: 'steamed', visible_oil: false },
+    { name: 'Coconut chutney', unit: 'g', estimated_amount: 100, cooking_method: 'raw', visible_oil: false },
+    { name: 'Tomato chutney', unit: 'g', estimated_amount: 100, cooking_method: 'cooked', visible_oil: false },
+    { name: 'Fresh basil', unit: 'g', estimated_amount: 30, cooking_method: 'raw', visible_oil: false },
+  ],
+  clarification_questions: [],
+});
+const cappedSides = oversizedSides.items.filter((i) => i._portionCapped);
+assert('small accompaniments receive plausible photo caps', cappedSides.length === 3, cappedSides.map((i) => `${i.name}:${i._hiddenGrams}`).join(', '));
+assert('chutney photo cap is 60g', cappedSides.filter((i) => /chutney/i.test(i.name)).every((i) => i._hiddenGrams === 60));
+assert('garnish photo cap is 15g', cappedSides.find((i) => /basil/i.test(i.name))?._hiddenGrams === 15);
+
 const normalized = normalizePhotoAnalysis(vision);
 assert('normalize routes vision to composed', normalized._visionComposed === true);
 

@@ -117,9 +117,25 @@ function oilGramsForMethod(cookingMethod = '') {
   return 7;
 }
 
+function calibratedVisionAmount(name = '', amount = 0, unit = 'g') {
+  if (unit === 'ml') return { amount, capped: false };
+  const text = String(name).toLowerCase();
+  const rules = [
+    { pattern: /\b(chutney|pickle|relish)\b/, max: 60 },
+    { pattern: /\b(butter|ghee|mayonnaise|mayo|jam)\b/, max: 40 },
+    { pattern: /\b(dip|dressing)\b/, max: 100 },
+    { pattern: /\b(basil|coriander|cilantro|parsley|mint garnish|herb garnish)\b/, max: 15 },
+  ];
+  const rule = rules.find((candidate) => candidate.pattern.test(text));
+  if (!rule || amount <= rule.max) return { amount, capped: false };
+  return { amount: rule.max, capped: true, originalAmount: amount };
+}
+
 function visionItemToStub(visionItem = {}) {
   const unit = String(visionItem.unit || 'g').toLowerCase() === 'ml' ? 'ml' : 'g';
-  const amount = Math.max(1, Math.round(num(visionItem.estimated_amount) || (unit === 'ml' ? 250 : 120)));
+  const rawAmount = Math.max(1, Math.round(num(visionItem.estimated_amount) || (unit === 'ml' ? 250 : 120)));
+  const calibrated = calibratedVisionAmount(visionItem.name, rawAmount, unit);
+  const amount = calibrated.amount;
   return {
     name: String(visionItem.name || 'Food').trim() || 'Food',
     portion_estimate: unit === 'ml' ? `~${amount}ml` : `~${amount}g`,
@@ -140,6 +156,11 @@ function visionItemToStub(visionItem = {}) {
       visible_oil: Boolean(visionItem.visible_oil),
     },
     _portionSource: 'photo_estimated',
+    ...(calibrated.capped ? {
+      _portionCapped: true,
+      _visionOriginalAmount: calibrated.originalAmount,
+      _portionSourceDetail: 'photo_small_accompaniment_cap',
+    } : {}),
     ...(visionItem._refId ? { _refId: visionItem._refId } : {}),
     ...(visionItem._visionDetectedName ? { _visionDetectedName: visionItem._visionDetectedName } : {}),
     _hiddenGrams: unit === 'g' ? amount : undefined,
