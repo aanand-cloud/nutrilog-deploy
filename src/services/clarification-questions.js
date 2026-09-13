@@ -631,10 +631,8 @@ export function normalizeClarificationQuestions(analysis, notes = '') {
     });
   }
 
-  ensureEssentialQuestions(steps, analysis);
-  ensureDrinkQuestions(steps, analysis);
-
-  const filtered = notes ? filterClarificationStepsByNotes(steps, notes) : steps;
+  const merged = mergePhotoQuestions(steps, analysis);
+  const filtered = notes ? filterClarificationStepsByNotes(merged, notes) : merged;
   filtered.sort(
     (a, b) => TOPIC_PRIORITY.indexOf(a.topic) - TOPIC_PRIORITY.indexOf(b.topic),
   );
@@ -642,46 +640,90 @@ export function normalizeClarificationQuestions(analysis, notes = '') {
   return filtered.slice(0, MAX_CLARIFICATION_QUESTIONS);
 }
 
-function drinkLooksMilky(text = '') {
-  return /\b(latte|cappuccino|mocha|flat white|macchiato|hot chocolate|milk tea|bubble tea|boba)\b/i.test(text);
+function itemLineText(item = {}) {
+  return `${item.name || ''} ${item.portion_estimate || ''}`.toLowerCase();
 }
 
-function ensureDrinkQuestions(steps, analysis) {
-  const ctx = mealContext(analysis);
-  if (!ctx.drinkCategory) return;
-  const topics = new Set(steps.map((s) => s.topic));
-  const groups = new Set(steps.map((s) => topicGroup(s.topic)));
-  const add = (topic, question) => {
-    if (topics.has(topic) || groups.has(topicGroup(topic)) || steps.length >= MAX_CLARIFICATION_QUESTIONS) return;
-    steps.push({ question, topic });
-    topics.add(topic);
-    groups.add(topicGroup(topic));
+function isDrinkTopic(topic = '') {
+  return String(topic).startsWith('drink_');
+}
+
+function uniqueByGroup(list = []) {
+  const seen = new Set();
+  const out = [];
+  for (const step of list) {
+    const group = topicGroup(step.topic);
+    if (seen.has(group)) continue;
+    seen.add(group);
+    out.push(step);
+  }
+  return out;
+}
+
+function scannedDrinkItems(analysis) {
+  return (analysis?.items || []).filter((item) => detectDrinkCategory(itemLineText(item)));
+}
+
+function drinkQuestionSlots(analysis, drinkCount, foodCount) {
+  if (drinkCount <= 0) return 0;
+  if (analysisIsMainlyDrink(analysis) || foodCount <= 0) return MAX_CLARIFICATION_QUESTIONS;
+  if (foodCount >= 3) return 1;
+  if (foodCount === 2) return 2;
+  return 2;
+}
+
+function stepForTopic(topic, analysis, about = '') {
+  return {
+    question: defaultQuestionForTopic(topic, about, analysis),
+    topic,
+    about,
+  };
+}
+
+function planDrinkQuestions(analysis) {
+  const drinks = scannedDrinkItems(analysis);
+  const steps = [];
+  const add = (topic, about = '') => {
+    if (steps.some((s) => topicGroup(s.topic) === topicGroup(topic))) return;
+    steps.push(stepForTopic(topic, analysis, about));
   };
 
-  add(defaultDrinkSizeTopic(ctx.drinkCategory), defaultQuestionForTopic(defaultDrinkSizeTopic(ctx.drinkCategory), '', analysis));
-
-  if (ctx.drinkCategory === 'coffee_tea') {
-    if (!drinkLooksMilky(ctx.text)) {
-      add('drink_coffee_milk', defaultQuestionForTopic('drink_coffee_milk', '', analysis));
+  for (const item of drinks) {
+    const text = itemLineText(item);
+    const cat = detectDrinkCategory(text);
+    const about = String(item.name || '').replace(/\s+/g, ' ').trim();
+    if (!cat) continue;
+    if (cat === 'soft_drink' && !ZERO_DRINK_RE.test(text)) add('drink_soft_type', about);
+    if (cat === 'coffee_tea') {
+      if (!drinkLooksMilky(text)) add('drink_coffee_milk', about);
+      add('drink_coffee_sugar', about);
     }
-    add('drink_coffee_sugar', defaultQuestionForTopic('drink_coffee_sugar', '', analysis));
+    add(defaultDrinkSizeTopic(cat), about);
   }
-  if (ctx.drinkCategory === 'soft_drink' && !ZERO_DRINK_RE.test(ctx.text)) {
-    add('drink_soft_type', defaultQuestionForTopic('drink_soft_type', '', analysis));
+
+  if (!steps.length) {
+    const ctx = mealContext(analysis);
+    if (!ctx.drinkCategory) return steps;
+    if (ctx.drinkCategory === 'soft_drink' && !ZERO_DRINK_RE.test(ctx.text)) {
+      add('drink_soft_type');
+    }
+    if (ctx.drinkCategory === 'coffee_tea') {
+      if (!drinkLooksMilky(ctx.text)) add('drink_coffee_milk');
+      add('drink_coffee_sugar');
+    }
+    add(defaultDrinkSizeTopic(ctx.drinkCategory));
   }
+  return steps;
 }
 
-function ensureEssentialQuestions(steps, analysis) {
+function planFoodQuestions(analysis) {
+  if (analysisIsMainlyDrink(analysis)) return [];
   const ctx = mealContext(analysis);
-  if (ctx.drinkCategory && analysisIsMainlyDrink(analysis)) return;
   const starter = resolveIndianStarterFromAnalysis(analysis);
-  const topics = new Set(steps.map((s) => s.topic));
-  const groups = new Set(steps.map((s) => topicGroup(s.topic)));
+  const steps = [];
   const add = (topic, question) => {
-    if (topics.has(topic) || groups.has(topicGroup(topic)) || steps.length >= MAX_CLARIFICATION_QUESTIONS) return;
+    if (steps.some((s) => topicGroup(s.topic) === topicGroup(topic))) return;
     steps.push({ question, topic });
-    topics.add(topic);
-    groups.add(topicGroup(topic));
   };
 
   if (starter) {
@@ -702,6 +744,31 @@ function ensureEssentialQuestions(steps, analysis) {
   if (ctx.hasIdliDosa) {
     add('accompaniments', 'Which sides are on the plate?');
   }
+  return steps;
+}
+
+function mergePhotoQuestions(geminiSteps, analysis) {
+  const drinks = scannedDrinkItems(analysis);
+  const foodCount = Math.max(0, (analysis?.items || []).length - drinks.length);
+  const drinkSlots = drinkQuestionSlots(analysis, drinks.length || (mealContext(analysis).drinkCategory ? 1 : 0), foodCount);
+
+  const drink = uniqueByGroup([
+    ...geminiSteps.filter((s) => isDrinkTopic(s.topic)),
+    ...planDrinkQuestions(analysis),
+  ]);
+  const food = uniqueByGroup([
+    ...geminiSteps.filter((s) => !isDrinkTopic(s.topic)),
+    ...planFoodQuestions(analysis),
+  ]);
+
+  return [
+    ...drink.slice(0, drinkSlots),
+    ...food.slice(0, Math.max(0, MAX_CLARIFICATION_QUESTIONS - Math.min(drinkSlots, drink.length))),
+  ];
+}
+
+function drinkLooksMilky(text = '') {
+  return /\b(latte|cappuccino|mocha|flat white|macchiato|hot chocolate|milk tea|bubble tea|boba)\b/i.test(text);
 }
 
 export function wordCount(text = '') {
@@ -724,13 +791,13 @@ function defaultQuestionForTopic(topic, about, analysis) {
 
   switch (topic) {
     case 'drink_coffee_tea_size':
-      return `How many ml of ${drinkName || 'coffee or tea'}?`;
+      return `How many ml of ${about || drinkName || 'coffee or tea'}?`;
     case 'drink_coffee_tea_style':
-      return `Milk and sugar in the ${drinkName || 'drink'}?`;
+      return `Milk and sugar in the ${about || drinkName || 'drink'}?`;
     case 'drink_coffee_milk':
-      return 'How much milk, in ml?';
+      return about ? `How much milk in the ${about}, in ml?` : 'How much milk, in ml?';
     case 'drink_coffee_sugar':
-      return 'How much sugar, in grams?';
+      return about ? `How much sugar in the ${about}, in grams?` : 'How much sugar, in grams?';
     case 'drink_wine_size':
       return 'How many ml of wine?';
     case 'drink_spirits_size':
@@ -738,11 +805,11 @@ function defaultQuestionForTopic(topic, about, analysis) {
     case 'drink_beer_size':
       return 'How many ml of beer or cider?';
     case 'drink_soft_size':
-      return 'How many ml of drink?';
+      return about ? `How many ml of ${about}?` : 'How many ml of drink?';
     case 'drink_soft_type':
-      return 'Regular, diet, or zero?';
+      return about ? `Is the ${about} regular, diet, or zero?` : 'Regular, diet, or zero?';
     case 'drink_juice_size':
-      return 'How many ml of juice or smoothie?';
+      return about ? `How many ml of ${about}?` : 'How many ml of juice or smoothie?';
     case 'drink_water_size':
       return 'How many ml of water?';
     case 'drink_generic_size':

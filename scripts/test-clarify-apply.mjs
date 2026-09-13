@@ -228,6 +228,51 @@ run('Tea + 50 ml milk + 8 g sugar', meal({
   { topic: 'drink_coffee_sugar', answer: '2 tsp (~8 g)' },
 ], { direction: 'up', minAfter: 40, mustInclude: 'milk' });
 
+const mixedCola = normalizeClarificationQuestions({
+  meal_summary: 'Chicken curry, rice, naan and Coca-Cola',
+  confidence_score: 0.8,
+  items: [
+    { name: 'Chicken curry', portion_estimate: '~250g', calories_kcal: 320 },
+    { name: 'Rice', portion_estimate: '~180g', calories_kcal: 200 },
+    { name: 'Naan', portion_estimate: '~80g', calories_kcal: 240 },
+    { name: 'Coca-Cola', portion_estimate: '~330ml', calories_kcal: 139 },
+  ],
+  clarification_questions: [],
+});
+const mixedColaTopics = mixedCola.map((s) => s.topic);
+results.push({
+  label: 'Mixed plate keeps a cola diet question',
+  pass: mixedColaTopics.includes('drink_soft_type')
+    && mixedColaTopics.some((t) => t === 'oil_fat' || t === 'rice_type' || t === 'sauce_gravy')
+    && mixedCola.length === 3,
+  before: null,
+  after: null,
+  delta: 0,
+  items: mixedCola.map((s) => `${s.topic}: ${s.question}`),
+  notes: mixedColaTopics.includes('drink_soft_type') ? [] : ['drink question was dropped'],
+});
+
+const mixedTea = normalizeClarificationQuestions({
+  meal_summary: 'Chicken curry, rice and tea',
+  confidence_score: 0.8,
+  items: [
+    { name: 'Chicken curry', portion_estimate: '~250g', calories_kcal: 320 },
+    { name: 'Rice', portion_estimate: '~180g', calories_kcal: 200 },
+    { name: 'Black tea', portion_estimate: '~250ml', calories_kcal: 8 },
+  ],
+  clarification_questions: [],
+});
+const mixedTeaTopics = mixedTea.map((s) => s.topic);
+results.push({
+  label: 'Two foods plus tea keeps a milk question',
+  pass: mixedTeaTopics.includes('drink_coffee_milk') && mixedTea.length <= 3,
+  before: null,
+  after: null,
+  delta: 0,
+  items: mixedTea.map((s) => `${s.topic}: ${s.question}`),
+  notes: mixedTeaTopics.includes('drink_coffee_milk') ? [] : ['tea milk question missing'],
+});
+
 run('Cola marked diet', meal({
   summary: 'Coca-Cola',
   kcal: 139,
