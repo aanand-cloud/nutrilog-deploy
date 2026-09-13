@@ -159,6 +159,7 @@ import { repairMisdatedMeals } from '../services/meal-date-repair.js';
 import { APP_NAME } from '../services/brand.js';
 import { openConfirmModal, openTypedConfirmModal } from '../services/confirm-modal.js';
 import { getOfflineQueueSummary, processOfflinePhotoQueue } from '../services/photo-offline-queue.js';
+import { bindPhase3Settings, phase3RetentionHtml, phase3SettingsModel } from './phase3-settings.js';
 
 const wizardActivities = activityOptions();
 
@@ -716,6 +717,9 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
   weekStart.setDate(weekStart.getDate() - 6);
   const weekMeals = await getMealsInRange(todayKey(weekStart), end);
   const todayMeals = await getMealsForDate(end);
+  const tdeeStart = new Date();
+  tdeeStart.setDate(tdeeStart.getDate() - 13);
+  const tdeeMeals = await getMealsInRange(todayKey(tdeeStart), end);
   let cuisine = null;
   if (weekMeals.length && canAccessAiTips()) {
     cuisine = await getCuisineTips(weekMeals);
@@ -750,6 +754,19 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
   const wizardProfile = getWizardProfile() || {};
   const wizGoal = wizardProfile.weightGoal || 'maintain';
   const wizRateId = wizardProfile.weightChangeRateId || defaultRateIdForGoal(wizGoal);
+  let wizardTdee = null;
+  try {
+    const metrics = resolveBodyMetrics(wizardProfile, { strict: true });
+    wizardTdee = estimateDailyCalories({
+      sex: wizardProfile.sex,
+      age: metrics.age,
+      weightKg: metrics.weightKg,
+      heightCm: metrics.heightCm,
+      activity: wizardProfile.activity || 'light',
+      weightGoal: 'maintain',
+    }).tdee;
+  } catch (_) { /* wizard body fields may be incomplete */ }
+  const phase3 = phase3SettingsModel({ meals: tdeeMeals, dateKey: end, wizardTdee });
 
   root.innerHTML = `
     <div class="settings-screen">
@@ -815,6 +832,8 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
                 <p class="fine-print" id="calorieEstimateResult" hidden></p>
               </div>
             </details>
+
+            ${phase3RetentionHtml(phase3)}
 
             <div class="goal-hero">
               <label class="goal-hero-field">
@@ -1224,6 +1243,8 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
       syncWizBodyFields(root, body);
     }
   });
+
+  bindPhase3Settings(root, { showToast, onRefresh: onSave });
 
   root.querySelector('#applyCalorieEstimate')?.addEventListener('click', () => {
     const form = root.querySelector('#goalsForm');

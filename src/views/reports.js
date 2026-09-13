@@ -3,6 +3,9 @@ import { weekReport, monthReport } from '../services/reports.js';
 import { getCuisineTips } from '../services/cuisine-tips.js';
 import { formatEnergy, formatEnergyParts, getUnitPrefs } from '../services/goals.js';
 import { DISCLAIMERS, disclaimerBlock } from '../services/disclaimers.js';
+import { computeAdaptiveTdee } from '../../shared/adaptive-tdee.js';
+import { listWeighIns } from '../services/weigh-ins.js';
+import { getActiveEnergyForDate } from '../services/health-sync.js';
 
 export async function renderReports(root, { profile, onLog } = {}) {
   const displayName = profile?.displayName || '';
@@ -17,6 +20,12 @@ export async function renderReports(root, { profile, onLog } = {}) {
 
   const week = weekReport(weekMeals);
   const month = monthReport(monthMeals);
+  const adaptive = computeAdaptiveTdee({
+    meals: monthMeals,
+    weighIns: listWeighIns(),
+    asOf: todayKey(end),
+  });
+  const todayEnergy = getActiveEnergyForDate(todayKey(end));
   let tab = 'week';
   let cuisineTips = weekMeals.length ? await getCuisineTips(weekMeals) : { tips: [], patterns: [] };
 
@@ -60,6 +69,19 @@ export async function renderReports(root, { profile, onLog } = {}) {
             `;
           }).join('')}
         </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title">Adaptive TDEE</h2>
+        ${adaptive.ok ? `
+          <p class="avg-value">${adaptive.tdee}</p>
+          <p class="avg-label">kcal / day from 14-day weight vs intake</p>
+          <p class="fine-print">${adaptive.intakeDays} intake days · ${adaptive.weighIns} weigh-ins · ${adaptive.confidence} confidence</p>
+        ` : `
+          <p>Not enough logged days and scale weigh-ins yet for a 14-day rolling TDEE.</p>
+        `}
+        ${todayEnergy ? `<p class="fine-print">Today's active energy: ${todayEnergy} kcal</p>` : ''}
+        ${disclaimerBlock(DISCLAIMERS.adaptiveTdee, 'fine-print health-disclaimer health-disclaimer--inline')}
       </section>
 
       ${tips.tips?.length ? `

@@ -14,6 +14,7 @@ import { canScan, recordScan, scansLabel, paywallMessage } from '../services/sub
 import { isSupabaseConfigured } from '../services/auth.js';
 import { defaultMealType } from '../services/meal-types.js';
 import { lookupBarcodeProduct } from '../services/barcode.js';
+import { barcodeFieldForMeal } from '../services/packaged-log.js';
 import { openBarcodeScannerModal } from '../services/barcode-scanner.js';
 import { lookupFoodProduct } from '../services/food-search.js';
 import { openFoodSearchModal } from '../services/food-search-modal.js';
@@ -1194,6 +1195,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
         total_nutrition: a.total_nutrition,
         items: a.items,
         source: a.source || state.source || 'photo',
+        barcode: barcodeFieldForMeal(a),
         confidence_score: scored.score,
         confidence_band: scored.band,
         kcal_range: scored.kcalRange || null,

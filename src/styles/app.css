@@ -2076,6 +2076,16 @@ button.camera-zone:active { background: var(--teal-dim); }
   padding: 0 16px 16px;
   border-top: 1px solid #e2e8f0;
 }
+.phase3-stat {
+  font-weight: 600;
+  margin: 8px 0;
+}
+.phase3-health-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
 .settings-discount-banner {
   font-size: 0.85rem;
   font-weight: 600;

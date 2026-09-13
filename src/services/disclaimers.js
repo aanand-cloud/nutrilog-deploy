@@ -21,6 +21,12 @@ export const DISCLAIMERS = {
 
   goalInsights:
     'Insights compare your logged estimates to targets you set — not a clinical assessment.',
+
+  adaptiveTdee:
+    '14-day TDEE is a wellness estimate from logged intake and scale weight — not a clinical metabolic test.',
+
+  healthSync:
+    'Health export/import is for your own records. MealNova cannot write Apple Health or Health Connect from the web app unless a native plugin is installed.',
 };
 
 export function disclaimerBlock(text, className = 'fine-print health-disclaimer') {
