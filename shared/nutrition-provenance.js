@@ -88,8 +88,14 @@ export function itemProvenanceSummary(item = {}) {
     lines.push(`Converted weight: ${Math.round(grams)} g`);
   }
   if (kcal100 > 0 && grams > 0) {
-    const kcal = Math.round(kcal100 * grams / 100);
-    lines.push(`Calculation: ${kcal100} × ${Math.round(grams)} ÷ 100 = ${kcal} kcal`);
+    const referenceKcal = Math.round(kcal100 * grams / 100);
+    const finalKcal = Math.round(num(item.calories_kcal));
+    if (finalKcal > 0 && finalKcal !== referenceKcal) {
+      lines.push(`Reference calculation: ${kcal100} × ${Math.round(grams)} ÷ 100 = ${referenceKcal} kcal`);
+      lines.push(`Final item calories after preparation adjustments: ${finalKcal} kcal`);
+    } else {
+      lines.push(`Calculation: ${kcal100} × ${Math.round(grams)} ÷ 100 = ${referenceKcal} kcal`);
+    }
   }
   lines.push(`Confidence basis: ${status}`);
   return lines.join('\n');

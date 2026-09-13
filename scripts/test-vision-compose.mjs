@@ -6,6 +6,7 @@ import {
 import { geminiGenerate } from '../netlify/lib/gemini.mjs';
 import { VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA } from '../netlify/lib/gemini-schemas.mjs';
 import { ANALYSIS_PROMPT, CLARIFY_PROMPT } from '../netlify/lib/prompts.mjs';
+import { itemProvenanceSummary } from '../shared/nutrition-provenance.js';
 
 function assert(label, ok, detail = '') {
   if (!ok) {
@@ -78,6 +79,25 @@ const oilyPlatter = composeAnalysisFromVision({
   clarification_questions: [],
 });
 assert('multiple oily dishes do not create duplicate oil servings', oilyPlatter.items.filter((i) => i._visionOil).length === 1);
+
+const steamedIdli = composeAnalysisFromVision({
+  meal_summary: 'Idli',
+  items: [{ name: 'Idli', unit: 'g', estimated_amount: 300, cooking_method: 'steamed', visible_oil: false }],
+  clarification_questions: [],
+}).items[0];
+assert('authoritative cooked food is not double-adjusted', steamedIdli.calories_kcal === 318, `${steamedIdli.calories_kcal} kcal`);
+assert('displayed calories match provenance calculation', itemProvenanceSummary(steamedIdli).includes('= 318 kcal'));
+
+const jollof = composeAnalysisFromVision({
+  meal_summary: 'Nigerian jollof rice with chicken skewers',
+  items: [
+    { name: 'Seasoned red rice', unit: 'g', estimated_amount: 250, cooking_method: 'cooked', visible_oil: false },
+    { name: 'Chicken skewers', unit: 'g', estimated_amount: 150, cooking_method: 'grilled', visible_oil: false },
+  ],
+  clarification_questions: [],
+});
+assert('meal context preserves regional rice identity', jollof.items.some((i) => /jollof/.test(i._refId || '')), jollof.items.map((i) => i._refId).join(', '));
+assert('regional rice name remains visible', jollof.items.some((i) => /jollof/i.test(i.name)), jollof.items.map((i) => i.name).join(', '));
 
 const normalized = normalizePhotoAnalysis(vision);
 assert('normalize routes vision to composed', normalized._visionComposed === true);

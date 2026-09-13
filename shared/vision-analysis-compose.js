@@ -80,6 +80,10 @@ function scaleItemNutrition(item, factor) {
 }
 
 function applyCookingMethod(item, cookingMethod = '') {
+  // Authoritative references already describe the stated preparation state
+  // (for example steamed idli or cooked rice). Applying another multiplier
+  // would double-adjust both calories and macros.
+  if (item?._authoritative) return item;
   const factor = cookingMethodMultiplier(cookingMethod);
   if (factor == null) return item;
   return attachPer100ToItem(scaleItemNutrition(item, factor));
@@ -136,9 +140,39 @@ function visionItemToStub(visionItem = {}) {
       visible_oil: Boolean(visionItem.visible_oil),
     },
     _portionSource: 'photo_estimated',
+    ...(visionItem._refId ? { _refId: visionItem._refId } : {}),
+    ...(visionItem._visionDetectedName ? { _visionDetectedName: visionItem._visionDetectedName } : {}),
     _hiddenGrams: unit === 'g' ? amount : undefined,
     ...(unit === 'ml' ? { _volumeMl: amount } : {}),
   };
+}
+
+function displayNameFromRefId(refId = '') {
+  const value = String(refId).replace(/_/g, ' ').trim();
+  return value ? value.replace(/\b\w/g, (letter) => letter.toUpperCase()) : '';
+}
+
+function preserveRegionalRiceIdentity(vision = {}) {
+  const summaryRef = matchFoodReference(vision.meal_summary || '');
+  if (!summaryRef?.id || !/(jollof|biryani|pilau|pilaf|paella|kabsa|mandi|nasi_goreng|arroz)/i.test(summaryRef.id)) {
+    return vision.items || [];
+  }
+
+  let promoted = false;
+  return (vision.items || []).map((item) => {
+    if (promoted || !/\brice\b/i.test(item.name || '')) return item;
+    const itemRef = matchFoodReference(item.name || '');
+    if (itemRef?.id && !/^(rice|plain_rice|cooked_rice|basmati_rice|jasmine_rice|brown_rice|red_rice)$/i.test(itemRef.id)) {
+      return item;
+    }
+    promoted = true;
+    return {
+      ...item,
+      name: displayNameFromRefId(summaryRef.id),
+      _refId: summaryRef.id,
+      _visionDetectedName: item.name,
+    };
+  });
 }
 
 function enrichVisionItemProvenance(item = {}) {
@@ -216,7 +250,7 @@ export function composeAccompanimentAdditions(accompanimentVision = {}, existing
  * @returns {object} full analysis for existing client flow
  */
 export function composeAnalysisFromVision(vision = {}) {
-  const stubs = (vision.items || []).map(visionItemToStub);
+  const stubs = preserveRegionalRiceIdentity(vision).map(visionItemToStub);
   const { recipeItems, remainingStubs, decomposed } = decomposeVisionWithRecipes(stubs, vision);
   const oilItems = [];
 

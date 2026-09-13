@@ -3,11 +3,13 @@ export const ANALYSIS_PROMPT = `Analyse this photo of food and return ONLY valid
 Rules:
 1. Identify ALL visible food and drink items separately in items[].
 2. Support ANY cuisine worldwide (home cooking, restaurants, packed lunches).
-3. Estimate portions with estimated_amount and unit: use g for solids/snacks and ml for drinks.
-4. Identify food and estimate portions only. Do NOT calculate or return calories, macros, or nutrition.
-5. Use user meal hints when provided — do NOT ask about anything already stated in hints.
-6. If unsure about something that would change calories by 50+ kcal, add up to 3 clarification_questions (never 4+).
-7. Ask ONE topic per question. Plain English, under 14 words. No jargon.
+3. Preserve the most specific regional dish name visible or strongly implied (for example jollof rice, biryani, nasi goreng), never a generic substitute such as "seasoned rice".
+4. Estimate edible portions with estimated_amount and unit: use g for solids/snacks and ml for drinks. Exclude plates, bowls, bones and packaging. Use visible scale cues and keep the combined amount plausible for what is actually pictured.
+5. If the image appears to show a shared spread rather than one person's plate, say so in notes and lower confidence.
+6. Identify food and estimate portions only. Do NOT calculate or return calories, macros, or nutrition.
+7. Use user meal hints when provided — do NOT ask about anything already stated in hints.
+8. If unsure about something that would change calories by 50+ kcal, add up to 3 clarification_questions (never 4+).
+9. Ask ONE topic per question. Plain English, under 14 words. No jargon.
 
 When to ask (pick only what applies):
 
