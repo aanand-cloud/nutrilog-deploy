@@ -110,10 +110,7 @@ export default async (req) => {
     }, model);
 
     const composed = composeVerifiedNutrition(parseAnalysisPayload(analysis) || analysis) || analysis;
-    const parsed = await enrichAnalysisWithAiNutritionFallback(composed, {
-      geminiKey: apiKey,
-      openaiKey: process.env.OPENAI_API_KEY || '',
-    });
+    const parsed = await enrichAnalysisWithAiNutritionFallback(composed, { geminiKey: apiKey });
     const useful = hasUsefulFoodItems(parsed);
 
     // Charge only after a successful, useful analysis. Refinement and empty plates stay free.

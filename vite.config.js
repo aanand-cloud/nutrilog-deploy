@@ -141,7 +141,7 @@ function devGeminiApi(geminiKey, env = {}) {
           const { result: analysis, usage, model } = await analyzeFoodWithGemini(geminiKey, { ...body, prompt });
           const composed = await enrichAnalysisWithAiNutritionFallback(
             composeVerifiedNutrition(analysis) || analysis,
-            { geminiKey, openaiKey: env.OPENAI_API_KEY || '' },
+            { geminiKey },
           );
           logGeminiUsage({
             operation: body.context ? 'analyze-food-refine' : 'analyze-food',

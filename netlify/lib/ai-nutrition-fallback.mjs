@@ -1,5 +1,5 @@
 /**
- * Server-only: ask Gemini (then optional OpenAI) for missed mixed foods.
+ * Server-only: ask Gemini for missed mixed foods.
  * Identification still comes from the photo pass. This never writes catalogs.
  */
 
@@ -93,50 +93,9 @@ async function askGemini(apiKey, prompt) {
   });
 }
 
-async function askOpenAi(apiKey, prompt) {
-  const model = process.env.OPENAI_NUTRITION_MODEL || 'gpt-4o-mini';
-  const res = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model,
-      temperature: 0.1,
-      response_format: { type: 'json_object' },
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: prompt },
-      ],
-    }),
-  });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`OpenAI nutrition fallback failed (${res.status}): ${err.slice(0, 200)}`);
-  }
-  const data = await res.json();
-  const text = data.choices?.[0]?.message?.content || '';
-  return { result: JSON.parse(text), model, usage: data.usage || null };
-}
-
-async function requestFallback(prompt, { geminiKey, openaiKey }) {
-  if (geminiKey) {
-    try {
-      return await withTimeout(askGemini(geminiKey, prompt));
-    } catch (err) {
-      if (!openaiKey) throw err;
-    }
-  }
-  if (openaiKey) {
-    return withTimeout(askOpenAi(openaiKey, prompt));
-  }
-  return null;
-}
-
 /**
  * @param {object} analysis
- * @param {{ geminiKey?: string, openaiKey?: string }} keys
+ * @param {{ geminiKey?: string }} keys
  */
 export async function enrichAnalysisWithAiNutritionFallback(analysis, keys = {}) {
   if (!analysis || analysis._labelBacked || analysis.source === 'barcode') return analysis;
@@ -144,12 +103,11 @@ export async function enrichAnalysisWithAiNutritionFallback(analysis, keys = {})
   const needy = listAiNutritionFallbackItems(analysis);
   if (!needy.length) return analysis;
   const geminiKey = keys.geminiKey || process.env.GEMINI_API_KEY || '';
-  const openaiKey = keys.openaiKey || process.env.OPENAI_API_KEY || '';
-  if (!geminiKey && !openaiKey) return analysis;
+  if (!geminiKey) return analysis;
 
   try {
     const prompt = fallbackPrompt(analysis, needy);
-    const response = await requestFallback(prompt, { geminiKey, openaiKey });
+    const response = await withTimeout(askGemini(geminiKey, prompt));
     if (!response?.result) return analysis;
 
     if (response.usage && response.model) {

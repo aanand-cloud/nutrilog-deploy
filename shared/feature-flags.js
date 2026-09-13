@@ -27,7 +27,7 @@ export const DEFAULT_FLAGS = {
   visionSecondPass: true,
   /** Phase 5 — kcal ranges for uncertain meals. */
   uncertaintyRanges: true,
-  /** Miss-only Gemini/OpenAI nutrition when photo items have no proper table row. */
+  /** Miss-only Gemini nutrition when photo items have no proper table row. */
   aiNutritionFallback: true,
 };
 
