@@ -3,6 +3,7 @@
 import { barcodeNotFoundMessage } from './packaged-food-hints.js';
 import { gtinCandidates, isValidGtin, normalizeGtin } from './gtin.js';
 import { isZeroSugarSoftDrink, matchBrandedServing } from '../../shared/branded-uk-servings.js';
+import { resolvePackagedServing } from './packaged-log.js';
 
 /** Official pack codes only — never invent GTINs. */
 export const LOCAL_BRANDED_BY_GTIN = Object.freeze({});
@@ -72,12 +73,19 @@ export function applyBrandedBarcodeOverlay(analysis) {
     const portion = String(analysis.items?.[0]?.portion_estimate || '');
     const ml = Number((portion.match(/(\d+(?:\.\d+)?)\s*ml/i) || [])[1]) || 330;
     const kcal = Math.max(1, Math.round(ml * 0.008));
-    return overlayServing(analysis, {
+    const next = overlayServing(analysis, {
       name: name.trim() || 'Zero-sugar soft drink',
       kcal,
       source: 'zero_sugar_soft_drink',
       nutrition: { protein_g: 0, carbs_g: 0, fat_g: 0, fibre_g: 0, sugar_g: 0, salt_mg: null },
     });
+    const item = next.items?.[0] || {};
+    return {
+      ...next,
+      _amountUnit: 'ml',
+      _servingAmount: ml,
+      items: [{ ...item, portion_estimate: `${ml}ml`, _displayUnit: 'ml', _volumeMl: ml }],
+    };
   }
   return analysis;
 }
@@ -111,7 +119,7 @@ export async function lookupBarcodeProduct(code) {
 }
 
 async function fetchOffProduct(barcode) {
-  const url = `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json?fields=code,product_name,brands,quantity,serving_size,serving_quantity,nutriments,image_front_small_url`;
+  const url = `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json?fields=code,product_name,brands,quantity,serving_size,serving_quantity,serving_quantity_unit,nutriments,image_front_small_url`;
   const res = await fetch(url);
   if (!res.ok) throw new Error('Could not look up product');
   const data = await res.json();
@@ -121,8 +129,9 @@ async function fetchOffProduct(barcode) {
 
 export function productToAnalysis(product, barcode, source = 'barcode') {
   const n = product.nutriments || {};
-  const hasServing = Boolean(product.serving_quantity || product.serving_size);
-  const servingG = num(product.serving_quantity) || 100;
+  const serving = resolvePackagedServing(product);
+  const hasServing = Boolean(product.serving_quantity || product.serving_size || serving.amount);
+  const servingG = serving.amount || num(product.serving_quantity) || 100;
   const factor = servingG / 100;
   const gtin = normalizeGtin(barcode) || String(barcode || '').replace(/\D/g, '');
 
@@ -145,7 +154,8 @@ export function productToAnalysis(product, barcode, source = 'barcode') {
   };
 
   const name = [product.product_name, product.brands].filter(Boolean).join(' — ') || 'Packaged food';
-  const portion = product.serving_size || (hasServing ? `${servingG}g serving` : 'Per 100 g — enter how much you ate');
+  const portion = product.serving_size
+    || (serving.liquid ? `${Math.round(serving.amount)}ml serving` : (hasServing ? `${servingG}g serving` : 'Per 100 g — enter how much you ate'));
   const confidence = hasServing ? 0.88 : 0.72;
 
   return {
@@ -164,7 +174,9 @@ export function productToAnalysis(product, barcode, source = 'barcode') {
         _labelBacked: true,
         _labelServing: hasServing,
         _packServingKnown: hasServing,
-        _weightSource: hasServing ? 'label_serving' : 'per_100g',
+        _weightSource: hasServing ? 'label_serving' : (serving.liquid ? 'per_100ml' : 'per_100g'),
+        _displayUnit: serving.unit,
+        _volumeMl: serving.liquid ? serving.amount : undefined,
       },
     ],
     clarification_questions: [],
@@ -173,5 +185,7 @@ export function productToAnalysis(product, barcode, source = 'barcode') {
     imageUrl: product.image_front_small_url || null,
     _labelBacked: true,
     _packServingKnown: hasServing,
+    _amountUnit: serving.unit,
+    _servingAmount: serving.amount,
   };
 }

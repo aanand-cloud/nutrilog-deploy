@@ -14,7 +14,8 @@ import { canScan, recordScan, scansLabel, paywallMessage } from '../services/sub
 import { isSupabaseConfigured } from '../services/auth.js';
 import { defaultMealType } from '../services/meal-types.js';
 import { lookupBarcodeProduct } from '../services/barcode.js';
-import { barcodeFieldForMeal } from '../services/packaged-log.js';
+import { barcodeFieldForMeal, isPackagedLogSource } from '../services/packaged-log.js';
+import { openPackagedLogWizard } from '../services/packaged-log-wizard.js';
 import { openBarcodeScannerModal } from '../services/barcode-scanner.js';
 import { lookupFoodProduct } from '../services/food-search.js';
 import { openFoodSearchModal } from '../services/food-search-modal.js';
@@ -1121,6 +1122,10 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
   }
 
   async function showReviewFlow() {
+    if (isPackagedLogSource(state.source || state.analysis?.source)) {
+      await showPackagedReview();
+      return;
+    }
     const isDrink = state.mainlyDrink;
     root.innerHTML = `
       <section class="log-screen center">
@@ -1148,6 +1153,31 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     state.step = 'confirm';
     persist();
     render();
+  }
+
+  async function showPackagedReview() {
+    const result = await openPackagedLogWizard(state.analysis, {
+      mealType: state.mealType,
+      imageDataUrl: state.image?.dataUrl || null,
+    });
+    if (!result) {
+      state.step = 'method';
+      persist();
+      render();
+      return;
+    }
+    if (result.retry === 'barcode') {
+      await openBarcode();
+      return;
+    }
+    if (result.retry === 'search') {
+      await openFoodSearch();
+      return;
+    }
+    state.analysis = result.analysis;
+    state.mealType = result.mealType || state.mealType;
+    persist();
+    await commitMealSave();
   }
 
   async function commitMealSave() {
