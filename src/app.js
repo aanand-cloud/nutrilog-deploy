@@ -5,7 +5,7 @@ import {
   loadCalendarView,
   loadSupplementsView,
 } from './app-views.js';
-import { isLogBusy } from './views/log-routing.js';
+import { isLogBusy, requestLogFocus } from './views/log-routing.js';
 import { onAuthChange, getUser, isSupabaseConfigured } from './services/auth.js';
 import { fullSync } from './services/sync.js';
 import { verifyCheckoutSession, syncScanStateFromProfile } from './services/subscription.js';
@@ -209,11 +209,7 @@ export function initApp() {
 
   function goLog(focus) {
     if (focus === 'photo' || focus === 'barcode' || focus === 'describe' || focus === 'search' || focus === 'upload') {
-      import('./views/log-routing.js').then(({ requestLogFocus }) => {
-        requestLogFocus(focus);
-        setView('log');
-      });
-      return;
+      requestLogFocus(focus);
     }
     setView('log');
   }

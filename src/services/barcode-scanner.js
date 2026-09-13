@@ -21,7 +21,7 @@ function nativeDetector() {
 
 function cameraErrorMessage(err) {
   if (err?.name === 'NotAllowedError' || err?.name === 'PermissionDeniedError') {
-    return 'Camera permission blocked. Type the number or upload a photo.';
+    return 'Camera permission blocked. Tap Start camera, type the number, or upload a photo.';
   }
   if (err?.name === 'NotFoundError' || err?.name === 'OverconstrainedError') {
     return 'No camera found. Type the number or upload a photo.';
@@ -29,7 +29,7 @@ function cameraErrorMessage(err) {
   if (!window.isSecureContext) {
     return 'Camera needs HTTPS. Type the number or upload a photo.';
   }
-  return 'Camera unavailable. Type the number or upload a photo.';
+  return 'Camera unavailable. Tap Start camera, type the number, or upload a photo.';
 }
 
 async function loadZxing() {
@@ -92,6 +92,7 @@ export function openBarcodeScannerModal() {
         <div class="camera-modal__actions barcode-scanner__actions">
           <button type="button" class="btn btn-ghost" id="barcodeCancel">Cancel</button>
           <button type="button" class="btn btn-ghost" id="barcodeUpload">Use photo</button>
+          <button type="button" class="btn btn-primary" id="barcodeStartCam" hidden>Start camera</button>
           <button type="button" class="btn btn-primary" id="barcodeLookup">Look up</button>
         </div>
       </div>
@@ -104,11 +105,13 @@ export function openBarcodeScannerModal() {
     const status = overlay.querySelector('#barcodeStatus');
     const placeholder = overlay.querySelector('#barcodePlaceholder');
     const photoInput = overlay.querySelector('#barcodePhoto');
+    const startBtn = overlay.querySelector('#barcodeStartCam');
     let stream = null;
     let detector = null;
     let scanTimer = null;
     let zxingControls = null;
     let done = false;
+    let starting = false;
 
     function setStatus(msg) {
       if (status) status.textContent = msg;
@@ -161,8 +164,8 @@ export function openBarcodeScannerModal() {
       }
     });
 
-    async function startNativeScan() {
-      detector = nativeDetector();
+    function startNativeScan(activeDetector) {
+      detector = activeDetector;
       if (!detector || !video) return;
       scanTimer = setInterval(async () => {
         if (!video.videoWidth || done) return;
@@ -177,19 +180,69 @@ export function openBarcodeScannerModal() {
     }
 
     async function startZxingScan() {
-      if (!stream || !video || done) return;
+      if (!video || done) return;
       try {
         const reader = await loadZxing();
         if (done) return;
-        zxingControls = await reader.decodeFromStream(stream, video, (result) => {
+        // Scan the video we already opened. Do not use decodeFromStream —
+        // it stops the tracks when it finishes or errors.
+        zxingControls = await reader.decodeFromVideoElement(video, (result) => {
           if (result?.getText()) finish(result.getText());
         });
       } catch {
-        if (!detector) {
-          setStatus('Live scan unavailable. Type the number or upload a photo.');
-        }
+        setStatus('Live scan unavailable. Type the number or upload a photo.');
       }
     }
+
+    async function startDecoding() {
+      const native = nativeDetector();
+      if (native) {
+        startNativeScan(native);
+        return;
+      }
+      await startZxingScan();
+    }
+
+    async function startCamera() {
+      if (done || stream || starting) return;
+      starting = true;
+      startBtn.hidden = true;
+      stage?.classList.remove('is-unavailable');
+      if (placeholder) placeholder.textContent = 'Starting camera…';
+      setStatus('Point the camera at the barcode on the pack');
+      try {
+        const s = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { ideal: 'environment' },
+            width: { ideal: 1280 },
+          },
+          audio: false,
+        });
+        if (done) {
+          s.getTracks().forEach((t) => t.stop());
+          return;
+        }
+        stream = s;
+        video.srcObject = s;
+        // Keep the video in layout before play() so Safari/iOS can produce frames.
+        stage?.classList.add('is-live');
+        try { await video.play(); } catch { /* autoplay may already be running */ }
+        setStatus('Hold the barcode inside the box');
+        await startDecoding();
+      } catch (err) {
+        stage?.classList.add('is-unavailable');
+        if (placeholder) placeholder.textContent = 'Camera not available';
+        startBtn.hidden = false;
+        startBtn.textContent = 'Start camera';
+        setStatus(cameraErrorMessage(err));
+      } finally {
+        starting = false;
+      }
+    }
+
+    startBtn.addEventListener('click', () => {
+      startCamera();
+    });
 
     if (!canUseBarcodeCamera() || !video) {
       stage?.classList.add('is-unavailable');
@@ -198,31 +251,6 @@ export function openBarcodeScannerModal() {
       return;
     }
 
-    navigator.mediaDevices
-      .getUserMedia({
-        video: {
-          facingMode: { ideal: 'environment' },
-          width: { ideal: 1280 },
-        },
-        audio: false,
-      })
-      .then(async (s) => {
-        if (done) {
-          s.getTracks().forEach((t) => t.stop());
-          return;
-        }
-        stream = s;
-        video.srcObject = s;
-        try { await video.play(); } catch { /* autoplay may already be running */ }
-        stage?.classList.add('is-live');
-        setStatus('Hold the barcode inside the box');
-        await startNativeScan();
-        await startZxingScan();
-      })
-      .catch((err) => {
-        stage?.classList.add('is-unavailable');
-        if (placeholder) placeholder.textContent = 'Camera not available';
-        setStatus(cameraErrorMessage(err));
-      });
+    startCamera();
   });
 }
