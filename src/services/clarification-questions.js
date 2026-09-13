@@ -445,15 +445,32 @@ function resolveDrinkTopic(topic, question, analysis) {
   return topic;
 }
 
+function sanitizeQuestionOptions(options) {
+  if (!Array.isArray(options)) return [];
+  const seen = new Set();
+  const out = [];
+  for (const raw of options) {
+    const label = String(raw || '').trim();
+    if (!label || label.length > 40) continue;
+    const key = label.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(label);
+    if (out.length >= 6) break;
+  }
+  return out;
+}
+
 function parseQuestionItem(item) {
-  if (!item) return { question: '', topic: null, about: '' };
+  if (!item) return { question: '', topic: null, about: '', options: [] };
   if (typeof item === 'string') {
-    return { question: item.trim(), topic: null, about: '' };
+    return { question: item.trim(), topic: null, about: '', options: [] };
   }
   return {
     question: String(item.question || item.text || '').trim(),
     topic: item.topic || item.type || null,
     about: String(item.about || '').trim(),
+    options: sanitizeQuestionOptions(item.options),
   };
 }
 
@@ -554,6 +571,8 @@ export function normalizeClarificationQuestions(analysis) {
     steps.push({
       question: polishQuestion(parsed.question, topic, parsed.about, analysis),
       topic,
+      about: parsed.about,
+      options: parsed.options,
     });
   }
 
@@ -719,9 +738,11 @@ export function getClarificationStepConfig(step, analysis) {
   );
   const ui = STEP_UI[topic] || STEP_UI.generic_portion;
   const starter = topic === 'portion_starter' ? resolveIndianStarterFromAnalysis(analysis) : null;
-  const options = topic === 'portion_starter'
-    ? starterPortionOptions(starter)
-    : (OPTION_SETS[topic] || OPTION_SETS.generic_portion);
+  const options = step?.options?.length >= 2
+    ? step.options
+    : (topic === 'portion_starter'
+      ? starterPortionOptions(starter)
+      : (OPTION_SETS[topic] || OPTION_SETS.generic_portion));
   return {
     question: step?.question || defaultQuestionForTopic(topic, '', analysis),
     topic,

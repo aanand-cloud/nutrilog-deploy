@@ -9,6 +9,7 @@ import {
   calibrateItemWithReference,
   kcalFromAtwater,
   matchFoodReference,
+  matchFoodReferenceDetailed,
   nutritionForAmount,
   parseGramsFromText,
   resolveFoodReferenceById,
@@ -35,6 +36,13 @@ const FALLBACK_PER100 = {
 
 const ZERO_DRINK_RE = /\b(pepsi\s*max|diet\s+pepsi|coke\s*zero|coca[ -]?cola\s*zero|diet\s+coke|7\s*up\s*free|sprite\s*zero|tango[^,]*sugar[ -]?free|zero[ -]?sugar|sugar[ -]?free|diet\s+(?:cola|soda|soft\s*drink))\b/i;
 const PREPARED_FOOD_RE = /\b(pizza|burger|fries|chips|wedges|fried\s+chicken|chicken\s+(?:wings|nuggets|strips)|kfc|mcdonald'?s|pizza\s*hut|domino'?s|burger\s*king|nando'?s|subway|greggs)\b/i;
+const OIL_GRAMS_PER_TBSP = 14;
+const GENERIC_VISION_IDS = new Set([
+  'rice', 'plain_rice', 'cooked_rice', 'dal', 'chicken', 'bread', 'oil',
+  'cooking_oil', 'doughnut', 'fritter', 'paneer', 'potato', 'egg', 'pakhala',
+  'rice_cakes',
+]);
+const USDA_DESCRIPTOR = /^(cooked|raw|fried|deep fried|steamed|grilled|baked|boiled|roasted|white|brown|long-grain|short-grain|stuffed|plain)$/i;
 
 // Official UK chain values are per sold item/serving, not generic per-100g foods.
 // The catalogue is intentionally small and exact: uncertain product names continue
@@ -119,6 +127,119 @@ export function isVisionAnalysis(raw = {}) {
   return raw.total_calories_kcal == null && first.calories_kcal == null && first.nutrition == null;
 }
 
+function looksLikeDrink(item = {}) {
+  const unit = String(item.unit || '').toLowerCase();
+  const text = `${item.name || ''} ${item.portion_estimate || ''}`;
+  return unit === 'ml' || /\bml\b/i.test(text) || /\b(coffee|tea|latte|chai|juice|wine|beer|soda|cola|milk|lassi|smoothie|water|drink)\b/i.test(text);
+}
+
+function visionTokens(text = '') {
+  return new Set(
+    String(text)
+      .toLowerCase()
+      .replace(/[_,"]/g, ' ')
+      .split(/[^a-z0-9]+/)
+      .filter((token) => token.length > 2 && token !== 'and' && token !== 'with'),
+  );
+}
+
+function tokensOverlap(a = '', b = '') {
+  const left = visionTokens(a);
+  const right = visionTokens(b);
+  for (const token of left) {
+    if (right.has(token)) return true;
+  }
+  return false;
+}
+
+function matchStrength(hit = {}) {
+  if (!hit?.ref?.id || hit.meta?.confidence === 'none') return 0;
+  const method = hit.meta?.match_method;
+  if (method === 'canonical_id' || method === 'alias_exact' || method === 'regex') {
+    return hit.meta?.confidence === 'high' ? 4 : 3;
+  }
+  if (method === 'disambiguated') return 2;
+  if (method === 'fuzzy') return 1;
+  return 0;
+}
+
+function usdaCandidatePhrases(term = '') {
+  return String(term)
+    .split(',')
+    .map((part) => part.trim())
+    .filter((part) => part.length > 2 && !USDA_DESCRIPTOR.test(part));
+}
+
+/**
+ * Prefer the Gemini display name. Use comma-split usda_search_term phrases
+ * only to fill a miss or upgrade a generic staple — never the raw USDA string.
+ */
+export function resolveVisionFoodMatch(name = '', usdaSearchTerm = '') {
+  const nameHit = matchFoodReferenceDetailed(name, { useCache: false, logV4: false });
+  const nameScore = matchStrength(nameHit);
+  const nameGeneric = nameHit?.ref?.id ? GENERIC_VISION_IDS.has(nameHit.ref.id) : false;
+
+  if (nameScore >= 3 && !nameGeneric) {
+    return { ...nameHit, source: 'name' };
+  }
+
+  let best = nameScore > 0 ? { ...nameHit, source: 'name' } : { ref: null, meta: null, source: null };
+
+  for (const phrase of usdaCandidatePhrases(usdaSearchTerm)) {
+    const hit = matchFoodReferenceDetailed(phrase, { useCache: false, logV4: false });
+    const score = matchStrength(hit);
+    if (score < 3) continue;
+
+    const overlapsName = tokensOverlap(name, hit.ref.id) || tokensOverlap(name, phrase);
+    if (nameScore >= 3 && !nameGeneric && !overlapsName) continue;
+    if (GENERIC_VISION_IDS.has(hit.ref.id) && nameScore >= 3 && !nameGeneric) continue;
+    if (!overlapsName && nameScore >= 2) continue;
+
+    const betterSpecific = nameGeneric && !GENERIC_VISION_IDS.has(hit.ref.id) && overlapsName;
+    const fillsMiss = !best.ref && (overlapsName || !GENERIC_VISION_IDS.has(hit.ref.id));
+    const longerSpecific = best.ref
+      && overlapsName
+      && !GENERIC_VISION_IDS.has(hit.ref.id)
+      && hit.ref.id.length > best.ref.id.length;
+
+    if (betterSpecific || fillsMiss || longerSpecific) {
+      best = { ...hit, source: 'usda_phrase' };
+    }
+  }
+
+  return best.ref ? best : (nameHit.ref ? { ...nameHit, source: 'name' } : { ref: null, meta: null, source: null });
+}
+
+/** Keep identification + grams only. Discard any model calories/macros. */
+export function toVisionIdentification(raw = {}) {
+  return {
+    meal_summary: raw.meal_summary || '',
+    confidence_score: raw.confidence_score,
+    notes: raw.notes || '',
+    clarification_questions: raw.clarification_questions || [],
+    items: (raw.items || []).map((item = {}) => {
+      const name = String(item.name || 'Food').trim() || 'Food';
+      const unit = looksLikeDrink(item) ? 'ml' : 'g';
+      const explicit = Number(item.estimated_amount);
+      const parsed = parseGramsFromText(item.portion_estimate || '');
+      const amount = Number.isFinite(explicit) && explicit > 0
+        ? explicit
+        : (parsed > 0 ? parsed : (unit === 'ml' ? 250 : 120));
+      const oilTbsp = Number(item.estimated_oil_tbsp);
+      return {
+        name,
+        usda_search_term: String(item.usda_search_term || '').trim(),
+        estimated_amount: Math.max(1, Math.round(amount)),
+        unit,
+        cooking_method: item.cooking_method || '',
+        estimated_oil_tbsp: Number.isFinite(oilTbsp) ? oilTbsp : 0,
+        visible_oil: Boolean(item.visible_oil),
+        confidence: item.confidence,
+      };
+    }),
+  };
+}
+
 function scaleItemNutrition(item, factor) {
   if (!item || !Number.isFinite(factor) || factor <= 0 || Math.abs(factor - 1) < 0.02) return item;
   const n = item.nutrition || {};
@@ -194,6 +315,14 @@ function calibratedVisionAmount(name = '', amount = 0, unit = 'g') {
   return { amount: rule.max, capped: true, originalAmount: amount };
 }
 
+function oilGramsFromVision(meta = {}) {
+  const tbsp = num(meta.estimated_oil_tbsp);
+  if (tbsp >= 0.25 && tbsp <= 4) return Math.round(tbsp * OIL_GRAMS_PER_TBSP);
+  if (!meta.visible_oil) return 0;
+  if (/steam|boil|raw|salad/.test(String(meta.cooking_method).toLowerCase())) return 0;
+  return oilGramsForMethod(meta.cooking_method);
+}
+
 function visionItemToStub(visionItem = {}) {
   const unit = String(visionItem.unit || 'g').toLowerCase() === 'ml' ? 'ml' : 'g';
   const rawAmount = Math.max(1, Math.round(num(visionItem.estimated_amount) || (unit === 'ml' ? 250 : 120)));
@@ -212,11 +341,14 @@ function visionItemToStub(visionItem = {}) {
       salt_mg: null,
     },
     confidence: num(visionItem.confidence) || 0.7,
+    _usdaSearchTerm: String(visionItem.usda_search_term || '').trim() || undefined,
     _visionMeta: {
       unit,
       amount,
       cooking_method: visionItem.cooking_method || '',
       visible_oil: Boolean(visionItem.visible_oil),
+      estimated_oil_tbsp: num(visionItem.estimated_oil_tbsp),
+      usda_search_term: String(visionItem.usda_search_term || '').trim(),
     },
     _portionSource: 'photo_estimated',
     ...(calibrated.capped ? {
@@ -272,6 +404,15 @@ function enrichVisionItemProvenance(item = {}) {
 function calibrateVisionItem(item) {
   const safetyItem = safetyNutritionForVisionItem(item);
   if (safetyItem) return safetyItem;
+  const picked = resolveVisionFoodMatch(item.name, item._visionMeta?.usda_search_term);
+  if (picked?.ref?.id) {
+    item = {
+      ...item,
+      _refId: picked.ref.id,
+      _matchMeta: picked.meta || item._matchMeta,
+      _matchSource: picked.source,
+    };
+  }
   let result = calibrateItemWithReference(item);
 
   if (result._refId) {
@@ -344,13 +485,11 @@ export function composeAnalysisFromVision(vision = {}) {
   // Recipe decompositions already include their cooking fat.
   if (!decomposed) {
     const oilyStub = remainingStubs.find((stub) => {
-      const meta = stub._visionMeta || {};
-      return meta.visible_oil
-        && !PREPARED_FOOD_RE.test(stub.name || '')
-        && !/steam|boil|raw|salad/.test(String(meta.cooking_method).toLowerCase());
+      const grams = oilGramsFromVision(stub._visionMeta || {});
+      return grams > 0 && !PREPARED_FOOD_RE.test(stub.name || '');
     });
     if (oilyStub) {
-      oilItems.push(buildOilLineItem(oilGramsForMethod(oilyStub._visionMeta?.cooking_method)));
+      oilItems.push(buildOilLineItem(oilGramsFromVision(oilyStub._visionMeta || {})));
     }
   }
 
@@ -390,36 +529,15 @@ export function composeAnalysisFromVision(vision = {}) {
   return analysis;
 }
 
-function legacyItemToVisionItem(item = {}) {
-  const portion = String(item.portion_estimate || '');
-  const isMl = /\bml\b/i.test(portion) || item._volumeMl != null;
-  const amount = item.estimated_amount
-    || item._hiddenGrams
-    || item.grams
-    || item._volumeMl
-    || parseGramsFromText(portion)
-    || (isMl ? 250 : 120);
-  return {
-    name: item.name || 'Food',
-    unit: isMl ? 'ml' : 'g',
-    estimated_amount: Math.max(1, Math.round(num(amount))),
-    cooking_method: item.cooking_method || item._visionMeta?.cooking_method || '',
-    visible_oil: Boolean(item.visible_oil ?? item._visionMeta?.visible_oil),
-    confidence: num(item.confidence) || 0.7,
-  };
-}
-
-/** Accept vision-only payloads and defensively discard nutrition from legacy AI responses. */
+/** Always compose photos from identification + grams. Never keep model nutrition. */
 export function normalizePhotoAnalysis(raw = {}, { forceVision = false } = {}) {
-  if (isVisionAnalysis(raw)) return composeAnalysisFromVision(raw);
+  if (!raw || raw._visionComposed) return raw;
+  if (isVisionAnalysis(raw)) return composeAnalysisFromVision(toVisionIdentification(raw));
   if (forceVision && Array.isArray(raw.items) && raw.items.length) {
-    return composeAnalysisFromVision({
-      meal_summary: raw.meal_summary || 'Meal',
-      confidence_score: num(raw.confidence_score) || 0.7,
-      notes: raw.notes || '',
-      items: raw.items.map(legacyItemToVisionItem),
-      clarification_questions: raw.clarification_questions || [],
-    });
+    return composeAnalysisFromVision(toVisionIdentification(raw));
+  }
+  if (Array.isArray(raw.items) && raw.items.length && raw.total_calories_kcal != null) {
+    return composeAnalysisFromVision(toVisionIdentification(raw));
   }
   return raw;
 }

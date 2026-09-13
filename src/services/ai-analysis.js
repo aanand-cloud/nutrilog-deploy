@@ -1,8 +1,8 @@
 import { getSession, isSupabaseConfigured } from './auth.js';
+import { normalizePhotoAnalysis } from '../../shared/vision-analysis-compose.js';
 import { syncScanUsageFromServer, getLocalDayKey } from './subscription.js';
 import { compressImage, compressDataUrl } from './image-compress.js';
 import { needsClarification } from './clarification-questions.js';
-import { normalizePhotoAnalysis } from '../../shared/vision-analysis-compose.js';
 
 export { compressImage, compressDataUrl, needsClarification };
 
@@ -127,7 +127,7 @@ function parseAnalysisResponse(data) {
     if (!jsonMatch) throw new Error('Invalid analysis response');
     return normalizePhotoAnalysis(JSON.parse(jsonMatch[0]), { forceVision: true });
   }
-  return normalizePhotoAnalysis(raw, { forceVision: true });
+  return normalizePhotoAnalysis(raw, { forceVision: true }) || raw;
 }
 
 

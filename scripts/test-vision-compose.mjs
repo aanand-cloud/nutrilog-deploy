@@ -2,6 +2,7 @@ import {
   composeAnalysisFromVision,
   isVisionAnalysis,
   normalizePhotoAnalysis,
+  resolveVisionFoodMatch,
 } from '../shared/vision-analysis-compose.js';
 import { geminiGenerate } from '../netlify/lib/gemini.mjs';
 import { VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA } from '../netlify/lib/gemini-schemas.mjs';
@@ -166,9 +167,12 @@ assert('legacy banana uses authoritative nutrition', banana?._authoritative === 
 
 assert('initial prompt omits nutrition output fields', !/"total_calories_kcal"|"total_nutrition"|"calories_kcal"|"nutrition"\s*:/.test(ANALYSIS_PROMPT));
 assert('clarification prompt forbids AI nutrition', /Do NOT calculate or return calories/i.test(CLARIFY_PROMPT));
+assert('analysis prompt asks for usda search terms', /usda_search_term/.test(ANALYSIS_PROMPT));
+assert('analysis prompt asks for oil tablespoons', /estimated_oil_tbsp/.test(ANALYSIS_PROMPT));
 
 const originalFetch = globalThis.fetch;
 let generatedRequest;
+let parsedGemini;
 globalThis.fetch = async (_url, options) => {
   generatedRequest = JSON.parse(options.body);
   return {
@@ -180,7 +184,7 @@ globalThis.fetch = async (_url, options) => {
   };
 };
 try {
-  await geminiGenerate({
+  parsedGemini = await geminiGenerate({
     apiKey: 'test',
     model: 'test-model',
     parts: [{ text: 'test' }],
@@ -193,6 +197,57 @@ assert(
   'Gemini helper supports an optional response schema',
   JSON.stringify(generatedRequest?.generationConfig?.responseSchema) === JSON.stringify(VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA),
 );
-assert('Gemini parser reads JSON from later response parts', true);
+assert('Gemini parser reads JSON from later response parts', parsedGemini?.result?.meal_summary === 'Banana');
+
+const legacyPhoto = {
+  meal_summary: 'Chicken Biryani',
+  total_calories_kcal: 680,
+  total_nutrition: { protein_g: 32, carbs_g: 85, fat_g: 22 },
+  confidence_score: 0.95,
+  items: [
+    {
+      name: 'Chicken Biryani',
+      portion_estimate: '400g',
+      calories_kcal: 680,
+      nutrition: { protein_g: 32, carbs_g: 85, fat_g: 22 },
+      confidence: 0.95,
+    },
+  ],
+};
+assert('legacy payload not vision-shaped', !isVisionAnalysis(legacyPhoto));
+const forced = normalizePhotoAnalysis(legacyPhoto);
+assert('legacy photo still composes through matcher', forced._visionComposed === true, String(forced._visionComposed));
+assert('legacy photo keeps vision grams', forced.items[0]?._hiddenGrams === 400, String(forced.items[0]?._hiddenGrams));
+assert('legacy photo discards Gemini kcal', forced.items[0]?.calories_kcal !== 680, String(forced.items[0]?.calories_kcal));
+assert('legacy photo attaches a food reference', Boolean(forced.items[0]?._refId), String(forced.items[0]?._refId));
+assert('already composed photos are not composed twice', normalizePhotoAnalysis(forced) === forced);
+
+const keepName = resolveVisionFoodMatch('Medu Vada', 'fritter, urad dal, deep fried');
+assert('usda term does not overwrite medu vada with dal', keepName.ref?.id === 'medu_vada', String(keepName.ref?.id));
+
+const keepIdli = resolveVisionFoodMatch('Idli', 'rice cake, steamed, idli');
+assert('usda term does not overwrite idli with rice cakes', keepIdli.ref?.id === 'idli', String(keepIdli.ref?.id));
+
+const muttonPhrase = resolveVisionFoodMatch('Mutton plate', 'mutton biryani, cooked');
+assert('comma-split usda phrase can recover mutton biryani', muttonPhrase.ref?.id === 'mutton_biryani', String(muttonPhrase.ref?.id));
+
+const oily = composeAnalysisFromVision({
+  meal_summary: 'Medu vada',
+  confidence_score: 0.8,
+  items: [{
+    name: 'Medu Vada',
+    usda_search_term: 'fritter, urad dal, deep fried',
+    estimated_amount: 120,
+    unit: 'g',
+    cooking_method: 'deep_fried',
+    estimated_oil_tbsp: 1.5,
+    visible_oil: false,
+    confidence: 0.88,
+  }],
+  clarification_questions: [],
+});
+const oilLine = oily.items.find((item) => item._visionOil || item.name === 'Cooking oil');
+assert('composed medu vada keeps vada ref', oily.items.some((item) => item._refId === 'medu_vada'), oily.items.map((item) => item._refId).join(', '));
+assert('1.5 tbsp oil becomes ~21 g', Boolean(oilLine && /~21\s*g/i.test(oilLine.portion_estimate)), String(oilLine?.portion_estimate));
 
 console.log('\nDone.');

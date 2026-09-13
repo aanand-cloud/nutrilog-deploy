@@ -118,6 +118,22 @@ for (const step of steps) {
   assert(`Not sure on ${step.topic}`, cfg.options.some((o) => /^not sure$/i.test(o)));
 }
 
+const geminiClarify = normalizeClarificationQuestions({
+  meal_summary: '65 dish',
+  confidence_score: 0.55,
+  items: [{ name: '65 dish', portion_estimate: '~180g', calories_kcal: 390, nutrition: {} }],
+  clarification_questions: [{
+    topic: 'protein_type',
+    question: 'Is this Chicken 65 or Paneer 65?',
+    about: '65 Dish',
+    options: ['Chicken', 'Paneer', 'Gobi'],
+  }],
+});
+const proteinStep = geminiClarify.find((s) => s.topic === 'protein_type');
+const proteinCfg = getClarificationStepConfig(proteinStep || {}, { meal_summary: '65 dish' });
+assert('keeps Gemini 1-tap protein options', Boolean(proteinStep?.options?.includes('Paneer')), JSON.stringify(proteinStep));
+assert('review UI uses Gemini options', proteinCfg.options.includes('Chicken') && proteinCfg.options.includes('Paneer'), proteinCfg.options.join(','));
+
 const poor = computeKcalRange({ total_calories_kcal: 600, source: 'photo', _photoQualityPoor: true, items: mealItems }, 'medium');
 const okRange = computeKcalRange({ total_calories_kcal: 600, source: 'photo', items: mealItems }, 'medium');
 assert('poor image widens range', poor.max - poor.min > okRange.max - okRange.min);

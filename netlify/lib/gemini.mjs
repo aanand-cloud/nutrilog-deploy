@@ -1,6 +1,10 @@
 import { extractUsageMetadata } from './gemini-usage.mjs';
+import { VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA } from './gemini-schemas.mjs';
 
 const GEMINI_API = 'https://generativelanguage.googleapis.com/v1beta/models';
+
+export const FOOD_VISION_SYSTEM_PROMPT =
+  'You are a precision vision and volume-estimation engine for MealNova. Identify every visible food and drink, estimate 3D volume, convert to grams or millilitres using typical food density, estimate absorbed oil or ghee in tablespoons when relevant, and return a standardized usda_search_term for each item so MealNova can look up nutrition in an external database. Never invent calories, protein, carbs, or fat. Always respond with a single JSON object that matches the provided response schema.';
 
 export function defaultVisionModel() {
   return process.env.GEMINI_VISION_MODEL || 'gemini-3.1-flash-lite';
@@ -29,6 +33,13 @@ export async function geminiGenerate({
   maxOutputTokens = 1200,
   responseSchema,
 }) {
+  const generationConfig = {
+    temperature,
+    maxOutputTokens,
+    responseMimeType: 'application/json',
+    ...(responseSchema ? { responseSchema } : {}),
+  };
+
   const res = await fetch(`${GEMINI_API}/${model}:generateContent`, {
     method: 'POST',
     headers: {
@@ -40,12 +51,7 @@ export async function geminiGenerate({
       systemInstruction: systemPrompt
         ? { parts: [{ text: systemPrompt }] }
         : undefined,
-      generationConfig: {
-        temperature,
-        maxOutputTokens,
-        responseMimeType: 'application/json',
-        ...(responseSchema ? { responseSchema } : {}),
-      },
+      generationConfig,
     }),
   });
 
@@ -87,11 +93,10 @@ export async function analyzeFoodWithGemini(apiKey, body, model = defaultVisionM
   return geminiGenerate({
     apiKey,
     model,
-    systemPrompt:
-      'You are a precise nutrition analysis engine. Always respond with a single valid JSON object. Support all world cuisines. Use USDA and UK PHE reference values.',
+    systemPrompt: FOOD_VISION_SYSTEM_PROMPT,
     parts,
-    temperature: 0.2,
+    temperature: 0.1,
     maxOutputTokens: 1200,
-    responseSchema,
+    responseSchema: responseSchema || VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA,
   });
 }

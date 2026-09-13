@@ -12,6 +12,7 @@ import { getSupabaseAdmin, getAccessToken, verifyAccessToken } from '../lib/veri
 import { corsHeaders, jsonResponse, optionsResponse } from '../lib/http-utils.mjs';
 import { reportServerError } from '../lib/sentry.mjs';
 import { hasUsefulFoodItems, parseAnalysisPayload } from '../../shared/analysis-result.js';
+import { normalizePhotoAnalysis } from '../../shared/vision-analysis-compose.js';
 
 const MAX_IMAGE_CHARS = 6_000_000;
 const chargedKeys = new Map();
@@ -107,7 +108,7 @@ export default async (req) => {
       userNotes,
     }, model);
 
-    const parsed = parseAnalysisPayload(analysis);
+    const parsed = normalizePhotoAnalysis(parseAnalysisPayload(analysis) || analysis, { forceVision: true }) || analysis;
     const useful = hasUsefulFoodItems(parsed);
 
     // Charge only after a successful, useful analysis. Refinement and empty plates stay free.
@@ -134,7 +135,7 @@ export default async (req) => {
 
     const geminiUsage = geminiUsageSummary(geminiUsageRaw, model);
 
-    return jsonResponse({ analysis, usage, geminiUsage }, 200, req);
+    return jsonResponse({ analysis: parsed, usage, geminiUsage }, 200, req);
   } catch (e) {
     await reportServerError(e, { function: 'analyze-food' });
     return jsonResponse({ error: e.message || 'Server error during analysis' }, 502, req);

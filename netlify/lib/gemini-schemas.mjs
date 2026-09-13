@@ -52,7 +52,7 @@ export const FOOD_ANALYSIS_RESPONSE_SCHEMA = {
   required: ['meal_summary', 'total_calories_kcal', 'total_nutrition', 'items', 'clarification_questions'],
 };
 
-/** Phase 2: vision identifies food + portions only — no AI nutrition math. */
+/** Vision identifies food + portions only — MealNova looks up nutrition. */
 export const VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA = {
   type: 'object',
   properties: {
@@ -65,9 +65,11 @@ export const VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA = {
         type: 'object',
         properties: {
           name: { type: 'string' },
+          usda_search_term: { type: 'string' },
           unit: { type: 'string' },
           estimated_amount: { type: 'number' },
           cooking_method: { type: 'string' },
+          estimated_oil_tbsp: { type: 'number' },
           visible_oil: { type: 'boolean' },
           confidence: { type: 'number' },
         },
@@ -82,6 +84,7 @@ export const VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA = {
           topic: { type: 'string' },
           question: { type: 'string' },
           about: { type: 'string' },
+          options: { type: 'array', items: { type: 'string' } },
         },
       },
     },
