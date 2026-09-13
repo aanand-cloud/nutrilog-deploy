@@ -320,7 +320,15 @@ export function rescaleItemFromPer100(item = {}, amount, unit = 'g') {
 
 /** Items whose nutrition must not be overwritten by generic food references. */
 export function shouldSkipReferenceCalibration(item = {}) {
-  return Boolean(item._labelBacked || item._localClarify || item._fromBarcode || item._authoritative || item._fromUserNotes);
+  return Boolean(
+    item._labelBacked
+    || item._localClarify
+    || item._fromBarcode
+    || item._authoritative
+    || item._fromUserNotes
+    || item._aiNutritionFallback
+    || item._aiDecomposed,
+  );
 }
 
 /** Recalibrate one AI item using reference food data when grams are known. */

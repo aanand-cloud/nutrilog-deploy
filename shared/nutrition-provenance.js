@@ -15,6 +15,8 @@ const SOURCE_LABELS = {
   internal_estimated: 'Estimated reference',
   user_entered: 'User-entered nutrition',
   unmatched: 'Unmatched',
+  ai_estimate: 'AI estimate',
+  decomposed_lookup: 'Looked up from parts',
 };
 
 function num(v) {

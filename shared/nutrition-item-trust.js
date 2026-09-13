@@ -14,6 +14,8 @@ export function getItemNutritionTrust(item = {}, analysis = {}) {
   if (analysis.source === 'barcode' || analysis.source === 'food_search' || analysis.barcode) return 'label';
 
   const per100Source = item._per100?.source;
+  if (item._nutritionSource === 'ai_estimate' || per100Source === 'ai_estimate') return 'estimate';
+  if (item._nutritionSource === 'decomposed_lookup' || per100Source === 'decomposed_lookup') return 'matched';
   if (item._refId && !item._nutritionFallback && per100Source !== 'fallback' && per100Source !== 'derived') {
     return 'matched';
   }

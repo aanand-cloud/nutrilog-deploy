@@ -19,6 +19,23 @@
       "salt100": 1
     },
     {
+      "id": "almonds",
+      "canonicalName": "Almond",
+      "aliases": ["almond", "almonds", "badam"],
+      "dataSource": "ifct",
+      "sourceRecordId": "H001",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 610,
+      "protein100": 18.41,
+      "carbs100": 3.04,
+      "fat100": 58.49,
+      "fibre100": 13.06,
+      "salt100": 2
+    },
+    {
       "id": "apple",
       "canonicalName": "Apple, eating, flesh and skin",
       "aliases": ["apple", "apples", "seb"],
@@ -324,6 +341,23 @@
       "salt100": 69
     },
     {
+      "id": "cashews",
+      "canonicalName": "Cashew nut",
+      "aliases": ["cashew", "cashews", "kaju"],
+      "dataSource": "ifct",
+      "sourceRecordId": "H005",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 583,
+      "protein100": 18.78,
+      "carbs100": 25.46,
+      "fat100": 45.2,
+      "fibre100": 3.86,
+      "salt100": 3
+    },
+    {
       "id": "cauliflower",
       "canonicalName": "Cauliflower, boiled",
       "aliases": ["cauliflower", "gobi", "phool gobi", "phoolgobi"],
@@ -374,6 +408,23 @@
       "fibre100": 0,
       "sugar100": 0,
       "salt100": 680
+    },
+    {
+      "id": "chia_seeds",
+      "canonicalName": "Seeds, chia seeds, dried",
+      "aliases": ["chia", "chia seeds", "chia seed"],
+      "dataSource": "usda",
+      "sourceRecordId": "170554",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_usda",
+      "preparationState": "dried",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 486,
+      "protein100": 16.5,
+      "carbs100": 42.1,
+      "fat100": 30.7,
+      "fibre100": 34.4,
+      "salt100": 16
     },
     {
       "id": "chicken",
@@ -474,6 +525,23 @@
       "fat100": 8,
       "fibre100": 4,
       "salt100": 400
+    },
+    {
+      "id": "coconut",
+      "canonicalName": "Coconut, kernel, fresh",
+      "aliases": ["coconut", "fresh coconut", "nariyal"],
+      "dataSource": "ifct",
+      "sourceRecordId": "H007",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 409,
+      "protein100": 3.84,
+      "carbs100": 6.3,
+      "fat100": 41.38,
+      "fibre100": 10.42,
+      "salt100": 5
     },
     {
       "id": "coconut_chutney",
@@ -743,6 +811,23 @@
       "salt100": 1
     },
     {
+      "id": "flax_seeds",
+      "canonicalName": "Linseeds",
+      "aliases": ["flax seeds", "flaxseed", "flax seed", "linseed", "linseeds", "alsi"],
+      "dataSource": "ifct",
+      "sourceRecordId": "H014",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 444,
+      "protein100": 18.55,
+      "carbs100": 10.99,
+      "fat100": 35.67,
+      "fibre100": 26.17,
+      "salt100": 8
+    },
+    {
       "id": "fries",
       "canonicalName": "Chips, fried",
       "dataSource": "cofid",
@@ -876,6 +961,23 @@
       "fibre100": 4,
       "sugar100": 0,
       "salt100": 480
+    },
+    {
+      "id": "hazelnuts",
+      "canonicalName": "Nuts, hazelnuts or filberts, dry roasted, without salt added",
+      "aliases": ["hazelnut", "hazelnuts", "filbert", "filberts"],
+      "dataSource": "usda",
+      "sourceRecordId": "170583",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_usda",
+      "preparationState": "roasted",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 646,
+      "protein100": 15,
+      "carbs100": 17.6,
+      "fat100": 62.4,
+      "fibre100": 9.4,
+      "salt100": 1
     },
     {
       "id": "ice_cream",
@@ -1475,6 +1577,23 @@
       "salt100": 430
     },
     {
+      "id": "peanuts",
+      "canonicalName": "Ground nut",
+      "aliases": ["peanut", "peanuts", "groundnut", "ground nut", "moongphali"],
+      "dataSource": "ifct",
+      "sourceRecordId": "H012",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 521,
+      "protein100": 23.65,
+      "carbs100": 17.27,
+      "fat100": 39.63,
+      "fibre100": 10.38,
+      "salt100": 4
+    },
+    {
       "id": "pear",
       "canonicalName": "Pear",
       "aliases": ["pear", "pears", "nashpati"],
@@ -1508,6 +1627,23 @@
       "salt100": 5
     },
     {
+      "id": "pine_nuts",
+      "canonicalName": "Pine nuts, chilgoza",
+      "aliases": ["pine nut", "pine nuts", "pinenuts", "chilgoza"],
+      "dataSource": "ifct",
+      "sourceRecordId": "H017",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 595,
+      "protein100": 12.55,
+      "carbs100": 26.77,
+      "fat100": 48.79,
+      "fibre100": 3.79,
+      "salt100": 1
+    },
+    {
       "id": "pineapple",
       "canonicalName": "Pineapple",
       "aliases": ["pineapple", "ananas"],
@@ -1523,6 +1659,23 @@
       "fat100": 0.16,
       "fibre100": 3.46,
       "salt100": 1
+    },
+    {
+      "id": "pistachios",
+      "canonicalName": "Pistachio nuts",
+      "aliases": ["pistachio", "pistachios", "pista"],
+      "dataSource": "ifct",
+      "sourceRecordId": "H018",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 540,
+      "protein100": 23.35,
+      "carbs100": 15.82,
+      "fat100": 42.49,
+      "fibre100": 10.64,
+      "salt100": 2
     },
     {
       "id": "plain_rice",
@@ -1609,6 +1762,23 @@
       "salt100": 60
     },
     {
+      "id": "poppy_seeds",
+      "canonicalName": "Poppy seeds",
+      "aliases": ["poppy seed", "poppy seeds", "khus khus", "khuskhus"],
+      "dataSource": "ifct",
+      "sourceRecordId": "G032",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 423,
+      "protein100": 20.31,
+      "carbs100": 12.37,
+      "fat100": 30.38,
+      "fibre100": 26.68,
+      "salt100": 3
+    },
+    {
       "id": "porridge_water",
       "canonicalName": "Porridge oats, made with water",
       "dataSource": "cofid",
@@ -1674,6 +1844,23 @@
       "fibre100": 0,
       "sugar100": 0,
       "salt100": 380
+    },
+    {
+      "id": "pumpkin_seeds",
+      "canonicalName": "Seeds, pumpkin and squash seed kernels, roasted, without salt",
+      "aliases": ["pumpkin seed", "pumpkin seeds", "pepitas", "pepita"],
+      "dataSource": "usda",
+      "sourceRecordId": "170557",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_usda",
+      "preparationState": "roasted",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 574,
+      "protein100": 29.84,
+      "carbs100": 14.71,
+      "fat100": 49.05,
+      "fibre100": 6.5,
+      "salt100": 18
     },
     {
       "id": "raisins",
@@ -1805,6 +1992,23 @@
       "fibre100": 0,
       "sugar100": 0,
       "salt100": 1200
+    },
+    {
+      "id": "sesame_seeds",
+      "canonicalName": "Sesame seeds, white",
+      "aliases": ["sesame seed", "sesame seeds", "white sesame", "til"],
+      "dataSource": "ifct",
+      "sourceRecordId": "H011",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 520,
+      "protein100": 21.7,
+      "carbs100": 10.83,
+      "fat100": 43.05,
+      "fibre100": 16.99,
+      "salt100": 3
     },
     {
       "id": "scrambled_eggs",
@@ -1960,6 +2164,23 @@
       "salt100": 0
     },
     {
+      "id": "sunflower_seeds",
+      "canonicalName": "Sunflower seeds",
+      "aliases": ["sunflower seed", "sunflower seeds"],
+      "dataSource": "ifct",
+      "sourceRecordId": "H020",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 587,
+      "protein100": 23.53,
+      "carbs100": 6.85,
+      "fat100": 51.85,
+      "fibre100": 10.8,
+      "salt100": 4
+    },
+    {
       "id": "sweet_potato",
       "canonicalName": "Sweet potato, baked",
       "dataSource": "cofid",
@@ -2074,6 +2295,23 @@
       "fat100": 4,
       "fibre100": 3,
       "salt100": 300
+    },
+    {
+      "id": "walnuts",
+      "canonicalName": "Walnut",
+      "aliases": ["walnut", "walnuts", "akhrot"],
+      "dataSource": "ifct",
+      "sourceRecordId": "H021",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-13",
+      "kcal100": 672,
+      "protein100": 14.92,
+      "carbs100": 10.14,
+      "fat100": 64.27,
+      "fibre100": 5.39,
+      "salt100": 1
     },
     {
       "id": "water",

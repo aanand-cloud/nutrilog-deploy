@@ -7,6 +7,7 @@ import { analyzeFoodWithGemini } from './netlify/lib/gemini.mjs';
 import { logGeminiUsage, geminiUsageSummary } from './netlify/lib/gemini-usage.mjs';
 import { ANALYSIS_PROMPT, CLARIFY_PROMPT } from './netlify/lib/prompts.mjs';
 import { composeVerifiedNutrition } from './netlify/lib/nutrition-db.mjs';
+import { enrichAnalysisWithAiNutritionFallback } from './netlify/lib/ai-nutrition-fallback.mjs';
 import { generateCuisineTips } from './netlify/lib/cuisine-tips-core.mjs';
 import { validateVoucherCode } from './netlify/lib/voucher.mjs';
 
@@ -138,7 +139,10 @@ function devGeminiApi(geminiKey, env = {}) {
           }
           const prompt = body.context ? CLARIFY_PROMPT : ANALYSIS_PROMPT;
           const { result: analysis, usage, model } = await analyzeFoodWithGemini(geminiKey, { ...body, prompt });
-          const composed = composeVerifiedNutrition(analysis) || analysis;
+          const composed = await enrichAnalysisWithAiNutritionFallback(
+            composeVerifiedNutrition(analysis) || analysis,
+            { geminiKey, openaiKey: env.OPENAI_API_KEY || '' },
+          );
           logGeminiUsage({
             operation: body.context ? 'analyze-food-refine' : 'analyze-food',
             model,

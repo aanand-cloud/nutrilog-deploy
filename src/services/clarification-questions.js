@@ -748,6 +748,7 @@ const BREAD_COUNT_RE = /\b(roti|chapati|naan|paratha|dosa|idli|puri|bhature)\b/i
 const PROTEIN_ITEM_RE = /\b(chicken|mutton|lamb|beef|fish|prawn|shrimp|pork|turkey|paneer|tofu|egg|murgh)\b/i;
 const VEG_ITEM_RE = /\b(spinach|cabbage|potato|aloo|okra|okro|bhindi|lad(?:y|ies)[\s-]?finger|aubergine|eggplant|brinjal|broccoli|cauliflower|gobi|carrot|beans|peas|tomato|onion|pepper|capsicum|courgette|zucchini|mushroom|kale|lettuce|salad|palak|methi|lauki|karela|bitter\s+gourd|drumstick|pumpkin|beetroot|beets?|yam|olives?|ivy[\s-]?gou?rd|tendli|tindora|kovakkai|kovai|kundru|mixed\s+veg)\b/i;
 const FRUIT_ITEM_RE = /\b(apple|banana|mango|orange|grape|strawberry|blueberry|berries|avocado|papaya|pineapple|watermelon|melon|guava|pomegranate|pear|peach|plum|litchi|lychee|kiwi|date|fig|jackfruit|chikoo|sapota|amla|custard\s+apple|sitaphal|raisin|pomegranate|anar)\b/i;
+const NUTS_SEEDS_RE = /\b(almonds?|badam|cashews?|kaju|peanuts?|ground[\s-]?nuts?|moongphali|walnuts?|akhrot|pistachios?|pista|hazelnuts?|pine[\s-]?nuts?|chilgoza|coconut|chia|flax|linseeds?|alsi|sesame\s+seeds?|poppy\s+seeds?|pumpkin\s+seeds?|pepitas?|sunflower\s+seeds?|mixed\s+nuts|nuts)\b/i;
 const STEREOTYPE_FOOD_TOPICS = new Set([
   'oil_fat',
   'rice_type',
@@ -781,7 +782,7 @@ function itemPortionPriority(item = {}) {
   let score = 0;
   if (confidence > 0 && confidence < 0.75) score += 50;
   if (PROTEIN_ITEM_RE.test(text)) score += 40;
-  if (VEG_ITEM_RE.test(text) || FRUIT_ITEM_RE.test(text)) score += 35;
+  if (VEG_ITEM_RE.test(text) || FRUIT_ITEM_RE.test(text) || NUTS_SEEDS_RE.test(text)) score += 35;
   if (/\b(rice|biryani|pasta|noodle|bread)\b/i.test(text)) score += 25;
   score += Math.min(20, (Number(item.calories_kcal) || 0) / 20);
   return score;
@@ -791,7 +792,7 @@ function isSkippableFoodItem(item = {}) {
   if (item._visionOil || item._drinkAddon === 'milk' || item._drinkAddon === 'sugar') return true;
   const text = itemLineText(item);
   if (detectDrinkCategory(text)) return true;
-  return SKIP_PORTION_ITEM_RE.test(text) && !PROTEIN_ITEM_RE.test(text) && !VEG_ITEM_RE.test(text) && !FRUIT_ITEM_RE.test(text);
+  return SKIP_PORTION_ITEM_RE.test(text) && !PROTEIN_ITEM_RE.test(text) && !VEG_ITEM_RE.test(text) && !FRUIT_ITEM_RE.test(text) && !NUTS_SEEDS_RE.test(text);
 }
 
 function planFoodQuestions(analysis) {

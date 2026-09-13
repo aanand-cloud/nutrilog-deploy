@@ -86,4 +86,14 @@ assert('match raisins not grapes', matchFoodReferenceDetailed('raisins').ref?.id
 assert('match kiwi', matchFoodReferenceDetailed('kiwi').ref?.id === 'kiwi', matchFoodReferenceDetailed('kiwi').ref?.id);
 assert('banana still banana', matchFoodReferenceDetailed('banana').ref?.id === 'banana', matchFoodReferenceDetailed('banana').ref?.id);
 
+const almonds = getVerifiedRecord('almonds');
+assert('almonds IFCT source', almonds?.dataSource === 'ifct' && almonds?.sourceRecordId === 'H001');
+assert('almonds fibre', almonds?.fibre100 === 13.06);
+assert('match almonds not generic nuts', matchFoodReferenceDetailed('roasted almonds').ref?.id === 'almonds', matchFoodReferenceDetailed('roasted almonds').ref?.id);
+assert('match peanuts not generic nuts', matchFoodReferenceDetailed('peanuts').ref?.id === 'peanuts', matchFoodReferenceDetailed('peanuts').ref?.id);
+assert('peanut butter still peanut butter', matchFoodReferenceDetailed('peanut butter').ref?.id === 'peanut_butter', matchFoodReferenceDetailed('peanut butter').ref?.id);
+assert('chia fibre overlay', enrichReferenceWithVerified(matchFoodReferenceDetailed('chia seeds').ref).fibre100 === 34.4);
+assert('match sesame seeds', matchFoodReferenceDetailed('sesame seeds').ref?.id === 'sesame_seeds', matchFoodReferenceDetailed('sesame seeds').ref?.id);
+assert('match walnuts', matchFoodReferenceDetailed('walnuts').ref?.id === 'walnuts', matchFoodReferenceDetailed('walnuts').ref?.id);
+
 console.log('\nDone.');

@@ -4,6 +4,7 @@
  */
 
 import { composeVerifiedNutrition } from '../netlify/lib/nutrition-db.mjs';
+import { restoreStoredFallbackNutrition } from './low-confidence-nutrition.js';
 
 export const LOW_CONFIDENCE_THRESHOLD = 0.9;
 export const OIL_TBSP_STEP = 0.5;
@@ -87,7 +88,7 @@ export function rebuildVisionReview(analysis = {}, items = [], oilTbsp = 0) {
   const nextFoods = (composed.items || []).map((item, idx) => {
     const prior = foods[idx] && foods[idx].name === item.name ? foods[idx] : foods.find((row) => row.name === item.name);
     return {
-      ...item,
+      ...restoreStoredFallbackNutrition(item, prior),
       id: prior?.id || item.id || `vision-${idx}`,
     };
   });

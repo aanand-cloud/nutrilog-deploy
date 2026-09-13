@@ -47,6 +47,13 @@ export function matchFoodReferenceTier1(text = '') {
     if (ref.id === 'grapes' && /\braisins?\b/.test(t)) continue;
     if (ref.id === 'mango' && /\b(lassi|pickle|chutney)\b/.test(t)) continue;
     if (ref.id === 'pineapple' && /\bbanana/.test(t)) continue;
+    if (ref.id === 'coconut' && /\b(rice|chutney|barfi|burfi|milk|oil|water|cream|lassi|soup)\b/.test(t)) continue;
+    if (ref.id === 'peanuts' && /\b(butter|soup|stew|sauce)\b/.test(t)) continue;
+    if (ref.id === 'almonds' && /\b(butter|croissant|cookie|biscuit|milk|flour)\b/.test(t)) continue;
+    if (ref.id === 'cashews' && /\b(katli|barfi|burfi)\b/.test(t)) continue;
+    if (ref.id === 'sesame_seeds' && /\b(oil|chicken|prawn|shrimp|ball|toast)\b/.test(t)) continue;
+    if (ref.id === 'sunflower_seeds' && /\boil\b/.test(t)) continue;
+    if (ref.id === 'pumpkin_seeds' && /\b(curry|sabzi|soup)\b/.test(t) && !/\bseeds?\b|\bpepitas?\b/.test(t)) continue;
     if (ref.id === 'bread' && /\b(peanut\s+butter|nutella|marmite|almond\s+butter)\b/.test(t)) continue;
     if (ref.id === 'southern_fried' && /\b(buffalo|wings?|tenders?|sandwich|waffles?)\b/.test(t)) continue;
     if (ref.id === 'chicken' && /\b(buffalo|wings?|tenders?|sandwich|waffles?|fried\s+steak|caesar)\b/.test(t)) continue;
