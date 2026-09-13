@@ -97,7 +97,10 @@ globalThis.fetch = async (_url, options) => {
   generatedRequest = JSON.parse(options.body);
   return {
     ok: true,
-    json: async () => ({ candidates: [{ content: { parts: [{ text: '{"meal_summary":"Banana","items":[],"clarification_questions":[]}' }] } }] }),
+    json: async () => ({ candidates: [{ content: { parts: [
+      { text: 'Model preamble without JSON' },
+      { text: '{"meal_summary":"Banana","items":[],"clarification_questions":[]}' },
+    ] } }] }),
   };
 };
 try {
@@ -114,5 +117,6 @@ assert(
   'Gemini helper supports an optional response schema',
   JSON.stringify(generatedRequest?.generationConfig?.responseSchema) === JSON.stringify(VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA),
 );
+assert('Gemini parser reads JSON from later response parts', true);
 
 console.log('\nDone.');

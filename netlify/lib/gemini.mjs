@@ -55,7 +55,10 @@ export async function geminiGenerate({
   }
 
   const data = await res.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  const text = (data.candidates?.[0]?.content?.parts || [])
+    .map((part) => part?.text)
+    .filter((part) => typeof part === 'string' && part.trim())
+    .join('\n');
   if (!text) throw new Error('Empty response from Gemini model');
 
   return {
