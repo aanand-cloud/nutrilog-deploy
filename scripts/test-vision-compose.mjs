@@ -111,7 +111,7 @@ try {
   globalThis.fetch = originalFetch;
 }
 assert(
-  'Gemini request enforces vision response schema',
+  'Gemini helper supports an optional response schema',
   JSON.stringify(generatedRequest?.generationConfig?.responseSchema) === JSON.stringify(VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA),
 );
 
