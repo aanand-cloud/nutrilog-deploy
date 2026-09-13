@@ -9,7 +9,7 @@ import {
   formatNutrientLine,
   applyMeasuredMealWeight,
 } from '../src/services/eaten-amount.js';
-import { validatePhotoFile, cameraErrorMessage } from '../src/services/photo-quality.js';
+import { validatePhotoFile, cameraErrorMessage, isLikelyOverexposed } from '../src/services/photo-quality.js';
 import { hasUsefulFoodItems } from '../shared/analysis-result.js';
 import {
   normalizeClarificationQuestions,
@@ -95,6 +95,8 @@ assert('unsupported file type', validatePhotoFile({ name: 'x.gif', type: 'image/
 assert('file too large', validatePhotoFile({ name: 'x.jpg', type: 'image/jpeg', size: 30 * 1024 * 1024 }).ok === false);
 assert('valid jpeg', validatePhotoFile({ name: 'x.jpg', type: 'image/jpeg', size: 4000 }).ok === true);
 assert('camera denial offers upload', cameraErrorMessage(new Error('Permission denied')).offerUpload === true);
+assert('white background with food detail is not overexposed', !isLikelyOverexposed({ mean: 235, variance: 1800, clippedRatio: 0.65 }));
+assert('washed-out image is overexposed', isLikelyOverexposed({ mean: 250, variance: 60, clippedRatio: 0.95 }));
 
 assert('no useful food on empty analysis', hasUsefulFoodItems({ items: [] }) === false);
 assert('useful food when named items exist', hasUsefulFoodItems({ items: [{ name: 'Rice' }] }) === true);

@@ -12,6 +12,7 @@ import { getSupabaseAdmin, getAccessToken, verifyAccessToken } from '../lib/veri
 import { corsHeaders, jsonResponse, optionsResponse } from '../lib/http-utils.mjs';
 import { reportServerError } from '../lib/sentry.mjs';
 import { hasUsefulFoodItems, parseAnalysisPayload } from '../../shared/analysis-result.js';
+import { VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA } from '../lib/gemini-schemas.mjs';
 
 const MAX_IMAGE_CHARS = 6_000_000;
 const chargedKeys = new Map();
@@ -105,7 +106,7 @@ export default async (req) => {
       prompt,
       context: isRefinement ? context : undefined,
       userNotes,
-    }, model);
+    }, model, VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA);
 
     const parsed = parseAnalysisPayload(analysis);
     const useful = hasUsefulFoodItems(parsed);

@@ -46,6 +46,10 @@ export function cameraErrorMessage(err) {
   return { code: 'camera', message: err?.message || 'Could not open the camera.', offerUpload: true };
 }
 
+export function isLikelyOverexposed({ mean = 0, variance = 0, clippedRatio = 0 } = {}) {
+  return mean > 242 && clippedRatio > 0.82 && variance < 500;
+}
+
 export async function assessPhotoQuality(dataUrl) {
   if (!dataUrl || typeof document === 'undefined') {
     return { ok: true, flags: [], summary: 'Photo looks clear', reduceConfidence: false };
@@ -61,22 +65,25 @@ export async function assessPhotoQuality(dataUrl) {
     const { data } = ctx.getImageData(0, 0, size, size);
     const luma = [];
     let sum = 0;
+    let clipped = 0;
     for (let i = 0; i < data.length; i += 4) {
       const y = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
       luma.push(y);
       sum += y;
+      if (y >= 248) clipped += 1;
     }
     const mean = sum / luma.length;
     let variance = 0;
     for (const y of luma) variance += (y - mean) ** 2;
     variance /= luma.length;
+    const clippedRatio = clipped / luma.length;
 
     const flags = [];
     if (img.naturalWidth < 240 || img.naturalHeight < 240) {
       flags.push({ code: 'too_far', message: 'The plate looks far away or the image is very small. Move closer, or continue with a wider calorie range.' });
     }
     if (mean < 38) flags.push({ code: 'dark', message: 'This photo looks very dark. Retake in better light for a more reliable estimate, or continue with a wider calorie range.' });
-    if (mean > 230) flags.push({ code: 'overexposed', message: 'This photo looks overexposed. Retake with less glare, or continue with a wider calorie range.' });
+    if (isLikelyOverexposed({ mean, variance, clippedRatio })) flags.push({ code: 'overexposed', message: 'This photo looks overexposed. Retake with less glare, or continue with a wider calorie range.' });
     if (variance < 120) {
       flags.push({ code: 'no_food', message: 'No food is obvious in this photo. Retake a clearer picture of the meal.' });
     } else if (variance < 180) {
@@ -84,9 +91,9 @@ export async function assessPhotoQuality(dataUrl) {
     }
 
     if (!flags.length) {
-      return { ok: true, flags: [], summary: 'Photo looks clear', reduceConfidence: false, mean, variance };
+      return { ok: true, flags: [], summary: 'Photo looks clear', reduceConfidence: false, mean, variance, clippedRatio };
     }
-    return { ok: false, flags, summary: flags[0].message, reduceConfidence: true, mean, variance };
+    return { ok: false, flags, summary: flags[0].message, reduceConfidence: true, mean, variance, clippedRatio };
   } catch {
     return { ok: false, flags: [{ code: 'corrupt', message: 'Could not read that image. Try another photo.' }], summary: 'Could not read that image.', reduceConfidence: true };
   }

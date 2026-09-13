@@ -264,8 +264,36 @@ export function composeAnalysisFromVision(vision = {}) {
   return analysis;
 }
 
-/** Accept vision-only or legacy full AI analysis. */
-export function normalizePhotoAnalysis(raw = {}) {
+function legacyItemToVisionItem(item = {}) {
+  const portion = String(item.portion_estimate || '');
+  const isMl = /\bml\b/i.test(portion) || item._volumeMl != null;
+  const amount = item.estimated_amount
+    || item._hiddenGrams
+    || item.grams
+    || item._volumeMl
+    || parseGramsFromText(portion)
+    || (isMl ? 250 : 120);
+  return {
+    name: item.name || 'Food',
+    unit: isMl ? 'ml' : 'g',
+    estimated_amount: Math.max(1, Math.round(num(amount))),
+    cooking_method: item.cooking_method || item._visionMeta?.cooking_method || '',
+    visible_oil: Boolean(item.visible_oil ?? item._visionMeta?.visible_oil),
+    confidence: num(item.confidence) || 0.7,
+  };
+}
+
+/** Accept vision-only payloads and defensively discard nutrition from legacy AI responses. */
+export function normalizePhotoAnalysis(raw = {}, { forceVision = false } = {}) {
   if (isVisionAnalysis(raw)) return composeAnalysisFromVision(raw);
+  if (forceVision && Array.isArray(raw.items) && raw.items.length) {
+    return composeAnalysisFromVision({
+      meal_summary: raw.meal_summary || 'Meal',
+      confidence_score: num(raw.confidence_score) || 0.7,
+      notes: raw.notes || '',
+      items: raw.items.map(legacyItemToVisionItem),
+      clarification_questions: raw.clarification_questions || [],
+    });
+  }
   return raw;
 }

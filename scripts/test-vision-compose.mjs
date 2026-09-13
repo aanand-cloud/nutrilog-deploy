@@ -3,6 +3,9 @@ import {
   isVisionAnalysis,
   normalizePhotoAnalysis,
 } from '../shared/vision-analysis-compose.js';
+import { geminiGenerate } from '../netlify/lib/gemini.mjs';
+import { VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA } from '../netlify/lib/gemini-schemas.mjs';
+import { ANALYSIS_PROMPT, CLARIFY_PROMPT } from '../netlify/lib/prompts.mjs';
 
 function assert(label, ok, detail = '') {
   if (!ok) {
@@ -66,5 +69,50 @@ assert('adds oil line when visible_oil', composed.items.some((i) => i._visionOil
 
 const normalized = normalizePhotoAnalysis(vision);
 assert('normalize routes vision to composed', normalized._visionComposed === true);
+
+const legacyBanana = normalizePhotoAnalysis({
+  meal_summary: 'Banana',
+  total_calories_kcal: 22,
+  items: [{
+    name: 'Banana',
+    portion_estimate: '50g',
+    calories_kcal: 22,
+    nutrition: { protein_g: 0.2, carbs_g: 5, fat_g: 0.1 },
+    confidence: 0.95,
+  }],
+  clarification_questions: [],
+}, { forceVision: true });
+const banana = legacyBanana.items[0];
+assert('legacy AI nutrition is discarded', legacyBanana._visionComposed === true && legacyBanana.total_calories_kcal !== 22, `${legacyBanana.total_calories_kcal} kcal`);
+assert('legacy banana resolves canonical reference', banana?._refId === 'banana', String(banana?._refId));
+assert('legacy banana keeps visual portion', /50g/.test(banana?.portion_estimate || ''), banana?.portion_estimate);
+assert('legacy banana uses authoritative nutrition', banana?._authoritative === true || /CoFID|IFCT|USDA/i.test(banana?._provenanceLabel || ''), banana?._provenanceLabel);
+
+assert('initial prompt omits nutrition output fields', !/"total_calories_kcal"|"total_nutrition"|"calories_kcal"|"nutrition"\s*:/.test(ANALYSIS_PROMPT));
+assert('clarification prompt forbids AI nutrition', /Do NOT calculate or return calories/i.test(CLARIFY_PROMPT));
+
+const originalFetch = globalThis.fetch;
+let generatedRequest;
+globalThis.fetch = async (_url, options) => {
+  generatedRequest = JSON.parse(options.body);
+  return {
+    ok: true,
+    json: async () => ({ candidates: [{ content: { parts: [{ text: '{"meal_summary":"Banana","items":[],"clarification_questions":[]}' }] } }] }),
+  };
+};
+try {
+  await geminiGenerate({
+    apiKey: 'test',
+    model: 'test-model',
+    parts: [{ text: 'test' }],
+    responseSchema: VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA,
+  });
+} finally {
+  globalThis.fetch = originalFetch;
+}
+assert(
+  'Gemini request enforces vision response schema',
+  JSON.stringify(generatedRequest?.generationConfig?.responseSchema) === JSON.stringify(VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA),
+);
 
 console.log('\nDone.');

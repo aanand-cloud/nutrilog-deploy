@@ -27,6 +27,7 @@ export async function geminiGenerate({
   parts,
   temperature = 0.2,
   maxOutputTokens = 1200,
+  responseSchema,
 }) {
   const res = await fetch(`${GEMINI_API}/${model}:generateContent`, {
     method: 'POST',
@@ -43,6 +44,7 @@ export async function geminiGenerate({
         temperature,
         maxOutputTokens,
         responseMimeType: 'application/json',
+        ...(responseSchema ? { responseSchema } : {}),
       },
     }),
   });
@@ -63,7 +65,7 @@ export async function geminiGenerate({
   };
 }
 
-export async function analyzeFoodWithGemini(apiKey, body, model = defaultVisionModel()) {
+export async function analyzeFoodWithGemini(apiKey, body, model = defaultVisionModel(), responseSchema) {
   const { image, mimeType = 'image/jpeg', prompt, context, userNotes } = body;
   const parts = [];
   if (userNotes?.trim()) {
@@ -87,5 +89,6 @@ export async function analyzeFoodWithGemini(apiKey, body, model = defaultVisionM
     parts,
     temperature: 0.2,
     maxOutputTokens: 1200,
+    responseSchema,
   });
 }
