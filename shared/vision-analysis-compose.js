@@ -42,7 +42,7 @@ const PREPARED_FOOD_RE = /\b(pizza|burger|fries|chips|wedges|fried\s+chicken|chi
 const BRANDED_SERVINGS = [
   {
     id: 'kfc_uk_fillet_burger',
-    re: /\bkfc\b.*\b(?:original\s+recipe\s+)?(?:fillet|chicken)\s+burger\b/i,
+    re: /\bkfc\b.*\b(?:(?:original\s+recipe\s+)?(?:fillet|chicken)\s+burger|original\s+recipe\s+burger)\b/i,
     name: 'KFC Fillet Burger', kcal: 463,
     nutrition: { protein_g: 28.8, carbs_g: 43, fat_g: 18.7, fibre_g: null, sugar_g: 6.5, salt_mg: 2200 },
   },

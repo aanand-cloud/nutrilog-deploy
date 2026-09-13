@@ -129,6 +129,13 @@ assert('Pepsi Max is constrained to near-zero calories', kfcMeal.items.find((i) 
 assert('prepared branded meal receives no separate oil', !kfcMeal.items.some((i) => i._visionOil));
 assert('KFC meal total stays plausible', kfcMeal.total_calories_kcal >= 725 && kfcMeal.total_calories_kcal <= 730, `${kfcMeal.total_calories_kcal} kcal`);
 
+const liveKfcName = composeAnalysisFromVision({
+  meal_summary: 'KFC meal',
+  items: [{ name: 'KFC Original Recipe Burger', unit: 'g', estimated_amount: 220, cooking_method: 'fried', visible_oil: true }],
+  clarification_questions: [],
+});
+assert('live KFC burger wording uses official Fillet Burger serving', liveKfcName.items[0]?.calories_kcal === 463, `${liveKfcName.items[0]?.calories_kcal} kcal`);
+
 const pizzaMeal = composeAnalysisFromVision({
   meal_summary: 'Pepperoni pizza',
   items: [{ name: 'Pepperoni pizza', unit: 'g', estimated_amount: 650, cooking_method: 'baked', visible_oil: true }],
