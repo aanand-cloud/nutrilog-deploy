@@ -92,6 +92,9 @@ export const VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA = {
   required: ['meal_summary', 'items', 'clarification_questions'],
 };
 
+/** Phase 1 photo schema name — same vision contract, never the legacy kcal schema. */
+export const FOOD_ANALYSIS_SCHEMA = VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA;
+
 export const CUISINE_TIPS_RESPONSE_SCHEMA = {
   type: 'object',
   properties: {

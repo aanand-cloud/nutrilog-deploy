@@ -1,5 +1,5 @@
 import { extractUsageMetadata } from './gemini-usage.mjs';
-import { VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA } from './gemini-schemas.mjs';
+import { FOOD_ANALYSIS_SCHEMA, VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA } from './gemini-schemas.mjs';
 
 const GEMINI_API = 'https://generativelanguage.googleapis.com/v1beta/models';
 
@@ -97,6 +97,6 @@ export async function analyzeFoodWithGemini(apiKey, body, model = defaultVisionM
     parts,
     temperature: 0.1,
     maxOutputTokens: 1200,
-    responseSchema: responseSchema || VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA,
+    responseSchema: responseSchema || FOOD_ANALYSIS_SCHEMA || VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA,
   });
 }

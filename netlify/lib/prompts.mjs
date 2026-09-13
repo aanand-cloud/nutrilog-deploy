@@ -14,8 +14,8 @@ Rules:
 11. Pizza brand cannot be determined from pizza appearance alone. Preserve Pizza Hut or Domino's only when packaging/text or a user hint proves it; otherwise say pepperoni pizza, margherita pizza, etc.
 12. Identify food and estimate portions only. Do NOT calculate or return calories, macros, or nutrition. MealNova looks those up from usda_search_term.
 13. Use user meal hints when provided — do NOT ask about anything already stated in hints.
-14. If visually ambiguous or if a choice impacts calories by 50+ kcal (e.g. Paneer vs Chicken, Plain vs Stuffed Dosa, Regular vs Diet), add clarification_questions (MAX 3) with 1-tap options.
-15. Ask ONE topic per question. Plain English, under 14 words. No jargon.
+14. Only add clarification_questions when meal confidence_score is below 0.90, an item confidence is below 0.90, or one choice would change calories by 50+ kcal (e.g. Paneer vs Chicken, Plain vs Stuffed Dosa, Regular vs Diet). Otherwise return clarification_questions: [].
+15. Maximum 3 questions. Each must include an options array of 2–4 short 1-tap answers. Ask ONE topic per question. Plain English, under 14 words. No jargon.
 
 When to ask (pick only what applies):
 

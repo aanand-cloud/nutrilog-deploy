@@ -12,7 +12,7 @@ import { getSupabaseAdmin, getAccessToken, verifyAccessToken } from '../lib/veri
 import { corsHeaders, jsonResponse, optionsResponse } from '../lib/http-utils.mjs';
 import { reportServerError } from '../lib/sentry.mjs';
 import { hasUsefulFoodItems, parseAnalysisPayload } from '../../shared/analysis-result.js';
-import { normalizePhotoAnalysis } from '../../shared/vision-analysis-compose.js';
+import { composeVerifiedNutrition } from '../lib/nutrition-db.mjs';
 
 const MAX_IMAGE_CHARS = 6_000_000;
 const chargedKeys = new Map();
@@ -108,7 +108,7 @@ export default async (req) => {
       userNotes,
     }, model);
 
-    const parsed = normalizePhotoAnalysis(parseAnalysisPayload(analysis) || analysis, { forceVision: true }) || analysis;
+    const parsed = composeVerifiedNutrition(parseAnalysisPayload(analysis) || analysis) || analysis;
     const useful = hasUsefulFoodItems(parsed);
 
     // Charge only after a successful, useful analysis. Refinement and empty plates stay free.

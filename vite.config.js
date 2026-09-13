@@ -6,7 +6,7 @@ import { MARKETING_PAGE_SLUGS } from './src/services/marketing-seo.js';
 import { analyzeFoodWithGemini } from './netlify/lib/gemini.mjs';
 import { logGeminiUsage, geminiUsageSummary } from './netlify/lib/gemini-usage.mjs';
 import { ANALYSIS_PROMPT, CLARIFY_PROMPT } from './netlify/lib/prompts.mjs';
-import { normalizePhotoAnalysis } from './shared/vision-analysis-compose.js';
+import { composeVerifiedNutrition } from './netlify/lib/nutrition-db.mjs';
 import { generateCuisineTips } from './netlify/lib/cuisine-tips-core.mjs';
 import { validateVoucherCode } from './netlify/lib/voucher.mjs';
 
@@ -138,7 +138,7 @@ function devGeminiApi(geminiKey, env = {}) {
           }
           const prompt = body.context ? CLARIFY_PROMPT : ANALYSIS_PROMPT;
           const { result: analysis, usage, model } = await analyzeFoodWithGemini(geminiKey, { ...body, prompt });
-          const composed = normalizePhotoAnalysis(analysis, { forceVision: true }) || analysis;
+          const composed = composeVerifiedNutrition(analysis) || analysis;
           logGeminiUsage({
             operation: body.context ? 'analyze-food-refine' : 'analyze-food',
             model,

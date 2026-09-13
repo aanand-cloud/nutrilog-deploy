@@ -5,8 +5,9 @@ import {
   resolveVisionFoodMatch,
 } from '../shared/vision-analysis-compose.js';
 import { geminiGenerate } from '../netlify/lib/gemini.mjs';
-import { VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA } from '../netlify/lib/gemini-schemas.mjs';
+import { FOOD_ANALYSIS_SCHEMA, VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA } from '../netlify/lib/gemini-schemas.mjs';
 import { ANALYSIS_PROMPT, CLARIFY_PROMPT } from '../netlify/lib/prompts.mjs';
+import { capClarificationQuestions, composeVerifiedNutrition, lookupReferenceNutrition } from '../netlify/lib/nutrition-db.mjs';
 import { itemProvenanceSummary } from '../shared/nutrition-provenance.js';
 
 function assert(label, ok, detail = '') {
@@ -249,5 +250,56 @@ const oily = composeAnalysisFromVision({
 const oilLine = oily.items.find((item) => item._visionOil || item.name === 'Cooking oil');
 assert('composed medu vada keeps vada ref', oily.items.some((item) => item._refId === 'medu_vada'), oily.items.map((item) => item._refId).join(', '));
 assert('1.5 tbsp oil becomes ~21 g', Boolean(oilLine && /~21\s*g/i.test(oilLine.portion_estimate)), String(oilLine?.portion_estimate));
+
+assert('Phase 1 schema is the vision schema, not legacy kcal', FOOD_ANALYSIS_SCHEMA === VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA);
+assert('Phase 1 prompt gates questions at 0.90 confidence', /below 0\.90/.test(ANALYSIS_PROMPT));
+
+const highConf = capClarificationQuestions({
+  confidence_score: 0.95,
+  items: [{ name: 'Banana', confidence: 0.94 }],
+  clarification_questions: [
+    { topic: 'portion_solid', question: 'How much banana?' },
+    { topic: 'protein_type', question: 'Is this chicken or paneer?' },
+  ],
+});
+assert('high confidence drops low-impact questions', highConf.clarification_questions.length === 1 && highConf.clarification_questions[0].topic === 'protein_type');
+
+const lowConf = capClarificationQuestions({
+  confidence_score: 0.7,
+  items: [{ name: 'Curry', confidence: 0.7 }],
+  clarification_questions: [
+    { topic: 'oil_fat', question: 'How oily is this?' },
+    { topic: 'portion_solid', question: 'How much curry?' },
+    { topic: 'sauce_gravy', question: 'How much gravy?' },
+    { topic: 'protein_type', question: 'What protein is this?' },
+  ],
+});
+assert('low confidence keeps at most 3 questions', lowConf.clarification_questions.length === 3);
+
+const lookup = lookupReferenceNutrition({
+  name: 'Medu Vada',
+  usda_search_term: 'fritter, urad dal, deep fried',
+  estimated_amount: 120,
+});
+assert('nutrition-db keeps medu vada ref', lookup.refId === 'medu_vada', String(lookup.refId));
+assert('nutrition-db scales grams to calories', lookup.grams === 120 && lookup.calories_kcal > 0, `${lookup.grams}g ${lookup.calories_kcal}kcal`);
+
+const verified = composeVerifiedNutrition({
+  meal_summary: 'Medu vada',
+  confidence_score: 0.8,
+  items: [{
+    name: 'Medu Vada',
+    usda_search_term: 'fritter, urad dal, deep fried',
+    estimated_amount: 120,
+    unit: 'g',
+    cooking_method: 'deep_fried',
+    estimated_oil_tbsp: 1.5,
+    visible_oil: false,
+    confidence: 0.88,
+  }],
+  clarification_questions: [],
+});
+assert('nutrition-db compose is vision-composed', verified._visionComposed === true);
+assert('nutrition-db compose keeps vada', verified.items.some((item) => item._refId === 'medu_vada'));
 
 console.log('\nDone.');
