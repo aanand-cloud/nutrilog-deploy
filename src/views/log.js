@@ -52,10 +52,8 @@ import {
   validatePhotoFile,
   cameraErrorMessage,
   assessPhotoQuality,
-  rotateDataUrl,
-  cropCentreDataUrl,
 } from '../services/photo-quality.js';
-import { parseMealWeight, roundDisplay, applyMeasuredMealWeight, formatNutrientLine } from '../services/eaten-amount.js';
+import { roundDisplay, formatNutrientLine } from '../services/eaten-amount.js';
 import { hasUsefulFoodItems } from '../../shared/analysis-result.js';
 import { scoreMealConfidence } from '../../shared/nutrition-confidence.js';
 
@@ -93,7 +91,7 @@ function speechHintHtml() {
 }
 
 export function isLogBusy() {
-  return ['preview', 'weight', 'analyzing', 'clarify', 'review', 'confirm', 'saving'].includes(activeLogState?.step);
+  return ['analyzing', 'clarify', 'review', 'confirm', 'saving'].includes(activeLogState?.step);
 }
 
 export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profile, onSignIn }) {
@@ -282,12 +280,10 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
   }
 
   function logProgress(current) {
-    const order = ['method', 'photo', 'preview', 'weight', 'analyzing', 'clarify', 'review', 'confirm'];
+    const order = ['method', 'photo', 'analyzing', 'clarify', 'review', 'confirm'];
     const labels = {
       method: 'Choose method',
       photo: 'Select photo',
-      preview: 'Check photo',
-      weight: 'Meal weight',
       analyzing: 'Analyse',
       failed: 'Try again',
       clarify: 'Quick questions',
@@ -380,8 +376,10 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     if (state.step === 'method') renderMethod();
     else if (state.step === 'describe') renderDescribe();
     else if (state.step === 'photo' || state.step === 'capture') renderCapture();
-    else if (state.step === 'preview') renderPreview();
-    else if (state.step === 'weight') renderWeight();
+    else if (state.step === 'preview' || state.step === 'weight') {
+      if (state.image) startAnalysis();
+      else renderCapture();
+    }
     else if (state.step === 'paywall') renderPaywall();
     else if (state.step === 'failed') renderFailed();
     else if (state.step === 'analyzing') renderAnalyzing();
@@ -657,137 +655,20 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
         }
       }
       state.image = image;
-      state.step = 'preview';
       state.status = '';
+      try {
+        state.photoQuality = await assessPhotoQuality(image?.dataUrl);
+      } catch (_) {
+        state.photoQuality = null;
+      }
       persist();
-      render();
+      startAnalysis();
     } catch (err) {
       setStatus(err.message || 'Something went wrong — try again');
       state.step = 'capture';
       persist();
       render();
     }
-  }
-
-  async function renderPreview() {
-    const quality = state.photoQuality || await assessPhotoQuality(state.image?.dataUrl);
-    state.photoQuality = quality;
-    persist();
-    const qualityLine = quality.ok
-      ? '<p class="log-quality log-quality--ok">Photo looks clear</p>'
-      : `<p class="log-quality log-quality--warn">${escapeHtml(quality.summary)}</p>`;
-    root.innerHTML = `
-      <section class="log-screen log-preview">
-        <button type="button" class="back-link" id="backPhoto">← Back</button>
-        ${logProgress('preview')}
-        <h2>Check this photo</h2>
-        ${state.image?.dataUrl ? `<img src="${state.image.dataUrl}" alt="Selected meal photo" class="preview-img"/>` : ''}
-        ${qualityLine}
-        <p class="log-screen__lead">Is the complete meal visible?</p>
-        <div class="option-grid" id="completeGrid">
-          <button type="button" class="option-btn${state.completeness === 'yes_visible' ? ' is-active' : ''}" data-complete="yes_visible">Yes, everything is visible</button>
-          <button type="button" class="option-btn${state.completeness === 'hidden_missing' ? ' is-active' : ''}" data-complete="hidden_missing">Some food is hidden or missing</button>
-          <button type="button" class="option-btn${state.completeness === 'part_of_meal' ? ' is-active' : ''}" data-complete="part_of_meal">This is only part of the meal</button>
-          <button type="button" class="option-btn${state.completeness === 'not_sure' ? ' is-active' : ''}" data-complete="not_sure">Not sure</button>
-        </div>
-        <div class="log-preview__tools">
-          <button type="button" class="btn btn-ghost btn-sm" id="rotatePhoto">Rotate</button>
-          <button type="button" class="btn btn-ghost btn-sm" id="cropPhoto">Crop centre</button>
-          <button type="button" class="btn btn-ghost btn-sm" id="retakePhoto">Retake</button>
-          <button type="button" class="btn btn-ghost btn-sm" id="removePhoto">Remove</button>
-        </div>
-        <button type="button" class="btn btn-primary full" id="continuePhoto">${quality.ok ? 'Continue with this photo' : 'Continue anyway'}</button>
-      </section>
-    `;
-    root.querySelector('#backPhoto')?.addEventListener('click', () => { state.step = 'photo'; persist(); render(); });
-    root.querySelectorAll('[data-complete]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        state.completeness = btn.dataset.complete;
-        root.querySelectorAll('[data-complete]').forEach((b) => b.classList.toggle('is-active', b === btn));
-      });
-    });
-    root.querySelector('#rotatePhoto')?.addEventListener('click', async () => {
-      if (!state.image?.dataUrl) return;
-      const rotated = await rotateDataUrl(state.image.dataUrl);
-      state.image = { ...state.image, dataUrl: rotated, base64: rotated.split(',')[1], mimeType: 'image/jpeg' };
-      state.photoQuality = null;
-      persist();
-      render();
-    });
-    root.querySelector('#cropPhoto')?.addEventListener('click', async () => {
-      if (!state.image?.dataUrl) return;
-      const cropped = await cropCentreDataUrl(state.image.dataUrl);
-      state.image = { ...state.image, dataUrl: cropped, base64: cropped.split(',')[1], mimeType: 'image/jpeg' };
-      state.photoQuality = null;
-      persist();
-      render();
-    });
-    root.querySelector('#retakePhoto')?.addEventListener('click', () => {
-      state.image = null;
-      state.photoQuality = null;
-      state.analysisId = null;
-      state.scanRecorded = false;
-      state.step = 'photo';
-      persist();
-      render();
-    });
-    root.querySelector('#removePhoto')?.addEventListener('click', () => {
-      state.image = null;
-      state.photoQuality = null;
-      state.analysisId = null;
-      state.scanRecorded = false;
-      state.step = 'method';
-      persist();
-      render();
-    });
-    root.querySelector('#continuePhoto')?.addEventListener('click', () => {
-      if (!state.completeness) {
-        showToast('Please say whether the complete meal is visible.');
-        return;
-      }
-      state.step = 'weight';
-      persist();
-      render();
-    });
-  }
-
-  function renderWeight() {
-    root.innerHTML = `
-      <section class="log-screen">
-        <button type="button" class="back-link" id="backPreview">← Back</button>
-        ${logProgress('weight')}
-        <h2>Do you know the total weight of the complete meal?</h2>
-        <p class="log-screen__lead">Enter the weight of the entire finished meal, including all visible foods, sauces and accompaniments. You can skip this.</p>
-        <div class="log-weight">
-          <label class="field">
-            <span>Weight</span>
-            <input type="number" id="mealWeightInput" min="1" step="1" inputmode="decimal" placeholder="e.g. 355"/>
-          </label>
-          <label class="field">
-            <span>Unit</span>
-            <select id="mealWeightUnit">
-              <option value="g">g</option>
-              <option value="kg">kg</option>
-              <option value="oz">oz</option>
-              <option value="lb">lb</option>
-            </select>
-          </label>
-        </div>
-        <button type="button" class="btn btn-primary full" id="useWeight">Use this weight</button>
-        <button type="button" class="btn btn-ghost full" id="skipWeight">I don’t know</button>
-      </section>
-    `;
-    root.querySelector('#backPreview')?.addEventListener('click', () => { state.step = 'preview'; persist(); render(); });
-    root.querySelector('#skipWeight')?.addEventListener('click', () => startAnalysis());
-    root.querySelector('#useWeight')?.addEventListener('click', () => {
-      const parsed = parseMealWeight(root.querySelector('#mealWeightInput')?.value, root.querySelector('#mealWeightUnit')?.value);
-      if (!parsed.ok) {
-        showToast(parsed.message);
-        return;
-      }
-      state.mealWeightGrams = parsed.grams;
-      startAnalysis();
-    });
   }
 
   function startAnalysis() {
@@ -879,14 +760,8 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
         return;
       }
       let next = analysis;
-      if (state.mealWeightGrams) {
-        next = applyMeasuredMealWeight(next, state.mealWeightGrams);
-      }
       next._photoQualityPoor = Boolean(state.photoQuality?.reduceConfidence);
-      next._completeness = state.completeness;
-      next._mealWeightGrams = state.mealWeightGrams || null;
       next.source = 'photo';
-      if (state.completeness === 'not_sure') next._notSureAnswers = (next._notSureAnswers || 0) + 1;
       state.analysis = next;
       enrichDrinkContext(state.analysis);
       if (!isSupabaseConfigured() && !state.scanRecorded) {
@@ -897,7 +772,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     } catch (err) {
       state.analyzing = false;
       if (state.cancelled || err?.name === 'AbortError') {
-        state.step = 'preview';
+        state.step = 'photo';
         persist();
         render();
         return;
@@ -905,7 +780,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       if (err?.requiresAuth) {
         showToast('Sign in to log meals with AI', 5000);
         onSignIn?.();
-        state.step = 'preview';
+        state.step = 'photo';
         persist();
         render();
         return;
@@ -960,7 +835,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
         <button type="button" class="btn btn-ghost full" id="failPhoto">Choose another photo</button>
       </section>
     `;
-    root.querySelector('#backPreview')?.addEventListener('click', () => { state.step = 'preview'; persist(); render(); });
+    root.querySelector('#backPreview')?.addEventListener('click', () => { state.step = 'photo'; persist(); render(); });
     root.querySelector('#retryAnalysis')?.addEventListener('click', () => startAnalysis());
     root.querySelector('#failDescribe')?.addEventListener('click', () => { state.step = 'describe'; persist(); render(); });
     root.querySelector('#failSearch')?.addEventListener('click', () => openFoodSearch());
@@ -1007,7 +882,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
         state.cancelled = true;
         state.analyzing = false;
         analysisAbort?.abort();
-        state.step = 'preview';
+        state.step = 'photo';
         persist();
         render();
       });

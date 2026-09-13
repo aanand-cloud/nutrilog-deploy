@@ -12,4 +12,9 @@ if (/\bisPlanning\b/.test(src)) {
   process.exit(1);
 }
 
+if (/Is the complete meal visible/.test(src) || /Do you know the total weight of the complete meal/.test(src)) {
+  console.error('check-log-view: photo completeness and meal-weight screens were removed — do not bring them back');
+  process.exit(1);
+}
+
 console.log('check-log-view: ok');

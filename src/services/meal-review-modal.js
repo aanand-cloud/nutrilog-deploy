@@ -3,7 +3,6 @@ import { getUnitPrefs, formatEnergy } from './goals.js';
 import { DISCLAIMERS, disclaimerBlock } from './disclaimers.js';
 import { scoreMealConfidence, CONFIDENCE_BAND_META, whyThisEstimate } from '../../shared/nutrition-confidence.js';
 import {
-  EATEN_OPTIONS,
   scaleItemsByEatenFactor,
   sumCaloriesPrecise,
   sumConsumedGrams,
@@ -38,8 +37,7 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
     const prefs = getUnitPrefs();
     let items = normalizeEditableItems(analysis.items || []);
     let currentMealType = mealType;
-    let eatenId = 'all';
-    let eatenFactor = 1;
+    const eatenFactor = 1;
     let addName = '';
     let addGrams = 15;
     let addCalories = 120;
@@ -115,19 +113,8 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
             <p class="fine-print">P ${fmtMaybe(t.total_nutrition.protein_g)} · C ${fmtMaybe(t.total_nutrition.carbs_g)} · F ${fmtMaybe(t.total_nutrition.fat_g)}</p>
             <p class="fine-print">${escapeHtml(nutrients.line)}</p>
             ${nutrients.notes ? `<p class="fine-print">${escapeHtml(nutrients.notes)}</p>` : ''}
-            <p class="fine-print">Original meal weight: ${roundDisplay(t.originalGrams)} g</p>
-            <p class="fine-print">Amount eaten: approximately ${roundDisplay(t.consumedGrams)} g — ${Math.round(eatenFactor * 100)}%</p>
+            <p class="fine-print">${roundDisplay(t.consumedGrams)} g on the plate</p>
           </div>
-          <fieldset class="eaten-amount">
-            <legend>How much of this meal did you eat?</legend>
-            ${EATEN_OPTIONS.map((o) => `
-              <label class="eaten-amount__opt">
-                <input type="radio" name="eatenAmount" value="${o.id}" ${eatenId === o.id ? 'checked' : ''}/>
-                ${escapeHtml(o.label)}
-              </label>
-            `).join('')}
-            ${eatenId === 'custom' ? `<label class="field"><span>Percent eaten</span><input type="number" id="customEatenPct" min="1" max="100" value="${Math.round(eatenFactor * 100)}"/></label>` : ''}
-          </fieldset>
           ${visionMode ? `
           <div class="meal-review-oil" role="group" aria-label="Cooking oil">
             <span>Cooking oil / ghee</span>
@@ -255,23 +242,6 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
           },
           mealType: currentMealType,
         });
-      });
-
-      overlay.querySelectorAll('input[name="eatenAmount"]').forEach((input) => {
-        input.addEventListener('change', () => {
-          eatenId = input.value;
-          const opt = EATEN_OPTIONS.find((o) => o.id === eatenId);
-          if (opt?.factor != null) eatenFactor = opt.factor;
-          else {
-            const pct = Number(overlay.querySelector('#customEatenPct')?.value) || 100;
-            eatenFactor = Math.min(1, Math.max(0.01, pct / 100));
-          }
-          render();
-        });
-      });
-      overlay.querySelector('#customEatenPct')?.addEventListener('change', (e) => {
-        eatenFactor = Math.min(1, Math.max(0.01, (Number(e.target.value) || 100) / 100));
-        render();
       });
 
       overlay.querySelectorAll('#reviewMealTypes .meal-type-btn').forEach((btn) => {
