@@ -114,6 +114,28 @@ assert('small accompaniments receive plausible photo caps', cappedSides.length =
 assert('chutney photo cap is 60g', cappedSides.filter((i) => /chutney/i.test(i.name)).every((i) => i._hiddenGrams === 60));
 assert('garnish photo cap is 15g', cappedSides.find((i) => /basil/i.test(i.name))?._hiddenGrams === 15);
 
+const kfcMeal = composeAnalysisFromVision({
+  meal_summary: 'KFC Fillet Burger Meal with Pepsi Max',
+  items: [
+    { name: 'KFC Original Recipe chicken burger', unit: 'g', estimated_amount: 220, cooking_method: 'fried', visible_oil: true },
+    { name: 'KFC potato wedges', unit: 'g', estimated_amount: 130, cooking_method: 'fried', visible_oil: true },
+    { name: 'Pepsi Max', unit: 'ml', estimated_amount: 400, cooking_method: 'unknown', visible_oil: false },
+  ],
+  clarification_questions: [],
+});
+assert('KFC fillet burger uses official serving', kfcMeal.items.find((i) => i._refId === 'kfc_uk_fillet_burger')?.calories_kcal === 463);
+assert('KFC wedges recognition is corrected to Signature Fries', kfcMeal.items.find((i) => i._refId === 'kfc_uk_signature_fries_regular')?.calories_kcal === 261);
+assert('Pepsi Max is constrained to near-zero calories', kfcMeal.items.find((i) => i._refId === 'zero_sugar_soft_drink')?.calories_kcal <= 5);
+assert('prepared branded meal receives no separate oil', !kfcMeal.items.some((i) => i._visionOil));
+assert('KFC meal total stays plausible', kfcMeal.total_calories_kcal >= 725 && kfcMeal.total_calories_kcal <= 730, `${kfcMeal.total_calories_kcal} kcal`);
+
+const pizzaMeal = composeAnalysisFromVision({
+  meal_summary: 'Pepperoni pizza',
+  items: [{ name: 'Pepperoni pizza', unit: 'g', estimated_amount: 650, cooking_method: 'baked', visible_oil: true }],
+  clarification_questions: [],
+});
+assert('prepared pizza receives no separate oil', !pizzaMeal.items.some((i) => i._visionOil));
+
 const normalized = normalizePhotoAnalysis(vision);
 assert('normalize routes vision to composed', normalized._visionComposed === true);
 

@@ -316,14 +316,21 @@ function applySoftDrinkType(items, answer) {
     if (!/\b(coke|cola|pepsi|soda|soft drink|fizzy|lemonade|sprite|irn.?bru)\b/.test(itemText(item))) {
       return item;
     }
-    const n = item.nutrition || {};
+    const ml = Math.max(1, inferItemGrams(item));
     return {
-      ...scaleItem(item, 0.92, { localClarify: true }),
+      ...item,
+      calories_kcal: Math.max(1, Math.round(ml * 0.008)),
       nutrition: {
-        ...n,
-        carbs_g: round1(num(n.carbs_g) * factor),
-        sugar_g: round1(num(n.sugar_g) * factor),
+        ...(item.nutrition || {}),
+        protein_g: 0,
+        carbs_g: 0,
+        fat_g: 0,
+        sugar_g: 0,
       },
+      _localClarify: true,
+      _refId: 'zero_sugar_soft_drink',
+      _authoritative: true,
+      _nutritionSource: 'zero_drink_guard',
     };
   });
 }

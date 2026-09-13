@@ -33,6 +33,27 @@ const FALLBACK_PER100 = {
   source: 'fallback',
 };
 
+const ZERO_DRINK_RE = /\b(pepsi\s*max|diet\s+pepsi|coke\s*zero|coca[ -]?cola\s*zero|diet\s+coke|7\s*up\s*free|sprite\s*zero|tango[^,]*sugar[ -]?free|zero[ -]?sugar|sugar[ -]?free|diet\s+(?:cola|soda|soft\s*drink))\b/i;
+const PREPARED_FOOD_RE = /\b(pizza|burger|fries|chips|wedges|fried\s+chicken|chicken\s+(?:wings|nuggets|strips)|kfc|mcdonald'?s|pizza\s*hut|domino'?s|burger\s*king|nando'?s|subway|greggs)\b/i;
+
+// Official UK chain values are per sold item/serving, not generic per-100g foods.
+// The catalogue is intentionally small and exact: uncertain product names continue
+// through the generic matcher instead of receiving a guessed brand value.
+const BRANDED_SERVINGS = [
+  {
+    id: 'kfc_uk_fillet_burger',
+    re: /\bkfc\b.*\b(?:original\s+recipe\s+)?(?:fillet|chicken)\s+burger\b/i,
+    name: 'KFC Fillet Burger', kcal: 463,
+    nutrition: { protein_g: 28.8, carbs_g: 43, fat_g: 18.7, fibre_g: null, sugar_g: 6.5, salt_mg: 2200 },
+  },
+  {
+    id: 'kfc_uk_signature_fries_regular',
+    re: /\bkfc\b.*\b(?:signature\s+)?(?:fries|chips|potato\s+wedges)\b/i,
+    name: 'KFC Regular Signature Fries', kcal: 261,
+    nutrition: { protein_g: 3.1, carbs_g: 38, fat_g: 9.8, fibre_g: null, sugar_g: 0.5, salt_mg: 740 },
+  },
+];
+
 function round1(v) {
   return Math.round(v * 10) / 10;
 }
@@ -45,6 +66,48 @@ function num(v) {
 function scaleMicro(val, factor) {
   if (val == null || !Number.isFinite(Number(val))) return null;
   return round1(num(val) * factor);
+}
+
+function fixedServingItem(item, serving) {
+  const amount = item._visionMeta?.amount || item._hiddenGrams || 100;
+  const factor = 100 / amount;
+  return {
+    ...item,
+    name: serving.name,
+    calories_kcal: serving.kcal,
+    nutrition: { ...serving.nutrition },
+    _refId: serving.id,
+    _authoritative: true,
+    _brandedServing: true,
+    _nutritionSource: 'official_brand_uk',
+    _provenanceLabel: 'Official UK brand serving',
+    _per100: {
+      kcal: serving.kcal * factor,
+      protein_g: num(serving.nutrition.protein_g) * factor,
+      carbs_g: num(serving.nutrition.carbs_g) * factor,
+      fat_g: num(serving.nutrition.fat_g) * factor,
+      fibre_g: serving.nutrition.fibre_g == null ? null : num(serving.nutrition.fibre_g) * factor,
+      sugar_g: serving.nutrition.sugar_g == null ? null : num(serving.nutrition.sugar_g) * factor,
+      salt_mg: serving.nutrition.salt_mg == null ? null : num(serving.nutrition.salt_mg) * factor,
+      refId: serving.id,
+    },
+  };
+}
+
+function safetyNutritionForVisionItem(item) {
+  const text = String(item.name || '');
+  if (ZERO_DRINK_RE.test(text)) {
+    const amount = item._visionMeta?.amount || 250;
+    const kcal = Math.max(1, Math.round(amount * 0.008));
+    return fixedServingItem(item, {
+      id: 'zero_sugar_soft_drink',
+      name: text.trim() || 'Zero-sugar soft drink',
+      kcal,
+      nutrition: { protein_g: 0, carbs_g: 0, fat_g: 0, fibre_g: 0, sugar_g: 0, salt_mg: null },
+    });
+  }
+  const serving = BRANDED_SERVINGS.find((row) => row.re.test(text));
+  return serving ? fixedServingItem(item, serving) : null;
 }
 
 /** True when Gemini returned vision-only items (no AI nutrition). */
@@ -207,6 +270,8 @@ function enrichVisionItemProvenance(item = {}) {
 }
 
 function calibrateVisionItem(item) {
+  const safetyItem = safetyNutritionForVisionItem(item);
+  if (safetyItem) return safetyItem;
   let result = calibrateItemWithReference(item);
 
   if (result._refId) {
@@ -281,6 +346,7 @@ export function composeAnalysisFromVision(vision = {}) {
     const oilyStub = remainingStubs.find((stub) => {
       const meta = stub._visionMeta || {};
       return meta.visible_oil
+        && !PREPARED_FOOD_RE.test(stub.name || '')
         && !/steam|boil|raw|salad/.test(String(meta.cooking_method).toLowerCase());
     });
     if (oilyStub) {
