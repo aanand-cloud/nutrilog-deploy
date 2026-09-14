@@ -75,7 +75,7 @@
       "cuisine": "British",
       "components": [
         { "refId": "sausage", "grams": 120, "label": "Sausages", "role": "protein" },
-        { "refId": "potatoes", "grams": 200, "label": "Mash", "role": "carb" },
+        { "refId": "mashed_potato", "grams": 200, "label": "Mash", "role": "carb" },
         { "refId": "gravy", "grams": 60, "label": "Gravy", "role": "sauce" }
       ]
     },
@@ -319,8 +319,8 @@
       "defaultServingGrams": 400,
       "cuisine": "British",
       "components": [
-        { "refId": "beef", "grams": 200, "label": "Minced lamb", "role": "protein" },
-        { "refId": "potatoes", "grams": 200, "label": "Mash topping", "role": "carb" }
+        { "refId": "minced_beef", "grams": 200, "label": "Minced lamb", "role": "protein" },
+        { "refId": "mashed_potato", "grams": 200, "label": "Mash topping", "role": "carb" }
       ]
     },
     {

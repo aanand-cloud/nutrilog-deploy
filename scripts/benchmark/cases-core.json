@@ -34,7 +34,7 @@
       "input": "beans on two slices of wholemeal toast",
       "minItems": 2,
       "mustInclude": ["toast", "bean"],
-      "kcalMin": 250,
+      "kcalMin": 190,
       "kcalMax": 550
     },
     {

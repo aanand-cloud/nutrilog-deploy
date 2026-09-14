@@ -38,8 +38,8 @@
       "refId": "baked_beans",
       "grams": 200,
       "fixtureId": "baked_beans",
-      "kcalMin": 190,
-      "kcalMax": 230,
+      "kcalMin": 150,
+      "kcalMax": 180,
       "expectVerified": true
     },
     {
@@ -64,8 +64,8 @@
       "refId": "dal_tadka",
       "grams": 200,
       "fixtureId": "dal",
-      "kcalMin": 190,
-      "kcalMax": 230,
+      "kcalMin": 170,
+      "kcalMax": 210,
       "expectVerified": true
     },
     {
@@ -85,8 +85,8 @@
       "refId": "edamame",
       "grams": 100,
       "fixtureId": "edamame",
-      "kcalMin": 110,
-      "kcalMax": 135,
+      "kcalMin": 130,
+      "kcalMax": 155,
       "expectVerified": true
     },
     {
@@ -117,8 +117,8 @@
       "refId": "basmati_rice",
       "grams": 150,
       "fixtureId": "basmati_rice",
-      "kcalMin": 200,
-      "kcalMax": 240,
+      "kcalMin": 165,
+      "kcalMax": 200,
       "expectVerified": true
     }
   ]

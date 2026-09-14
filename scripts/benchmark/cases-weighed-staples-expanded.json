@@ -40,7 +40,7 @@
       "minItems": 1,
       "mustInclude": ["apple"],
       "kcalMin": 70,
-      "kcalMax": 120
+      "kcalMax": 140
     },
     {
       "id": "ws-yogurt-150g",

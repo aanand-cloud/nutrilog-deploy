@@ -90,8 +90,8 @@
       "minItems": 2,
       "mustInclude": ["idli", "sambar"],
       "expectRecipeDerived": true,
-      "kcalMin": 150,
-      "kcalMax": 350
+      "kcalMin": 300,
+      "kcalMax": 500
     },
     {
       "id": "recipe-poha-peanuts",

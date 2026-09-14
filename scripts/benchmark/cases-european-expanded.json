@@ -180,8 +180,8 @@
       "input": "fish and chips",
       "minItems": 2,
       "mustInclude": ["cod", "chip"],
-      "kcalMin": 1200,
-      "kcalMax": 1400
+      "kcalMin": 900,
+      "kcalMax": 1200
     },
     {
       "id": "eu-porridge-banana",
@@ -189,8 +189,8 @@
       "input": "porridge with banana",
       "minItems": 1,
       "mustInclude": ["porridge"],
-      "kcalMin": 180,
-      "kcalMax": 280
+      "kcalMin": 300,
+      "kcalMax": 450
     },
     {
       "id": "eu-beans-toast",
@@ -198,8 +198,8 @@
       "input": "beans on toast",
       "minItems": 2,
       "mustInclude": ["bean", "toast"],
-      "kcalMin": 380,
-      "kcalMax": 480
+      "kcalMin": 330,
+      "kcalMax": 430
     },
     {
       "id": "eu-scrambled-toast",
@@ -216,8 +216,8 @@
       "input": "avocado toast",
       "minItems": 1,
       "mustInclude": ["avocado"],
-      "kcalMin": 320,
-      "kcalMax": 400
+      "kcalMin": 250,
+      "kcalMax": 350
     },
     {
       "id": "eu-salmon-bagel",

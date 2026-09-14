@@ -225,7 +225,7 @@ function capMacroEnergy(nutrition = {}, kcal = 0) {
 
 function calibrateItems(items = []) {
   return items.map((item) => {
-    if (item._authoritative) return attachPer100ToItem(item);
+    if (item._authoritative || item._recipeDerived) return attachPer100ToItem(item);
     const refCalibrated = calibrateItemWithReference(item);
     const ref = matchFoodReference(`${refCalibrated.name} ${refCalibrated.portion_estimate}`);
     const calibrated = ref ? refCalibrated : capItemProtein(refCalibrated);

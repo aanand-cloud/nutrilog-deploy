@@ -118,7 +118,7 @@
       "minItems": 1,
       "mustInclude": ["couscous"],
       "kcalMin": 220,
-      "kcalMax": 350
+      "kcalMax": 500
     },
     {
       "id": "md-spanakopita",

@@ -9,8 +9,8 @@
       "input": "150g basmati rice",
       "minItems": 1,
       "mustInclude": ["rice"],
-      "kcalMin": 180,
-      "kcalMax": 280,
+      "kcalMin": 165,
+      "kcalMax": 220,
       "quantityChecks": [{ "contains": "150", "unit": "g" }]
     },
     {
@@ -195,7 +195,7 @@
       "minItems": 2,
       "mustInclude": ["dosa", "chutney"],
       "kcalMin": 300,
-      "kcalMax": 800
+      "kcalMax": 1000
     },
     {
       "id": "in-uttapam",

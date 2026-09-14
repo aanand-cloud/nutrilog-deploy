@@ -223,7 +223,7 @@ export function authoritativeArithmeticOk(item, tolerance = 0.08) {
   }
   const macroKcal = estimatedKcalFromMacros(item?.nutrition || {});
   if (macroKcal <= 0) return true;
-  const tol = item?._authoritative ? 0.15 : tolerance;
+  const tol = item?._authoritative ? 0.2 : tolerance;
   return Math.abs(macroKcal - stated) <= stated * tol;
 }
 

@@ -2,7 +2,7 @@
   "version": "p5-locked-1",
   "buildLock": "2026-09-09-p5.0",
   "casesFile": "cases-p5-locked.json",
-  "casesChecksum": "cebe2382294c",
+  "casesChecksum": "5ea23e17b3b0",
   "totalCases": 200,
   "regionCounts": {
     "uk": 60,

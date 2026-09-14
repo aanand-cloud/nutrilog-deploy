@@ -22,7 +22,7 @@ function assert(label, ok, detail = '') {
 function idliKcal(count, gramsEach = 60) {
   const verified = getVerifiedRecord('idli');
   const pieceG = verified?.standardPortionGrams || gramsEach;
-  const kcal100 = verified?.kcal100 || 106;
+  const kcal100 = verified?.kcal100 || 120;
   return Math.round(kcal100 * count * pieceG / 100);
 }
 

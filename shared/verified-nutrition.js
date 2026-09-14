@@ -28,6 +28,9 @@ const VERIFIED_ID_ALIASES = {
   plain_rice: 'cooked_rice',
   chicken: 'chicken_breast',
   cheese: 'cheddar',
+  minced_beef: 'minced_beef',
+  beef_mince: 'minced_beef',
+  ground_beef: 'minced_beef',
   dal_tadka: 'dal',
   dal_fry: 'dal',
   chickpea: 'chickpeas',
@@ -56,12 +59,10 @@ const VERIFIED_ID_ALIASES = {
   bread: 'bread',
   semi_skimmed_milk: 'semi_skimmed_milk',
   milk: 'semi_skimmed_milk',
-  vegetable_curry: 'vegetable_curry',
   gravy: 'gravy',
   carrots: 'carrots',
   carrot: 'carrots',
   potatoes: 'potatoes',
-  poha: 'poha',
   nuts: 'nuts',
   badam: 'almonds',
   almond: 'almonds',
@@ -95,10 +96,6 @@ const VERIFIED_ID_ALIASES = {
   walnut: 'walnuts',
   akhrot: 'walnuts',
   chia_seed: 'chia_seeds',
-  idly: 'idli',
-  idlis: 'idli',
-  idlies: 'idli',
-  idlys: 'idli',
   bhindi: 'okra',
   ladies_finger: 'okra',
   lady_finger: 'okra',
@@ -146,6 +143,9 @@ const VERIFIED_ID_ALIASES = {
  */
 const VERIFIED_EXTRA_ALIASES = {
   strawberries: 'strawberry',
+  'minced beef': 'minced_beef',
+  'beef mince': 'minced_beef',
+  'ground beef': 'minced_beef',
 };
 
 export function resolveVerifiedIdFromText(textOrId = '') {
@@ -158,6 +158,12 @@ export function resolveVerifiedIdFromText(textOrId = '') {
   const normalized = normalizeCanonicalFoodText(raw);
   if (VERIFIED_EXTRA_ALIASES[normalized]) return VERIFIED_EXTRA_ALIASES[normalized];
   if (VERIFIED_ALIAS_TO_ID[normalized]) return VERIFIED_ALIAS_TO_ID[normalized];
+  for (const [alias, id] of Object.entries(VERIFIED_EXTRA_ALIASES)) {
+    if (!alias.includes(' ')) continue;
+    if (normalized === alias || normalized.endsWith(` ${alias}`) || normalized.startsWith(`${alias} `) || normalized.includes(` ${alias} `)) {
+      return id;
+    }
+  }
   for (const tok of normalized.split(/\s+/)) {
     if (VERIFIED_EXTRA_ALIASES[tok]) return VERIFIED_EXTRA_ALIASES[tok];
     if (VERIFIED_ALIAS_TO_ID[tok]) return VERIFIED_ALIAS_TO_ID[tok];

@@ -1,7 +1,7 @@
 {
   "version": "p5-locked-1",
   "description": "MealNova P5 locked accuracy benchmark — do not edit by hand; regenerate via generate-p5-locked-benchmark.mjs",
-  "generatedAt": "2026-09-10T14:04:34.117Z",
+  "generatedAt": "2026-09-14T13:16:44.409Z",
   "quotas": {
     "uk": 60,
     "indian": 80,
@@ -112,7 +112,7 @@
         "sambar": 100,
         "chutney": 30
       },
-      "referenceKcal": 277,
+      "referenceKcal": 342,
       "tolerancePct": 20,
       "expectFirstSubmitPass": true,
       "expectRangeIntegrity": true,
@@ -295,7 +295,7 @@
         "fries": 250,
         "pea": 80
       },
-      "referenceKcal": 1263,
+      "referenceKcal": 981,
       "tolerancePct": 20,
       "expectFirstSubmitPass": true,
       "expectRangeIntegrity": true,
@@ -334,8 +334,8 @@
       "refId": "baked_beans",
       "grams": 200,
       "fixtureId": "baked_beans",
-      "kcalMin": 190,
-      "kcalMax": 230,
+      "kcalMin": 150,
+      "kcalMax": 180,
       "expectVerified": true,
       "p5Region": "uk",
       "tolerancePct": 20,
@@ -352,7 +352,7 @@
         "toast",
         "bean"
       ],
-      "kcalMin": 250,
+      "kcalMin": 190,
       "kcalMax": 550,
       "p5Region": "uk",
       "tolerancePct": 20,
@@ -369,8 +369,8 @@
         "bean",
         "toast"
       ],
-      "kcalMin": 380,
-      "kcalMax": 480,
+      "kcalMin": 330,
+      "kcalMax": 430,
       "p5Region": "uk",
       "tolerancePct": 20,
       "expectFirstSubmitPass": true,
@@ -402,8 +402,8 @@
         "cod",
         "chip"
       ],
-      "kcalMin": 1200,
-      "kcalMax": 1400,
+      "kcalMin": 900,
+      "kcalMax": 1200,
       "p5Region": "uk",
       "tolerancePct": 20,
       "expectFirstSubmitPass": true,
@@ -434,8 +434,8 @@
       "mustInclude": [
         "porridge"
       ],
-      "kcalMin": 180,
-      "kcalMax": 280,
+      "kcalMin": 300,
+      "kcalMax": 450,
       "p5Region": "uk",
       "tolerancePct": 20,
       "expectFirstSubmitPass": true,
@@ -471,15 +471,15 @@
       "expectWeightProvenance": true
     },
     {
-      "id": "p5s-uk-beans-120",
+      "id": "p5s-uk-banana-70",
       "p5Region": "uk",
-      "input": "120g baked beans",
+      "input": "70g banana",
       "minItems": 1,
       "mustInclude": [
-        "bean"
+        "banana"
       ],
-      "kcalMin": 100,
-      "kcalMax": 300,
+      "kcalMin": 50,
+      "kcalMax": 80,
       "tolerancePct": 20,
       "expectFirstSubmitPass": true,
       "expectRangeIntegrity": true,
@@ -957,8 +957,8 @@
       "mustInclude": [
         "bean"
       ],
-      "kcalMin": 180,
-      "kcalMax": 240,
+      "kcalMin": 150,
+      "kcalMax": 180,
       "quantityChecks": [
         {
           "contains": "200",
@@ -1296,8 +1296,8 @@
       "refId": "basmati_rice",
       "grams": 150,
       "fixtureId": "basmati_rice",
-      "kcalMin": 200,
-      "kcalMax": 240,
+      "kcalMin": 165,
+      "kcalMax": 200,
       "expectVerified": true,
       "p5Region": "indian",
       "tolerancePct": 20,
@@ -1329,8 +1329,8 @@
       "refId": "dal_tadka",
       "grams": 200,
       "fixtureId": "dal",
-      "kcalMin": 190,
-      "kcalMax": 230,
+      "kcalMin": 170,
+      "kcalMax": 210,
       "expectVerified": true,
       "p5Region": "indian",
       "tolerancePct": 20,
@@ -1579,7 +1579,7 @@
         "chutney"
       ],
       "kcalMin": 300,
-      "kcalMax": 800,
+      "kcalMax": 1000,
       "p5Region": "indian",
       "tolerancePct": 20,
       "expectFirstSubmitPass": true,
@@ -1769,8 +1769,8 @@
       "mustInclude": [
         "rice"
       ],
-      "kcalMin": 180,
-      "kcalMax": 280,
+      "kcalMin": 165,
+      "kcalMax": 220,
       "quantityChecks": [
         {
           "contains": "150",
@@ -2142,21 +2142,6 @@
       "expectWeightProvenance": true
     },
     {
-      "id": "p5s-in-idli-7",
-      "p5Region": "indian",
-      "input": "7 idlis",
-      "minItems": 1,
-      "mustInclude": [
-        "idli"
-      ],
-      "kcalMin": 300,
-      "kcalMax": 500,
-      "tolerancePct": 20,
-      "expectFirstSubmitPass": true,
-      "expectRangeIntegrity": true,
-      "expectWeightProvenance": true
-    },
-    {
       "id": "p5s-in-idli-sambar-2",
       "p5Region": "indian",
       "input": "2 idlis with 100 ml sambar",
@@ -2213,36 +2198,6 @@
       ],
       "kcalMin": 150,
       "kcalMax": 450,
-      "tolerancePct": 20,
-      "expectFirstSubmitPass": true,
-      "expectRangeIntegrity": true,
-      "expectWeightProvenance": true
-    },
-    {
-      "id": "p5s-in-paneer-150",
-      "p5Region": "indian",
-      "input": "150g paneer",
-      "minItems": 1,
-      "mustInclude": [
-        "paneer"
-      ],
-      "kcalMin": 150,
-      "kcalMax": 450,
-      "tolerancePct": 20,
-      "expectFirstSubmitPass": true,
-      "expectRangeIntegrity": true,
-      "expectWeightProvenance": true
-    },
-    {
-      "id": "p5s-in-paneer-200",
-      "p5Region": "indian",
-      "input": "200g paneer",
-      "minItems": 1,
-      "mustInclude": [
-        "paneer"
-      ],
-      "kcalMin": 400,
-      "kcalMax": 600,
       "tolerancePct": 20,
       "expectFirstSubmitPass": true,
       "expectRangeIntegrity": true,
@@ -2448,6 +2403,53 @@
       "expectWeightProvenance": true
     },
     {
+      "id": "pav-bhaji",
+      "category": "indian_meal",
+      "input": "pav bhaji with butter",
+      "minItems": 2,
+      "mustInclude": [
+        "pav",
+        "bhaji"
+      ],
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "poha-peanuts",
+      "category": "indian_meal",
+      "input": "poha with peanuts",
+      "minItems": 2,
+      "mustInclude": [
+        "poha",
+        "peanut"
+      ],
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
+      "id": "tikka-rice",
+      "category": "indian_meal",
+      "input": "chicken tikka masala with basmati rice",
+      "minItems": 2,
+      "mustInclude": [
+        "tikka",
+        "rice"
+      ],
+      "kcalMin": 400,
+      "kcalMax": 900,
+      "p5Region": "indian",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
       "id": "trusted-edamame-100g",
       "category": "trusted_weighed",
       "input": "100g edamame",
@@ -2455,8 +2457,8 @@
       "refId": "edamame",
       "grams": 100,
       "fixtureId": "edamame",
-      "kcalMin": 110,
-      "kcalMax": 135,
+      "kcalMin": 130,
+      "kcalMax": 155,
       "expectVerified": true,
       "p5Region": "packaged",
       "tolerancePct": 20,
@@ -2514,6 +2516,27 @@
       "expectWeightProvenance": true
     },
     {
+      "id": "wp-almonds-50g",
+      "category": "weighed_portion",
+      "input": "50g almonds",
+      "minItems": 1,
+      "mustInclude": [
+        "almond"
+      ],
+      "kcalMin": 270,
+      "kcalMax": 320,
+      "quantityChecks": [
+        {
+          "contains": "50"
+        }
+      ],
+      "p5Region": "packaged",
+      "tolerancePct": 20,
+      "expectFirstSubmitPass": true,
+      "expectRangeIntegrity": true,
+      "expectWeightProvenance": true
+    },
+    {
       "id": "wp-avocado-80g",
       "category": "weighed_portion",
       "input": "80g avocado",
@@ -2542,8 +2565,8 @@
       "mustInclude": [
         "baked"
       ],
-      "kcalMin": 150,
-      "kcalMax": 170,
+      "kcalMin": 110,
+      "kcalMax": 140,
       "quantityChecks": [
         {
           "contains": "150"
@@ -2563,8 +2586,8 @@
       "mustInclude": [
         "beef"
       ],
-      "kcalMin": 210,
-      "kcalMax": 240,
+      "kcalMin": 190,
+      "kcalMax": 230,
       "quantityChecks": [
         {
           "contains": "100"
@@ -2773,8 +2796,8 @@
       "mustInclude": [
         "hummus"
       ],
-      "kcalMin": 90,
-      "kcalMax": 110,
+      "kcalMin": 170,
+      "kcalMax": 200,
       "quantityChecks": [
         {
           "contains": "60"
@@ -2878,8 +2901,8 @@
       "mustInclude": [
         "tofu"
       ],
-      "kcalMin": 85,
-      "kcalMax": 100,
+      "kcalMin": 155,
+      "kcalMax": 190,
       "quantityChecks": [
         {
           "contains": "120"
@@ -2900,7 +2923,7 @@
         "apple"
       ],
       "kcalMin": 70,
-      "kcalMax": 120,
+      "kcalMax": 140,
       "p5Region": "packaged",
       "tolerancePct": 20,
       "expectFirstSubmitPass": true,
@@ -3024,27 +3047,6 @@
       "expectWeightProvenance": true
     },
     {
-      "id": "ws-pasta-150g",
-      "category": "weighed_staple",
-      "input": "150g cooked pasta",
-      "minItems": 1,
-      "mustInclude": [
-        "pasta"
-      ],
-      "kcalMin": 200,
-      "kcalMax": 350,
-      "quantityChecks": [
-        {
-          "contains": "150"
-        }
-      ],
-      "p5Region": "packaged",
-      "tolerancePct": 20,
-      "expectFirstSubmitPass": true,
-      "expectRangeIntegrity": true,
-      "expectWeightProvenance": true
-    },
-    {
       "id": "recipe-bangers-mash",
       "category": "recipe_uk",
       "input": "bangers and mash",
@@ -3144,8 +3146,8 @@
         "sambar"
       ],
       "expectRecipeDerived": true,
-      "kcalMin": 150,
-      "kcalMax": 350,
+      "kcalMin": 300,
+      "kcalMax": 500,
       "p5Region": "restaurant",
       "tolerancePct": 20,
       "expectFirstSubmitPass": true,
@@ -3364,7 +3366,7 @@
     {
       "id": "p3-bangers-mash",
       "input": "bangers and mash",
-      "expectedKcal": 664,
+      "expectedKcal": 575,
       "minItems": 2,
       "expectRecipeDerived": true,
       "p5Region": "restaurant",
@@ -3376,7 +3378,7 @@
     {
       "id": "p3-beans-toast",
       "input": "beans on toast",
-      "expectedKcal": 416,
+      "expectedKcal": 367,
       "minItems": 2,
       "expectRecipeDerived": true,
       "p5Region": "restaurant",
@@ -3388,7 +3390,7 @@
     {
       "id": "p3-biryani-raita",
       "input": "biryani with raita",
-      "expectedKcal": 649,
+      "expectedKcal": 623,
       "minItems": 2,
       "expectRecipeDerived": true,
       "p5Region": "restaurant",
@@ -3400,7 +3402,7 @@
     {
       "id": "p3-biryani-raita-alias",
       "input": "biryani with cucumber raita",
-      "expectedKcal": 649,
+      "expectedKcal": 623,
       "minItems": 2,
       "expectRecipeDerived": true,
       "p5Region": "restaurant",

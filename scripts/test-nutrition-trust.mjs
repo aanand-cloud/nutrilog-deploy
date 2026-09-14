@@ -39,7 +39,7 @@ assert('ackee saltfish ref exists', composeAnalysisFromVision({
   meal_summary: 'Ackee and saltfish',
   items: [{ name: 'Ackee and saltfish', unit: 'g', estimated_amount: 220, cooking_method: 'pan_fried', visible_oil: true }],
   clarification_questions: [],
-}).items.some((i) => i._refId === 'ackee_saltfish'));
+}).items.some((i) => i._refId === 'ackee_saltfish' || i._refId === 'ackee_and_saltfish'));
 
 assert('poutine ref exists', composeAnalysisFromVision({
   meal_summary: 'Poutine',

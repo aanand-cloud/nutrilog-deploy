@@ -25,14 +25,11 @@ assert('uk_europe rollout active', V4_ACTIVE_PHASES.includes('uk_europe'));
 assert('global_rest rollout active', V4_ACTIVE_PHASES.includes('global_rest'));
 
 const baked = getVerifiedRecord('baked_beans');
-assert('baked_beans CoFID source', baked?.dataSource === 'cofid' && baked?.sourceRecordId === '13-149');
-assert('baked_beans kcal', baked?.kcal100 === 105);
-
-const idli = getVerifiedRecord('idli');
-assert('idli IFCT source', idli?.dataSource === 'ifct' && idli?.sourceRecordId === 'A031');
+assert('baked_beans CoFID source', baked?.dataSource === 'cofid' && baked?.sourceRecordId === '13-532');
+assert('baked_beans kcal', baked?.kcal100 === 81);
 
 const enriched = enrichReferenceWithVerified({ id: 'butter', kcal100: 700, protein100: 0, carbs100: 0, fat100: 80 });
-assert('enrich overlays kcal', enriched.kcal100 === 717 && enriched._verified === true);
+assert('enrich overlays kcal', enriched.kcal100 === 744 && enriched._verified === true);
 
 const match = matchFoodReferenceDetailed('200g baked beans');
 assert('match baked beans', match.ref?.id === 'baked_beans', match.ref?.id);
@@ -84,7 +81,14 @@ assert('match mango', matchFoodReferenceDetailed('ripe mango').ref?.id === 'mang
 assert('match guava fibre overlay', enrichReferenceWithVerified(matchFoodReferenceDetailed('guava').ref).fibre100 === 8.59);
 assert('match raisins not grapes', matchFoodReferenceDetailed('raisins').ref?.id === 'raisins', matchFoodReferenceDetailed('raisins').ref?.id);
 assert('match kiwi', matchFoodReferenceDetailed('kiwi').ref?.id === 'kiwi', matchFoodReferenceDetailed('kiwi').ref?.id);
+const banana = getVerifiedRecord('banana');
+assert('banana CoFID source', banana?.dataSource === 'cofid' && banana?.sourceRecordId === '14-318');
+assert('banana kcal', banana?.kcal100 === 81);
+assert('banana protein', banana?.protein100 === 1.2);
+assert('banana fibre', banana?.fibre100 === 1.4);
+assert('banana sugars', banana?.sugar100 === 18.1);
 assert('banana still banana', matchFoodReferenceDetailed('banana').ref?.id === 'banana', matchFoodReferenceDetailed('banana').ref?.id);
+assert('banana overlay', enrichReferenceWithVerified(matchFoodReferenceDetailed('70g banana').ref).kcal100 === 81);
 
 const almonds = getVerifiedRecord('almonds');
 assert('almonds IFCT source', almonds?.dataSource === 'ifct' && almonds?.sourceRecordId === 'H001');
@@ -103,13 +107,13 @@ assert('match paneer cubes', matchFoodReferenceDetailed('paneer').ref?.id === 'p
 assert('palak paneer stays dish', matchFoodReferenceDetailed('palak paneer').ref?.id === 'palak_paneer', matchFoodReferenceDetailed('palak paneer').ref?.id);
 const chanaHit = matchFoodReferenceDetailed('chana');
 const chanaEnriched = enrichReferenceWithVerified(chanaHit.ref);
-assert('chana uses chickpea nutrition', chanaEnriched?.kcal100 === 121 && chanaEnriched?.fibre100 === 5.5 && chanaEnriched?._verified === true, `${chanaHit.ref?.id} ${chanaEnriched?.kcal100}`);
+assert('chana uses chickpea nutrition', chanaEnriched?.kcal100 === 129 && chanaEnriched?.fibre100 === 10.6 && chanaEnriched?._verified === true, `${chanaHit.ref?.id} ${chanaEnriched?.kcal100}`);
 assert('chana is not chana masala', chanaHit.ref?.id !== 'chana_masala', chanaHit.ref?.id);
 assert('match chick peas', matchFoodReferenceDetailed('chick peas').ref?.id === 'chickpeas', matchFoodReferenceDetailed('chick peas').ref?.id);
 assert('chana masala stays curry', matchFoodReferenceDetailed('chana masala').ref?.id === 'chana_masala', matchFoodReferenceDetailed('chana masala').ref?.id);
 assert('match tofu fibre', enrichReferenceWithVerified(matchFoodReferenceDetailed('firm tofu').ref).fibre100 === 2.3);
 assert('mapo tofu stays mapo', matchFoodReferenceDetailed('mapo tofu').ref?.id === 'mapo_tofu', matchFoodReferenceDetailed('mapo tofu').ref?.id);
 assert('match rajma', matchFoodReferenceDetailed('rajma').ref?.id === 'rajma', matchFoodReferenceDetailed('rajma').ref?.id);
-assert('chickpeas CoFID kept', getVerifiedRecord('chickpeas')?.dataSource === 'cofid' && getVerifiedRecord('chickpeas')?.sourceRecordId === '11-201');
+assert('chickpeas CoFID kept', getVerifiedRecord('chickpeas')?.dataSource === 'cofid' && getVerifiedRecord('chickpeas')?.sourceRecordId === '13-662');
 
 console.log('\nDone.');

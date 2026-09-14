@@ -2,6 +2,7 @@
   "version": "1.0",
   "description": "P5 locked benchmark supplement — auto-verified passing weighed staples and composites.",
   "cases": [
+    { "id": "p5s-uk-banana-70", "p5Region": "uk", "input": "70g banana", "minItems": 1, "mustInclude": ["banana"], "kcalMin": 50, "kcalMax": 80 },
     { "id": "p5s-uk-beans-120", "p5Region": "uk", "input": "120g baked beans", "minItems": 1, "mustInclude": ["bean"], "kcalMin": 100, "kcalMax": 300 },
     { "id": "p5s-uk-beans-140", "p5Region": "uk", "input": "140g baked beans", "minItems": 1, "mustInclude": ["bean"], "kcalMin": 100, "kcalMax": 300 },
     { "id": "p5s-uk-beans-160", "p5Region": "uk", "input": "160g baked beans", "minItems": 1, "mustInclude": ["bean"], "kcalMin": 100, "kcalMax": 300 },

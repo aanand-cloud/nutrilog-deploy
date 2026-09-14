@@ -11,29 +11,9 @@ export const INDIA_L23_STATS = {
   "conflictCount": 0,
   "verifiedAuthoritativeWins": [
     {
-      "id": "poha",
-      "name": "poha",
-      "source": "ifct"
-    },
-    {
-      "id": "sambar",
-      "name": "sambar",
-      "source": "ifct"
-    },
-    {
       "id": "chicken_tikka_masala",
       "name": "chicken tikka masala",
       "source": "cofid"
-    },
-    {
-      "id": "pav_bhaji",
-      "name": "pav bhaji",
-      "source": "ifct"
-    },
-    {
-      "id": "pani_puri",
-      "name": "pani puri",
-      "source": "ifct"
     }
   ],
   "unmatched": [],

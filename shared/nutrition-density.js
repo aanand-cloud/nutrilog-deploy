@@ -327,7 +327,8 @@ export function shouldSkipReferenceCalibration(item = {}) {
     || item._authoritative
     || item._fromUserNotes
     || item._aiNutritionFallback
-    || item._aiDecomposed,
+    || item._aiDecomposed
+    || item._recipeDerived,
   );
 }
 

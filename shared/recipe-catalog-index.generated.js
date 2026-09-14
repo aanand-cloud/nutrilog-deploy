@@ -295,7 +295,7 @@ export const RECIPE_BY_ID = {
         "role": "protein"
       },
       {
-        "refId": "potatoes",
+        "refId": "mashed_potato",
         "grams": 200,
         "label": "Mash",
         "role": "carb"
@@ -862,13 +862,13 @@ export const RECIPE_BY_ID = {
     "cuisine": "British",
     "components": [
       {
-        "refId": "beef",
+        "refId": "minced_beef",
         "grams": 200,
         "label": "Minced lamb",
         "role": "protein"
       },
       {
-        "refId": "potatoes",
+        "refId": "mashed_potato",
         "grams": 200,
         "label": "Mash topping",
         "role": "carb"

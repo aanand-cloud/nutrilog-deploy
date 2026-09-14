@@ -69,8 +69,8 @@
       "input": "100g minced beef",
       "minItems": 1,
       "mustInclude": ["beef"],
-      "kcalMin": 210,
-      "kcalMax": 240,
+      "kcalMin": 190,
+      "kcalMax": 230,
       "quantityChecks": [{ "contains": "100" }]
     },
     {
@@ -90,7 +90,7 @@
       "minItems": 1,
       "mustInclude": ["almond"],
       "kcalMin": 270,
-      "kcalMax": 300,
+      "kcalMax": 320,
       "quantityChecks": [{ "contains": "50" }]
     },
     {
@@ -119,8 +119,8 @@
       "input": "150g baked beans",
       "minItems": 1,
       "mustInclude": ["baked"],
-      "kcalMin": 150,
-      "kcalMax": 170,
+      "kcalMin": 110,
+      "kcalMax": 140,
       "quantityChecks": [{ "contains": "150" }]
     },
     {
@@ -149,8 +149,8 @@
       "input": "60g hummus",
       "minItems": 1,
       "mustInclude": ["hummus"],
-      "kcalMin": 90,
-      "kcalMax": 110,
+      "kcalMin": 170,
+      "kcalMax": 200,
       "quantityChecks": [{ "contains": "60" }]
     },
     {
@@ -169,8 +169,8 @@
       "input": "120g tofu",
       "minItems": 1,
       "mustInclude": ["tofu"],
-      "kcalMin": 85,
-      "kcalMax": 100,
+      "kcalMin": 155,
+      "kcalMax": 190,
       "quantityChecks": [{ "contains": "120" }]
     },
     {

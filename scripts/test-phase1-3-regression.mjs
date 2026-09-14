@@ -7,7 +7,6 @@ import { resolveMealFromText } from '../shared/meal-resolution-pipeline.js';
 import { estimateMealFromDescription } from '../src/services/voice-quick-log.js';
 import { scoreMealConfidence } from '../shared/nutrition-confidence.js';
 import { getVerifiedRecord } from '../shared/verified-nutrition.js';
-import { resolveVerifiedIdFromText } from '../shared/verified-nutrition.js';
 import { servingGramsForReference } from '../shared/description-anchor.js';
 import { matchFoodReferenceDetailed } from '../shared/nutrition-density.js';
 
@@ -32,11 +31,15 @@ function resolve(input) {
   return estimateMealFromDescription(input) || resolveMealFromText(input);
 }
 
+function idliKcal100() {
+  return getVerifiedRecord('idli')?.kcal100
+    ?? matchFoodReferenceDetailed('idli')?.ref?.kcal100
+    ?? 120;
+}
+
 function idliKcal(count) {
-  const verified = getVerifiedRecord('idli');
-  const pieceG = verified?.standardPortionGrams || 60;
-  const kcal100 = verified?.kcal100 || 106;
-  return Math.round(kcal100 * count * pieceG / 100);
+  const pieceG = getVerifiedRecord('idli')?.standardPortionGrams || 60;
+  return Math.round(idliKcal100() * count * pieceG / 100);
 }
 
 const IDLI_COUNTS = [
@@ -58,7 +61,8 @@ for (const tc of IDLI_COUNTS) {
   assert(`${tc.id} grams ${expectedGrams}`, item?._hiddenGrams === expectedGrams, `${item?._hiddenGrams}`);
   assert(`${tc.id} linear kcal ~${expectedKcal}`, Math.abs((item?.calories_kcal || 0) - expectedKcal) <= 2,
     `${item?.calories_kcal}`);
-  assert(`${tc.id} alias canonical`, resolveVerifiedIdFromText(tc.input) === 'idli');
+  assert(`${tc.id} alias matches idli`, matchFoodReferenceDetailed(tc.input)?.ref?.id === 'idli',
+    matchFoodReferenceDetailed(tc.input)?.ref?.id);
 }
 
 for (let count = 1; count <= 10; count += 1) {

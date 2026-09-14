@@ -46,8 +46,8 @@
       "input": "200g baked beans",
       "minItems": 1,
       "mustInclude": ["bean"],
-      "kcalMin": 180,
-      "kcalMax": 240,
+      "kcalMin": 150,
+      "kcalMax": 180,
       "quantityChecks": [{ "contains": "200", "unit": "g" }]
     },
     {

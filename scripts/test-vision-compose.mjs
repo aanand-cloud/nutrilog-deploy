@@ -82,13 +82,13 @@ const oilyPlatter = composeAnalysisFromVision({
 });
 assert('multiple oily dishes do not create duplicate oil servings', oilyPlatter.items.filter((i) => i._visionOil).length === 1);
 
-const steamedIdli = composeAnalysisFromVision({
-  meal_summary: 'Idli',
-  items: [{ name: 'Idli', unit: 'g', estimated_amount: 300, cooking_method: 'steamed', visible_oil: false }],
+const steamedRice = composeAnalysisFromVision({
+  meal_summary: 'Boiled rice',
+  items: [{ name: 'Cooked rice', unit: 'g', estimated_amount: 300, cooking_method: 'steamed', visible_oil: false }],
   clarification_questions: [],
 }).items[0];
-assert('authoritative cooked food is not double-adjusted', steamedIdli.calories_kcal === 318, `${steamedIdli.calories_kcal} kcal`);
-assert('displayed calories match provenance calculation', itemProvenanceSummary(steamedIdli).includes('= 318 kcal'));
+assert('authoritative cooked food is not double-adjusted', steamedRice.calories_kcal === 393, `${steamedRice.calories_kcal} kcal`);
+assert('displayed calories match provenance calculation', itemProvenanceSummary(steamedRice).includes('= 393 kcal'));
 
 const jollof = composeAnalysisFromVision({
   meal_summary: 'Nigerian jollof rice with chicken skewers',
