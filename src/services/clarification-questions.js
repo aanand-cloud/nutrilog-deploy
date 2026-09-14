@@ -521,10 +521,12 @@ function resolveDrinkTopic(topic, question, analysis) {
 }
 
 function sanitizeQuestionOptions(options) {
-  if (!Array.isArray(options)) return [];
+  const list = Array.isArray(options)
+    ? options
+    : String(options || '').split(/\s*\|\s*/);
   const seen = new Set();
   const out = [];
-  for (const raw of options) {
+  for (const raw of list) {
     const label = String(raw || '').trim();
     if (!label || label.length > 40) continue;
     const key = label.toLowerCase();

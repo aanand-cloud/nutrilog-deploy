@@ -1159,8 +1159,8 @@ function friendlyAnalysisError(message = '') {
   if (/abort|timeout/i.test(message)) {
     return 'Analysis took too long — try again with a smaller photo';
   }
-  if (/JSON|parse model JSON|after array element|after property value|Unexpected token/i.test(message)) {
-    return 'Could not read that photo — try again, or type the drink in Describe.';
+  if (/JSON|parse model JSON|after array element|after property value|Unexpected token|truncated/i.test(message)) {
+    return 'Could not finish that scan — try again, or type coffee in Describe.';
   }
   return message || 'Analysis failed — try again';
 }

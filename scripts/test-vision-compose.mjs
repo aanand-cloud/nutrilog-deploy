@@ -188,7 +188,7 @@ globalThis.fetch = async (_url, options) => {
 try {
   parsedGemini = await geminiGenerate({
     apiKey: 'test',
-    model: 'test-model',
+    model: 'gemini-3.1-flash-lite',
     parts: [{ text: 'test' }],
     responseSchema: VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA,
   });
@@ -198,6 +198,11 @@ try {
 assert(
   'Gemini helper supports an optional response schema',
   JSON.stringify(generatedRequest?.generationConfig?.responseSchema) === JSON.stringify(VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA),
+);
+assert(
+  'vision request keeps thinking minimal so JSON is not truncated',
+  generatedRequest?.generationConfig?.thinkingConfig?.thinkingLevel === 'minimal',
+  JSON.stringify(generatedRequest?.generationConfig?.thinkingConfig),
 );
 assert('Gemini parser reads JSON from later response parts', parsedGemini?.result?.meal_summary === 'Banana');
 
@@ -367,6 +372,10 @@ const coffeeItemsBroken = `{
 }`;
 const coffeeItems = parseGeminiJson(coffeeItemsBroken);
 assert('repairs missing comma between coffee items', coffeeItems.items?.length === 2, String(coffeeItems.items?.length));
+
+const truncatedCoffee = '{"meal_summary":"Coffee","confidence_score":0.9,"items":[{"name":"Coffee","unit":"ml","estimated_amount":250';
+const closedCoffee = parseGeminiJson(truncatedCoffee);
+assert('closes truncated coffee JSON', closedCoffee?.items?.[0]?.name === 'Coffee', JSON.stringify(closedCoffee));
 
 const coffeePhoto = composeAnalysisFromVision({
   meal_summary: 'Coffee',

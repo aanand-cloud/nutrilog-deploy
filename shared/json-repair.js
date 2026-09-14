@@ -1,31 +1,34 @@
 /**
- * Best-effort parse of model JSON. Gemini occasionally drops commas between
- * array/object elements, which otherwise fails the whole photo scan.
+ * Best-effort parse of model JSON. Gemini occasionally drops commas or
+ * truncates output when thinking tokens eat the maxOutputTokens budget.
  */
 
+function stripFences(text = '') {
+  return String(text || '')
+    .trim()
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```$/i, '')
+    .trim();
+}
+
 function extractJsonObject(text = '') {
-  let s = String(text || '').trim();
-  s = s.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+  const s = stripFences(text);
   const start = s.indexOf('{');
+  if (start < 0) return s;
   const end = s.lastIndexOf('}');
-  if (start >= 0 && end > start) return s.slice(start, end + 1);
-  return s;
+  if (end > start) return s.slice(start, end + 1);
+  return s.slice(start);
 }
 
 function repairJsonText(text = '') {
   let s = String(text || '');
-  // trailing commas before } or ]
   s = s.replace(/,\s*([}\]])/g, '$1');
-  // missing commas between values
   s = s.replace(/}\s*{/g, '},{');
   s = s.replace(/]\s*\[/g, '],[');
   s = s.replace(/}\s*\[/g, '},[');
   s = s.replace(/]\s*{/g, '],{');
-  // "Coffee"\n      "unit":
   s = s.replace(/"\s+"([A-Za-z_][A-Za-z0-9_]*)"\s*:/g, '","$1":');
-  // "Small cup"\n      "Regular mug"
   s = s.replace(/"\s+"/g, '","');
-  // 250\n      "unit":
   s = s.replace(/(\d+(?:\.\d+)?)\s+"([A-Za-z_][A-Za-z0-9_]*)"\s*:/g, '$1,"$2":');
   s = s.replace(/(true|false|null)\s+"([A-Za-z_][A-Za-z0-9_]*)"\s*:/g, '$1,"$2":');
   s = s.replace(/"\s+(?=[{\[])/g, '",');
@@ -34,11 +37,40 @@ function repairJsonText(text = '') {
   return s;
 }
 
+function closeTruncatedJson(text = '') {
+  let s = repairJsonText(String(text || '').trim());
+  if (!s) return s;
+  const stack = [];
+  let inString = false;
+  let escape = false;
+  for (const ch of s) {
+    if (inString) {
+      if (escape) escape = false;
+      else if (ch === '\\') escape = true;
+      else if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') inString = true;
+    else if (ch === '{') stack.push('}');
+    else if (ch === '[') stack.push(']');
+    else if (ch === '}' || ch === ']') stack.pop();
+  }
+  if (inString) s += '"';
+  s = s.replace(/,\s*$/, '');
+  while (stack.length) s += stack.pop();
+  return s;
+}
+
 export function parseLooseJson(text) {
   const raw = String(text || '').trim();
   if (!raw) throw new Error('Could not parse model JSON');
   const extracted = extractJsonObject(raw);
-  const candidates = [raw, extracted, repairJsonText(extracted)];
+  const candidates = [
+    raw,
+    extracted,
+    repairJsonText(extracted),
+    closeTruncatedJson(extracted),
+  ];
   const seen = new Set();
   let lastErr;
   for (const candidate of candidates) {
@@ -51,10 +83,10 @@ export function parseLooseJson(text) {
     }
   }
   const err = lastErr || new Error('Could not parse model JSON');
-  err.userMessage = 'Could not read that photo — try again, or type the drink in Describe.';
+  err.userMessage = 'Could not finish that scan — try again, or type coffee in Describe.';
   throw err;
 }
 
 export function isJsonParseError(message = '') {
-  return /JSON|parse model JSON|after array element|after property value|Unexpected token/i.test(String(message || ''));
+  return /JSON|parse model JSON|after array element|after property value|Unexpected token|truncated/i.test(String(message || ''));
 }

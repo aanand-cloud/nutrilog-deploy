@@ -84,7 +84,7 @@ export const VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA = {
           topic: { type: 'string' },
           question: { type: 'string' },
           about: { type: 'string' },
-          options: { type: 'array', items: { type: 'string' } },
+          options: { type: 'string' },
         },
       },
     },
