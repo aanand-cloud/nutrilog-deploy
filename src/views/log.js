@@ -11,7 +11,7 @@ import { captureMealPhoto, pickMealPhotoFromGallery, isNativeApp } from '../serv
 import { canUseWebCamera, openWebCameraModal } from '../services/web-camera.js';
 import { canScan, recordScan, scansLabel, paywallMessage } from '../services/subscription.js';
 import { isSupabaseConfigured } from '../services/auth.js';
-import { defaultMealType } from '../services/meal-types.js';
+import { defaultMealType, inferMealTypeFromText, mealTypeLabel } from '../services/meal-types.js';
 import { lookupBarcodeProduct } from '../services/barcode.js';
 import { barcodeFieldForMeal, isPackagedLogSource } from '../services/packaged-log.js';
 import { openPackagedLogWizard } from '../services/packaged-log-wizard.js';
@@ -56,6 +56,7 @@ import {
 import { roundDisplay, formatNutrientLine } from '../services/eaten-amount.js';
 import { hasUsefulFoodItems } from '../../shared/analysis-result.js';
 import { scoreMealConfidence } from '../../shared/nutrition-confidence.js';
+import { enrichAnalysisWithUserNotes } from '../../shared/user-notes-apply.js';
 
 /** Keeps photo flow alive if the screen re-renders mid-upload */
 let activeLogState = null;
@@ -106,6 +107,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     scanRecorded: false,
     status: '',
     mealType: routing.mealType || defaultMealType(),
+    mealTypeLocked: Boolean(routing.mealType),
     mealNotes: '',
     mainlyDrink: false,
     source: null,
@@ -174,7 +176,9 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     }
     state.mainlyDrink = true;
     analysis._drinkLogSubtype = inferDrinkSubtypeFromAnalysis(analysis);
-    state.mealType = inferMealTypeForDrink(analysis._drinkLogSubtype);
+    if (!state.mealTypeLocked) {
+      state.mealType = inferMealTypeForDrink(analysis._drinkLogSubtype);
+    }
   }
 
   function clearPhotoFlow() {
@@ -185,8 +189,14 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
   function preparePhotoFlow() {
     state.source = 'photo';
     state.mainlyDrink = false;
-    state.mealType = defaultMealType();
     readNotesFromDom();
+    const fromNotes = inferMealTypeFromText(state.mealNotes);
+    if (fromNotes) {
+      state.mealType = fromNotes;
+      state.mealTypeLocked = true;
+    } else if (!state.mealTypeLocked) {
+      state.mealType = defaultMealType();
+    }
   }
 
   function photoPaywallTitle(budget = canScan()) {
@@ -701,7 +711,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
         <h2>Does everything look right?</h2>
         <ul class="log-confirm__facts">
           <li><strong>${escapeHtml(a.meal_summary || 'Meal')}</strong></li>
-          <li>${escapeHtml(state.mealType)} · ${escapeHtml(getLogTargetDate() || todayKey())}</li>
+          <li>${escapeHtml(mealTypeLabel(state.mealType) || state.mealType)} · ${escapeHtml(getLogTargetDate() || todayKey())}</li>
           <li>${items.length} foods · ${roundDisplay(a._consumedGrams || 0)} g eaten</li>
           <li>Estimated ${Math.round(a.total_calories_kcal || 0)} kcal${a._confidence?.kcalRange ? ` · likely ${a._confidence.kcalRange.min}–${a._confidence.kcalRange.max} kcal` : ''}</li>
           ${a._confidence ? `<li>${escapeHtml(a._confidence.band)} confidence${a._confidence.primaryUncertainty ? ` · ${escapeHtml(a._confidence.primaryUncertainty)}` : ''}</li>` : ''}
@@ -762,6 +772,13 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       let next = analysis;
       next._photoQualityPoor = Boolean(state.photoQuality?.reduceConfidence);
       next.source = 'photo';
+      next._userDescription = state.mealNotes || '';
+      next = enrichAnalysisWithUserNotes(next, state.mealNotes);
+      const fromNotes = inferMealTypeFromText(state.mealNotes);
+      if (fromNotes) {
+        state.mealType = fromNotes;
+        state.mealTypeLocked = true;
+      }
       state.analysis = next;
       enrichDrinkContext(state.analysis);
       if (!isSupabaseConfigured() && !state.scanRecorded) {
@@ -810,7 +827,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       }
     }
     state.analyzing = false;
-    if (needsClarification(state.analysis)) {
+    if (needsClarification(state.analysis, 0.72, state.mealNotes)) {
       state.clarificationSteps = normalizeClarificationQuestions(state.analysis, state.mealNotes);
       state.step = 'clarify';
       state.answers = [];
@@ -1014,7 +1031,8 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     }
 
     state.analysis = result.analysis;
-    state.mealType = result.mealType;
+    state.mealType = result.mealType || state.mealType;
+    if (result.mealType) state.mealTypeLocked = true;
     state.step = 'confirm';
     persist();
     render();

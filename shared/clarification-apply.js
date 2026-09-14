@@ -619,7 +619,7 @@ export function clarifyScopeHint(steps = [], analysis = null) {
     return 'Your rice answer updates rice portions only — other items stay as estimated from the photo.';
   }
   if (topics.has('bread_count') && itemNames.length > 1) {
-    return 'Bread count updates roti, naan, dosa, etc. — other items are unchanged unless you edit them on review.';
+    return 'Piece count updates only the idli, dosa, or bread line — sides such as sambar stay as estimated until you edit them.';
   }
   if (topics.has('portion_starter')) {
     return 'Your starter answer sets the plate size — sides and drinks keep their photo estimate unless you edit them on review.';

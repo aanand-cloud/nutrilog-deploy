@@ -4,6 +4,7 @@
  */
 
 import { matchFoodReference, parseGramsFromText, calibrateItemWithReference } from './nutrition-density.js';
+import { countableLabelFromAnalysis, countablePlural } from './bread-piece-grams.js';
 
 const COMPOUND_TEXT_RE = /\b(and|with|plus|\+|&)\b/i;
 
@@ -240,6 +241,14 @@ export function mergePhotoItemsIfCollapsed(analysis = {}) {
   };
 }
 
+function breadCountQuestion(analysis = {}) {
+  const singular = countableLabelFromAnalysis(analysis);
+  if (singular && singular !== 'piece') {
+    return `How many ${countablePlural(singular)}?`;
+  }
+  return 'How many pieces?';
+}
+
 export function injectPlateClarificationQuestions(analysis = {}) {
   const existing = [...(analysis.clarification_questions || [])];
   const existingTopics = new Set(
@@ -250,14 +259,14 @@ export function injectPlateClarificationQuestions(analysis = {}) {
 
   const toAdd = [];
   if (gaps.missingBread && !existingTopics.has('bread_count')) {
-    toAdd.push({ topic: 'bread_count', question: 'How many pieces of bread / dosa / roti?' });
+    toAdd.push({ topic: 'bread_count', question: breadCountQuestion(analysis) });
   } else if (gaps.missingRiceSide && !existingTopics.has('portion_rice')) {
     toAdd.push({ topic: 'portion_rice', question: 'About how much rice was on the plate?' });
   } else if (undercounted && gaps.suggestedTopics.length) {
     for (const topic of gaps.suggestedTopics) {
       if (existingTopics.has(topic)) continue;
       if (topic === 'bread_count') {
-        toAdd.push({ topic, question: 'How many pieces of bread / dosa / roti?' });
+        toAdd.push({ topic, question: breadCountQuestion(analysis) });
       } else if (topic === 'portion_rice') {
         toAdd.push({ topic, question: 'About how much rice was on the plate?' });
       } else if (topic === 'portion_takeaway') {

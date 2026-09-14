@@ -539,7 +539,14 @@ function parseUserMealNotes(notes = '') {
     skipTopics.add('dessert_portion');
   }
 
-  if (/\b\d+\s*(roti|naan|dosa|idli|piece|pieces|slice|slices|egg|eggs)\b/.test(t)) {
+  if (
+    /\b\d+\s*(roti|rotis|naan|naans|chapati|chapatis|dosa|dosas|dosai|idli(?:es|s)?|idly(?:s)?|puri|paratha|parotta)\b/.test(t)
+    || (/\b\d+\s*(pieces?|slices?)\b/.test(t) && /\b(roti|naan|idli|idly|dosa|bread|chapati|puri|paratha)\b/.test(t))
+  ) {
+    const named = t.match(/\b(\d+)\s*(roti|rotis|naan|naans|chapati|chapatis|dosa|dosas|dosai|idli(?:es|s)?|idly(?:s)?|puri|paratha|parotta|pieces?|slices?)\b/);
+    if (named) {
+      clarifyAnswers.push({ topic: 'bread_count', answer: named[0] });
+    }
     skipTopics.add('bread_count');
   }
 

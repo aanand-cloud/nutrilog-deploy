@@ -6,6 +6,14 @@ import {
   resolveIndianStarterFromAnalysis,
   starterPortionOptions,
 } from '../../shared/indian-starter-catalog.js';
+import {
+  analysisHasExplicitPieceCount,
+  breadCountOptions,
+  countableLabelFromAnalysis,
+  countablePlural,
+  countableSingularFromText,
+  parseExplicitPieceCount,
+} from '../../shared/bread-piece-grams.js';
 
 /** Max quick questions after a photo scan — keeps the flow fast. */
 export const MAX_CLARIFICATION_QUESTIONS = 3;
@@ -160,10 +168,11 @@ const OPTION_SETS = {
     'Extra large (~350 g+)',
   ],
   bread_count: [
-    '1 piece / roti / slice',
+    '1 piece',
     '2 pieces',
     '3 pieces',
-    '4 or more',
+    '4 pieces',
+    '5 or more',
   ],
   oil_fat: [
     'None',
@@ -308,9 +317,9 @@ const STEP_UI = {
     inputMode: 'decimal',
   },
   bread_count: {
-    helper: 'Count the pieces if that is easier.',
-    inputLabel: 'Or type your answer',
-    inputPlaceholder: 'e.g. 2 roti, 1 naan',
+    helper: 'Count the pieces — we convert them to grams for you.',
+    inputLabel: 'Or type the count',
+    inputPlaceholder: 'e.g. 4 idlis',
     inputMode: 'text',
   },
   oil_fat: {
@@ -388,7 +397,7 @@ function mealContext(analysis) {
     hasSnack: /\b(snack|chip|crisp|nut|biscuit|cookie|bar|popcorn|samosa|pakora|fries|chips|namkeen|murukku|mixture|chocolate)\b/.test(
       text,
     ),
-    hasBread: /\b(bread|roti|naan|chapati|paratha|toast|pita|tortilla|wrap| bun|roll|dosa|idli|vada|puri)\b/.test(
+    hasBread: /\b(bread|roti|naan|chapati|paratha|toast|pita|tortilla|wrap| bun|roll|dosa|idli(?:es|s)?|idly(?:s)?|vada|puri)\b/.test(
       text,
     ),
     hasRicePasta: /\b(rice|biryani|pulao|pasta|noodle|noodles|spaghetti|udon|fried rice)\b/.test(text),
@@ -577,7 +586,7 @@ export function classifyQuestion(question, analysis) {
     || (ctx.hasSnack && /\bhow much|portion|size|amount|weight|gram|\bg\b/.test(q))) {
     return 'portion_snack';
   }
-  if (/\b(roti|naan|chapati|paratha|slice|piece|bread|dosa|idli|puri|wrap)\b/.test(q)
+  if (/\b(roti|naan|chapati|paratha|slice|piece|bread|dosa|idli(?:es|s)?|idly|puri|wrap)\b/.test(q)
     || (ctx.hasBread && /\bhow many|count|pieces?\b/.test(q))) {
     return 'bread_count';
   }
@@ -613,6 +622,38 @@ export function classifyQuestion(question, analysis) {
   return 'generic_portion';
 }
 
+function isMealSlotQuestion(question = '') {
+  const q = String(question).toLowerCase();
+  const slots = q.match(/\b(breakfast|lunch|dinner|brunch|snack)\b/g) || [];
+  if (slots.length >= 2) return true;
+  return /\bwhen (did you eat|was this|is this)\b/.test(q) && slots.length >= 1;
+}
+
+function isMismatchedBreadQuestion(question = '', analysis) {
+  const q = String(question).toLowerCase();
+  if (!/\b(roti|naan|chapati)\b/.test(q)) return false;
+  const plate = mealContext(analysis).text;
+  const plateIsOther = /\b(idli(?:es|s)?|idly|dosa|dosai)\b/.test(plate);
+  const plateHasNamedBread = /\b(roti|naan|chapati|paratha)\b/.test(plate);
+  return plateIsOther && !plateHasNamedBread;
+}
+
+function shouldDropPhotoQuestion(step, analysis, notes = '') {
+  if (!step) return true;
+  if (isMealSlotQuestion(step.question)) return true;
+  if (isMismatchedBreadQuestion(step.question, analysis)) return true;
+  if (step.topic === 'bread_count' && (parseExplicitPieceCount(notes) > 0 || analysisHasExplicitPieceCount(analysis))) {
+    return true;
+  }
+  if (
+    (step.topic === 'portion_item' || step.topic === 'portion_solid' || step.topic === 'generic_portion')
+    && BREAD_COUNT_RE.test(`${step.question} ${step.about || ''}`)
+  ) {
+    return true;
+  }
+  return false;
+}
+
 export function normalizeClarificationQuestions(analysis, notes = '') {
   const raw = analysis?.clarification_questions || [];
   const ctx = mealContext(analysis);
@@ -643,6 +684,14 @@ export function normalizeClarificationQuestions(analysis, notes = '') {
       topic = 'portion_item';
     }
 
+    const next = {
+      question: polishQuestion(parsed.question, topic, parsed.about, analysis),
+      topic,
+      about: parsed.about,
+      options: parsed.options,
+    };
+    if (shouldDropPhotoQuestion(next, analysis, notes)) continue;
+
     const group = topicGroup(topic, parsed.about);
     if (topic === 'protein_type' && (analysis._anchored || analysis._refId) && !/\b(mixed|unknown)\b/i.test(parsed.question)) {
       continue;
@@ -650,15 +699,10 @@ export function normalizeClarificationQuestions(analysis, notes = '') {
     if (seenGroups.has(group)) continue;
     seenGroups.add(group);
 
-    steps.push({
-      question: polishQuestion(parsed.question, topic, parsed.about, analysis),
-      topic,
-      about: parsed.about,
-      options: parsed.options,
-    });
+    steps.push(next);
   }
 
-  const merged = mergePhotoQuestions(steps, analysis);
+  const merged = mergePhotoQuestions(steps, analysis, notes);
   const filtered = notes ? filterClarificationStepsByNotes(merged, notes) : merged;
   filtered.sort(
     (a, b) => TOPIC_PRIORITY.indexOf(a.topic) - TOPIC_PRIORITY.indexOf(b.topic),
@@ -744,7 +788,8 @@ function planDrinkQuestions(analysis) {
 }
 
 const SKIP_PORTION_ITEM_RE = /\b(cooking oil|vegetable oil|ghee|butter|salt|black pepper|garnish|lemon wedge|ice cube|water)\b/i;
-const BREAD_COUNT_RE = /\b(roti|chapati|naan|paratha|dosa|idli|puri|bhature)\b/i;
+const BREAD_COUNT_RE = /\b(roti|chapati|naan|paratha|dosa|dosai|idli(?:es|s)?|idly(?:s)?|puri|bhature|bhatura)\b/i;
+const GRAVY_BOWL_RE = /\b(sambar|sambhar|rasam|chutney|dal|dhal|curry|gravy|stew|gosthu|salna|salan)\b/i;
 const PROTEIN_ITEM_RE = /\b(chicken|mutton|lamb|beef|fish|prawn|shrimp|pork|turkey|paneer|tofu|egg|murgh|chickpea|channa?|chole|rajma|lentil|masoor|lobia|hummus|edamame|soya)\b/i;
 const VEG_ITEM_RE = /\b(spinach|cabbage|potato|aloo|okra|okro|bhindi|lad(?:y|ies)[\s-]?finger|aubergine|eggplant|brinjal|broccoli|cauliflower|gobi|carrot|beans|peas|tomato|onion|pepper|capsicum|courgette|zucchini|mushroom|kale|lettuce|salad|palak|methi|lauki|karela|bitter\s+gourd|drumstick|pumpkin|beetroot|beets?|yam|olives?|ivy[\s-]?gou?rd|tendli|tindora|kovakkai|kovai|kundru|mixed\s+veg)\b/i;
 const FRUIT_ITEM_RE = /\b(apple|banana|mango|orange|grape|strawberry|blueberry|berries|avocado|papaya|pineapple|watermelon|melon|guava|pomegranate|pear|peach|plum|litchi|lychee|kiwi|date|fig|jackfruit|chikoo|sapota|amla|custard\s+apple|sitaphal|raisin|pomegranate|anar)\b/i;
@@ -795,7 +840,18 @@ function isSkippableFoodItem(item = {}) {
   return SKIP_PORTION_ITEM_RE.test(text) && !PROTEIN_ITEM_RE.test(text) && !VEG_ITEM_RE.test(text) && !FRUIT_ITEM_RE.test(text) && !NUTS_SEEDS_RE.test(text);
 }
 
-function planFoodQuestions(analysis) {
+function bowlOptionsForItem(item = {}) {
+  const grams = parseItemGramsGuess(item);
+  const mid = grams >= 80 && grams <= 300 ? grams : 150;
+  const roundTo = (value) => Math.max(40, Math.round(value / 10) * 10);
+  return [
+    `Small bowl (~${roundTo(mid * 0.55)} g)`,
+    `Medium bowl (~${roundTo(mid)} g)`,
+    `Large bowl (~${roundTo(mid * 1.6)} g)`,
+  ];
+}
+
+function planFoodQuestions(analysis, notes = '') {
   if (analysisIsMainlyDrink(analysis)) return [];
   const starter = resolveIndianStarterFromAnalysis(analysis);
   const drinks = scannedDrinkItems(analysis);
@@ -812,12 +868,17 @@ function planFoodQuestions(analysis) {
     });
   }
 
-  const hasBread = foods.some((item) => BREAD_COUNT_RE.test(itemLineText(item)));
-  if (hasBread && !starter) {
+  const breadFoods = foods.filter((item) => BREAD_COUNT_RE.test(itemLineText(item)));
+  const knownCount = parseExplicitPieceCount(notes) > 0 || analysisHasExplicitPieceCount(analysis);
+  if (breadFoods.length && !starter && !knownCount) {
+    const singular = countableSingularFromText(breadFoods.map((item) => itemLineText(item)).join(' '))
+      || countableLabelFromAnalysis(analysis);
+    const plural = countablePlural(singular);
     steps.push({
       topic: 'bread_count',
-      about: '',
-      question: 'How many pieces?',
+      about: singular,
+      question: `How many ${plural}?`,
+      options: breadCountOptions(singular),
     });
   }
 
@@ -825,19 +886,20 @@ function planFoodQuestions(analysis) {
     const name = String(item.name || '').replace(/\s+/g, ' ').trim();
     if (!name) continue;
     if (starter && matchIndianStarterRef(itemLineText(item))) continue;
-    if (hasBread && BREAD_COUNT_RE.test(itemLineText(item))) continue;
+    if (BREAD_COUNT_RE.test(itemLineText(item))) continue;
     if (steps.some((s) => topicGroup(s.topic, s.about) === topicGroup('portion_item', name))) continue;
+    const gravy = GRAVY_BOWL_RE.test(itemLineText(item));
     steps.push({
       topic: 'portion_item',
       about: name,
-      question: `How many grams of ${name}?`,
-      options: portionOptionsForItem(item),
+      question: gravy ? `How much ${name}?` : `How many grams of ${name}?`,
+      options: gravy ? bowlOptionsForItem(item) : portionOptionsForItem(item),
     });
   }
   return steps;
 }
 
-function mergePhotoQuestions(geminiSteps, analysis) {
+function mergePhotoQuestions(geminiSteps, analysis, notes = '') {
   const drinks = scannedDrinkItems(analysis);
   const foodCount = Math.max(0, (analysis?.items || []).length - drinks.length);
   const drinkSlots = drinkQuestionSlots(analysis, drinks.length || (mealContext(analysis).drinkCategory ? 1 : 0), foodCount);
@@ -848,9 +910,9 @@ function mergePhotoQuestions(geminiSteps, analysis) {
   ]);
   const food = uniqueByGroup([
     ...geminiSteps.filter((s) => s.topic === 'protein_type'),
-    ...planFoodQuestions(analysis),
+    ...planFoodQuestions(analysis, notes),
     ...geminiSteps.filter((s) => !isDrinkTopic(s.topic) && s.topic !== 'protein_type' && !STEREOTYPE_FOOD_TOPICS.has(s.topic)),
-  ]);
+  ]).filter((step) => !shouldDropPhotoQuestion(step, analysis, notes));
 
   return [
     ...drink.slice(0, drinkSlots),
@@ -868,6 +930,9 @@ export function wordCount(text = '') {
 
 function polishQuestion(question, topic, about, analysis) {
   const q = String(question || '').replace(/\?+$/, '').trim();
+  if (topic === 'bread_count' && isMismatchedBreadQuestion(q, analysis)) {
+    return defaultQuestionForTopic(topic, about, analysis);
+  }
   const withMark = q ? `${q}?` : defaultQuestionForTopic(topic, about, analysis);
   if (wordCount(withMark) > 14) {
     return defaultQuestionForTopic(topic, about, analysis);
@@ -907,6 +972,7 @@ function defaultQuestionForTopic(topic, about, analysis) {
     case 'drink_volume':
       return `How many ml did you drink${item}?`;
     case 'portion_item':
+      if (about && GRAVY_BOWL_RE.test(about)) return `How much ${about}?`;
       return about ? `How many grams of ${about}?` : 'How many grams is this?';
     case 'portion_snack':
       return `How much snack${item}?`;
@@ -920,8 +986,10 @@ function defaultQuestionForTopic(topic, about, analysis) {
       const starter = resolveIndianStarterFromAnalysis(analysis);
       return `How much ${starter?.label || about || 'starter'}?`;
     }
-    case 'bread_count':
-      return `How many pieces${item}?`;
+    case 'bread_count': {
+      const singular = about || countableLabelFromAnalysis(analysis);
+      return `How many ${countablePlural(singular)}?`;
+    }
     case 'oil_fat':
       return 'How much oil or ghee?';
     case 'sauce_gravy':
@@ -979,27 +1047,42 @@ export function getClarificationStepConfig(step, analysis) {
     const about = String(step?.about || '').toLowerCase();
     return about && (name === about || name.includes(about) || about.includes(name));
   });
-  const options = step?.options?.length >= 2
+  const breadSingular = topic === 'bread_count'
+    ? (step?.about || countableLabelFromAnalysis(analysis))
+    : '';
+  const gravyItem = topic === 'portion_item' && GRAVY_BOWL_RE.test(`${step?.about || ''} ${namedItem?.name || ''}`);
+  let options = step?.options?.length >= 2
     ? step.options
     : (topic === 'portion_starter'
       ? starterPortionOptions(starter)
-      : (topic === 'portion_item'
-        ? portionOptionsForItem(namedItem)
-        : (OPTION_SETS[topic] || OPTION_SETS.generic_portion)));
+      : (topic === 'bread_count'
+        ? breadCountOptions(breadSingular)
+        : (topic === 'portion_item'
+          ? (gravyItem ? bowlOptionsForItem(namedItem) : portionOptionsForItem(namedItem))
+          : (OPTION_SETS[topic] || OPTION_SETS.generic_portion))));
+  if (topic === 'bread_count' && /\broti|naan|chapati\b/i.test(options.join(' ')) && !/\b(roti|naan|chapati)\b/i.test(mealContext(analysis).text)) {
+    options = breadCountOptions(breadSingular);
+  }
+  const placeholder = topic === 'bread_count'
+    ? `e.g. 4 ${countablePlural(breadSingular || 'piece')}`
+    : ui.inputPlaceholder;
+  const helper = topic === 'portion_item' && gravyItem
+    ? 'A small, medium, or large bowl is enough — no need to weigh it.'
+    : ui.helper;
   return {
     question: step?.question || defaultQuestionForTopic(topic, step?.about || '', analysis),
     topic,
-    helper: ui.helper,
+    helper,
     options: withNotSure(options),
-    inputLabel: ui.inputLabel,
-    inputPlaceholder: ui.inputPlaceholder,
+    inputLabel: topic === 'bread_count' ? 'Or type the count' : ui.inputLabel,
+    inputPlaceholder: placeholder,
     inputMode: ui.inputMode,
     multi: Boolean(ui.multi),
   };
 }
 
-export function needsClarification(analysis, threshold = 0.72) {
-  const steps = normalizeClarificationQuestions(analysis);
+export function needsClarification(analysis, threshold = 0.72, notes = '') {
+  const steps = normalizeClarificationQuestions(analysis, notes);
   if (!steps.length) return false;
   const confidence = analysis?.confidence_score ?? 1;
   const lowConfidence = confidence < threshold;

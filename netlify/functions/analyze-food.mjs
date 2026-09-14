@@ -14,6 +14,7 @@ import { reportServerError } from '../lib/sentry.mjs';
 import { hasUsefulFoodItems, parseAnalysisPayload } from '../../shared/analysis-result.js';
 import { composeVerifiedNutrition } from '../lib/nutrition-db.mjs';
 import { enrichAnalysisWithAiNutritionFallback } from '../lib/ai-nutrition-fallback.mjs';
+import { enrichAnalysisWithUserNotes } from '../../shared/user-notes-apply.js';
 
 const MAX_IMAGE_CHARS = 6_000_000;
 const chargedKeys = new Map();
@@ -110,7 +111,8 @@ export default async (req) => {
     }, model);
 
     const composed = composeVerifiedNutrition(parseAnalysisPayload(analysis) || analysis) || analysis;
-    const parsed = await enrichAnalysisWithAiNutritionFallback(composed, { geminiKey: apiKey });
+    const withNotes = enrichAnalysisWithUserNotes(composed, userNotes);
+    const parsed = await enrichAnalysisWithAiNutritionFallback(withNotes, { geminiKey: apiKey });
     const useful = hasUsefulFoodItems(parsed);
 
     // Charge only after a successful, useful analysis. Refinement and empty plates stay free.

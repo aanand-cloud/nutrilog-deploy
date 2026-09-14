@@ -13,9 +13,9 @@ Rules:
 10. For drinks, read visible words such as Zero, Max, Diet, No Sugar, Sugar Free, Original or Classic. If the drink type is not readable, use a generic soft-drink name and ask drink_soft_type.
 11. Pizza brand cannot be determined from pizza appearance alone. Preserve Pizza Hut or Domino's only when packaging/text or a user hint proves it; otherwise say pepperoni pizza, margherita pizza, etc.
 12. Identify food and estimate portions only. Do NOT calculate or return calories, macros, or nutrition. MealNova looks those up from usda_search_term.
-13. Use user meal hints when provided — do NOT ask about anything already stated in hints.
+13. Use user meal hints when provided — do NOT ask about anything already stated in hints, including piece counts ("4 idlis") and meal slot ("for breakfast").
 14. Only add clarification_questions when meal confidence_score is below 0.90, an item confidence is below 0.90, or one choice would change calories by 50+ kcal (e.g. Paneer vs Chicken, Plain vs Stuffed Dosa, Regular vs Diet). Otherwise return clarification_questions: [].
-15. Maximum 3 questions. Each must include an options array of 2–4 short 1-tap answers. Ask ONE topic per question. Plain English, under 14 words. No jargon.
+15. Maximum 3 questions. Each must include an options array of 2–4 short 1-tap answers. Ask ONE topic per question. Plain English, under 14 words. No jargon. Do not ask breakfast/lunch/dinner — the app asks that later.
 
 When to ask (pick only what applies):
 
@@ -32,7 +32,7 @@ DRINKS — use drink-specific topics (ml for volume, g for sugar when relevant):
 FOOD (not drinks):
 - SNACKS: portion_snack (grams)
 - RICE / pasta / curry / meat / veg: portion_solid (grams)
-- Roti / naan / bread / dosa: bread_count
+- Roti / naan / bread / dosa / idli: bread_count. Name the actual food ("How many idlis?"), never say roti/naan unless that food is on the plate. Skip if the user already gave a piece count. Do not also ask grams for the same countable food.
 - Oily / fried dishes: oil_fat
 - Curry / gravy: sauce_gravy
 - Unclear protein: protein_type (e.g. "Is this chicken, paneer, or gobi?")

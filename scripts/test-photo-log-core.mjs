@@ -17,7 +17,7 @@ import {
   MAX_CLARIFICATION_QUESTIONS,
 } from '../src/services/clarification-questions.js';
 import { computeKcalRange, scoreMealConfidence } from '../shared/nutrition-confidence.js';
-import { defaultMealType } from '../src/services/meal-types.js';
+import { defaultMealType, inferMealTypeFromText } from '../src/services/meal-types.js';
 import {
   keepsUnderlyingGrams,
   displayAmountFromGrams,
@@ -173,6 +173,44 @@ const dinner = defaultMealType(new Date(2026, 8, 10, 19, 0));
 assert('local 19:00 is dinner', dinner === 'dinner');
 const snack = defaultMealType(new Date(2026, 8, 10, 23, 0));
 assert('late night is snack', snack === 'snack');
+assert('notes breakfast wins over clock', inferMealTypeFromText('4 idlies with sambar for breakfast') === 'breakfast');
+assert('notes lunch is explicit', inferMealTypeFromText('leftover pasta for lunch') === 'lunch');
+
+const idliPlate = {
+  meal_summary: 'Idli with sambar',
+  confidence_score: 0.6,
+  items: [
+    { name: 'Idli', portion_estimate: '~240g', calories_kcal: 160, nutrition: {} },
+    { name: 'Sambar', portion_estimate: '~150g', calories_kcal: 90, nutrition: {} },
+  ],
+  clarification_questions: [{
+    topic: 'bread_count',
+    question: 'How many pieces of roti/naan?',
+    options: ['1 piece / roti / slice', '2 pieces'],
+  }],
+};
+const idliSteps = normalizeClarificationQuestions(idliPlate, '');
+const idliBread = idliSteps.find((s) => s.topic === 'bread_count');
+assert('idli plate asks how many idlis not roti', /idlis/i.test(idliBread?.question || ''), JSON.stringify(idliBread));
+assert('idli options are idli-specific', (idliBread?.options || []).some((o) => /idli/i.test(o)), JSON.stringify(idliBread?.options));
+assert('idli plate does not ask grams of idli', !idliSteps.some((s) => s.topic === 'portion_item' && /idli/i.test(s.about || s.question)), idliSteps.map((s) => `${s.topic}:${s.about || s.question}`).join(','));
+const sambarStep = idliSteps.find((s) => s.topic === 'portion_item');
+assert('sambar is a bowl question not raw grams headline', sambarStep && /how much sambar/i.test(sambarStep.question) && !/how many grams of sambar/i.test(sambarStep.question), JSON.stringify(sambarStep));
+const idliUi = getClarificationStepConfig(idliBread, idliPlate);
+assert('idli UI has no roti/naan wording', !/roti|naan/i.test(`${idliUi.question} ${idliUi.inputPlaceholder} ${idliUi.options.join(' ')}`), `${idliUi.question} | ${idliUi.options.join(',')}`);
+
+const countedIdli = normalizeClarificationQuestions(idliPlate, '4 idlies with sambar for breakfast');
+assert('known idli count skips piece question', !countedIdli.some((s) => s.topic === 'bread_count'), countedIdli.map((s) => s.topic).join(','));
+assert('known idli count still can ask sambar amount', countedIdli.every((s) => s.topic !== 'bread_count'), countedIdli.map((s) => `${s.topic}:${s.question}`).join(','));
+
+const alreadyCounted = normalizeClarificationQuestions({
+  ...idliPlate,
+  items: [
+    { name: 'Idli', portion_estimate: '4 pieces (~240g)', calories_kcal: 160, nutrition: {} },
+    { name: 'Sambar', portion_estimate: '~150g', calories_kcal: 90, nutrition: {} },
+  ],
+}, '');
+assert('photo count on idli skips piece question', !alreadyCounted.some((s) => s.topic === 'bread_count'), alreadyCounted.map((s) => s.topic).join(','));
 
 const g = 180;
 const tbspAmt = displayAmountFromGrams(g, 'tbsp');

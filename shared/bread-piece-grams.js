@@ -34,11 +34,13 @@ export const BREAD_PIECE_GRAMS = {
   dumpling: 40,
 };
 
-const BREAD_NAME_RE = /\b(bread|roti|naan|chapati|chapathi|paratha|parotta|porotta|dosas?|dosai|idlis?|puri|pav|bhaturas?|wrap|toast|slice|pita|pitta|bagel|roll|bun|kulcha|rumali)\b/i;
+const BREAD_NAME_RE = /\b(bread|roti|naan|chapati|chapathi|paratha|parotta|porotta|dosas?|dosai|idli(?:es|s)?|idly(?:s)?|puri|pav|bhaturas?|wrap|toast|slice|pita|pitta|bagel|roll|bun|kulcha|rumali)\b/i;
+
+const COUNT_NOUN_RE = String.raw`pieces?|slices?|roti|rotis|naan|naans|chapati|chapatis|chapathi|dosa|dosas|dosai|idli(?:es|s)?|idly(?:s)?|puri|puris|pav|bhatur[ae]|paratha|parotta|wraps?|toast`;
 
 const ANSWER_BREAD_HINTS = [
   { re: /\bdosas?\b|\bdosai\b|\bmasala\s+dosa\b|\buttapam\b/i, refId: 'dosa' },
-  { re: /\bidli\b|\bidlis\b|\brava\s+idli\b/i, refId: 'idli' },
+  { re: /\bidli(?:es|s)?\b|\bidly(?:s)?\b|\brava\s+idli\b/i, refId: 'idli' },
   { re: /\begg\s+dosa\b|\bmutta\s+dosa\b/i, refId: 'egg_dosa' },
   { re: /\bghee\s+roast\b/i, refId: 'ghee_roast' },
   { re: /\bnaan\b/i, refId: 'naan' },
@@ -73,15 +75,102 @@ export function canonicalPieceGrams(refId = '', text = '') {
 
 export function parseBreadCountFromAnswer(answer = '') {
   const t = String(answer).toLowerCase();
-  if (/4\s+or\s+more|4\+|5\s+or\s+more|5\+/.test(t)) return 4;
-  const named = t.match(/(\d+)\s*(?:piece|pieces|roti|naan|chapati|slice|dosa|dosas?|idli|idlis?|puri|pav|bhatur[ae]?|wrap|toast)/);
+  if (/5\s+or\s+more|5\+/.test(t)) return 5;
+  if (/4\s+or\s+more|4\+/.test(t)) return 4;
+  const named = t.match(new RegExp(`(\\d+)\\s*(?:${COUNT_NOUN_RE})`));
   if (named) return Number(named[1]);
+  const words = t.match(new RegExp(`\\b(two|three|four|five|six)\\s+(?:${COUNT_NOUN_RE})`));
+  if (words) {
+    const map = { two: 2, three: 3, four: 4, five: 5, six: 6 };
+    return map[words[1]] || 0;
+  }
   const lead = t.match(/^(\d+)/);
   if (lead) return Number(lead[1]);
   if (/\b1\b|one\b|single/.test(t)) return 1;
   if (/\b2\b|two\b/.test(t)) return 2;
   if (/\b3\b|three\b/.test(t)) return 3;
   return 0;
+}
+
+/** Count only when the text actually names a number of pieces — never default to 1. */
+export function parseExplicitPieceCount(text = '') {
+  const t = String(text || '').toLowerCase();
+  if (!t) return 0;
+  const named = t.match(new RegExp(`(\\d+)\\s*(?:${COUNT_NOUN_RE})`));
+  if (named) return Number(named[1]);
+  const words = t.match(new RegExp(`\\b(two|three|four|five|six)\\s+(?:${COUNT_NOUN_RE})`));
+  if (!words) return 0;
+  const map = { two: 2, three: 3, four: 4, five: 5, six: 6 };
+  return map[words[1]] || 0;
+}
+
+export function countableSingularFromText(text = '') {
+  const t = String(text || '').toLowerCase();
+  if (/\bidli(?:es|s)?\b|\bidly(?:s)?\b/.test(t)) return 'idli';
+  if (/\bdosas?\b|\bdosai\b/.test(t)) return 'dosa';
+  if (/\bnaan\b/.test(t)) return 'naan';
+  if (/\bparatha\b/.test(t)) return 'paratha';
+  if (/\bparotta\b|\bporotta\b/.test(t)) return 'parotta';
+  if (/\bpuri\b/.test(t)) return 'puri';
+  if (/\bbhatur[ae]\b/.test(t)) return 'bhatura';
+  if (/\bpav\b/.test(t)) return 'pav';
+  if (/\b(roti|chapati|chapathi|phulka)\b/.test(t)) return 'roti';
+  if (/\bwrap\b/.test(t)) return 'wrap';
+  if (/\btoast\b|\bslice\b|\bbread\b/.test(t)) return 'slice';
+  return 'piece';
+}
+
+export function countablePlural(singular = 'piece') {
+  switch (singular) {
+    case 'idli':
+      return 'idlis';
+    case 'dosa':
+      return 'dosas';
+    case 'naan':
+      return 'naan';
+    case 'puri':
+      return 'puris';
+    case 'pav':
+      return 'pav';
+    case 'slice':
+      return 'slices';
+    case 'piece':
+      return 'pieces';
+    default:
+      return `${singular}s`;
+  }
+}
+
+export function breadCountOptions(singular = 'piece') {
+  const one = countableSingularFromText(singular) || singular;
+  const many = countablePlural(one);
+  return [
+    `1 ${one}`,
+    `2 ${many}`,
+    `3 ${many}`,
+    `4 ${many}`,
+    '5 or more',
+  ];
+}
+
+export function countableLabelFromAnalysis(analysis = {}) {
+  const texts = [
+    analysis.meal_summary,
+    ...(analysis.items || []).map((item) => `${item.name || ''} ${item.portion_estimate || ''}`),
+  ].filter(Boolean);
+  for (const text of texts) {
+    if (isBreadItemText(text)) return countableSingularFromText(text);
+  }
+  return 'piece';
+}
+
+export function analysisHasExplicitPieceCount(analysis = {}) {
+  return (analysis.items || []).some((item) => {
+    const text = `${item.name || ''} ${item.portion_estimate || ''}`;
+    if (!isBreadItemText(text)) return false;
+    if (item._boundQuantity?.unit === 'piece' && Number(item._boundQuantity.amount) > 0) return true;
+    return parseExplicitPieceCount(text) > 0;
+  });
 }
 
 /**

@@ -249,6 +249,31 @@ assert('Deep fried skips oil_fat question', filterClarificationStepsByNotes(
 const ovenBaked = parseCookingMethod('oven baked salmon');
 assert('Oven baked parsed', ovenBaked?.id === 'oven', ovenBaked?.chip);
 
+const idliesNotes = deriveClarifyAnswersFromNotes('4 idlies with sambar for breakfast');
+assert('Idlies note applies bread count', idliesNotes.some((a) => a.topic === 'bread_count' && /4/.test(a.answer)), JSON.stringify(idliesNotes));
+const idliStepsFromNotes = normalizeClarificationQuestions(meal({
+  summary: 'Idli with sambar',
+  items: [
+    { name: 'Idli', portion_estimate: '1 piece (~60g)', calories_kcal: 40, nutrition: { protein_g: 1, carbs_g: 8, fat_g: 0.2 } },
+    { name: 'Sambar', portion_estimate: '1 bowl (~150g)', calories_kcal: 90, nutrition: { protein_g: 4, carbs_g: 12, fat_g: 3 } },
+  ],
+  questions: [{ topic: 'bread_count', question: 'How many pieces of roti/naan?' }],
+}), '4 idlies with sambar for breakfast');
+assert('Idlies note skips roti/naan question', !idliStepsFromNotes.some((s) => s.topic === 'bread_count'), idliStepsFromNotes.map((s) => s.topic).join(', '));
+
+const countedIdliMeal = enrichAnalysisWithUserNotes(meal({
+  kcal: 130,
+  items: [
+    { name: 'Idli', portion_estimate: '1 piece (~60g)', calories_kcal: 40, nutrition: { protein_g: 1, carbs_g: 8, fat_g: 0.2 } },
+    { name: 'Sambar', portion_estimate: '1 bowl (~150g)', calories_kcal: 90, nutrition: { protein_g: 4, carbs_g: 12, fat_g: 3 } },
+  ],
+}), '4 idlies with sambar for breakfast');
+assert(
+  'Idlies note scales to 4 pieces',
+  /4 pieces/i.test(countedIdliMeal.items.find((i) => /idli/i.test(i.name))?.portion_estimate || ''),
+  countedIdliMeal.items.map((i) => `${i.name} ${i.portion_estimate}`).join(' | '),
+);
+
 const failed = results.filter((r) => !r.ok).length;
 console.log(`\n${results.length - failed}/${results.length} passed`);
 process.exit(failed ? 1 : 0);

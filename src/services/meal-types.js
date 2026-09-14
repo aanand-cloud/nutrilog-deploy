@@ -21,4 +21,15 @@ export function mealTypeLabel(type) {
   return map[type] || '';
 }
 
+/** Honour an explicit meal slot in the user's own words. */
+export function inferMealTypeFromText(text = '') {
+  const t = String(text || '').toLowerCase();
+  if (!t) return null;
+  if (/\b(for\s+)?breakfast\b|\bbrunch\b/.test(t)) return 'breakfast';
+  if (/\b(for\s+)?lunch\b/.test(t)) return 'lunch';
+  if (/\b(for\s+)?dinner\b|\bsupper\b/.test(t)) return 'dinner';
+  if (/\b(for\s+)?snack\b|\btea\s+time\b/.test(t)) return 'snack';
+  return null;
+}
+
 export { inferMealTypeForDrink } from './drink-logging.js';

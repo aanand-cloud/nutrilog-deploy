@@ -30,6 +30,12 @@ import {
   mealOilTbspFromItems,
   rebuildVisionReview,
 } from '../../shared/vision-review-adjust.js';
+import {
+  canonicalPieceGrams,
+  isBreadItemText,
+  parseExplicitPieceCount,
+} from '../../shared/bread-piece-grams.js';
+import { matchFoodReference } from '../../shared/nutrition-density.js';
 
 /** Interactive review before saving an AI scan. */
 export function openMealReviewModal(analysis, { mealType = defaultMealType(), imageDataUrl = null } = {}) {
@@ -53,18 +59,14 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
       mealOilTbsp = clampOilTbsp(oilTbsp);
     }
 
-    function setItemGrams(id, grams) {
-      const amount = Math.max(1, Math.round(Number(grams) || 0));
-      items = items.map((item) => {
-        if (item.id !== id) return item;
-        return {
-          ...item,
-          grams: amount,
-          _originalGrams: amount,
-          _hiddenGrams: item._volumeMl ? item._hiddenGrams : amount,
-          _visionMeta: item._visionMeta ? { ...item._visionMeta, amount } : item._visionMeta,
-        };
-      });
+    function commitWeightInput(input) {
+      const id = input.dataset.weight;
+      const item = items.find((i) => i.id === id);
+      if (!item) return;
+      const unitId = item._displayUnit || 'g';
+      const grams = itemGramsFromDisplay(item, Number(input.value), unitId);
+      if (!(grams > 0)) return;
+      items = items.map((i) => (i.id === id ? { ...scaleItem(i, grams), _userEnteredWeight: true } : i));
     }
 
     const overlay = document.createElement('div');
@@ -110,6 +112,14 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
             <h2 class="barcode-title" id="mealReviewTitle">We found ${items.length} food${items.length === 1 ? '' : 's'} — please check them</h2>
           </header>
           ${imageDataUrl ? `<img src="${imageDataUrl}" alt="Your meal photo" class="preview-img preview-img--small meal-review-photo"/>` : ''}
+          <p class="step-label">When did you eat this?</p>
+          <div class="meal-type-row meal-review-types" id="reviewMealTypes">
+            ${MEAL_TYPES.map((mt) => `
+              <button type="button" class="meal-type-btn ${currentMealType === mt.id ? 'meal-type-btn--active' : ''}" data-type="${mt.id}">
+                ${mt.icon} ${mt.label}
+              </button>
+            `).join('')}
+          </div>
           <div class="meal-review-summary">
             <p class="review-kcal">Estimated: ${Math.round(t.total_calories_kcal)} kcal</p>
             ${scored.kcalRange ? `<p>Likely range: ${scored.kcalRange.min}–${scored.kcalRange.max} kcal</p>` : ''}
@@ -129,6 +139,7 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
               <button type="button" class="btn btn-ghost btn-sm" data-oil-delta="0.5" aria-label="More oil">+</button>
             </div>
           </div>` : ''}
+          <p class="step-label">Foods on the plate</p>
           <ul class="meal-review-items" id="reviewItemsList">
             ${t.scaled.map((item) => itemRow(item)).join('')}
           </ul>
@@ -161,14 +172,6 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
               <button type="button" class="btn btn-ghost btn-sm full" id="searchFoodBtn">Search packaged food</button>
             </div>
           </details>
-          <p class="step-label">When did you eat this?</p>
-          <div class="meal-type-row meal-review-types" id="reviewMealTypes">
-            ${MEAL_TYPES.map((mt) => `
-              <button type="button" class="meal-type-btn ${currentMealType === mt.id ? 'meal-type-btn--active' : ''}" data-type="${mt.id}">
-                ${mt.icon} ${mt.label}
-              </button>
-            `).join('')}
-          </div>
           ${disclaimerBlock(DISCLAIMERS.nutritionEstimate, 'fine-print health-disclaimer')}
           <div class="camera-modal__actions full meal-review-actions">
             <button type="button" class="btn btn-ghost" id="reviewCancel">Cancel</button>
@@ -185,7 +188,7 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
       const sugarAddon = item._drinkAddon === 'sugar';
       const unitId = sugarAddon ? 'g' : (drinkItem ? 'ml' : (item._displayUnit || 'g'));
       const original = item._originalGrams ?? item.grams;
-      const amount = displayAmountFromGrams(original, unitId);
+      const amount = itemDisplayFromGrams(item, original, unitId);
       const match = item._unmatched ? 'Nutrition match needed' : 'Matched';
       const source = portionSourceLabel(item);
       const low = isLowConfidenceItem(item);
@@ -232,6 +235,7 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
     function bindEvents() {
       overlay.querySelector('#reviewCancel')?.addEventListener('click', () => close(null));
       overlay.querySelector('#reviewConfirm')?.addEventListener('click', () => {
+        overlay.querySelectorAll('[data-weight]').forEach((input) => commitWeightInput(input));
         const t = totals();
         const preview = { ...analysis, items: t.scaled, total_calories_kcal: t.total_calories_kcal };
         const scored = scoreMealConfidence(preview);
@@ -259,25 +263,15 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
       overlay.querySelectorAll('#reviewMealTypes .meal-type-btn').forEach((btn) => {
         btn.addEventListener('click', () => {
           currentMealType = btn.dataset.type;
-          render();
+          overlay.querySelectorAll('#reviewMealTypes .meal-type-btn').forEach((el) => {
+            el.classList.toggle('meal-type-btn--active', el.dataset.type === currentMealType);
+          });
         });
       });
 
       overlay.querySelectorAll('[data-weight]').forEach((input) => {
-        input.addEventListener('change', () => {
-          const id = input.dataset.weight;
-          const item = items.find((i) => i.id === id);
-          if (!item) return;
-          const unitId = item._displayUnit || 'g';
-          const grams = gramsFromDisplayAmount(Number(input.value), unitId, item.baseGrams);
-          if (visionMode && !item._userEnteredWeight && !item._labelBacked) {
-            setItemGrams(id, grams);
-            applyVisionRebuild(items, mealOilTbsp);
-          } else {
-            items = items.map((i) => (i.id === id ? scaleItem(i, grams) : i));
-          }
-          render();
-        });
+        input.addEventListener('change', () => commitWeightInput(input));
+        input.addEventListener('blur', () => commitWeightInput(input));
       });
 
       overlay.querySelectorAll('[data-gram-delta]').forEach((btn) => {
@@ -287,8 +281,7 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
           if (!item) return;
           const step = Number(btn.dataset.step) || 10;
           const next = Math.max(1, Math.round((Number(item._originalGrams || item.grams) || 100) + step));
-          setItemGrams(id, next);
-          applyVisionRebuild(items, mealOilTbsp);
+          items = items.map((i) => (i.id === id ? { ...scaleItem(i, next), _userEnteredWeight: true } : i));
           render();
         });
       });
@@ -314,7 +307,7 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
           if (keepsUnderlyingGrams(nextUnit) && keepsUnderlyingGrams(item._displayUnit || 'g')) {
             items = items.map((i) => (i.id === id ? { ...i, _displayUnit: nextUnit } : i));
           } else {
-            const grams = gramsFromDisplayAmount(1, nextUnit, item.baseGrams || item._originalGrams);
+          const grams = itemGramsFromDisplay(item, 1, nextUnit);
             items = items.map((i) => (i.id === id ? { ...scaleItem(i, grams), _displayUnit: nextUnit } : i));
           }
           render();
@@ -462,9 +455,15 @@ function normalizeEditableItems(items) {
     const grams = Number(item._originalGrams) || parseGrams(item.portion_estimate) || Number(item.grams) || (drinkItem ? 250 : 100);
     const calories = Number(item._originalCalories ?? item.calories_kcal) || 0;
     const nutrition = { ...(item._originalNutrition || item.nutrition || {}) };
+    const countable = !drinkItem && isBreadItemText(`${item.name || ''} ${item.portion_estimate || ''}`);
+    const ref = countable ? matchFoodReference(item.name || item.portion_estimate || '') : null;
+    const gramsPerPiece = countable
+      ? (canonicalPieceGrams(ref?.id || item._refId, `${item.name || ''} ${item.portion_estimate || ''}`) || 60)
+      : null;
+    const explicitCount = countable ? parseExplicitPieceCount(`${item.name || ''} ${item.portion_estimate || ''}`) : 0;
     const displayUnit = item._drinkAddon === 'sugar'
       ? 'g'
-      : (drinkItem ? 'ml' : (item._displayUnit || 'g'));
+      : (drinkItem ? 'ml' : (item._displayUnit || (countable ? 'piece' : 'g')));
     return {
       ...item,
       id: item.id || `item-${idx}-${Date.now()}`,
@@ -482,6 +481,8 @@ function normalizeEditableItems(items) {
       _unmatched: Boolean(item._unmatched),
       _displayUnit: displayUnit,
       _volumeMl: drinkItem ? (Number(item._volumeMl) || grams) : item._volumeMl,
+      _gramsPerPiece: gramsPerPiece || item._gramsPerPiece,
+      _pieceCount: explicitCount || item._pieceCount,
     };
   });
 }
@@ -508,6 +509,22 @@ function createManualItem(name, grams, calories, unit = 'g') {
     _displayUnit: unit,
     _volumeMl: unit === 'ml' ? grams : undefined,
   };
+}
+
+function itemGramsFromDisplay(item, amount, unitId) {
+  if (unitId === 'piece' || unitId === 'slice') {
+    const per = Number(item._gramsPerPiece) || (unitId === 'slice' ? 35 : 60);
+    return Math.max(1, Math.round(Number(amount) * per));
+  }
+  return gramsFromDisplayAmount(amount, unitId, item.baseGrams || item._originalGrams);
+}
+
+function itemDisplayFromGrams(item, grams, unitId) {
+  if (unitId === 'piece' || unitId === 'slice') {
+    const per = Number(item._gramsPerPiece) || (unitId === 'slice' ? 35 : 60);
+    return grams / per;
+  }
+  return displayAmountFromGrams(grams, unitId);
 }
 
 function scaleItem(item, newGrams) {
