@@ -5,7 +5,7 @@ import {
   resolveVisionFoodMatch,
   toVisionIdentification,
 } from '../shared/vision-analysis-compose.js';
-import { geminiGenerate } from '../netlify/lib/gemini.mjs';
+import { geminiGenerate, parseGeminiJson } from '../netlify/lib/gemini.mjs';
 import { FOOD_ANALYSIS_SCHEMA, VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA } from '../netlify/lib/gemini-schemas.mjs';
 import { ANALYSIS_PROMPT, CLARIFY_PROMPT } from '../netlify/lib/prompts.mjs';
 import { capClarificationQuestions, composeVerifiedNutrition, lookupReferenceNutrition } from '../netlify/lib/nutrition-db.mjs';
@@ -324,5 +324,56 @@ assert(
   Number(hogItem?.nutrition?.fibre_g) >= 40,
   String(hogItem?.nutrition?.fibre_g),
 );
+
+const coffeeBroken = `{
+  "meal_summary": "Coffee",
+  "confidence_score": 0.9,
+  "notes": "Mug of coffee",
+  "items": [
+    {
+      "name": "Coffee",
+      "usda_search_term": "coffee, brewed",
+      "unit": "ml",
+      "estimated_amount": 250
+    }
+  ],
+  "clarification_questions": [
+    {
+      "topic": "drink_coffee_tea_size",
+      "question": "How much coffee?",
+      "options": [
+        "Small cup (~200 ml)"
+        "Regular mug (~350 ml)"
+      ]
+    }
+  ]
+}`;
+let coffeeParsed;
+try {
+  coffeeParsed = parseGeminiJson(coffeeBroken);
+} catch (err) {
+  coffeeParsed = { error: err.message };
+}
+assert('repairs coffee JSON missing commas between options', coffeeParsed?.items?.[0]?.name === 'Coffee', JSON.stringify(coffeeParsed?.error || coffeeParsed?.items?.[0]));
+assert('coffee options survive JSON repair', coffeeParsed?.clarification_questions?.[0]?.options?.length >= 2, JSON.stringify(coffeeParsed?.clarification_questions?.[0]?.options));
+
+const coffeeItemsBroken = `{
+  "meal_summary": "Coffee",
+  "items": [
+    { "name": "Coffee", "unit": "ml", "estimated_amount": 250 }
+    { "name": "Milk splash", "unit": "ml", "estimated_amount": 30 }
+  ],
+  "clarification_questions": []
+}`;
+const coffeeItems = parseGeminiJson(coffeeItemsBroken);
+assert('repairs missing comma between coffee items', coffeeItems.items?.length === 2, String(coffeeItems.items?.length));
+
+const coffeePhoto = composeAnalysisFromVision({
+  meal_summary: 'Coffee',
+  confidence_score: 0.9,
+  items: [{ name: 'Coffee', estimated_amount: 250, unit: 'ml', cooking_method: 'unknown', visible_oil: false, confidence: 0.9 }],
+  clarification_questions: [],
+});
+assert('coffee photo matches a coffee drink', /coffee/i.test(coffeePhoto.items[0]?._refId || ''), String(coffeePhoto.items[0]?._refId));
 
 console.log('\nDone.');

@@ -142,6 +142,11 @@ export default async (req) => {
     return jsonResponse({ analysis: parsed, usage, geminiUsage }, 200, req);
   } catch (e) {
     await reportServerError(e, { function: 'analyze-food' });
-    return jsonResponse({ error: e.message || 'Server error during analysis' }, 502, req);
+    const parseFailed = e?.userMessage || /JSON|parse model JSON|after array element/i.test(e?.message || '');
+    return jsonResponse({
+      error: parseFailed
+        ? (e.userMessage || 'Could not read that photo — try again, or type the drink in Describe.')
+        : (e.message || 'Server error during analysis'),
+    }, 502, req);
   }
 };

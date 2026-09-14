@@ -1,7 +1,7 @@
 export const ANALYSIS_PROMPT = `Analyse this photo of food and return ONLY valid JSON matching the format below — no extra text.
 
 Rules:
-1. Identify ALL visible food and drink items separately in items[].
+1. Identify ALL visible food and drink items separately in items[]. A cup, mug, glass, or takeaway coffee/tea/soft drink is a drink — include it with unit ml.
 2. Support ANY cuisine worldwide (home cooking, restaurants, takeaway, packed lunches).
 3. Preserve the most specific regional dish name visible or strongly implied (for example jollof rice, biryani, nasi goreng), never a generic substitute such as "seasoned rice".
 4. Estimate edible portions with estimated_amount and unit: use g for solids/snacks and ml for drinks (never kg or lb). Convert any kilogram/pound estimate into grams. Compute grams from estimated 3D volume and food density, not 2D area. Exclude plates, bowls, bones and packaging. If the photo shows a bag, pile, crate, or bulk of one food, estimate the full edible weight pictured — not a typical single-fruit serving. Use user-stated weights exactly.

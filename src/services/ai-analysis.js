@@ -1,5 +1,6 @@
 import { getSession, isSupabaseConfigured } from './auth.js';
 import { normalizePhotoAnalysis } from '../../shared/vision-analysis-compose.js';
+import { parseLooseJson } from '../../shared/json-repair.js';
 import { syncScanUsageFromServer, getLocalDayKey } from './subscription.js';
 import { compressImage, compressDataUrl } from './image-compress.js';
 import { needsClarification } from './clarification-questions.js';
@@ -123,9 +124,7 @@ export async function refineWithClarifications(imageBase64, mimeType, previousAn
 function parseAnalysisResponse(data) {
   const raw = data.analysis || data;
   if (typeof raw === 'string') {
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('Invalid analysis response');
-    return normalizePhotoAnalysis(JSON.parse(jsonMatch[0]), { forceVision: true });
+    return normalizePhotoAnalysis(parseLooseJson(raw), { forceVision: true });
   }
   return normalizePhotoAnalysis(raw, { forceVision: true }) || raw;
 }

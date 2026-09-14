@@ -1,5 +1,6 @@
 import { extractUsageMetadata } from './gemini-usage.mjs';
 import { FOOD_ANALYSIS_SCHEMA, VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA } from './gemini-schemas.mjs';
+import { parseLooseJson } from '../../shared/json-repair.js';
 
 const GEMINI_API = 'https://generativelanguage.googleapis.com/v1beta/models';
 
@@ -15,13 +16,7 @@ export function defaultTextModel() {
 }
 
 export function parseGeminiJson(text) {
-  try {
-    return JSON.parse(text);
-  } catch {
-    const match = text.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('Could not parse model JSON');
-    return JSON.parse(match[0]);
-  }
+  return parseLooseJson(text);
 }
 
 export async function geminiGenerate({

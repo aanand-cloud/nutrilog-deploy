@@ -1,12 +1,12 @@
 /** Shared analysis-result helpers — safe for client, tests, and Netlify functions. */
 
+import { parseLooseJson } from './json-repair.js';
+
 export function parseAnalysisPayload(analysis) {
   if (!analysis) return null;
   if (typeof analysis === 'string') {
-    const match = analysis.match(/\{[\s\S]*\}/);
-    if (!match) return null;
     try {
-      return JSON.parse(match[0]);
+      return parseLooseJson(analysis);
     } catch {
       return null;
     }
