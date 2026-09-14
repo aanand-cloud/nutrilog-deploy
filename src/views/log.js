@@ -30,7 +30,7 @@ import {
   normalizeClarificationQuestions,
   getClarificationStepConfig,
 } from '../services/clarification-questions.js';
-import { applyClarificationsLocally } from '../../shared/clarification-apply.js';
+import { finalizeClarificationAnswers } from '../../shared/clarification-apply.js';
 import {
   buildPhotoAnalysisNotes,
   formatDrinkMealNotes,
@@ -913,8 +913,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
     const current = state.answers.length;
     const step = steps[current];
     if (!step) {
-      state.step = 'review';
-      render();
+      goToReviewFromClarify();
       return;
     }
     const ui = getClarificationStepConfig(step, state.analysis);
@@ -970,8 +969,7 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       });
     }
     root.querySelector('#skipClarify')?.addEventListener('click', () => {
-      state.step = 'review';
-      render();
+      goToReviewFromClarify();
     });
     bindSpeechField('#customAnswer', '#customAnswerMic', { append: false });
   }
@@ -993,10 +991,15 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
       if (/sauce/i.test(steps[idx].question + steps[idx].topic)) state.analysis._unknownSauce = true;
     }
     if (state.answers.length < steps.length) {
+      persist();
       render();
       return;
     }
-    state.analysis = applyClarificationsLocally(state.analysis, state.answers);
+    goToReviewFromClarify();
+  }
+
+  function goToReviewFromClarify() {
+    state.analysis = finalizeClarificationAnswers(state.analysis, state.answers);
     enrichDrinkContext(state.analysis);
     state.step = 'review';
     persist();

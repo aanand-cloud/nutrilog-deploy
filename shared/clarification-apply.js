@@ -569,6 +569,17 @@ function applySingleAnswer(analysis, { topic, answer, about = '', question = '' 
 }
 
 /**
+ * Apply every answer already given — including when later questions are skipped.
+ * Empty / missing answers are ignored so Skip does not wipe earlier answers.
+ */
+export function finalizeClarificationAnswers(analysis, answers = []) {
+  if (!analysis) return analysis;
+  const collected = (answers || []).filter((entry) => String(entry?.answer || '').trim());
+  if (!collected.length) return analysis;
+  return applyClarificationsLocally(analysis, collected);
+}
+
+/**
  * @param {object} analysis
  * @param {Array<{ topic?: string, answer?: string }>} answers
  */

@@ -1,4 +1,4 @@
-import { applyClarificationsLocally, previewClarificationImpact } from '../shared/clarification-apply.js';
+import { applyClarificationsLocally, finalizeClarificationAnswers, previewClarificationImpact } from '../shared/clarification-apply.js';
 import { normalizeClarificationQuestions, getClarificationStepConfig } from '../src/services/clarification-questions.js';
 
 function meal(base = {}) {
@@ -415,6 +415,51 @@ results.push({
   delta: preview.afterKcal - preview.beforeKcal,
   items: [],
   notes: preview.afterKcal > preview.beforeKcal ? [] : ['preview should increase kcal'],
+});
+
+const skipMeal = meal({
+  summary: 'Idli with sambar',
+  kcal: 130,
+  items: [
+    { name: 'Idli', portion_estimate: '1 piece (~60g)', calories_kcal: 40, nutrition: { protein_g: 1, carbs_g: 8, fat_g: 0.2 } },
+    { name: 'Sambar', portion_estimate: '1 bowl (~150g)', calories_kcal: 90, nutrition: { protein_g: 4, carbs_g: 12, fat_g: 3 } },
+  ],
+});
+const skipSteps = [
+  { topic: 'bread_count', question: 'How many idlis?' },
+  { topic: 'portion_item', about: 'Sambar', question: 'How much Sambar?' },
+];
+const afterFirstAnswer = [{ topic: 'bread_count', answer: '4 idlis' }];
+const discardedOnSkip = skipMeal.total_calories_kcal;
+const appliedOnSkip = finalizeClarificationAnswers(skipMeal, afterFirstAnswer);
+const skippedSecond = skipSteps.length - afterFirstAnswer.length;
+const idliAfterSkip = appliedOnSkip.items.find((i) => /idli/i.test(i.name));
+const sambarAfterSkip = appliedOnSkip.items.find((i) => /sambar/i.test(i.name));
+results.push({
+  label: 'answer first question → skip second → first answer changes calories',
+  pass: skippedSecond === 1
+    && appliedOnSkip.total_calories_kcal > discardedOnSkip
+    && /4 pieces/i.test(idliAfterSkip?.portion_estimate || '')
+    && /sambar/i.test(sambarAfterSkip?.name || '')
+    && /bowl/i.test(sambarAfterSkip?.portion_estimate || ''),
+  before: discardedOnSkip,
+  after: appliedOnSkip.total_calories_kcal,
+  delta: appliedOnSkip.total_calories_kcal - discardedOnSkip,
+  items: appliedOnSkip.items.map((i) => `${i.name}: ${i.portion_estimate} (${i.calories_kcal} kcal)`),
+  notes: appliedOnSkip.total_calories_kcal > discardedOnSkip
+    ? []
+    : ['skip must apply the idli count already given'],
+});
+
+const skipWithNoAnswers = finalizeClarificationAnswers(skipMeal, []);
+results.push({
+  label: 'skip with no answers keeps photo estimate',
+  pass: skipWithNoAnswers.total_calories_kcal === skipMeal.total_calories_kcal,
+  before: skipMeal.total_calories_kcal,
+  after: skipWithNoAnswers.total_calories_kcal,
+  delta: 0,
+  items: [],
+  notes: [],
 });
 
 let passed = 0;
