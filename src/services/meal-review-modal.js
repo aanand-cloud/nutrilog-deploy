@@ -35,7 +35,7 @@ import {
   isBreadItemText,
   parseExplicitPieceCount,
 } from '../../shared/bread-piece-grams.js';
-import { matchFoodReference } from '../../shared/nutrition-density.js';
+import { matchFoodReference, parseGramsFromText } from '../../shared/nutrition-density.js';
 
 /** Interactive review before saving an AI scan. */
 export function openMealReviewModal(analysis, { mealType = defaultMealType(), imageDataUrl = null } = {}) {
@@ -452,7 +452,11 @@ function isDrinkReviewItem(item = {}) {
 function normalizeEditableItems(items) {
   return items.map((item, idx) => {
     const drinkItem = isDrinkReviewItem(item);
-    const grams = Number(item._originalGrams) || parseGrams(item.portion_estimate) || Number(item.grams) || (drinkItem ? 250 : 100);
+    const grams = Number(item._originalGrams)
+      || Number(item._hiddenGrams)
+      || parseGrams(item.portion_estimate)
+      || Number(item.grams)
+      || (drinkItem ? 250 : 100);
     const calories = Number(item._originalCalories ?? item.calories_kcal) || 0;
     const nutrition = { ...(item._originalNutrition || item.nutrition || {}) };
     const countable = !drinkItem && isBreadItemText(`${item.name || ''} ${item.portion_estimate || ''}`);
@@ -540,6 +544,7 @@ function scaleItem(item, newGrams) {
     nutrition,
     portion_estimate: `Entered serving: ${Math.round(newGrams)} g`,
     _userEnteredWeight: true,
+    _hiddenGrams: newGrams,
   };
 }
 
@@ -576,6 +581,8 @@ function toSavedItem(item) {
 
 export function parseGrams(text) {
   if (!text) return null;
+  const parsed = parseGramsFromText(text);
+  if (parsed > 0) return parsed;
   const m = String(text).match(/(\d+(?:\.\d+)?)\s*g\b/i);
   return m ? Number(m[1]) : null;
 }

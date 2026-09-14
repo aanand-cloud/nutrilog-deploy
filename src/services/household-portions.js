@@ -7,6 +7,7 @@ import { roundDisplay } from './eaten-amount.js';
 
 export const PORTION_UNITS = [
   { id: 'g', label: 'g', kind: 'mass', gramsPer: 1 },
+  { id: 'kg', label: 'kg', kind: 'mass', gramsPer: 1000 },
   { id: 'oz', label: 'oz', kind: 'mass', gramsPer: 28.349523125 },
   { id: 'ml', label: 'ml', kind: 'volume', gramsPer: 1 },
   { id: 'tsp', label: 'Teaspoon', kind: 'household', gramsPer: 5 },
@@ -49,6 +50,9 @@ export function gramsFromDisplayAmount(amount, unitId, baseGrams = 100) {
 export function householdEquivalentLabel(grams, unitId, amount) {
   const unit = getPortionUnit(unitId);
   if (unit.id === 'g') return `Entered serving: ${roundDisplay(grams)} g`;
+  if (unit.id === 'kg') {
+    return `Entered serving: ${roundDisplay(amount, 2)} kg (${roundDisplay(grams)} g)`;
+  }
   if (unit.kind === 'unsure') {
     return `Estimated ${roundDisplay(grams)} g · amount not confirmed`;
   }

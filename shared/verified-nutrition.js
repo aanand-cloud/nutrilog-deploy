@@ -164,7 +164,12 @@ export function resolveVerifiedIdFromText(textOrId = '') {
       return id;
     }
   }
-  for (const tok of normalized.split(/\s+/)) {
+  const tokens = normalized.split(/\s+/);
+  const skipBarePlum = tokens.some((tok) => /^(hog|june|java)$/.test(tok));
+  const skipBareApple = tokens.includes('golden') && !tokens.includes('delicious');
+  for (const tok of tokens) {
+    if (skipBarePlum && /^plums?$/.test(tok)) continue;
+    if (skipBareApple && /^apples?$/.test(tok)) continue;
     if (VERIFIED_EXTRA_ALIASES[tok]) return VERIFIED_EXTRA_ALIASES[tok];
     if (VERIFIED_ALIAS_TO_ID[tok]) return VERIFIED_ALIAS_TO_ID[tok];
   }

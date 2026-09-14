@@ -89,6 +89,8 @@ export function matchFoodReferenceTier1(text = '') {
     if (ref.id === 'lamb' && /\bcurry\b/i.test(t)) continue;
     if (ref.id === 'fish' && /\bcurry\b/i.test(t)) continue;
     if (ref.id === 'paneer' && /\b(curry|masala|tikka|butter|palak|matar|lababdar)\b/i.test(t)) continue;
+    if (ref.id === 'plum' && /\b(hog|june|java)\s+plums?\b|\bambarella\b|\bambazham\b|\bambada\b/i.test(t)) continue;
+    if (ref.id === 'apple' && /\bgolden\s+apples?\b/i.test(t) && !/\bgolden\s+delicious\b/i.test(t)) continue;
     if (ref.re.test(t)) {
       const match = t.match(ref.re);
       let score = match ? match[0].length : 0;

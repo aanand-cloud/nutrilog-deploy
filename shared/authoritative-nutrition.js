@@ -177,7 +177,10 @@ export function applyAuthoritativeNutritionToItem(item, ref = null) {
 
   const canonicalId = canonicalRefIdForMatch(ref?.id || item._refId || '');
   const verified = getVerifiedRecord(ref?.id || item._refId || '');
-  const grams = Number(item._hiddenGrams) || 0;
+  const grams = Number(item._hiddenGrams)
+    || Number(item.grams)
+    || Number(item._visionMeta?.amount)
+    || 0;
 
   let next = {
     ...item,

@@ -63,6 +63,10 @@ assert(
 );
 
 assert('unknown dish still returns null', matchFoodReference('some totally unknown xyz dish 12345') == null);
+assert('golden delicious apple still matches apple', matchFoodReference('golden delicious apple')?.id === 'apple', matchFoodReference('golden delicious apple')?.id || 'none');
+assert('hog plum is not European plum', matchFoodReference('hog plum')?.id === 'hog_plum', matchFoodReference('hog plum')?.id || 'none');
+assert('june plum maps to hog plum', matchFoodReference('june plum')?.id === 'hog_plum', matchFoodReference('june plum')?.id || 'none');
+assert('plain plum still matches plum', matchFoodReference('plum')?.id === 'plum', matchFoodReference('plum')?.id || 'none');
 
 console.log('\nLevel 1 recognition stats:', LEVEL1_INDEX_STATS);
 console.log('\nDone.');

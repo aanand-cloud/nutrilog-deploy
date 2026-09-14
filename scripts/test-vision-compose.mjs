@@ -3,6 +3,7 @@ import {
   isVisionAnalysis,
   normalizePhotoAnalysis,
   resolveVisionFoodMatch,
+  toVisionIdentification,
 } from '../shared/vision-analysis-compose.js';
 import { geminiGenerate } from '../netlify/lib/gemini.mjs';
 import { FOOD_ANALYSIS_SCHEMA, VISION_FOOD_ANALYSIS_RESPONSE_SCHEMA } from '../netlify/lib/gemini-schemas.mjs';
@@ -301,5 +302,27 @@ const verified = composeVerifiedNutrition({
 });
 assert('nutrition-db compose is vision-composed', verified._visionComposed === true);
 assert('nutrition-db compose keeps vada', verified.items.some((item) => item._refId === 'medu_vada'));
+
+const hogKgId = toVisionIdentification({
+  meal_summary: 'Hog plum',
+  items: [{ name: 'Hog plum', estimated_amount: 2.5, unit: 'kg', confidence: 0.9 }],
+  clarification_questions: [],
+});
+assert('vision kg converts to grams', hogKgId.items[0]?.estimated_amount === 2500 && hogKgId.items[0]?.unit === 'g', JSON.stringify(hogKgId.items[0]));
+
+const hogBulk = composeAnalysisFromVision({
+  meal_summary: 'Hog plum',
+  confidence_score: 0.9,
+  items: [{ name: 'Hog plum', estimated_amount: 2.5, unit: 'kg', cooking_method: 'raw', visible_oil: false, confidence: 0.9 }],
+  clarification_questions: [],
+});
+const hogItem = hogBulk.items.find((item) => /hog|plum/i.test(item.name));
+assert('hog plum is not European plum', hogItem?._refId === 'hog_plum', String(hogItem?._refId));
+assert('2.5kg hog plum keeps bulk grams', hogItem?._hiddenGrams === 2500, String(hogItem?._hiddenGrams));
+assert(
+  '2.5kg hog plum fibre is bulk fruit not a 10g serving',
+  Number(hogItem?.nutrition?.fibre_g) >= 40,
+  String(hogItem?.nutrition?.fibre_g),
+);
 
 console.log('\nDone.');

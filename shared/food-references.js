@@ -1051,7 +1051,7 @@ export const FOOD_REFERENCES = [
 
   // ── Fruit & veg ───────────────────────────────────────────────────────────
   { id: 'banana', re: /\bbanana\b/i, kcal100: 89, protein100: 1.1, carbs100: 23, fat100: 0.3, fibre100: 2.6, sugar100: 12, salt100: 1 },
-  { id: 'apple', re: /\bapple\b/i, kcal100: 52, protein100: 0.3, carbs100: 14, fat100: 0.2, fibre100: 2.4, sugar100: 10, salt100: 1 },
+  { id: 'apple', re: /\b(?<!golden\s)apples?\b/i, kcal100: 52, protein100: 0.3, carbs100: 14, fat100: 0.2, fibre100: 2.4, sugar100: 10, salt100: 1 },
   { id: 'blueberries', re: /\bblueberr(y|ies)\b/i, kcal100: 57, protein100: 0.74, carbs100: 14.49, fat100: 0.33, fibre100: 2.4, sugar100: 9.96, salt100: 1 },
   { id: 'strawberry', re: /\bstrawberr(y|ies)\b/i, kcal100: 27, protein100: 0.6, carbs100: 6, fat100: 0.3, fibre100: 1.6, sugar100: 6, salt100: 1 },
   { id: 'berries', re: /\bberr(y|ies)\b|\braspberr(y|ies)\b/i, kcal100: 45, protein100: 0.8, carbs100: 10, fat100: 0.3, fibre100: 2.5, sugar100: 7, salt100: 1 },
@@ -1070,7 +1070,8 @@ export const FOOD_REFERENCES = [
   { id: 'pomegranate', re: /\bpomegranate\b|\banar\b/i, kcal100: 55, protein100: 1.33, carbs100: 11.58, fat100: 0.15, fibre100: 2.83, salt100: 1 },
   { id: 'pear', re: /\bpears?\b|\bnashpati\b/i, kcal100: 38, protein100: 0.36, carbs100: 8.09, fat100: 0.27, fibre100: 4.48, salt100: 1 },
   { id: 'peach', re: /\bpeaches?\b/i, kcal100: 40, protein100: 0.86, carbs100: 7.82, fat100: 0.37, fibre100: 2.13, salt100: 1 },
-  { id: 'plum', re: /\bplums?\b|\baloo\s+bukhara\b/i, kcal100: 57, protein100: 0.64, carbs100: 12.1, fat100: 0.4, fibre100: 2.07, salt100: 1 },
+  { id: 'hog_plum', re: /\bhog\s+plums?\b|\bjune\s+plums?\b|\bambarella\b|\bambazham\b|\bambada\b|\b(?<!golden\s+delicious\s)golden\s+apples?\b|\bamra\b(?!\s+(pickle|chutney))/i, kcal100: 58, protein100: 1.06, carbs100: 12.1, fat100: 0.6, fibre100: 1.87, sugar100: 8, salt100: 1 },
+  { id: 'plum', re: /\b(?<!hog\s)(?<!june\s)(?<!java\s)plums?\b|\baloo\s+bukhara\b/i, kcal100: 57, protein100: 0.64, carbs100: 12.1, fat100: 0.4, fibre100: 2.07, salt100: 1 },
   { id: 'litchi', re: /\blitchis?\b|\blychees?\b/i, kcal100: 54, protein100: 0.99, carbs100: 11.41, fat100: 0.26, fibre100: 1.34, salt100: 1 },
   { id: 'kiwi', re: /\bkiwis?\b|\bkiwifruit\b/i, kcal100: 61, protein100: 1.14, carbs100: 14.66, fat100: 0.52, fibre100: 3, sugar100: 8.99, salt100: 3 },
   { id: 'dates', re: /\bdates?\b|\bkhajur\b|\bkhajoor\b/i, kcal100: 321, protein100: 2.45, carbs100: 74.91, fat100: 0.35, fibre100: 8.95, salt100: 2 },

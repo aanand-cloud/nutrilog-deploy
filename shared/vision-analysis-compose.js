@@ -130,7 +130,62 @@ export function isVisionAnalysis(raw = {}) {
 function looksLikeDrink(item = {}) {
   const unit = String(item.unit || '').toLowerCase();
   const text = `${item.name || ''} ${item.portion_estimate || ''}`;
-  return unit === 'ml' || /\bml\b/i.test(text) || /\b(coffee|tea|latte|chai|juice|wine|beer|soda|cola|milk|lassi|smoothie|water|drink)\b/i.test(text);
+  return unit === 'ml' || unit === 'l' || /\bml\b/i.test(text) || /\b(coffee|tea|latte|chai|juice|wine|beer|soda|cola|milk|lassi|smoothie|water|drink)\b/i.test(text);
+}
+
+const VISION_MASS_SCALE = {
+  kg: 1000,
+  kilo: 1000,
+  kilos: 1000,
+  kilogram: 1000,
+  kilograms: 1000,
+  lb: 453.59237,
+  lbs: 453.59237,
+  pound: 453.59237,
+  pounds: 453.59237,
+  oz: 28.349523125,
+  ounce: 28.349523125,
+  ounces: 28.349523125,
+};
+
+const MAX_VISION_GRAMS = 15000;
+
+/** Convert vision estimated_amount + unit into grams or ml. Never keep kg as the stored unit. */
+export function normalizeVisionPortion(item = {}) {
+  const drink = looksLikeDrink(item);
+  const rawUnit = String(item.unit || '').trim().toLowerCase();
+  const explicit = Number(item.estimated_amount);
+  const parsed = parseGramsFromText(item.portion_estimate || '');
+  let unit = drink ? 'ml' : 'g';
+  let amount;
+
+  if (Number.isFinite(explicit) && explicit > 0) {
+    if (rawUnit === 'ml' || rawUnit === 'millilitre' || rawUnit === 'millilitres' || rawUnit === 'milliliter' || rawUnit === 'milliliters') {
+      unit = 'ml';
+      amount = explicit;
+    } else if (rawUnit === 'l' || rawUnit === 'litre' || rawUnit === 'liter' || rawUnit === 'litres' || rawUnit === 'liters') {
+      unit = 'ml';
+      amount = explicit * 1000;
+    } else if (VISION_MASS_SCALE[rawUnit]) {
+      unit = 'g';
+      amount = explicit * VISION_MASS_SCALE[rawUnit];
+      // 2500 kg is almost certainly grams mislabelled as kg.
+      if (/^kilos?$|^kilograms?$/.test(rawUnit) && amount > MAX_VISION_GRAMS && explicit <= MAX_VISION_GRAMS) {
+        amount = explicit;
+      }
+    } else {
+      amount = explicit;
+    }
+  } else if (parsed > 0) {
+    amount = parsed;
+    if (/\bml\b/i.test(item.portion_estimate || '')) unit = 'ml';
+  } else {
+    amount = unit === 'ml' ? 250 : 120;
+  }
+
+  amount = Math.max(1, Math.round(amount));
+  if (amount > MAX_VISION_GRAMS) amount = MAX_VISION_GRAMS;
+  return { unit, amount };
 }
 
 function visionTokens(text = '') {
@@ -219,17 +274,12 @@ export function toVisionIdentification(raw = {}) {
     clarification_questions: raw.clarification_questions || [],
     items: (raw.items || []).map((item = {}) => {
       const name = String(item.name || 'Food').trim() || 'Food';
-      const unit = looksLikeDrink(item) ? 'ml' : 'g';
-      const explicit = Number(item.estimated_amount);
-      const parsed = parseGramsFromText(item.portion_estimate || '');
-      const amount = Number.isFinite(explicit) && explicit > 0
-        ? explicit
-        : (parsed > 0 ? parsed : (unit === 'ml' ? 250 : 120));
+      const { unit, amount } = normalizeVisionPortion(item);
       const oilTbsp = Number(item.estimated_oil_tbsp);
       return {
         name,
         usda_search_term: String(item.usda_search_term || '').trim(),
-        estimated_amount: Math.max(1, Math.round(amount)),
+        estimated_amount: amount,
         unit,
         cooking_method: item.cooking_method || '',
         estimated_oil_tbsp: Number.isFinite(oilTbsp) ? oilTbsp : 0,
@@ -324,8 +374,9 @@ function oilGramsFromVision(meta = {}) {
 }
 
 function visionItemToStub(visionItem = {}) {
-  const unit = String(visionItem.unit || 'g').toLowerCase() === 'ml' ? 'ml' : 'g';
-  const rawAmount = Math.max(1, Math.round(num(visionItem.estimated_amount) || (unit === 'ml' ? 250 : 120)));
+  const normalized = normalizeVisionPortion(visionItem);
+  const unit = normalized.unit;
+  const rawAmount = normalized.amount;
   const calibrated = calibratedVisionAmount(visionItem.name, rawAmount, unit);
   const amount = calibrated.amount;
   return {

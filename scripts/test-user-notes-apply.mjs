@@ -274,6 +274,30 @@ assert(
   countedIdliMeal.items.map((i) => `${i.name} ${i.portion_estimate}`).join(' | '),
 );
 
+const hogScan = enrichAnalysisWithUserNotes(meal({
+  kcal: 285,
+  items: [{
+    name: 'Plum',
+    portion_estimate: '~500g',
+    calories_kcal: 285,
+    nutrition: { protein_g: 3.2, carbs_g: 60.5, fat_g: 2, fibre_g: 10.4, sugar_g: 0, salt_mg: 5 },
+    _hiddenGrams: 500,
+    _refId: 'plum',
+  }],
+}), '2.5kg hog plum');
+const hogNoted = hogScan.items.find((i) => /hog|plum/i.test(i.name));
+assert('2.5kg note rescales hog plum grams', hogNoted?._hiddenGrams === 2500 || hogNoted?.grams === 2500, JSON.stringify({ grams: hogNoted?.grams, hidden: hogNoted?._hiddenGrams }));
+assert(
+  '2.5kg hog plum note does not leave 10g fibre',
+  Number(hogNoted?.nutrition?.fibre_g) >= 40,
+  String(hogNoted?.nutrition?.fibre_g),
+);
+assert(
+  'kg notes skip portion questions',
+  filterClarificationStepsByNotes([{ topic: 'portion_item' }, { topic: 'oil_fat' }], '2.5kg hog plum')
+    .every((s) => s.topic !== 'portion_item'),
+);
+
 const failed = results.filter((r) => !r.ok).length;
 console.log(`\n${results.length - failed}/${results.length} passed`);
 process.exit(failed ? 1 : 0);

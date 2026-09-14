@@ -11,6 +11,9 @@ import { isChutneyItemText, matchChutneyRef } from './chutney-catalog.js';
 import { matchBiryaniSideRef } from './biryani-side-catalog.js';
 import { matchIndianBreadSideRef } from './indian-bread-catalog.js';
 import { matchIndianStarterRef } from './indian-starter-catalog.js';
+import { parseQuantityFromText, splitMealPhrases } from './quantity-parser.js';
+import { matchFoodReference } from './nutrition-density.js';
+import { rescaleItemToGrams } from './photo-log-flow.js';
 
 export { MEAL_COOKING_CHIPS, parseCookingMethod } from './cooking-methods.js';
 
@@ -454,6 +457,91 @@ export function parseHiddenAdditions(text = '') {
   return found;
 }
 
+function notedFoodKey(text = '') {
+  return String(text).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
+function isQuantityOnlyFoodText(foodText = '') {
+  return !String(foodText || '')
+    .replace(/\d+(?:\.\d+)?\s*(?:kg|kilos?|kilograms?|g|grams?|ml|millilitres?|milliliters?|lb|lbs|oz)\b/gi, '')
+    .replace(/[~()]/g, ' ')
+    .trim();
+}
+
+function itemMatchesNotedFood(item, foodText) {
+  const noted = notedFoodKey(foodText);
+  if (!noted) return false;
+  const name = notedFoodKey(item?.name || '');
+  if (!name) return false;
+  if (name === noted || name.includes(noted) || noted.includes(name)) return true;
+  const itemRef = matchFoodReference(item.name || '');
+  const noteRef = matchFoodReference(foodText);
+  return Boolean(itemRef?.id && noteRef?.id && itemRef.id === noteRef.id);
+}
+
+function parseNotedWeights(notes = '') {
+  const weights = [];
+  for (const phrase of splitMealPhrases(notes)) {
+    const q = parseQuantityFromText(phrase);
+    if (!q.explicit || !(q.quantity > 0)) continue;
+    if (q.kind === 'count') continue;
+    const grams = q.quantity;
+    if (!(grams >= 5 && grams <= 15000)) continue;
+    if (q.kind !== 'weight' && q.unit !== 'g' && q.unit !== 'ml') continue;
+    weights.push({
+      grams,
+      foodText: isQuantityOnlyFoodText(q.foodText) ? '' : String(q.foodText || '').trim(),
+      phrase,
+    });
+  }
+  return weights;
+}
+
+function titleCaseFood(text = '') {
+  return String(text)
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function applyNotedWeightToItems(items, noted) {
+  if (!items.length || !(noted?.grams > 0)) return items;
+  const foodItems = items.filter((item) => !item._visionOil && !/^cooking oil$/i.test(item.name || ''));
+  let idx = -1;
+  if (noted.foodText) {
+    idx = items.findIndex((item) => itemMatchesNotedFood(item, noted.foodText));
+  }
+  if (idx < 0 && !noted.foodText && foodItems.length === 1) {
+    idx = items.indexOf(foodItems[0]);
+  }
+  if (idx < 0) return items;
+
+  const item = items[idx];
+  const noteRef = noted.foodText ? matchFoodReference(noted.foodText) : null;
+  let working = { ...item };
+  if (noteRef && noteRef.id !== item._refId) {
+    working = {
+      ...working,
+      name: titleCaseFood(noted.foodText) || working.name,
+      _refId: noteRef.id,
+      _authoritative: false,
+      _per100: undefined,
+      _fromUserNotes: false,
+    };
+  }
+  const scaled = rescaleItemToGrams(working, noted.grams);
+  const next = [...items];
+  next[idx] = {
+    ...scaled,
+    _fromUserNotes: true,
+    _userEnteredWeight: true,
+    _hiddenGrams: noted.grams,
+    grams: noted.grams,
+    _reviewHint: `Weight from your notes (${Math.round(noted.grams)}g)`,
+  };
+  return next;
+}
+
 function parseUserMealNotes(notes = '') {
   const text = String(notes).trim();
   if (text.length < 2) return null;
@@ -461,6 +549,7 @@ function parseUserMealNotes(notes = '') {
   const t = text.toLowerCase();
   const portionFactor = parsePortionFactor(t);
   const hiddenItems = parseHiddenAdditions(text);
+  const notedWeights = parseNotedWeights(text);
   const cookingMethod = parseCookingMethod(text);
   const skipTopics = new Set();
   const clarifyAnswers = [];
@@ -530,6 +619,14 @@ function parseUserMealNotes(notes = '') {
     skipTopics.add('drink_soft_type');
   }
 
+  if (/\b\d+(?:\.\d+)?\s*(kg|kilos?|kilograms?)\b/.test(t)) {
+    skipTopics.add('portion_item');
+    skipTopics.add('portion_solid');
+    skipTopics.add('portion_snack');
+    skipTopics.add('generic_portion');
+    skipTopics.add('dessert_portion');
+  }
+
   if (/\b\d+\s*(g|gram|grams|ml)\b/.test(t) && /\b(rice|biryani|curry|pasta|noodles|chow\s+mein|portion|plate|serving|65|manchurian|sukka|chukka|varuval|lollipop|starter)\b/.test(t)) {
     skipTopics.add('portion_rice');
     skipTopics.add('portion_starter');
@@ -553,6 +650,7 @@ function parseUserMealNotes(notes = '') {
   return {
     portionFactor,
     hiddenItems,
+    notedWeights,
     cookingMethod,
     clarifyAnswers,
     skipTopics,
@@ -585,6 +683,10 @@ export function applyUserNotesToAnalysis(analysis, rawNotes = '') {
 
   if (hints.portionFactor && Math.abs(hints.portionFactor - 1) > 0.02) {
     items = items.map((item) => scaleItem(item, hints.portionFactor));
+  }
+
+  for (const noted of hints.notedWeights || []) {
+    items = applyNotedWeightToItems(items, noted);
   }
 
   const notedChutney = matchChutneyRef(notes);
