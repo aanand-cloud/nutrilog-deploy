@@ -116,4 +116,15 @@ assert('mapo tofu stays mapo', matchFoodReferenceDetailed('mapo tofu').ref?.id =
 assert('match rajma', matchFoodReferenceDetailed('rajma').ref?.id === 'rajma', matchFoodReferenceDetailed('rajma').ref?.id);
 assert('chickpeas CoFID kept', getVerifiedRecord('chickpeas')?.dataSource === 'cofid' && getVerifiedRecord('chickpeas')?.sourceRecordId === '13-662');
 
+const sambar = getVerifiedRecord('sambar');
+assert('sambar CoFID 12-467', sambar?.dataSource === 'cofid' && sambar?.sourceRecordId === '12-467');
+assert('sambar kcal/macros', sambar?.kcal100 === 49 && sambar?.protein100 === 3.1 && sambar?.fibre100 === 2.4, JSON.stringify(sambar));
+const raita = getVerifiedRecord('raita');
+assert('raita CoFID 17-832', raita?.dataSource === 'cofid' && raita?.sourceRecordId === '17-832');
+assert('raita kcal/macros', raita?.kcal100 === 57 && raita?.protein100 === 4.4 && raita?.fat100 === 2.4, JSON.stringify(raita));
+const milkHit = enrichReferenceWithVerified(matchFoodReferenceDetailed('milk').ref);
+assert('milk aliases to verified CoFID semi-skimmed', milkHit?._verified === true && milkHit?.kcal100 === 46 && milkHit?.sourceRecordId === '12-313', `${milkHit?.kcal100} ${milkHit?.sourceRecordId}`);
+assert('idli not invented as verified', !getVerifiedRecord('idli'));
+assert('dosa not invented as verified', !getVerifiedRecord('dosa'));
+
 console.log('\nDone.');

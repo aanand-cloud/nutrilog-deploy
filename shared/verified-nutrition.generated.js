@@ -1,5 +1,5 @@
 /** AUTO-GENERATED — do not edit. Run: node scripts/build-verified-nutrition-index.mjs */
-export const VERIFIED_NUTRITION_STATS = {"count":138,"version":"1.0","updated":"2026-09-14"};
+export const VERIFIED_NUTRITION_STATS = {"count":140,"version":"1.0","updated":"2026-09-15"};
 
 export const VERIFIED_BY_ID = {
   "almonds": {
@@ -2609,6 +2609,33 @@ export const VERIFIED_BY_ID = {
     "salt100": 5,
     "dataQualityScore": 95
   },
+  "raita": {
+    "id": "raita",
+    "canonicalName": "Raita, homemade",
+    "aliases": [
+      "raita",
+      "yogurt raita",
+      "curd raita",
+      "cucumber raita"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "17-832",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "cooked",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-15",
+    "kcal100": 57,
+    "protein100": 4.4,
+    "carbs100": 5.8,
+    "fat100": 2.4,
+    "fibre100": 0.4,
+    "sugar100": 5.8,
+    "salt100": 173,
+    "dataQualityScore": 95
+  },
   "roast_chicken": {
     "id": "roast_chicken",
     "canonicalName": "Chicken, meat, average, roasted",
@@ -2673,6 +2700,32 @@ export const VERIFIED_BY_ID = {
     "fibre100": null,
     "sugar100": 0,
     "salt100": 123,
+    "dataQualityScore": 95
+  },
+  "sambar": {
+    "id": "sambar",
+    "canonicalName": "Sambar, homemade",
+    "aliases": [
+      "sambar",
+      "sambhar",
+      "sambaar"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "12-467",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "cooked",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-15",
+    "kcal100": 49,
+    "protein100": 3.1,
+    "carbs100": 7.7,
+    "fat100": 0.9,
+    "fibre100": 2.4,
+    "sugar100": 1.9,
+    "salt100": 1110,
     "dataQualityScore": 95
   },
   "sapota": {
@@ -3621,10 +3674,17 @@ export const VERIFIED_ALIAS_TO_ID = {
   "kidney beans": "rajma",
   "kidney bean": "rajma",
   "red kidney beans": "rajma",
+  "raita": "raita",
+  "yogurt raita": "raita",
+  "curd raita": "raita",
+  "cucumber raita": "raita",
   "roast_chicken": "roast_chicken",
   "roast chicken": "roast_chicken",
   "roti": "roti",
   "salmon": "salmon",
+  "sambar": "sambar",
+  "sambhar": "sambar",
+  "sambaar": "sambar",
   "sapota": "sapota",
   "chikoo": "sapota",
   "chiku": "sapota",

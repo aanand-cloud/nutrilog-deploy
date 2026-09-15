@@ -2081,6 +2081,29 @@
       "salt100": 5
     },
     {
+      "id": "raita",
+      "canonicalName": "Raita, homemade",
+      "aliases": [
+        "raita",
+        "yogurt raita",
+        "curd raita",
+        "cucumber raita"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "17-832",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-15",
+      "kcal100": 57,
+      "protein100": 4.4,
+      "carbs100": 5.8,
+      "fat100": 2.4,
+      "fibre100": 0.4,
+      "salt100": 173,
+      "sugar100": 5.8
+    },
+    {
       "id": "roast_chicken",
       "canonicalName": "Chicken, meat, average, roasted",
       "dataSource": "cofid",
@@ -2130,6 +2153,28 @@
       "fibre100": null,
       "salt100": 123,
       "sugar100": 0
+    },
+    {
+      "id": "sambar",
+      "canonicalName": "Sambar, homemade",
+      "aliases": [
+        "sambar",
+        "sambhar",
+        "sambaar"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "12-467",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-15",
+      "kcal100": 49,
+      "protein100": 3.1,
+      "carbs100": 7.7,
+      "fat100": 0.9,
+      "fibre100": 2.4,
+      "salt100": 1110,
+      "sugar100": 1.9
     },
     {
       "id": "sapota",
@@ -2645,6 +2690,6 @@
       "salt100": 158
     }
   ],
-  "updated": "2026-09-14",
-  "importNote": "CoFID bulk import via scripts/import/import-cofid.mjs"
+  "updated": "2026-09-15",
+  "importNote": "CoFID bulk import via scripts/import/import-cofid.mjs; sambar 12-467 + raita 17-832 added 2026-09-15"
 }
