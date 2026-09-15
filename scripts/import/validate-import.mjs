@@ -41,7 +41,7 @@ for (const row of records) {
     }
   }
 
-  if (!['cofid', 'ifct', 'usda'].includes(row.dataSource)) {
+  if (!['cofid', 'ifct', 'usda', 'cnf'].includes(row.dataSource)) {
     console.error(`FAIL | ${label} — unknown dataSource ${row.dataSource}`);
     errors += 1;
   }

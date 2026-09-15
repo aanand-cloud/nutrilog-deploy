@@ -127,4 +127,17 @@ assert('milk aliases to verified CoFID semi-skimmed', milkHit?._verified === tru
 assert('idli not invented as verified', !getVerifiedRecord('idli'));
 assert('dosa not invented as verified', !getVerifiedRecord('dosa'));
 
+const pizza = getVerifiedRecord('pizza');
+assert('pizza CoFID 11-936', pizza?.dataSource === 'cofid' && pizza?.sourceRecordId === '11-936');
+assert('pizza kcal', pizza?.kcal100 === 272 && pizza?.protein100 === 12.2, JSON.stringify(pizza));
+assert('margherita aliases to pizza', enrichReferenceWithVerified(matchFoodReferenceDetailed('pizza margherita').ref)?._verified === true
+  && enrichReferenceWithVerified(matchFoodReferenceDetailed('pizza margherita').ref)?.kcal100 === 272);
+assert('pepperoni pizza CoFID meat topped', getVerifiedRecord('pepperoni_pizza')?.sourceRecordId === '11-1015'
+  && getVerifiedRecord('pepperoni_pizza')?.kcal100 === 255);
+assert('diavola aliases to meat pizza', enrichReferenceWithVerified({ id: 'pizza_diavola' })?.kcal100 === 255);
+assert('funghi uses vegetarian CoFID', getVerifiedRecord('pizza_funghi')?.sourceRecordId === '11-1014');
+assert('napoli uses fish-topped CoFID', getVerifiedRecord('pizza_napoli')?.sourceRecordId === '11-1011');
+assert('quattro formaggi not invented', !getVerifiedRecord('pizza_quattro_formaggi'));
+assert('argentine pizza not invented', !getVerifiedRecord('pizza_argentine'));
+
 console.log('\nDone.');

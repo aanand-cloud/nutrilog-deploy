@@ -1783,6 +1783,28 @@
       "sugar100": 5.9
     },
     {
+      "id": "pepperoni_pizza",
+      "canonicalName": "Pizza, meat topped, retail and takeaway",
+      "aliases": [
+        "pepperoni pizza",
+        "meat pizza",
+        "pizza pepperoni"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "11-1015",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-15",
+      "kcal100": 255,
+      "protein100": 13.2,
+      "carbs100": 29.1,
+      "fat100": 10.3,
+      "fibre100": 2,
+      "salt100": 1100,
+      "sugar100": 1.8
+    },
+    {
       "id": "pine_nuts",
       "canonicalName": "Pine seed ( ) Pinus sp.",
       "aliases": [
@@ -1823,6 +1845,74 @@
       "fat100": 0.16,
       "fibre100": 3.46,
       "salt100": 1
+    },
+    {
+      "id": "pizza",
+      "canonicalName": "Pizza, cheese and tomato, retail",
+      "aliases": [
+        "pizza",
+        "cheese pizza",
+        "cheese and tomato pizza",
+        "margherita pizza"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "11-936",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-15",
+      "kcal100": 272,
+      "protein100": 12.2,
+      "carbs100": 36.1,
+      "fat100": 9.8,
+      "fibre100": 2.9,
+      "salt100": 993,
+      "sugar100": 3.9
+    },
+    {
+      "id": "pizza_funghi",
+      "canonicalName": "Pizza, vegetarian, retail and takeaway",
+      "aliases": [
+        "funghi pizza",
+        "mushroom pizza",
+        "vegetarian pizza",
+        "veg pizza"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "11-1014",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-15",
+      "kcal100": 216,
+      "protein100": 10.8,
+      "carbs100": 29.6,
+      "fat100": 6.9,
+      "fibre100": 3.1,
+      "salt100": 825,
+      "sugar100": 2.4
+    },
+    {
+      "id": "pizza_napoli",
+      "canonicalName": "Pizza, fish topped, takeaway",
+      "aliases": [
+        "napoli pizza",
+        "anchovy pizza",
+        "fish pizza"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "11-1011",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-15",
+      "kcal100": 226,
+      "protein100": 13.3,
+      "carbs100": 28,
+      "fat100": 7.5,
+      "fibre100": null,
+      "salt100": 1000,
+      "sugar100": 2
     },
     {
       "id": "pistachios",
@@ -2691,5 +2781,5 @@
     }
   ],
   "updated": "2026-09-15",
-  "importNote": "CoFID bulk import via scripts/import/import-cofid.mjs; sambar 12-467 + raita 17-832 added 2026-09-15"
+  "importNote": "CoFID bulk import via scripts/import/import-cofid.mjs; sambar/raita + pizza family (11-936/11-1015/11-1014/11-1011) added 2026-09-15"
 }

@@ -31,6 +31,8 @@
     { "id": "chicken", "label": "Chicken breast" },
     { "id": "beef", "label": "Beef" },
     { "id": "pasta", "label": "Pasta" },
+    { "id": "pizza", "label": "Pizza" },
+    { "id": "pepperoni_pizza", "label": "Pepperoni / meat pizza" },
     { "id": "cheese", "label": "Cheese" },
     { "id": "apple", "label": "Apple" },
     { "id": "orange", "label": "Orange" },

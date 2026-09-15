@@ -17,6 +17,8 @@
     "refs:level1": "node scripts/build-level1-recognition-index.mjs",
     "refs:verified": "node scripts/build-verified-nutrition-index.mjs",
     "import:cofid": "node scripts/import/import-cofid.mjs",
+    "import:cnf": "node scripts/import/import-cnf.mjs",
+    "import:cnf:build": "node scripts/import/build-cnf-proximates.mjs",
     "refs:recipes": "node scripts/build-recipe-catalog-index.mjs",
     "import:validate": "node scripts/import/validate-import.mjs",
     "import:merge-v4": "node scripts/import/merge-verified-into-v4.mjs",

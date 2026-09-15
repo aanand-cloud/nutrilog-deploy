@@ -6,5 +6,11 @@ NETLIFY-IMPORT.env
 VERCEL-IMPORT.env
 .vercel
 .DS_Store
+.tmp/
+data/import/cnf/proximates.json
+data/import/cnf/raw/
 
-.vercel
+data/benchmark/level24/images/
+data/benchmark/level24/predictions/
+data/benchmark/level24/reports/
+data/benchmark/level24/measured-portions.json
