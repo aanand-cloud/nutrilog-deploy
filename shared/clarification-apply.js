@@ -244,7 +244,7 @@ function multiplierFromAnswer(answer = '', topic = '') {
 }
 
 function parsePresetAmount(answer = '') {
-  const t = String(answer || '').toLowerCase();
+  const t = String(answer || '').toLowerCase().trim();
   if (/^none$|^no\b|no milk|no sugar|black/.test(t) && !/\d/.test(t)) {
     return { amount: 0, unit: /\bml\b/.test(t) ? 'ml' : 'g' };
   }
@@ -252,6 +252,8 @@ function parsePresetAmount(answer = '') {
   if (ml) return { amount: Number(ml[1]), unit: 'ml' };
   const tsp = t.match(/(\d+(?:\.\d+)?)\s*(tsp|teaspoons?)\b/);
   if (tsp) return { amount: Number(tsp[1]) * 4, unit: 'g' };
+  const gramsWord = t.match(/(\d+(?:\.\d+)?)\s*(?:grams?|gms?)\b/);
+  if (gramsWord) return { amount: Number(gramsWord[1]), unit: 'g' };
   const direct = parseGramsFromText(answer);
   if (direct > 0) return { amount: direct, unit: /\bml\b/i.test(answer) ? 'ml' : 'g' };
   const approx = String(answer).match(/~\s*(\d+(?:\.\d+)?)\s*(g|ml)?/i);
@@ -260,6 +262,12 @@ function parsePresetAmount(answer = '') {
       amount: Number(approx[1]),
       unit: (approx[2] || 'g').toLowerCase() === 'ml' ? 'ml' : 'g',
     };
+  }
+  // Typed custom answers often omit the unit ("200" on a grams question).
+  const bare = t.match(/^(\d+(?:\.\d+)?)$/);
+  if (bare) {
+    const amount = Number(bare[1]);
+    if (amount > 0 && amount <= 15000) return { amount, unit: 'g' };
   }
   return { amount: 0, unit: 'g' };
 }

@@ -533,6 +533,24 @@ results.push({
   notes: Number(naanFromGrams?._hiddenGrams) === 90 ? [] : ['90g must not parse as 90 naan pieces'],
 });
 
+for (const typed of ['200', '200 grams', '200 g', '200grams']) {
+  const typedOut = finalizeClarificationAnswers(naanTikkaPhoto, [
+    { topic: 'portion_item', about: 'Chicken tikka masala', answer: typed },
+  ]);
+  const typedTikka = typedOut.items.find((i) => /tikka/i.test(i.name));
+  results.push({
+    label: `typed curry amount "${typed}" applies 200g`,
+    pass: Number(typedTikka?._hiddenGrams) === 200
+      && Number(typedTikka?.nutrition?.protein_g) > 20
+      && Number(typedTikka?.nutrition?.protein_g) < 30,
+    before: 400,
+    after: Number(typedTikka?._hiddenGrams),
+    delta: Number(typedTikka?._hiddenGrams) - 400,
+    items: [`${typedTikka?.name}: hidden=${typedTikka?._hiddenGrams} protein=${typedTikka?.nutrition?.protein_g}`],
+    notes: Number(typedTikka?._hiddenGrams) === 200 ? [] : [`typed "${typed}" must set curry to 200g`],
+  });
+}
+
 let passed = 0;
 let failed = 0;
 for (const r of results) {

@@ -321,7 +321,7 @@ export function parseQuantityFromText(text = '') {
     { re: /(\d+(?:\.\d+)?)\s*ml\b/i, unit: 'ml', kind: 'volume' },
     { re: /(\d+(?:\.\d+)?)\s*(?:litre|liter|litres|liters|l)\b/i, unit: 'ml', kind: 'volume', scale: 1000 },
     { re: /(\d+(?:\.\d+)?)\s*kg\b/i, unit: 'g', kind: 'weight', scale: 1000 },
-    { re: /(\d+(?:\.\d+)?)\s*g\b/i, unit: 'g', kind: 'weight' },
+    { re: /(\d+(?:\.\d+)?)\s*(?:grams?|gms?|g)\b/i, unit: 'g', kind: 'weight' },
     { re: /(\d+(?:\.\d+)?)\s*(?:tbsp|tablespoons?)\b/i, unit: 'g', kind: 'weight', scale: 15 },
     { re: /(\d+(?:\.\d+)?)\s*(?:tsp|teaspoons?)\b/i, unit: 'g', kind: 'weight', scale: 5 },
     { re: /(\d+(?:\.\d+)?)\s*(?:cups?)\b/i, unit: 'g', kind: 'weight', scale: 240 },

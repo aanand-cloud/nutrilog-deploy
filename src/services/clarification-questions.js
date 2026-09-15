@@ -301,7 +301,7 @@ const STEP_UI = {
   portion_item: {
     helper: 'A rough gram weight is enough.',
     inputLabel: 'Or type grams',
-    inputPlaceholder: 'e.g. 120 g',
+    inputPlaceholder: 'e.g. 200 or 200 g',
     inputMode: 'decimal',
   },
   portion_snack: {
