@@ -452,19 +452,28 @@ function isDrinkReviewItem(item = {}) {
 function normalizeEditableItems(items) {
   return items.map((item, idx) => {
     const drinkItem = isDrinkReviewItem(item);
-    const grams = Number(item._originalGrams)
-      || Number(item._hiddenGrams)
-      || parseGrams(item.portion_estimate)
-      || Number(item.grams)
-      || (drinkItem ? 250 : 100);
-    const calories = Number(item._originalCalories ?? item.calories_kcal) || 0;
-    const nutrition = { ...(item._originalNutrition || item.nutrition || {}) };
     const countable = !drinkItem && isBreadItemText(`${item.name || ''} ${item.portion_estimate || ''}`);
     const ref = countable ? matchFoodReference(item.name || item.portion_estimate || '') : null;
     const gramsPerPiece = countable
       ? (canonicalPieceGrams(ref?.id || item._refId, `${item.name || ''} ${item.portion_estimate || ''}`) || 60)
       : null;
     const explicitCount = countable ? parseExplicitPieceCount(`${item.name || ''} ${item.portion_estimate || ''}`) : 0;
+    const pieceCount = Number(item._pieceCount) > 0 ? Number(item._pieceCount) : explicitCount;
+    let grams = Number(item._hiddenGrams)
+      || Number(item.grams)
+      || parseGrams(item.portion_estimate)
+      || Number(item._originalGrams)
+      || (drinkItem ? 250 : 100);
+    if (
+      countable
+      && pieceCount > 0
+      && gramsPerPiece
+      && (item._clarifyAdjusted || item._localClarify || item._userEnteredWeight)
+    ) {
+      grams = Math.round(pieceCount * gramsPerPiece);
+    }
+    const calories = Number(item._originalCalories ?? item.calories_kcal) || 0;
+    const nutrition = { ...(item._originalNutrition || item.nutrition || {}) };
     const displayUnit = item._drinkAddon === 'sugar'
       ? 'g'
       : (drinkItem ? 'ml' : (item._displayUnit || (countable ? 'piece' : 'g')));
@@ -486,7 +495,7 @@ function normalizeEditableItems(items) {
       _displayUnit: displayUnit,
       _volumeMl: drinkItem ? (Number(item._volumeMl) || grams) : item._volumeMl,
       _gramsPerPiece: gramsPerPiece || item._gramsPerPiece,
-      _pieceCount: explicitCount || item._pieceCount,
+      _pieceCount: pieceCount || item._pieceCount,
     };
   });
 }

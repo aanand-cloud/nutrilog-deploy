@@ -85,7 +85,13 @@ export function parseBreadCountFromAnswer(answer = '') {
     return map[words[1]] || 0;
   }
   const lead = t.match(/^(\d+)/);
-  if (lead) return Number(lead[1]);
+  if (lead) {
+    const n = Number(lead[1]);
+    const weightOnly = /\d+(?:\.\d+)?\s*(?:g|kg|ml|oz|lb)\b/.test(t)
+      && !new RegExp(`(?:${COUNT_NOUN_RE})`, 'i').test(t);
+    if (weightOnly || n > 12) return 0;
+    return n;
+  }
   if (/\b1\b|one\b|single/.test(t)) return 1;
   if (/\b2\b|two\b/.test(t)) return 2;
   if (/\b3\b|three\b/.test(t)) return 3;
@@ -179,6 +185,11 @@ export function analysisHasExplicitPieceCount(analysis = {}) {
  */
 export function parseBreadGramsFromAnswer(answer = '', count = 1) {
   const t = String(answer);
+  const countOnly = new RegExp(`^\\s*(?:\\d+|one|two|three|four|five|six)\\s*(?:${COUNT_NOUN_RE})s?\\s*$`, 'i').test(t)
+    || /^(?:5\s+or\s+more|5\+|4\s+or\s+more|4\+)$/i.test(t.trim());
+  if (countOnly && !/\d+(?:\.\d+)?\s*g\b/i.test(t)) {
+    return {};
+  }
   const each = t.match(/(\d+(?:\.\d+)?)\s*g\s*(?:each|per\s+(?:piece|dosa|idli|roti|naan))/i);
   if (each) {
     return { perPiece: Number(each[1]) };
@@ -280,7 +291,11 @@ export function computeBreadTotalGrams({ ref, count, answer = '', itemText = '' 
  * Apply bread_count answer using reference weights (not tiny AI guesses).
  */
 export function applyBreadCountToItems(items = [], answer = '', analysis = {}) {
-  const count = parseBreadCountFromAnswer(answer);
+  let count = parseBreadCountFromAnswer(answer);
+  const earlyGrams = parseBreadGramsFromAnswer(answer, Math.max(1, count));
+  if (count <= 0 && (earlyGrams.total > 0 || earlyGrams.perPiece > 0)) {
+    count = 1;
+  }
   if (count <= 0) return items;
 
   const ctxText = [
@@ -337,15 +352,27 @@ export function applyBreadCountToItems(items = [], answer = '', analysis = {}) {
       itemText: `${item.name || ''} ${item.portion_estimate || ''}`,
     });
     const scaled = nutritionForAmount(per100FromReference(itemRef), totalGrams);
+    const grams = Math.round(totalGrams);
+    const perPiece = Math.round(grams / Math.max(1, count));
 
     return {
       ...item,
       name: item.name || breadDisplayName(itemRef.id),
-      portion_estimate: `${count} piece${count > 1 ? 's' : ''} (~${Math.round(totalGrams)}g)`,
+      portion_estimate: `${count} piece${count > 1 ? 's' : ''} (~${grams}g)`,
       calories_kcal: scaled.calories_kcal,
       nutrition: scaled.nutrition,
+      grams,
+      _hiddenGrams: grams,
+      _originalGrams: grams,
+      _pieceCount: count,
+      _gramsPerPiece: perPiece,
+      _displayUnit: 'piece',
       _refId: itemRef.id,
       _localClarify: true,
+      _clarifyAdjusted: true,
+      _userEnteredWeight: true,
+      _portionSource: 'user_clarified',
+      ...(item._visionMeta ? { _visionMeta: { ...item._visionMeta, amount: grams } } : {}),
     };
   });
 }

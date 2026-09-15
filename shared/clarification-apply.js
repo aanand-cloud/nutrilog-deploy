@@ -52,6 +52,8 @@ function mealText(analysis = {}) {
 }
 
 function inferItemGrams(item) {
+  if (Number(item?._hiddenGrams) > 0) return Math.round(Number(item._hiddenGrams));
+  if (Number(item?.grams) > 0) return Math.round(Number(item.grams));
   const parsed = parseGramsFromText(item.portion_estimate) || parseGramsFromText(item.name);
   if (parsed > 0) return parsed;
   const ref = matchFoodReference(itemText(item));
@@ -64,9 +66,35 @@ function inferItemGrams(item) {
   if (ref?.id === 'samosa' || ref?.id === 'dumpling') return 80;
   const starterRef = matchIndianStarterRef(itemText(item));
   if (starterRef) return starterDefaultGrams(starterRef);
-  if (ref?.id === 'roti' || ref?.id === 'naan' || ref?.id === 'paratha' || ref?.id === 'kerala_parotta') return 60;
+  if (ref?.id === 'roti' || ref?.id === 'naan' || ref?.id === 'paratha' || ref?.id === 'kerala_parotta') {
+    return canonicalPieceGrams(ref.id, itemText(item));
+  }
   if (ref?.id === 'rice' || /rice|biryani|pulao/.test(itemText(item))) return 200;
   return 150;
+}
+
+function stampClarifiedGrams(item, grams, unit = 'g', extras = {}) {
+  const amount = Math.round(Number(grams));
+  if (!(amount > 0) || !item) return item;
+  const next = {
+    ...item,
+    grams: amount,
+    _hiddenGrams: amount,
+    _originalGrams: amount,
+    _clarifyAdjusted: true,
+    _localClarify: true,
+    _userEnteredWeight: true,
+    _portionSource: 'user_clarified',
+    ...extras,
+  };
+  if (item._visionMeta) {
+    next._visionMeta = { ...item._visionMeta, amount };
+  }
+  if (unit === 'ml') {
+    next._displayUnit = 'ml';
+    next._volumeMl = amount;
+  }
+  return next;
 }
 
 function formatPortionEstimate(previous = '', grams, unit = 'g') {
@@ -165,12 +193,24 @@ function scaleItem(item, factor, { localClarify = false } = {}) {
 }
 
 function rescaleItemToAmount(item, targetAmount, unit = 'g') {
-  const current = inferItemGrams(item);
+  const current = inferItemGrams(item) || 1;
   const factor = targetAmount / current;
-  return {
-    ...scaleItem(item, factor),
+  let next = scaleItem(item, factor, { localClarify: true });
+  const ref = matchFoodReference(`${item.name || ''} ${item.portion_estimate || ''}`)
+    || (item._refId ? matchFoodReference(String(item._refId).replace(/_/g, ' ')) : null);
+  if (ref && targetAmount > 0) {
+    const scaled = nutritionForAmount(per100FromReference(ref), targetAmount);
+    next = {
+      ...next,
+      calories_kcal: scaled.calories_kcal,
+      nutrition: scaled.nutrition,
+      _refId: ref.id,
+    };
+  }
+  return stampClarifiedGrams({
+    ...next,
     portion_estimate: formatPortionEstimate(item.portion_estimate || item.name, targetAmount, unit),
-  };
+  }, targetAmount, unit);
 }
 
 function multiplierFromAnswer(answer = '', topic = '') {
@@ -262,11 +302,14 @@ function applyPortionTopic(items, topic, answer, ctxText) {
   if (!targets.length) {
     const totalCurrent = items.reduce((sum, item) => sum + inferItemGrams(item), 0) || 250;
     const factor = amount / totalCurrent;
-    return items.map((item) => ({
-      ...scaleItem(item, factor, { localClarify: true }),
-      _clarifyAdjusted: true,
-      _reviewHint: buildAdjustedHint(topic, answer, item.name),
-    }));
+    return items.map((item) => {
+      const nextGrams = Math.max(1, Math.round(inferItemGrams(item) * factor));
+      return stampClarifiedGrams({
+        ...scaleItem(item, factor, { localClarify: true }),
+        portion_estimate: formatPortionEstimate(item.portion_estimate || item.name, nextGrams),
+        _reviewHint: buildAdjustedHint(topic, answer, item.name),
+      }, nextGrams);
+    });
   }
 
   const targetSet = new Set(targets);

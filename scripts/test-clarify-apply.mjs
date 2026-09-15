@@ -462,6 +462,77 @@ results.push({
   notes: [],
 });
 
+const naanTikkaPhoto = meal({
+  summary: 'Naan and chicken tikka masala',
+  kcal: 900,
+  items: [
+    {
+      name: 'Naan',
+      portion_estimate: '~180g',
+      calories_kcal: 540,
+      nutrition: { protein_g: 16.2, carbs_g: 90, fat_g: 12, fibre_g: 4, sugar_g: 3, salt_mg: 800 },
+      grams: 180,
+      _hiddenGrams: 180,
+      _refId: 'naan',
+      _visionMeta: { unit: 'g', amount: 180 },
+    },
+    {
+      name: 'Chicken tikka masala',
+      portion_estimate: '~400g',
+      calories_kcal: 624,
+      nutrition: { protein_g: 49.6, carbs_g: 19.6, fat_g: 39.2, fibre_g: 5.6, sugar_g: 14.4, salt_mg: 2200 },
+      grams: 400,
+      _hiddenGrams: 400,
+      _refId: 'chicken_tikka_masala',
+      _authoritative: true,
+      _visionMeta: { unit: 'g', amount: 400 },
+    },
+  ],
+});
+const naanTikkaOut = finalizeClarificationAnswers(naanTikkaPhoto, [
+  { topic: 'bread_count', answer: '1 piece' },
+  { topic: 'portion_item', about: 'Chicken tikka masala', answer: 'About 200 g' },
+]);
+const naanAfter = naanTikkaOut.items.find((i) => /naan/i.test(i.name));
+const tikkaAfter = naanTikkaOut.items.find((i) => /tikka/i.test(i.name));
+const tikkaProtein = Number(tikkaAfter?.nutrition?.protein_g);
+results.push({
+  label: 'naan + tikka answers stamp grams/pieces for review',
+  pass: Number(naanAfter?._hiddenGrams) === 90
+    && Number(naanAfter?._pieceCount) === 1
+    && /1 piece/i.test(naanAfter?.portion_estimate || '')
+    && Number(tikkaAfter?._hiddenGrams) === 200
+    && Number(tikkaAfter?.grams) === 200
+    && tikkaProtein > 20
+    && tikkaProtein < 30,
+  before: naanTikkaPhoto.total_calories_kcal,
+  after: naanTikkaOut.total_calories_kcal,
+  delta: naanTikkaOut.total_calories_kcal - naanTikkaPhoto.total_calories_kcal,
+  items: [
+    `${naanAfter?.name}: ${naanAfter?.portion_estimate} hidden=${naanAfter?._hiddenGrams} pieces=${naanAfter?._pieceCount}`,
+    `${tikkaAfter?.name}: ${tikkaAfter?.portion_estimate} hidden=${tikkaAfter?._hiddenGrams} protein=${tikkaProtein}`,
+  ],
+  notes: Number(naanAfter?._hiddenGrams) === 90 && Number(tikkaAfter?._hiddenGrams) === 200
+    ? []
+    : ['review still used the photo grams instead of the answered amounts'],
+});
+
+const gramTypedAsBread = finalizeClarificationAnswers(naanTikkaPhoto, [
+  { topic: 'bread_count', answer: '90g' },
+]);
+const naanFromGrams = gramTypedAsBread.items.find((i) => /naan/i.test(i.name));
+results.push({
+  label: 'typing 90g on naan count is one piece, not 90 pieces',
+  pass: Number(naanFromGrams?._hiddenGrams) === 90
+    && Number(naanFromGrams?._pieceCount) === 1
+    && Number(naanFromGrams?._hiddenGrams) < 200,
+  before: 180,
+  after: Number(naanFromGrams?._hiddenGrams),
+  delta: Number(naanFromGrams?._hiddenGrams) - 180,
+  items: [`${naanFromGrams?.name}: hidden=${naanFromGrams?._hiddenGrams} pieces=${naanFromGrams?._pieceCount}`],
+  notes: Number(naanFromGrams?._hiddenGrams) === 90 ? [] : ['90g must not parse as 90 naan pieces'],
+});
+
 let passed = 0;
 let failed = 0;
 for (const r of results) {
