@@ -140,4 +140,15 @@ assert('napoli uses fish-topped CoFID', getVerifiedRecord('pizza_napoli')?.sourc
 assert('quattro formaggi not invented', !getVerifiedRecord('pizza_quattro_formaggi'));
 assert('argentine pizza not invented', !getVerifiedRecord('pizza_argentine'));
 
+const doner = getVerifiedRecord('doner_kebab');
+assert('doner CoFID 19-526', doner?.dataSource === 'cofid' && doner?.sourceRecordId === '19-526');
+assert('doner kcal', doner?.kcal100 === 248 && doner?.protein100 === 14.1, JSON.stringify(doner));
+assert('kebab aliases to doner', enrichReferenceWithVerified({ id: 'kebab' })?.kcal100 === 248);
+assert('beef doner meat-only CoFID', getVerifiedRecord('beef_doner')?.sourceRecordId === '19-539' && getVerifiedRecord('beef_doner')?.kcal100 === 377);
+assert('shish kebab CoFID pitta', getVerifiedRecord('shish_kebab')?.sourceRecordId === '19-525' && getVerifiedRecord('shish_kebab')?.kcal100 === 149);
+assert('kofta kebab CoFID', getVerifiedRecord('kofta_kebab')?.sourceRecordId === '19-642' && getVerifiedRecord('kofta_kebab')?.kcal100 === 290);
+assert('chicken doner not invented', !getVerifiedRecord('chicken_doner'));
+assert('shawarma not invented', !getVerifiedRecord('shawarma'));
+assert('seekh kebab not invented', !getVerifiedRecord('seekh_kebab'));
+
 console.log('\nDone.');

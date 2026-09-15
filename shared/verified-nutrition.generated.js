@@ -1,5 +1,5 @@
 /** AUTO-GENERATED — do not edit. Run: node scripts/build-verified-nutrition-index.mjs */
-export const VERIFIED_NUTRITION_STATS = {"count":144,"version":"1.0","updated":"2026-09-15"};
+export const VERIFIED_NUTRITION_STATS = {"count":148,"version":"1.0","updated":"2026-09-15"};
 
 export const VERIFIED_BY_ID = {
   "almonds": {
@@ -240,6 +240,32 @@ export const VERIFIED_BY_ID = {
     "fibre100": 0,
     "sugar100": 0,
     "salt100": 158,
+    "dataQualityScore": 95
+  },
+  "beef_doner": {
+    "id": "beef_doner",
+    "canonicalName": "Doner kebabs, meat only",
+    "aliases": [
+      "beef doner",
+      "doner meat",
+      "doner kebab meat"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "19-539",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "cooked",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-15",
+    "kcal100": 377,
+    "protein100": 23.5,
+    "carbs100": 0,
+    "fat100": 31.4,
+    "fibre100": 0,
+    "sugar100": 0,
+    "salt100": 0,
     "dataQualityScore": 95
   },
   "beetroot": {
@@ -1004,6 +1030,33 @@ export const VERIFIED_BY_ID = {
     "salt100": 2,
     "dataQualityScore": 95
   },
+  "doner_kebab": {
+    "id": "doner_kebab",
+    "canonicalName": "Doner kebab in pitta bread with salad",
+    "aliases": [
+      "doner kebab",
+      "doner",
+      "kebab doner",
+      "turkish doner"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "19-526",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "cooked",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-15",
+    "kcal100": 248,
+    "protein100": 14.1,
+    "carbs100": 12.5,
+    "fat100": 16,
+    "fibre100": 0.9,
+    "sugar100": 1.1,
+    "salt100": 0,
+    "dataQualityScore": 95
+  },
   "drumstick": {
     "id": "drumstick",
     "canonicalName": "Drumstick",
@@ -1528,6 +1581,32 @@ export const VERIFIED_BY_ID = {
     "fibre100": 3,
     "sugar100": 8.99,
     "salt100": 3,
+    "dataQualityScore": 95
+  },
+  "kofta_kebab": {
+    "id": "kofta_kebab",
+    "canonicalName": "Kofta, beef, homemade",
+    "aliases": [
+      "kofta kebab",
+      "beef kofta",
+      "kofta"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "19-642",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "cooked",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-15",
+    "kcal100": 290,
+    "protein100": 25.3,
+    "carbs100": 1.3,
+    "fat100": 20.5,
+    "fibre100": 0.3,
+    "sugar100": 0.8,
+    "salt100": 290,
     "dataQualityScore": 95
   },
   "lamb": {
@@ -2954,6 +3033,32 @@ export const VERIFIED_BY_ID = {
     "salt100": 3,
     "dataQualityScore": 95
   },
+  "shish_kebab": {
+    "id": "shish_kebab",
+    "canonicalName": "Shish kebab in pitta bread with salad",
+    "aliases": [
+      "shish kebab",
+      "shish",
+      "lamb shish"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "19-525",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "cooked",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-15",
+    "kcal100": 149,
+    "protein100": 13.6,
+    "carbs100": 15.4,
+    "fat100": 4.1,
+    "fibre100": 1.2,
+    "sugar100": 1.3,
+    "salt100": 750,
+    "dataQualityScore": 95
+  },
   "skimmed_milk": {
     "id": "skimmed_milk",
     "canonicalName": "Milk, skimmed, pasteurised, average",
@@ -3513,6 +3618,10 @@ export const VERIFIED_ALIAS_TO_ID = {
   "basmati_rice": "basmati_rice",
   "basmati rice": "basmati_rice",
   "beef": "beef",
+  "beef_doner": "beef_doner",
+  "beef doner": "beef_doner",
+  "doner meat": "beef_doner",
+  "doner kebab meat": "beef_doner",
   "beetroot": "beetroot",
   "beetroots": "beetroot",
   "beet": "beetroot",
@@ -3590,6 +3699,11 @@ export const VERIFIED_ALIAS_TO_ID = {
   "date": "dates",
   "khajur": "dates",
   "khajoor": "dates",
+  "doner_kebab": "doner_kebab",
+  "doner kebab": "doner_kebab",
+  "doner": "doner_kebab",
+  "kebab doner": "doner_kebab",
+  "turkish doner": "doner_kebab",
   "drumstick": "drumstick",
   "drumsticks": "drumstick",
   "moringa": "drumstick",
@@ -3658,6 +3772,10 @@ export const VERIFIED_ALIAS_TO_ID = {
   "kiwi": "kiwi",
   "kiwifruit": "kiwi",
   "kiwis": "kiwi",
+  "kofta_kebab": "kofta_kebab",
+  "kofta kebab": "kofta_kebab",
+  "beef kofta": "kofta_kebab",
+  "kofta": "kofta_kebab",
   "lamb": "lamb",
   "lentils": "lentils",
   "lentil": "lentils",
@@ -3824,6 +3942,10 @@ export const VERIFIED_ALIAS_TO_ID = {
   "sesame seed": "sesame_seeds",
   "white sesame": "sesame_seeds",
   "til": "sesame_seeds",
+  "shish_kebab": "shish_kebab",
+  "shish kebab": "shish_kebab",
+  "shish": "shish_kebab",
+  "lamb shish": "shish_kebab",
   "skimmed_milk": "skimmed_milk",
   "skimmed milk": "skimmed_milk",
   "soy_sauce": "soy_sauce",
