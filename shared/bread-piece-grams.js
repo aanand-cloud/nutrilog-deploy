@@ -20,6 +20,9 @@ export const BREAD_PIECE_GRAMS = {
   tandoori_roti: 55,
   roti: 60,
   naan: 90,
+  garlic_naan: 90,
+  butter_naan: 95,
+  plain_naan: 90,
   paratha: 85,
   puri: 45,
   bhatura: 120,
@@ -67,6 +70,11 @@ export function isBreadItemText(text = '') {
 
 export function canonicalPieceGrams(refId = '', text = '') {
   const t = String(text).toLowerCase();
+  const id = String(refId || '');
+  if (/\bnaan\b/i.test(t) || /naan/.test(id)) {
+    if (/butter/.test(t) || /butter/.test(id)) return BREAD_PIECE_GRAMS.butter_naan;
+    return BREAD_PIECE_GRAMS.naan;
+  }
   if (refId === 'dosa' && /\bmasala\b/.test(t)) return 220;
   if (refId === 'dosa' && /\b(rava|semolina)\b/.test(t)) return 150;
   if (refId === 'idli' && /\brava\b/.test(t)) return BREAD_PIECE_GRAMS.rava_idli;
@@ -314,14 +322,24 @@ export function applyBreadCountToItems(items = [], answer = '', analysis = {}) {
     if (!ref) return true;
     const itemRef = matchFoodReference(text);
     if (itemRef?.id === ref.id) return true;
-    if (ref.id === 'dosa' && /\bdosa\b|\bdosai\b/.test(text)) return true;
-    if (ref.id === 'idli' && /\bidli\b/.test(text)) return true;
-    if (ref.id === 'roti' && /\b(roti|chapati|chapathi|phulka)\b/.test(text)) return true;
-    if (ref.id === 'kerala_parotta' && /\b(parotta|porotta)\b/.test(text)) return true;
-    if (ref.id === 'naan' && /\bnaan\b/.test(text)) return true;
-    if (ref.id === 'pav' && /\bpav\b/.test(text)) return true;
-    if (ref.id === 'bhatura' && /\bbhatur[ae]\b/.test(text)) return true;
+    // Name checks must be case-insensitive — Gemini often returns "Naan bread", "Idli", etc.
+    if (ref.id === 'dosa' && /\bdosa\b|\bdosai\b/i.test(text)) return true;
+    if (ref.id === 'idli' && /\bidli\b/i.test(text)) return true;
+    if (ref.id === 'roti' && /\b(roti|chapati|chapathi|phulka)\b/i.test(text)) return true;
+    if (ref.id === 'kerala_parotta' && /\b(parotta|porotta)\b/i.test(text)) return true;
+    if (ref.id === 'naan' && /\bnaan\b/i.test(text)) return true;
+    if (ref.id === 'pav' && /\bpav\b/i.test(text)) return true;
+    if (ref.id === 'bhatura' && /\bbhatur[ae]\b/i.test(text)) return true;
+    if (ref.id === 'paratha' && /\bparatha\b/i.test(text)) return true;
+    if (ref.id === 'puri' && /\bpuri\b/i.test(text)) return true;
     return false;
+  }
+
+  function breadRefForItem(item) {
+    const text = `${item.name || ''} ${item.portion_estimate || ''}`;
+    // Prefer the clarify answer's bread (naan) over a generic "bread" match on "Naan bread".
+    if (ref && itemMatchesBreadTarget(item)) return ref;
+    return matchFoodReference(text) || ref;
   }
 
   let working = [...items];
@@ -342,7 +360,7 @@ export function applyBreadCountToItems(items = [], answer = '', analysis = {}) {
     const hit = breadIndexes.find((entry) => entry.index === index);
     if (!hit) return item;
 
-    const itemRef = matchFoodReference(`${item.name || ''} ${item.portion_estimate || ''}`) || ref;
+    const itemRef = breadRefForItem(item);
     if (!itemRef) return item;
 
     const { totalGrams } = computeBreadTotalGrams({
@@ -353,7 +371,8 @@ export function applyBreadCountToItems(items = [], answer = '', analysis = {}) {
     });
     const scaled = nutritionForAmount(per100FromReference(itemRef), totalGrams);
     const grams = Math.round(totalGrams);
-    const perPiece = Math.round(grams / Math.max(1, count));
+    const perPiece = Math.round(grams / Math.max(1, count))
+      || canonicalPieceGrams(itemRef.id, `${item.name || ''} ${answer}`);
 
     return {
       ...item,

@@ -657,12 +657,37 @@ html:has(#pwaUpdateBanner) .app-header {
 }
 
 .meal-review-item-controls {
-  display: grid;
-  gap: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 10px;
 }
 
+.meal-review-weight,
 .meal-review-amount {
+  flex: 1 1 6rem;
+  min-width: 0;
   margin: 0;
+}
+
+.meal-review-unit {
+  flex: 0 1 6.5rem;
+  min-width: 0;
+  margin: 0;
+}
+
+.meal-review-unit select {
+  width: 100%;
+  max-width: 100%;
+}
+
+.meal-review-item-kcal {
+  flex: 0 0 auto;
+  margin-left: auto;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text2);
+  white-space: nowrap;
 }
 
 .portion-item-quick {

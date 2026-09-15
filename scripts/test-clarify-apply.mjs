@@ -551,6 +551,51 @@ for (const typed of ['200', '200 grams', '200 g', '200grams']) {
   });
 }
 
+const naanBreadPhoto = meal({
+  summary: 'Naan bread and chicken tikka masala',
+  kcal: 900,
+  items: [
+    {
+      name: 'Naan bread',
+      portion_estimate: '~153g',
+      calories_kcal: 459,
+      nutrition: { protein_g: 13.8, carbs_g: 76.5, fat_g: 10.2 },
+      grams: 153,
+      _hiddenGrams: 153,
+      _refId: 'naan',
+      _visionMeta: { unit: 'g', amount: 153 },
+    },
+    {
+      name: 'Chicken tikka masala',
+      portion_estimate: '~360g',
+      calories_kcal: 560,
+      nutrition: { protein_g: 45, carbs_g: 18, fat_g: 35 },
+      grams: 360,
+      _hiddenGrams: 360,
+      _refId: 'chicken_tikka_masala',
+    },
+  ],
+});
+const naanBreadOut = finalizeClarificationAnswers(naanBreadPhoto, [
+  { topic: 'bread_count', about: 'naan', answer: '2 naan' },
+]);
+const naanBreadLines = naanBreadOut.items.filter((i) => /naan/i.test(i.name));
+const naanBreadLine = naanBreadLines[0];
+results.push({
+  label: 'Naan bread photo line updates to 2 pieces (no duplicate)',
+  pass: naanBreadLines.length === 1
+    && Number(naanBreadLine?._hiddenGrams) === 180
+    && Number(naanBreadLine?._pieceCount) === 2
+    && /2 pieces/i.test(naanBreadLine?.portion_estimate || ''),
+  before: 153,
+  after: Number(naanBreadLine?._hiddenGrams),
+  delta: Number(naanBreadLine?._hiddenGrams) - 153,
+  items: naanBreadOut.items.map((i) => `${i.name}: ${i.portion_estimate} hidden=${i._hiddenGrams} pieces=${i._pieceCount}`),
+  notes: naanBreadLines.length === 1 && Number(naanBreadLine?._pieceCount) === 2
+    ? []
+    : ['Naan bread must not stay at 1.7 pieces or spawn a second naan line'],
+});
+
 let passed = 0;
 let failed = 0;
 for (const r of results) {

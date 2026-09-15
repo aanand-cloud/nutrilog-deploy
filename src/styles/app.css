@@ -573,7 +573,15 @@ body {
   gap: 8px;
   margin-top: 8px;
 }
-.meal-review-unit { min-width: 7rem; }
+.meal-review-unit {
+  min-width: 0;
+  margin: 0;
+  flex: 0 1 7rem;
+}
+.meal-review-unit select {
+  width: 100%;
+  max-width: 100%;
+}
 .meal-adjusted {
   font-size: 0.75rem;
   font-weight: 600;
@@ -2622,15 +2630,23 @@ button.camera-zone:active { background: var(--teal-dim); }
 }
 .meal-review-item-controls {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-end;
-  justify-content: space-between;
-  gap: 10px;
+  gap: 8px 10px;
 }
 .meal-review-weight {
-  flex: 1;
+  flex: 1 1 6rem;
+  min-width: 0;
+  margin: 0;
+}
+.meal-review-unit {
+  flex: 0 1 6.5rem;
+  min-width: 0;
   margin: 0;
 }
 .meal-review-item-kcal {
+  flex: 0 0 auto;
+  margin-left: auto;
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--text2);

@@ -34,6 +34,7 @@ import {
   canonicalPieceGrams,
   isBreadItemText,
   parseExplicitPieceCount,
+  resolveBreadReference,
 } from '../../shared/bread-piece-grams.js';
 import { matchFoodReference, parseGramsFromText } from '../../shared/nutrition-density.js';
 
@@ -188,7 +189,9 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
       const sugarAddon = item._drinkAddon === 'sugar';
       const unitId = sugarAddon ? 'g' : (drinkItem ? 'ml' : (item._displayUnit || 'g'));
       const original = item._originalGrams ?? item.grams;
-      const amount = itemDisplayFromGrams(item, original, unitId);
+      const amount = (unitId === 'piece' || unitId === 'slice') && Number(item._pieceCount) > 0
+        ? Number(item._pieceCount)
+        : itemDisplayFromGrams(item, original, unitId);
       const match = item._unmatched ? 'Nutrition match needed' : 'Matched';
       const source = portionSourceLabel(item);
       const low = isLowConfidenceItem(item);
@@ -452,12 +455,16 @@ function isDrinkReviewItem(item = {}) {
 function normalizeEditableItems(items) {
   return items.map((item, idx) => {
     const drinkItem = isDrinkReviewItem(item);
-    const countable = !drinkItem && isBreadItemText(`${item.name || ''} ${item.portion_estimate || ''}`);
-    const ref = countable ? matchFoodReference(item.name || item.portion_estimate || '') : null;
-    const gramsPerPiece = countable
-      ? (canonicalPieceGrams(ref?.id || item._refId, `${item.name || ''} ${item.portion_estimate || ''}`) || 60)
+    const lineText = `${item.name || ''} ${item.portion_estimate || ''}`;
+    const countable = !drinkItem && isBreadItemText(lineText);
+    const breadRef = countable
+      ? (resolveBreadReference(lineText) || matchFoodReference(item.name || item.portion_estimate || ''))
       : null;
-    const explicitCount = countable ? parseExplicitPieceCount(`${item.name || ''} ${item.portion_estimate || ''}`) : 0;
+    const ref = breadRef;
+    const gramsPerPiece = countable
+      ? (canonicalPieceGrams(ref?.id || item._refId, lineText) || Number(item._gramsPerPiece) || 60)
+      : null;
+    const explicitCount = countable ? parseExplicitPieceCount(lineText) : 0;
     const pieceCount = Number(item._pieceCount) > 0 ? Number(item._pieceCount) : explicitCount;
     let grams = Number(item._hiddenGrams)
       || Number(item.grams)
@@ -468,7 +475,7 @@ function normalizeEditableItems(items) {
       countable
       && pieceCount > 0
       && gramsPerPiece
-      && (item._clarifyAdjusted || item._localClarify || item._userEnteredWeight)
+      && (item._clarifyAdjusted || item._localClarify || item._userEnteredWeight || explicitCount > 0)
     ) {
       grams = Math.round(pieceCount * gramsPerPiece);
     }
@@ -496,6 +503,7 @@ function normalizeEditableItems(items) {
       _volumeMl: drinkItem ? (Number(item._volumeMl) || grams) : item._volumeMl,
       _gramsPerPiece: gramsPerPiece || item._gramsPerPiece,
       _pieceCount: pieceCount || item._pieceCount,
+      ...(ref?.id ? { _refId: item._refId || ref.id } : {}),
     };
   });
 }
