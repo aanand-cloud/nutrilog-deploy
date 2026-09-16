@@ -42,26 +42,30 @@ export function minViewDateKey() {
   return minCalendarDateKey();
 }
 
-function macroChip(label, value, goal, unit) {
-  const pct = goal ? Math.round((value / goal) * 100) : 0;
+function macroChip(label, value, goal, unit, tone = '') {
+  const pct = goal ? Math.min(100, Math.round((value / goal) * 100)) : 0;
+  const toneClass = tone ? ` macro-chip--${tone}` : '';
   return `
-    <div class="macro-chip">
+    <div class="macro-chip${toneClass}">
       <span class="macro-label">${label}</span>
-      <span class="macro-value">${Math.round(value)}${unit}</span>
-      <span class="macro-pct ${pct < 80 ? 'low' : ''}">${pct}%</span>
+      <span class="macro-value">${Math.round(value)}<small>${unit}</small></span>
+      <span class="macro-track" aria-hidden="true"><span class="macro-track__fill" style="width:${pct}%"></span></span>
+      <span class="macro-pct ${pct < 80 ? 'low' : ''}">${pct}% of goal</span>
     </div>
   `;
 }
 
 function microChip(label, value, goal, unit, invertLow = false) {
-  const pct = goal ? Math.round((value / goal) * 100) : 0;
+  const pct = goal ? Math.min(160, Math.round((value / goal) * 100)) : 0;
+  const barPct = Math.min(100, pct);
   const lowClass = invertLow ? (pct > 115 ? 'low' : '') : (pct < 80 ? 'low' : '');
   const display = unit === 'mg' ? Math.round(value) : Math.round(value);
   return `
     <div class="macro-chip macro-chip--micro">
       <span class="macro-label">${label}</span>
-      <span class="macro-value">${display}${unit}</span>
-      <span class="macro-pct ${lowClass}">${pct}%</span>
+      <span class="macro-value">${display}<small>${unit}</small></span>
+      <span class="macro-track" aria-hidden="true"><span class="macro-track__fill" style="width:${barPct}%"></span></span>
+      <span class="macro-pct ${lowClass}">${pct}% of goal</span>
     </div>
   `;
 }
@@ -178,45 +182,64 @@ export function dayDashboardHtml({
 }) {
   const heading = formatDayHeading(dateKey);
   const calLabel = dateKey === todayKey() ? "Today's calories" : `${heading} calories`;
-  const calPct = goals.calories_kcal ? Math.min(100, (totals.calories_kcal / goals.calories_kcal) * 100) : 0;
-  const calLeftKcal = Math.max(0, (goals.calories_kcal || 0) - totals.calories_kcal);
+  const calPctRaw = goals.calories_kcal ? (totals.calories_kcal / goals.calories_kcal) * 100 : 0;
+  const calPct = Math.min(100, calPctRaw);
+  const calDeltaKcal = (goals.calories_kcal || 0) - totals.calories_kcal;
+  const overGoal = calDeltaKcal < 0;
+  const left = formatEnergyParts(Math.abs(calDeltaKcal), prefs);
   const eaten = formatEnergyParts(totals.calories_kcal, prefs);
-  const left = formatEnergyParts(calLeftKcal, prefs);
   const comparisons = weekReport ? weekComparisonLines(totals, weekReport) : [];
   const dayWord = dateKey === todayKey() ? 'today' : 'this day';
 
   const inner = `
-      <p class="hero-card__label">${escapeHtml(calLabel)}</p>
-      <div class="ring-wrap">
-        <svg class="progress-ring" viewBox="0 0 120 120" aria-hidden="true">
-          <circle class="ring-bg" cx="60" cy="60" r="52"/>
-          <circle class="ring-fg" cx="60" cy="60" r="52" style="stroke-dashoffset:${328 - (328 * calPct) / 100}"/>
-        </svg>
-        <div class="ring-label">
-          <span class="ring-value">${eaten.value}</span>
-          <span class="ring-unit">${eaten.unit}</span>
-          <span class="ring-goal">of ${formatEnergy(goals.calories_kcal, prefs)}</span>
-          <span class="ring-left">${left.value} ${left.unit} left</span>
+      <header class="dash-head">
+        <div class="dash-head__copy">
+          <p class="dash-head__label">${escapeHtml(calLabel)}</p>
+          <p class="dash-head__goal">Goal ${formatEnergy(goals.calories_kcal, prefs)}</p>
+        </div>
+        <p class="dash-head__left${overGoal ? ' dash-head__left--over' : ''}">${overGoal ? `${left.value} ${left.unit} over` : `${left.value} ${left.unit} left`}</p>
+      </header>
+      <div class="dash-ring">
+        <div class="ring-wrap">
+          <svg class="progress-ring" viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="ring-bg" cx="60" cy="60" r="52"/>
+            <circle class="ring-fg${overGoal ? ' ring-fg--over' : ''}" cx="60" cy="60" r="52" style="stroke-dashoffset:${328 - (328 * calPct) / 100}"/>
+          </svg>
+          <div class="ring-label">
+            <span class="ring-value">${eaten.value}</span>
+            <span class="ring-unit">${eaten.unit}</span>
+            <span class="ring-goal">${Math.round(calPctRaw)}% of goal</span>
+          </div>
         </div>
       </div>
-      <div class="macro-row">
-        ${macroChip('Protein', totals.protein_g, goals.protein_g, 'g')}
-        ${macroChip('Carbs', totals.carbs_g, goals.carbs_g, 'g')}
-        ${macroChip('Fat', totals.fat_g, goals.fat_g, 'g')}
+      <div class="macro-row" aria-label="Macros">
+        ${macroChip('Protein', totals.protein_g, goals.protein_g, 'g', 'protein')}
+        ${macroChip('Carbs', totals.carbs_g, goals.carbs_g, 'g', 'carbs')}
+        ${macroChip('Fat', totals.fat_g, goals.fat_g, 'g', 'fat')}
       </div>
       ${showMicros ? `
-        <div class="macro-row macro-row--micros">
+        <div class="macro-row macro-row--micros" aria-label="Micronutrients">
           ${microChip('Fibre', totals.fibre_g, goals.fibre_g, 'g')}
           ${microChip('Sugar', totals.sugar_g, goals.sugar_g, 'g', true)}
           ${microChip('Salt', totals.salt_mg, goals.salt_mg, 'mg', true)}
         </div>
       ` : ''}
       ${comparisons.length ? `
-        <div class="day-week-compare" aria-label="Comparison to 7-day average">
-          ${comparisons.map((c) => `
-            <p><strong>${escapeHtml(c.label)}:</strong> ${escapeHtml(c.today)} ${dayWord} · 7-day avg ${escapeHtml(c.avg)}</p>
-          `).join('')}
-        </div>
+        <section class="dash-compare" aria-label="Comparison to 7-day average">
+          <div class="dash-compare__head">
+            <p class="dash-compare__title">vs 7-day average</p>
+            <p class="dash-compare__hint">${escapeHtml(dayWord)}</p>
+          </div>
+          <div class="dash-compare__grid">
+            ${comparisons.map((c) => `
+              <div class="dash-compare__item">
+                <span class="dash-compare__label">${escapeHtml(c.label)}</span>
+                <span class="dash-compare__today">${escapeHtml(c.today)}</span>
+                <span class="dash-compare__avg">avg ${escapeHtml(c.avg)}</span>
+              </div>
+            `).join('')}
+          </div>
+        </section>
       ` : ''}
       ${compactDisclaimer ? disclaimerBlock(DISCLAIMERS.nutritionEstimate, 'fine-print health-disclaimer health-disclaimer--inline') : ''}
   `;

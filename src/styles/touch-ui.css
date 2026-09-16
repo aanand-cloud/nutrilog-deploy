@@ -289,6 +289,10 @@ html.touch-ui .macro-value {
   font-size: var(--t-title-sm);
 }
 
+html.touch-ui .dash-compare__today {
+  font-size: var(--t-title-sm);
+}
+
 html.touch-ui .ring-value {
   font-size: var(--t-display-lg);
 }
