@@ -215,4 +215,29 @@ assert('lamb curry CoFID rogan josh', getVerifiedRecord('lamb_curry')?.sourceRec
 assert('thai green curry CoFID takeaway', getVerifiedRecord('thai_green_curry')?.sourceRecordId === '19-465' && getVerifiedRecord('thai_green_curry')?.kcal100 === 119);
 assert('peri peri chicken not invented', !getVerifiedRecord('peri_peri_chicken'));
 
+assert('samosa CoFID vegetable retail', getVerifiedRecord('samosa')?.sourceRecordId === '15-305' && getVerifiedRecord('samosa')?.kcal100 === 217);
+assert('onion bhaji CoFID', getVerifiedRecord('onion_bhaji')?.sourceRecordId === '15-828' && getVerifiedRecord('onion_bhaji')?.kcal100 === 270);
+assert('pakora CoFID takeaway', getVerifiedRecord('pakora')?.sourceRecordId === '15-620' && getVerifiedRecord('pakora')?.kcal100 === 293);
+assert('poppadoms CoFID takeaway', getVerifiedRecord('poppadoms')?.sourceRecordId === '11-998' && getVerifiedRecord('poppadoms')?.kcal100 === 501);
+assert('veg curry CoFID ready meal', getVerifiedRecord('veg_curry')?.sourceRecordId === '15-619' && getVerifiedRecord('veg_curry')?.kcal100 === 94);
+assert('vegetable curry aliases', enrichReferenceWithVerified({ id: 'vegetable_curry' })?.kcal100 === 94);
+assert('sweet and sour chicken CoFID', getVerifiedRecord('sweet_and_sour_chicken')?.sourceRecordId === '19-324' && getVerifiedRecord('sweet_and_sour_chicken')?.kcal100 === 194);
+assert('spring roll CoFID meat takeaway', getVerifiedRecord('spring_roll')?.sourceRecordId === '19-327' && getVerifiedRecord('spring_roll')?.kcal100 === 242);
+assert('yorkshire pudding CoFID', getVerifiedRecord('yorkshire_pudding')?.sourceRecordId === '11-960' && getVerifiedRecord('yorkshire_pudding')?.kcal100 === 197);
+assert('brussels sprouts CoFID boiled', getVerifiedRecord('brussels_sprouts')?.sourceRecordId === '13-630' && getVerifiedRecord('brussels_sprouts')?.kcal100 === 32);
+assert('stuffing CoFID sage onion', getVerifiedRecord('stuffing')?.sourceRecordId === '11-1000' && getVerifiedRecord('stuffing')?.kcal100 === 253);
+assert('custard CoFID ready to eat', getVerifiedRecord('custard')?.sourceRecordId === '12-543' && getVerifiedRecord('custard')?.kcal100 === 98);
+assert('brownie CoFID homemade', getVerifiedRecord('brownie')?.sourceRecordId === '11-1127' && getVerifiedRecord('brownie')?.kcal100 === 506);
+assert('banana bread CoFID', getVerifiedRecord('banana_bread')?.sourceRecordId === '11-1029' && getVerifiedRecord('banana_bread')?.kcal100 === 331);
+assert('cheesecake CoFID homemade', getVerifiedRecord('cheesecake')?.sourceRecordId === '12-562' && getVerifiedRecord('cheesecake')?.kcal100 === 325);
+assert('muesli CoFID swiss', getVerifiedRecord('muesli')?.sourceRecordId === '11-780' && getVerifiedRecord('muesli')?.kcal100 === 366);
+assert('smoothie CoFID', getVerifiedRecord('smoothie')?.sourceRecordId === '17-747' && getVerifiedRecord('smoothie')?.kcal100 === 49);
+assert('blt CoFID sandwich', getVerifiedRecord('blt')?.sourceRecordId === '11-955' && getVerifiedRecord('blt')?.kcal100 === 230);
+assert('tuna mayo sandwich CoFID', getVerifiedRecord('tuna_mayo_sandwich')?.sourceRecordId === '11-967' && getVerifiedRecord('tuna_mayo_sandwich')?.kcal100 === 237);
+assert('chicken fajita CoFID meat', getVerifiedRecord('chicken_fajita')?.sourceRecordId === '19-464' && getVerifiedRecord('chicken_fajita')?.kcal100 === 125);
+assert('chicken risotto CoFID', getVerifiedRecord('chicken_risotto')?.sourceRecordId === '19-566' && getVerifiedRecord('chicken_risotto')?.kcal100 === 173);
+assert('sushi CoFID salmon nigiri', getVerifiedRecord('sushi')?.sourceRecordId === '16-361' && getVerifiedRecord('sushi')?.kcal100 === 152);
+assert('caesar salad still not invented', !getVerifiedRecord('caesar_salad'));
+assert('shawarma still not invented', !getVerifiedRecord('shawarma'));
+
 console.log('\nDone.');
