@@ -166,4 +166,12 @@ assert('paratha CoFID', getVerifiedRecord('paratha')?.sourceRecordId === '11-110
 assert('chapati aliases to roti', enrichReferenceWithVerified({ id: 'chapati' })?.sourceRecordId === '11-987');
 assert('carbonara not invented as sauce-only', !getVerifiedRecord('carbonara'));
 
+assert('sausage roll CoFID', getVerifiedRecord('sausage_roll')?.sourceRecordId === '19-468' && getVerifiedRecord('sausage_roll')?.kcal100 === 352);
+assert('omelette CoFID plain', getVerifiedRecord('omelette')?.sourceRecordId === '12-946' && getVerifiedRecord('omelette')?.kcal100 === 191);
+assert('falafel CoFID', getVerifiedRecord('falafel')?.sourceRecordId === '15-795' && getVerifiedRecord('falafel')?.kcal100 === 183);
+assert('chow mein CoFID chicken takeaway', getVerifiedRecord('chow_mein')?.sourceRecordId === '19-321' && getVerifiedRecord('chow_mein')?.kcal100 === 147);
+assert('fried rice CoFID egg takeaway', getVerifiedRecord('fried_rice')?.sourceRecordId === '11-444' && getVerifiedRecord('fried_rice')?.kcal100 === 186);
+assert('egg fried rice aliases', enrichReferenceWithVerified({ id: 'egg_fried_rice' })?.kcal100 === 186);
+assert('chicken burger CoFID', getVerifiedRecord('chicken_burger')?.sourceRecordId === '19-315' && getVerifiedRecord('chicken_burger')?.kcal100 === 235);
+
 console.log('\nDone.');

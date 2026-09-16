@@ -1,5 +1,5 @@
 /** AUTO-GENERATED — do not edit. Run: node scripts/build-verified-nutrition-index.mjs */
-export const VERIFIED_NUTRITION_STATS = {"count":157,"version":"1.0","updated":"2026-09-15"};
+export const VERIFIED_NUTRITION_STATS = {"count":163,"version":"1.0","updated":"2026-09-16"};
 
 export const VERIFIED_BY_ID = {
   "almonds": {
@@ -772,6 +772,31 @@ export const VERIFIED_BY_ID = {
     "salt100": 138,
     "dataQualityScore": 95
   },
+  "chicken_burger": {
+    "id": "chicken_burger",
+    "canonicalName": "Burger, chicken, takeaway",
+    "aliases": [
+      "chicken burger",
+      "chickenburger"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "19-315",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "cooked",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-16",
+    "kcal100": 235,
+    "protein100": 12.5,
+    "carbs100": 23.4,
+    "fat100": 10.8,
+    "fibre100": 1.3,
+    "sugar100": null,
+    "salt100": 1400,
+    "dataQualityScore": 95
+  },
   "chicken_tikka_masala": {
     "id": "chicken_tikka_masala",
     "canonicalName": "Curry, chicken tikka masala, retail, reheated",
@@ -846,6 +871,32 @@ export const VERIFIED_BY_ID = {
     "fibre100": 2.3,
     "sugar100": 56,
     "salt100": 223,
+    "dataQualityScore": 95
+  },
+  "chow_mein": {
+    "id": "chow_mein",
+    "canonicalName": "Chow mein, chicken, takeaway",
+    "aliases": [
+      "chow mein",
+      "chowmein",
+      "chicken chow mein"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "19-321",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "cooked",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-16",
+    "kcal100": 147,
+    "protein100": 8.5,
+    "carbs100": 12.7,
+    "fat100": 7.2,
+    "fibre100": 1.5,
+    "sugar100": 0.3,
+    "salt100": 1165,
     "dataQualityScore": 95
   },
   "coconut": {
@@ -1233,6 +1284,31 @@ export const VERIFIED_BY_ID = {
     "salt100": 385,
     "dataQualityScore": 95
   },
+  "falafel": {
+    "id": "falafel",
+    "canonicalName": "Falafel, fried in rapeseed oil, homemade",
+    "aliases": [
+      "falafel",
+      "falafels"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "15-795",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "fried",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-16",
+    "kcal100": 183,
+    "protein100": 6.4,
+    "carbs100": 15.9,
+    "fat100": 11.2,
+    "fibre100": 3.5,
+    "sugar100": 2.7,
+    "salt100": 168,
+    "dataQualityScore": 95
+  },
   "fig": {
     "id": "fig",
     "canonicalName": "Fig",
@@ -1316,6 +1392,32 @@ export const VERIFIED_BY_ID = {
     "fibre100": 4.38,
     "sugar100": null,
     "salt100": 9,
+    "dataQualityScore": 95
+  },
+  "fried_rice": {
+    "id": "fried_rice",
+    "canonicalName": "Rice, egg fried, takeaway",
+    "aliases": [
+      "fried rice",
+      "egg fried rice",
+      "chinese fried rice"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "11-444",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "cooked",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-16",
+    "kcal100": 186,
+    "protein100": 4.3,
+    "carbs100": 33.3,
+    "fat100": 4.9,
+    "fibre100": 1.1,
+    "sugar100": null,
+    "salt100": 1043,
     "dataQualityScore": 95
   },
   "fries": {
@@ -2253,6 +2355,32 @@ export const VERIFIED_BY_ID = {
     "fibre100": 1.6,
     "sugar100": null,
     "salt100": 735,
+    "dataQualityScore": 95
+  },
+  "omelette": {
+    "id": "omelette",
+    "canonicalName": "Omelette, plain, homemade",
+    "aliases": [
+      "omelette",
+      "omelet",
+      "plain omelette"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "12-946",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "cooked",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-16",
+    "kcal100": 191,
+    "protein100": 10.9,
+    "carbs100": 0,
+    "fat100": 16.4,
+    "fibre100": 0,
+    "sugar100": null,
+    "salt100": 340,
     "dataQualityScore": 95
   },
   "onion": {
@@ -3197,6 +3325,31 @@ export const VERIFIED_BY_ID = {
     "salt100": 1600,
     "dataQualityScore": 95
   },
+  "sausage_roll": {
+    "id": "sausage_roll",
+    "canonicalName": "Sausage roll, flaky pastry, ready-to-eat, retail",
+    "aliases": [
+      "sausage roll",
+      "sausage rolls"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "19-468",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "cooked",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-16",
+    "kcal100": 352,
+    "protein100": 8.4,
+    "carbs100": 27,
+    "fat100": 24.1,
+    "fibre100": 3.4,
+    "sugar100": 1.3,
+    "salt100": 1443,
+    "dataQualityScore": 95
+  },
   "scrambled_eggs": {
     "id": "scrambled_eggs",
     "canonicalName": "Eggs, chicken, scrambled, with semi-skimmed milk",
@@ -3906,6 +4059,9 @@ export const VERIFIED_ALIAS_TO_ID = {
   "chicken": "chicken",
   "chicken_breast": "chicken_breast",
   "chicken breast": "chicken_breast",
+  "chicken_burger": "chicken_burger",
+  "chicken burger": "chicken_burger",
+  "chickenburger": "chicken_burger",
   "chicken_tikka_masala": "chicken_tikka_masala",
   "chicken tikka masala": "chicken_tikka_masala",
   "chickpeas": "chickpeas",
@@ -3918,6 +4074,10 @@ export const VERIFIED_ALIAS_TO_ID = {
   "garbanzo": "chickpeas",
   "garbanzo beans": "chickpeas",
   "chocolate": "chocolate",
+  "chow_mein": "chow_mein",
+  "chow mein": "chow_mein",
+  "chowmein": "chow_mein",
+  "chicken chow mein": "chow_mein",
   "coconut": "coconut",
   "fresh coconut": "coconut",
   "nariyal": "coconut",
@@ -3959,6 +4119,8 @@ export const VERIFIED_ALIAS_TO_ID = {
   "sajana": "drumstick",
   "edamame": "edamame",
   "egg": "egg",
+  "falafel": "falafel",
+  "falafels": "falafel",
   "fig": "fig",
   "figs": "fig",
   "anjeer": "fig",
@@ -3977,6 +4139,10 @@ export const VERIFIED_ALIAS_TO_ID = {
   "snap beans": "french_beans",
   "cluster beans": "french_beans",
   "beans": "french_beans",
+  "fried_rice": "fried_rice",
+  "fried rice": "fried_rice",
+  "egg fried rice": "fried_rice",
+  "chinese fried rice": "fried_rice",
   "fries": "fries",
   "grapes": "grapes",
   "grape": "grapes",
@@ -4089,6 +4255,9 @@ export const VERIFIED_ALIAS_TO_ID = {
   "olive oil": "olive_oil",
   "olives": "olives",
   "olive": "olives",
+  "omelette": "omelette",
+  "omelet": "omelette",
+  "plain omelette": "omelette",
   "onion": "onion",
   "orange": "orange",
   "oranges": "orange",
@@ -4199,6 +4368,9 @@ export const VERIFIED_ALIAS_TO_ID = {
   "chiku": "sapota",
   "sapodilla": "sapota",
   "sausage": "sausage",
+  "sausage_roll": "sausage_roll",
+  "sausage roll": "sausage_roll",
+  "sausage rolls": "sausage_roll",
   "scrambled_eggs": "scrambled_eggs",
   "scrambled eggs": "scrambled_eggs",
   "semi_skimmed_milk": "semi_skimmed_milk",
