@@ -727,6 +727,27 @@
       "sugar100": 1.2
     },
     {
+      "id": "chicken_korma",
+      "canonicalName": "Curry, chicken korma, homemade",
+      "aliases": [
+        "chicken korma",
+        "korma chicken"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "19-565",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 127,
+      "protein100": 14.6,
+      "carbs100": 4.6,
+      "fat100": 5.1,
+      "fibre100": 0.7,
+      "salt100": 170,
+      "sugar100": 2.8
+    },
+    {
       "id": "chicken_soup",
       "canonicalName": "Soup, chicken, cream of, canned",
       "aliases": [
@@ -791,6 +812,27 @@
       "fibre100": 10.6,
       "sugar100": 0.7,
       "salt100": 3
+    },
+    {
+      "id": "chilli_con_carne",
+      "canonicalName": "Chilli con carne, homemade",
+      "aliases": [
+        "chilli con carne",
+        "chili con carne"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "19-478",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 120,
+      "protein100": 9.2,
+      "carbs100": 4.4,
+      "fat100": 7.5,
+      "fibre100": 1.1,
+      "salt100": 253,
+      "sugar100": 2.9
     },
     {
       "id": "chocolate",
@@ -1286,6 +1328,53 @@
       "sugar100": 1.9
     },
     {
+      "id": "fish_fingers",
+      "canonicalName": "Fish fingers, cod, grilled/baked",
+      "aliases": [
+        "fish fingers",
+        "fish finger",
+        "fishsticks",
+        "fish sticks"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "16-405",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 223,
+      "protein100": 14.3,
+      "carbs100": 22,
+      "fat100": 9.2,
+      "fibre100": 2,
+      "salt100": 793,
+      "sugar100": 1.5
+    },
+    {
+      "id": "flatbread",
+      "canonicalName": "Bread, pitta, white",
+      "aliases": [
+        "flatbread",
+        "pitta",
+        "pita",
+        "pitta bread",
+        "pita bread"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "11-974",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "baked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 255,
+      "protein100": 9.1,
+      "carbs100": 55.1,
+      "fat100": 1.3,
+      "fibre100": 2.3,
+      "salt100": 1000,
+      "sugar100": 3
+    },
+    {
       "id": "flax_seeds",
       "canonicalName": "Linseeds",
       "aliases": [
@@ -1752,6 +1841,28 @@
       "fibre100": 0,
       "salt100": 203,
       "sugar100": 0
+    },
+    {
+      "id": "lamb_curry",
+      "canonicalName": "Curry, lamb rogan josh, homemade",
+      "aliases": [
+        "lamb curry",
+        "lamb rogan josh",
+        "rogan josh"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "19-595",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 149,
+      "protein100": 14.4,
+      "carbs100": 3.9,
+      "fat100": 9.1,
+      "fibre100": 1.8,
+      "salt100": 110,
+      "sugar100": 3
     },
     {
       "id": "lasagna_spinach",
@@ -2361,6 +2472,28 @@
       "fibre100": 4.9,
       "salt100": 295,
       "sugar100": 0.7
+    },
+    {
+      "id": "parmesan",
+      "canonicalName": "Cheese, Parmesan, fresh",
+      "aliases": [
+        "parmesan",
+        "parmesan cheese",
+        "parmigiano"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "12-526",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 415,
+      "protein100": 36.2,
+      "carbs100": 0.9,
+      "fat100": 29.7,
+      "fibre100": 0,
+      "salt100": 1650,
+      "sugar100": 0.9
     },
     {
       "id": "pasta",
@@ -3364,6 +3497,28 @@
       "fat100": 0,
       "fibre100": 0,
       "salt100": 0
+    },
+    {
+      "id": "thai_green_curry",
+      "canonicalName": "Curry, chicken, Thai green, takeaway and restaurant",
+      "aliases": [
+        "thai green curry",
+        "green thai curry",
+        "thai green chicken curry"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "19-465",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 119,
+      "protein100": 8.8,
+      "carbs100": 1.5,
+      "fat100": 8.7,
+      "fibre100": 2.6,
+      "salt100": 1375,
+      "sugar100": 0.5
     },
     {
       "id": "toast",

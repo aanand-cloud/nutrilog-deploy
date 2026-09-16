@@ -204,4 +204,15 @@ assert('lamb chops CoFID grilled', getVerifiedRecord('lamb_chops')?.sourceRecord
 assert('fried egg CoFID sunflower oil', getVerifiedRecord('fried_egg')?.sourceRecordId === '12-944' && getVerifiedRecord('fried_egg')?.kcal100 === 200);
 assert('french toast not invented', !getVerifiedRecord('french_toast'));
 
+assert('fish fingers CoFID grilled/baked', getVerifiedRecord('fish_fingers')?.sourceRecordId === '16-405' && getVerifiedRecord('fish_fingers')?.kcal100 === 223);
+assert('flatbread CoFID pitta white', getVerifiedRecord('flatbread')?.sourceRecordId === '11-974' && getVerifiedRecord('flatbread')?.kcal100 === 255);
+assert('pitta aliases to flatbread', enrichReferenceWithVerified({ id: 'pitta' })?.kcal100 === 255);
+assert('chilli con carne CoFID homemade', getVerifiedRecord('chilli_con_carne')?.sourceRecordId === '19-478' && getVerifiedRecord('chilli_con_carne')?.kcal100 === 120);
+assert('parmesan CoFID fresh', getVerifiedRecord('parmesan')?.sourceRecordId === '12-526' && getVerifiedRecord('parmesan')?.kcal100 === 415);
+assert('jacket potato aliases baked potato', enrichReferenceWithVerified({ id: 'jacket_potato' })?.sourceRecordId === '13-491');
+assert('chicken korma CoFID homemade', getVerifiedRecord('chicken_korma')?.sourceRecordId === '19-565' && getVerifiedRecord('chicken_korma')?.kcal100 === 127);
+assert('lamb curry CoFID rogan josh', getVerifiedRecord('lamb_curry')?.sourceRecordId === '19-595' && getVerifiedRecord('lamb_curry')?.kcal100 === 149);
+assert('thai green curry CoFID takeaway', getVerifiedRecord('thai_green_curry')?.sourceRecordId === '19-465' && getVerifiedRecord('thai_green_curry')?.kcal100 === 119);
+assert('peri peri chicken not invented', !getVerifiedRecord('peri_peri_chicken'));
+
 console.log('\nDone.');
