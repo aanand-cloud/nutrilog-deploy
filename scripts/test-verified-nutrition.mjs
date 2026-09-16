@@ -174,4 +174,15 @@ assert('fried rice CoFID egg takeaway', getVerifiedRecord('fried_rice')?.sourceR
 assert('egg fried rice aliases', enrichReferenceWithVerified({ id: 'egg_fried_rice' })?.kcal100 === 186);
 assert('chicken burger CoFID', getVerifiedRecord('chicken_burger')?.sourceRecordId === '19-315' && getVerifiedRecord('chicken_burger')?.kcal100 === 235);
 
+assert('pancakes CoFID sweet', getVerifiedRecord('pancakes')?.sourceRecordId === '11-1143' && getVerifiedRecord('pancakes')?.kcal100 === 234);
+assert('pancake aliases to pancakes', enrichReferenceWithVerified({ id: 'pancake' })?.kcal100 === 234);
+assert('tomato soup CoFID cream canned', getVerifiedRecord('tomato_soup')?.sourceRecordId === '17-652' && getVerifiedRecord('tomato_soup')?.kcal100 === 51);
+assert('coleslaw CoFID retail', getVerifiedRecord('coleslaw')?.sourceRecordId === '15-635' && getVerifiedRecord('coleslaw')?.kcal100 === 173);
+assert('chicken curry CoFID takeaway', getVerifiedRecord('chicken_curry')?.sourceRecordId === '19-322' && getVerifiedRecord('chicken_curry')?.kcal100 === 145);
+assert('butter chicken aliases to tikka masala', enrichReferenceWithVerified({ id: 'butter_chicken' })?.sourceRecordId === '19-296');
+assert('fish curry CoFID', getVerifiedRecord('fish_curry')?.sourceRecordId === '16-364' && getVerifiedRecord('fish_curry')?.kcal100 === 139);
+assert('roast beef CoFID topside', getVerifiedRecord('roast_beef')?.sourceRecordId === '18-089' && getVerifiedRecord('roast_beef')?.kcal100 === 222);
+assert('beef steak CoFID steakhouse', getVerifiedRecord('beef_steak')?.sourceRecordId === '18-051' && getVerifiedRecord('beef_steak')?.kcal100 === 213);
+assert('caesar salad not invented', !getVerifiedRecord('caesar_salad'));
+
 console.log('\nDone.');

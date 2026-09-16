@@ -1,5 +1,5 @@
 /** AUTO-GENERATED — do not edit. Run: node scripts/build-verified-nutrition-index.mjs */
-export const VERIFIED_NUTRITION_STATS = {"count":163,"version":"1.0","updated":"2026-09-16"};
+export const VERIFIED_NUTRITION_STATS = {"count":170,"version":"1.0","updated":"2026-09-16"};
 
 export const VERIFIED_BY_ID = {
   "almonds": {
@@ -292,6 +292,32 @@ export const VERIFIED_BY_ID = {
     "fibre100": 0.6,
     "sugar100": 2.1,
     "salt100": 1100,
+    "dataQualityScore": 95
+  },
+  "beef_steak": {
+    "id": "beef_steak",
+    "canonicalName": "Beef, rump steak, from steakhouse, lean and fat",
+    "aliases": [
+      "beef steak",
+      "steak",
+      "rump steak"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "18-051",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "cooked",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-16",
+    "kcal100": 213,
+    "protein100": 27.5,
+    "carbs100": 0,
+    "fat100": 11.4,
+    "fibre100": 0,
+    "sugar100": 0,
+    "salt100": 165,
     "dataQualityScore": 95
   },
   "beetroot": {
@@ -797,6 +823,31 @@ export const VERIFIED_BY_ID = {
     "salt100": 1400,
     "dataQualityScore": 95
   },
+  "chicken_curry": {
+    "id": "chicken_curry",
+    "canonicalName": "Curry, chicken, average, takeaway",
+    "aliases": [
+      "chicken curry",
+      "curry chicken"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "19-322",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "cooked",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-16",
+    "kcal100": 145,
+    "protein100": 11.7,
+    "carbs100": 2.5,
+    "fat100": 9.8,
+    "fibre100": 2.2,
+    "sugar100": 1.2,
+    "salt100": 890,
+    "dataQualityScore": 95
+  },
   "chicken_tikka_masala": {
     "id": "chicken_tikka_masala",
     "canonicalName": "Curry, chicken tikka masala, retail, reheated",
@@ -945,6 +996,31 @@ export const VERIFIED_BY_ID = {
     "fibre100": 0,
     "sugar100": 0,
     "salt100": 228,
+    "dataQualityScore": 95
+  },
+  "coleslaw": {
+    "id": "coleslaw",
+    "canonicalName": "Coleslaw, not low calorie, retail",
+    "aliases": [
+      "coleslaw",
+      "cole slaw"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "15-635",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "raw",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-16",
+    "kcal100": 173,
+    "protein100": 0.8,
+    "carbs100": 6,
+    "fat100": 16.3,
+    "fibre100": 1.2,
+    "sugar100": 6,
+    "salt100": 740,
     "dataQualityScore": 95
   },
   "coffee_black": {
@@ -1307,6 +1383,31 @@ export const VERIFIED_BY_ID = {
     "fibre100": 3.5,
     "sugar100": 2.7,
     "salt100": 168,
+    "dataQualityScore": 95
+  },
+  "fish_curry": {
+    "id": "fish_curry",
+    "canonicalName": "Curry, fish, homemade",
+    "aliases": [
+      "fish curry",
+      "fish curry homemade"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "16-364",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "cooked",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-16",
+    "kcal100": 139,
+    "protein100": 11.3,
+    "carbs100": 1.9,
+    "fat100": 9.6,
+    "fibre100": 2.1,
+    "sugar100": 1.9,
+    "salt100": 1075,
     "dataQualityScore": 95
   },
   "fig": {
@@ -2554,6 +2655,32 @@ export const VERIFIED_BY_ID = {
     "salt100": 295,
     "dataQualityScore": 95
   },
+  "pancakes": {
+    "id": "pancakes",
+    "canonicalName": "Pancakes, sweet, made with semi skimmed milk, homemade",
+    "aliases": [
+      "pancakes",
+      "pancake",
+      "sweet pancakes"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "11-1143",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "cooked",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-16",
+    "kcal100": 234,
+    "protein100": 6.3,
+    "carbs100": 37.9,
+    "fat100": 7.4,
+    "fibre100": 1,
+    "sugar100": 17,
+    "salt100": 128,
+    "dataQualityScore": 95
+  },
   "peach": {
     "id": "peach",
     "canonicalName": "Peach",
@@ -3206,6 +3333,32 @@ export const VERIFIED_BY_ID = {
     "salt100": 200,
     "dataQualityScore": 95
   },
+  "roast_beef": {
+    "id": "roast_beef",
+    "canonicalName": "Beef, topside, roasted medium-rare, lean and fat",
+    "aliases": [
+      "roast beef",
+      "roasted beef",
+      "topside beef"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "18-089",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "roasted",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-16",
+    "kcal100": 222,
+    "protein100": 29.9,
+    "carbs100": 0,
+    "fat100": 11.4,
+    "fibre100": 0,
+    "sugar100": 0,
+    "salt100": 155,
+    "dataQualityScore": 95
+  },
   "roti": {
     "id": "roti",
     "canonicalName": "Chapatis, made with fat, retail",
@@ -3746,6 +3899,31 @@ export const VERIFIED_BY_ID = {
     "salt100": 5,
     "dataQualityScore": 95
   },
+  "tomato_soup": {
+    "id": "tomato_soup",
+    "canonicalName": "Soup, cream of tomato, canned",
+    "aliases": [
+      "tomato soup",
+      "cream of tomato soup"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "17-652",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "cooked",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-16",
+    "kcal100": 51,
+    "protein100": 0.9,
+    "carbs100": 7.8,
+    "fat100": 2,
+    "fibre100": 0.6,
+    "sugar100": 5.5,
+    "salt100": 613,
+    "dataQualityScore": 95
+  },
   "tuna": {
     "id": "tuna",
     "canonicalName": "Tuna, canned in brine, drained",
@@ -4014,6 +4192,10 @@ export const VERIFIED_ALIAS_TO_ID = {
   "beef burger": "beef_burger",
   "beefburger": "beef_burger",
   "grilled beef burger": "beef_burger",
+  "beef_steak": "beef_steak",
+  "beef steak": "beef_steak",
+  "steak": "beef_steak",
+  "rump steak": "beef_steak",
   "beetroot": "beetroot",
   "beetroots": "beetroot",
   "beet": "beetroot",
@@ -4062,6 +4244,9 @@ export const VERIFIED_ALIAS_TO_ID = {
   "chicken_burger": "chicken_burger",
   "chicken burger": "chicken_burger",
   "chickenburger": "chicken_burger",
+  "chicken_curry": "chicken_curry",
+  "chicken curry": "chicken_curry",
+  "curry chicken": "chicken_curry",
   "chicken_tikka_masala": "chicken_tikka_masala",
   "chicken tikka masala": "chicken_tikka_masala",
   "chickpeas": "chickpeas",
@@ -4082,6 +4267,8 @@ export const VERIFIED_ALIAS_TO_ID = {
   "fresh coconut": "coconut",
   "nariyal": "coconut",
   "cod": "cod",
+  "coleslaw": "coleslaw",
+  "cole slaw": "coleslaw",
   "coffee_black": "coffee_black",
   "coffee black": "coffee_black",
   "cooked_rice": "cooked_rice",
@@ -4121,6 +4308,9 @@ export const VERIFIED_ALIAS_TO_ID = {
   "egg": "egg",
   "falafel": "falafel",
   "falafels": "falafel",
+  "fish_curry": "fish_curry",
+  "fish curry": "fish_curry",
+  "fish curry homemade": "fish_curry",
   "fig": "fig",
   "figs": "fig",
   "anjeer": "fig",
@@ -4275,6 +4465,9 @@ export const VERIFIED_ALIAS_TO_ID = {
   "paratha": "paratha",
   "paratha bread": "paratha",
   "parantha": "paratha",
+  "pancakes": "pancakes",
+  "pancake": "pancakes",
+  "sweet pancakes": "pancakes",
   "peach": "peach",
   "peaches": "peach",
   "peanut_butter": "peanut_butter",
@@ -4358,6 +4551,10 @@ export const VERIFIED_ALIAS_TO_ID = {
   "cucumber raita": "raita",
   "roast_chicken": "roast_chicken",
   "roast chicken": "roast_chicken",
+  "roast_beef": "roast_beef",
+  "roast beef": "roast_beef",
+  "roasted beef": "roast_beef",
+  "topside beef": "roast_beef",
   "roti": "roti",
   "salmon": "salmon",
   "sambar": "sambar",
@@ -4407,6 +4604,9 @@ export const VERIFIED_ALIAS_TO_ID = {
   "bean curd": "tofu",
   "firm tofu": "tofu",
   "tomato": "tomato",
+  "tomato_soup": "tomato_soup",
+  "tomato soup": "tomato_soup",
+  "cream of tomato soup": "tomato_soup",
   "tuna": "tuna",
   "walnuts": "walnuts",
   "walnut": "walnuts",

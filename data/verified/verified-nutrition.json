@@ -238,6 +238,28 @@
       "sugar100": 2.1
     },
     {
+      "id": "beef_steak",
+      "canonicalName": "Beef, rump steak, from steakhouse, lean and fat",
+      "aliases": [
+        "beef steak",
+        "steak",
+        "rump steak"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "18-051",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-16",
+      "kcal100": 213,
+      "protein100": 27.5,
+      "carbs100": 0,
+      "fat100": 11.4,
+      "fibre100": 0,
+      "salt100": 165,
+      "sugar100": 0
+    },
+    {
       "id": "beetroot",
       "canonicalName": "Beet root",
       "aliases": [
@@ -641,6 +663,27 @@
       "salt100": 1400
     },
     {
+      "id": "chicken_curry",
+      "canonicalName": "Curry, chicken, average, takeaway",
+      "aliases": [
+        "chicken curry",
+        "curry chicken"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "19-322",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-16",
+      "kcal100": 145,
+      "protein100": 11.7,
+      "carbs100": 2.5,
+      "fat100": 9.8,
+      "fibre100": 2.2,
+      "salt100": 890,
+      "sugar100": 1.2
+    },
+    {
       "id": "chicken_tikka_masala",
       "canonicalName": "Curry, chicken tikka masala, retail, reheated",
       "dataSource": "cofid",
@@ -761,6 +804,27 @@
       "fibre100": 0,
       "sugar100": 0,
       "salt100": 228
+    },
+    {
+      "id": "coleslaw",
+      "canonicalName": "Coleslaw, not low calorie, retail",
+      "aliases": [
+        "coleslaw",
+        "cole slaw"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "15-635",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-16",
+      "kcal100": 173,
+      "protein100": 0.8,
+      "carbs100": 6,
+      "fat100": 16.3,
+      "fibre100": 1.2,
+      "salt100": 740,
+      "sugar100": 6
     },
     {
       "id": "coffee_black",
@@ -1048,6 +1112,27 @@
       "fibre100": 3.5,
       "salt100": 168,
       "sugar100": 2.7
+    },
+    {
+      "id": "fish_curry",
+      "canonicalName": "Curry, fish, homemade",
+      "aliases": [
+        "fish curry",
+        "fish curry homemade"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "16-364",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-16",
+      "kcal100": 139,
+      "protein100": 11.3,
+      "carbs100": 1.9,
+      "fat100": 9.6,
+      "fibre100": 2.1,
+      "salt100": 1075,
+      "sugar100": 1.9
     },
     {
       "id": "fig",
@@ -2056,6 +2141,28 @@
       "sugar100": 0.7
     },
     {
+      "id": "pancakes",
+      "canonicalName": "Pancakes, sweet, made with semi skimmed milk, homemade",
+      "aliases": [
+        "pancakes",
+        "pancake",
+        "sweet pancakes"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "11-1143",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-16",
+      "kcal100": 234,
+      "protein100": 6.3,
+      "carbs100": 37.9,
+      "fat100": 7.4,
+      "fibre100": 1,
+      "salt100": 128,
+      "sugar100": 17
+    },
+    {
       "id": "peach",
       "canonicalName": "Peach",
       "aliases": [
@@ -2582,6 +2689,28 @@
       "sugar100": 0
     },
     {
+      "id": "roast_beef",
+      "canonicalName": "Beef, topside, roasted medium-rare, lean and fat",
+      "aliases": [
+        "roast beef",
+        "roasted beef",
+        "topside beef"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "18-089",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "roasted",
+      "lastReviewedAt": "2026-09-16",
+      "kcal100": 222,
+      "protein100": 29.9,
+      "carbs100": 0,
+      "fat100": 11.4,
+      "fibre100": 0,
+      "salt100": 155,
+      "sugar100": 0
+    },
+    {
       "id": "roti",
       "canonicalName": "Chapatis, made with fat, retail",
       "dataSource": "cofid",
@@ -3010,6 +3139,27 @@
       "salt100": 5
     },
     {
+      "id": "tomato_soup",
+      "canonicalName": "Soup, cream of tomato, canned",
+      "aliases": [
+        "tomato soup",
+        "cream of tomato soup"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "17-652",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-16",
+      "kcal100": 51,
+      "protein100": 0.9,
+      "carbs100": 7.8,
+      "fat100": 2,
+      "fibre100": 0.6,
+      "salt100": 613,
+      "sugar100": 5.5
+    },
+    {
       "id": "tuna",
       "canonicalName": "Tuna, canned in brine, drained",
       "dataSource": "cofid",
@@ -3195,5 +3345,5 @@
     }
   ],
   "updated": "2026-09-16",
-  "importNote": "CoFID overlays: staples + pizza/kebab/burger/lasagne/naan + sausage roll/omelette/falafel/chow mein/fried rice/chicken burger (2026-09-16)"
+  "importNote": "CoFID overlays through 2026-09-16: staples, pizza/kebab/burger/lasagne/naan, takeaway breakfast/Chinese, pancakes/soup/coleslaw/curry/roast/steak"
 }
