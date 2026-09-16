@@ -151,4 +151,19 @@ assert('chicken doner not invented', !getVerifiedRecord('chicken_doner'));
 assert('shawarma not invented', !getVerifiedRecord('shawarma'));
 assert('seekh kebab not invented', !getVerifiedRecord('seekh_kebab'));
 
+assert('burger CoFID hamburger', getVerifiedRecord('burger')?.sourceRecordId === '19-544' && getVerifiedRecord('burger')?.kcal100 === 246);
+assert('hamburger aliases to burger', enrichReferenceWithVerified({ id: 'hamburger' })?.kcal100 === 246);
+assert('cheeseburger CoFID', getVerifiedRecord('cheeseburger')?.sourceRecordId === '19-545' && getVerifiedRecord('cheeseburger')?.kcal100 === 254);
+assert('beef burger CoFID grilled', getVerifiedRecord('beef_burger')?.sourceRecordId === '19-546');
+assert('lasagne CoFID homemade', getVerifiedRecord('lasagne')?.sourceRecordId === '19-481' && getVerifiedRecord('lasagne')?.kcal100 === 180);
+assert('lasagna bolognese aliases to lasagne', enrichReferenceWithVerified({ id: 'lasagna_bolognese' })?.kcal100 === 180);
+assert('spinach lasagne CoFID', getVerifiedRecord('lasagna_spinach')?.sourceRecordId === '15-186');
+assert('bolognese CoFID spaghetti', getVerifiedRecord('bolognese')?.sourceRecordId === '19-628' && getVerifiedRecord('bolognese')?.kcal100 === 151);
+assert('macaroni cheese CoFID', getVerifiedRecord('macaroni_bechamel')?.sourceRecordId === '11-954' && getVerifiedRecord('macaroni_bechamel')?.kcal100 === 183);
+assert('naan CoFID retail', getVerifiedRecord('naan')?.sourceRecordId === '11-973' && getVerifiedRecord('naan')?.kcal100 === 285);
+assert('garlic naan aliases to naan', enrichReferenceWithVerified({ id: 'garlic_naan' })?.kcal100 === 285);
+assert('paratha CoFID', getVerifiedRecord('paratha')?.sourceRecordId === '11-1104');
+assert('chapati aliases to roti', enrichReferenceWithVerified({ id: 'chapati' })?.sourceRecordId === '11-987');
+assert('carbonara not invented as sauce-only', !getVerifiedRecord('carbonara'));
+
 console.log('\nDone.');
