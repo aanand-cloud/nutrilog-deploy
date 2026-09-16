@@ -67,6 +67,27 @@
       "salt100": 3
     },
     {
+      "id": "apple_juice",
+      "canonicalName": "Apple juice, clear, ambient and chilled",
+      "aliases": [
+        "apple juice",
+        "applejuice"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "14-331",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 37,
+      "protein100": 0.1,
+      "carbs100": 9.7,
+      "fat100": 0,
+      "fibre100": null,
+      "salt100": 8,
+      "sugar100": 9.7
+    },
+    {
       "id": "avocado",
       "canonicalName": "Avocado, Hass, flesh only",
       "aliases": [
@@ -103,6 +124,28 @@
       "fibre100": 0,
       "sugar100": 0,
       "salt100": 3475
+    },
+    {
+      "id": "bagel",
+      "canonicalName": "Bagels, plain",
+      "aliases": [
+        "bagel",
+        "bagels",
+        "plain bagel"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "11-970",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "baked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 273,
+      "protein100": 10,
+      "carbs100": 57.8,
+      "fat100": 1.8,
+      "fibre100": 3,
+      "salt100": 1000,
+      "sugar100": 4.8
     },
     {
       "id": "baked_beans",
@@ -194,28 +237,6 @@
       "salt100": 158
     },
     {
-      "id": "beef_doner",
-      "canonicalName": "Doner kebabs, meat only",
-      "aliases": [
-        "beef doner",
-        "doner meat",
-        "doner kebab meat"
-      ],
-      "dataSource": "cofid",
-      "sourceRecordId": "19-539",
-      "verificationStatus": "verified",
-      "nutrition_basis": "verified_cofid",
-      "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-15",
-      "kcal100": 377,
-      "protein100": 23.5,
-      "carbs100": 0,
-      "fat100": 31.4,
-      "fibre100": 0,
-      "salt100": 0,
-      "sugar100": 0
-    },
-    {
       "id": "beef_burger",
       "canonicalName": "Burger, beef, 62-85%, beef, grilled",
       "aliases": [
@@ -228,7 +249,7 @@
       "verificationStatus": "verified",
       "nutrition_basis": "verified_cofid",
       "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-15",
+      "lastReviewedAt": "2026-09-14",
       "kcal100": 229,
       "protein100": 18.3,
       "carbs100": 8.5,
@@ -236,6 +257,28 @@
       "fibre100": 0.6,
       "salt100": 1100,
       "sugar100": 2.1
+    },
+    {
+      "id": "beef_doner",
+      "canonicalName": "Doner kebabs, meat only",
+      "aliases": [
+        "beef doner",
+        "doner meat",
+        "doner kebab meat"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "19-539",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 377,
+      "protein100": 23.5,
+      "carbs100": 0,
+      "fat100": 31.4,
+      "fibre100": 0,
+      "salt100": 0,
+      "sugar100": 0
     },
     {
       "id": "beef_steak",
@@ -250,7 +293,7 @@
       "verificationStatus": "verified",
       "nutrition_basis": "verified_cofid",
       "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-16",
+      "lastReviewedAt": "2026-09-14",
       "kcal100": 213,
       "protein100": 27.5,
       "carbs100": 0,
@@ -366,7 +409,7 @@
       "verificationStatus": "verified",
       "nutrition_basis": "verified_cofid",
       "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-15",
+      "lastReviewedAt": "2026-09-14",
       "kcal100": 151,
       "protein100": 8.1,
       "carbs100": 17.2,
@@ -439,7 +482,7 @@
       "verificationStatus": "verified",
       "nutrition_basis": "verified_cofid",
       "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-15",
+      "lastReviewedAt": "2026-09-14",
       "kcal100": 246,
       "protein100": 13.5,
       "carbs100": 31.2,
@@ -550,27 +593,6 @@
       "salt100": 1808
     },
     {
-      "id": "cheeseburger",
-      "canonicalName": "Burger, cheeseburger, takeaway",
-      "aliases": [
-        "cheeseburger",
-        "cheese burger"
-      ],
-      "dataSource": "cofid",
-      "sourceRecordId": "19-545",
-      "verificationStatus": "verified",
-      "nutrition_basis": "verified_cofid",
-      "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-15",
-      "kcal100": 254,
-      "protein100": 13.6,
-      "carbs100": 28.3,
-      "fat100": 10.4,
-      "fibre100": 1.4,
-      "salt100": 1400,
-      "sugar100": 5.7
-    },
-    {
       "id": "cheese",
       "canonicalName": "Cheese, Cheddar, English",
       "dataSource": "cofid",
@@ -586,6 +608,27 @@
       "fibre100": 0,
       "sugar100": 0.1,
       "salt100": 1808
+    },
+    {
+      "id": "cheeseburger",
+      "canonicalName": "Burger, cheeseburger, takeaway",
+      "aliases": [
+        "cheeseburger",
+        "cheese burger"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "19-545",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 254,
+      "protein100": 13.6,
+      "carbs100": 28.3,
+      "fat100": 10.4,
+      "fibre100": 1.4,
+      "salt100": 1400,
+      "sugar100": 5.7
     },
     {
       "id": "chia_seeds",
@@ -654,7 +697,7 @@
       "verificationStatus": "verified",
       "nutrition_basis": "verified_cofid",
       "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-16",
+      "lastReviewedAt": "2026-09-14",
       "kcal100": 235,
       "protein100": 12.5,
       "carbs100": 23.4,
@@ -674,7 +717,7 @@
       "verificationStatus": "verified",
       "nutrition_basis": "verified_cofid",
       "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-16",
+      "lastReviewedAt": "2026-09-14",
       "kcal100": 145,
       "protein100": 11.7,
       "carbs100": 2.5,
@@ -682,6 +725,27 @@
       "fibre100": 2.2,
       "salt100": 890,
       "sugar100": 1.2
+    },
+    {
+      "id": "chicken_soup",
+      "canonicalName": "Soup, chicken, cream of, canned",
+      "aliases": [
+        "chicken soup",
+        "cream of chicken soup"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "17-695",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 58,
+      "protein100": 1.7,
+      "carbs100": 4.5,
+      "fat100": 3.8,
+      "fibre100": null,
+      "salt100": 600,
+      "sugar100": 1.1
     },
     {
       "id": "chicken_tikka_masala",
@@ -758,7 +822,7 @@
       "verificationStatus": "verified",
       "nutrition_basis": "verified_cofid",
       "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-16",
+      "lastReviewedAt": "2026-09-14",
       "kcal100": 147,
       "protein100": 8.5,
       "carbs100": 12.7,
@@ -806,27 +870,6 @@
       "salt100": 228
     },
     {
-      "id": "coleslaw",
-      "canonicalName": "Coleslaw, not low calorie, retail",
-      "aliases": [
-        "coleslaw",
-        "cole slaw"
-      ],
-      "dataSource": "cofid",
-      "sourceRecordId": "15-635",
-      "verificationStatus": "verified",
-      "nutrition_basis": "verified_cofid",
-      "preparationState": "raw",
-      "lastReviewedAt": "2026-09-16",
-      "kcal100": 173,
-      "protein100": 0.8,
-      "carbs100": 6,
-      "fat100": 16.3,
-      "fibre100": 1.2,
-      "salt100": 740,
-      "sugar100": 6
-    },
-    {
       "id": "coffee_black",
       "canonicalName": "Coffee, infusion, average",
       "dataSource": "cofid",
@@ -842,6 +885,27 @@
       "fibre100": 0,
       "sugar100": 0.3,
       "salt100": 0
+    },
+    {
+      "id": "coleslaw",
+      "canonicalName": "Coleslaw, not low calorie, retail",
+      "aliases": [
+        "coleslaw",
+        "cole slaw"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "15-635",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 173,
+      "protein100": 0.8,
+      "carbs100": 6,
+      "fat100": 16.3,
+      "fibre100": 1.2,
+      "salt100": 740,
+      "sugar100": 6
     },
     {
       "id": "cooked_rice",
@@ -875,6 +939,27 @@
       "fibre100": 2.6,
       "sugar100": 7.3,
       "salt100": 1125
+    },
+    {
+      "id": "cottage_pie",
+      "canonicalName": "Pie, Cottage, homemade",
+      "aliases": [
+        "cottage pie",
+        "cottagepie"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "19-575",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 126,
+      "protein100": 6.3,
+      "carbs100": 10.4,
+      "fat100": 6.3,
+      "fibre100": 1.3,
+      "salt100": 388,
+      "sugar100": 1.6
     },
     {
       "id": "couscous",
@@ -933,6 +1018,27 @@
       "fibre100": 4.4,
       "sugar100": 0.9,
       "salt100": 1510
+    },
+    {
+      "id": "croissant",
+      "canonicalName": "Croissants",
+      "aliases": [
+        "croissant",
+        "croissants"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "11-988",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "baked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 373,
+      "protein100": 8.3,
+      "carbs100": 43.3,
+      "fat100": 19.7,
+      "fibre100": 3.1,
+      "salt100": 825,
+      "sugar100": 5.3
     },
     {
       "id": "cucumber",
@@ -1026,7 +1132,7 @@
       "verificationStatus": "verified",
       "nutrition_basis": "verified_cofid",
       "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-15",
+      "lastReviewedAt": "2026-09-14",
       "kcal100": 248,
       "protein100": 14.1,
       "carbs100": 12.5,
@@ -1034,6 +1140,30 @@
       "fibre100": 0.9,
       "salt100": 0,
       "sugar100": 1.1
+    },
+    {
+      "id": "doughnut",
+      "canonicalName": "Doughnuts, ring, iced",
+      "aliases": [
+        "doughnut",
+        "doughnuts",
+        "donut",
+        "donuts",
+        "iced doughnut"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "11-850",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "baked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 413,
+      "protein100": 5.8,
+      "carbs100": 42.3,
+      "fat100": 25.7,
+      "fibre100": 2.7,
+      "salt100": 815,
+      "sugar100": 16.2
     },
     {
       "id": "drumstick",
@@ -1104,7 +1234,7 @@
       "verificationStatus": "verified",
       "nutrition_basis": "verified_cofid",
       "preparationState": "fried",
-      "lastReviewedAt": "2026-09-16",
+      "lastReviewedAt": "2026-09-14",
       "kcal100": 183,
       "protein100": 6.4,
       "carbs100": 15.9,
@@ -1112,27 +1242,6 @@
       "fibre100": 3.5,
       "salt100": 168,
       "sugar100": 2.7
-    },
-    {
-      "id": "fish_curry",
-      "canonicalName": "Curry, fish, homemade",
-      "aliases": [
-        "fish curry",
-        "fish curry homemade"
-      ],
-      "dataSource": "cofid",
-      "sourceRecordId": "16-364",
-      "verificationStatus": "verified",
-      "nutrition_basis": "verified_cofid",
-      "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-16",
-      "kcal100": 139,
-      "protein100": 11.3,
-      "carbs100": 1.9,
-      "fat100": 9.6,
-      "fibre100": 2.1,
-      "salt100": 1075,
-      "sugar100": 1.9
     },
     {
       "id": "fig",
@@ -1154,6 +1263,27 @@
       "fat100": 0.37,
       "fibre100": 4.64,
       "salt100": 1
+    },
+    {
+      "id": "fish_curry",
+      "canonicalName": "Curry, fish, homemade",
+      "aliases": [
+        "fish curry",
+        "fish curry homemade"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "16-364",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 139,
+      "protein100": 11.3,
+      "carbs100": 1.9,
+      "fat100": 9.6,
+      "fibre100": 2.1,
+      "salt100": 1075,
+      "sugar100": 1.9
     },
     {
       "id": "flax_seeds",
@@ -1205,6 +1335,27 @@
       "salt100": 9
     },
     {
+      "id": "fried_egg",
+      "canonicalName": "Eggs, chicken, whole, fried in sunflower oil",
+      "aliases": [
+        "fried egg",
+        "fried eggs",
+        "egg fried"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "12-944",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "fried",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 200,
+      "protein100": 14.7,
+      "carbs100": 0,
+      "fat100": 15.7,
+      "fibre100": 0,
+      "salt100": 430
+    },
+    {
       "id": "fried_rice",
       "canonicalName": "Rice, egg fried, takeaway",
       "aliases": [
@@ -1217,7 +1368,7 @@
       "verificationStatus": "verified",
       "nutrition_basis": "verified_cofid",
       "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-16",
+      "lastReviewedAt": "2026-09-14",
       "kcal100": 186,
       "protein100": 4.3,
       "carbs100": 33.3,
@@ -1241,6 +1392,27 @@
       "fibre100": 3.8,
       "salt100": 483,
       "sugar100": 0.3
+    },
+    {
+      "id": "garlic_bread",
+      "canonicalName": "Bread, garlic and herb, retail",
+      "aliases": [
+        "garlic bread",
+        "garlic herb bread"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "11-937",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "baked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 348,
+      "protein100": 7,
+      "carbs100": 45.1,
+      "fat100": 16.7,
+      "fibre100": 2.7,
+      "salt100": 1190,
+      "sugar100": 2.9
     },
     {
       "id": "grapes",
@@ -1533,7 +1705,7 @@
       "verificationStatus": "verified",
       "nutrition_basis": "verified_cofid",
       "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-15",
+      "lastReviewedAt": "2026-09-14",
       "kcal100": 290,
       "protein100": 25.3,
       "carbs100": 1.3,
@@ -1560,27 +1732,26 @@
       "salt100": 205
     },
     {
-      "id": "lasagne",
-      "canonicalName": "Lasagne, homemade",
+      "id": "lamb_chops",
+      "canonicalName": "Lamb, loin chops, grilled, lean and fat",
       "aliases": [
-        "lasagne",
-        "lasagna",
-        "lasagna bolognese",
-        "lasagne al forno"
+        "lamb chops",
+        "lamb chop",
+        "grilled lamb chops"
       ],
       "dataSource": "cofid",
-      "sourceRecordId": "19-481",
+      "sourceRecordId": "18-477",
       "verificationStatus": "verified",
       "nutrition_basis": "verified_cofid",
-      "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-15",
-      "kcal100": 180,
-      "protein100": 9.6,
-      "carbs100": 15.2,
-      "fat100": 9.6,
-      "fibre100": 1,
-      "salt100": 588,
-      "sugar100": 2.8
+      "preparationState": "grilled",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 305,
+      "protein100": 26.5,
+      "carbs100": 0,
+      "fat100": 22.1,
+      "fibre100": 0,
+      "salt100": 203,
+      "sugar100": 0
     },
     {
       "id": "lasagna_spinach",
@@ -1595,7 +1766,7 @@
       "verificationStatus": "verified",
       "nutrition_basis": "verified_cofid",
       "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-15",
+      "lastReviewedAt": "2026-09-14",
       "kcal100": 93,
       "protein100": 4.2,
       "carbs100": 13,
@@ -1603,6 +1774,29 @@
       "fibre100": 2.3,
       "salt100": 325,
       "sugar100": 2.2
+    },
+    {
+      "id": "lasagne",
+      "canonicalName": "Lasagne, homemade",
+      "aliases": [
+        "lasagne",
+        "lasagna",
+        "lasagna bolognese",
+        "lasagne al forno"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "19-481",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 180,
+      "protein100": 9.6,
+      "carbs100": 15.2,
+      "fat100": 9.6,
+      "fibre100": 1,
+      "salt100": 588,
+      "sugar100": 2.8
     },
     {
       "id": "lentils",
@@ -1665,6 +1859,29 @@
       "fat100": 0.26,
       "fibre100": 1.34,
       "salt100": 1
+    },
+    {
+      "id": "macaroni_bechamel",
+      "canonicalName": "Macaroni cheese, homemade",
+      "aliases": [
+        "macaroni cheese",
+        "mac and cheese",
+        "macaroni bechamel",
+        "mac n cheese"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "11-954",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 183,
+      "protein100": 7.8,
+      "carbs100": 19.8,
+      "fat100": 8.6,
+      "fibre100": 1.1,
+      "salt100": 373,
+      "sugar100": 2.8
     },
     {
       "id": "mango",
@@ -1739,29 +1956,6 @@
       "salt100": 328
     },
     {
-      "id": "macaroni_bechamel",
-      "canonicalName": "Macaroni cheese, homemade",
-      "aliases": [
-        "macaroni cheese",
-        "mac and cheese",
-        "macaroni bechamel",
-        "mac n cheese"
-      ],
-      "dataSource": "cofid",
-      "sourceRecordId": "11-954",
-      "verificationStatus": "verified",
-      "nutrition_basis": "verified_cofid",
-      "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-15",
-      "kcal100": 183,
-      "protein100": 7.8,
-      "carbs100": 19.8,
-      "fat100": 8.6,
-      "fibre100": 1.1,
-      "salt100": 373,
-      "sugar100": 2.8
-    },
-    {
       "id": "minced_beef",
       "canonicalName": "Beef, mince, stewed",
       "dataSource": "cofid",
@@ -1818,6 +2012,29 @@
       "salt100": 988
     },
     {
+      "id": "muffin",
+      "canonicalName": "Muffins, American, not chocolate, retail",
+      "aliases": [
+        "muffin",
+        "muffins",
+        "blueberry muffin",
+        "american muffin"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "11-738",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "baked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 375,
+      "protein100": 5,
+      "carbs100": 47.8,
+      "fat100": 19.5,
+      "fibre100": 1.8,
+      "salt100": 625,
+      "sugar100": 27.7
+    },
+    {
       "id": "mushy_peas",
       "canonicalName": "Peas, mushy, canned, re-heated",
       "dataSource": "cofid",
@@ -1869,7 +2086,7 @@
       "verificationStatus": "verified",
       "nutrition_basis": "verified_cofid",
       "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-15",
+      "lastReviewedAt": "2026-09-14",
       "kcal100": 285,
       "protein100": 7.8,
       "carbs100": 50.2,
@@ -1994,7 +2211,7 @@
       "verificationStatus": "verified",
       "nutrition_basis": "verified_cofid",
       "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-16",
+      "lastReviewedAt": "2026-09-14",
       "kcal100": 191,
       "protein100": 10.9,
       "carbs100": 0,
@@ -2061,6 +2278,28 @@
       "salt100": 3
     },
     {
+      "id": "pancakes",
+      "canonicalName": "Pancakes, sweet, made with semi skimmed milk, homemade",
+      "aliases": [
+        "pancakes",
+        "pancake",
+        "sweet pancakes"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "11-1143",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 234,
+      "protein100": 6.3,
+      "carbs100": 37.9,
+      "fat100": 7.4,
+      "fibre100": 1,
+      "salt100": 128,
+      "sugar100": 17
+    },
+    {
       "id": "paneer",
       "canonicalName": "Paneer",
       "aliases": [
@@ -2102,6 +2341,28 @@
       "salt100": 1
     },
     {
+      "id": "paratha",
+      "canonicalName": "Paratha, homemade",
+      "aliases": [
+        "paratha",
+        "paratha bread",
+        "parantha"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "11-1104",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 333,
+      "protein100": 7.8,
+      "carbs100": 45.8,
+      "fat100": 14.4,
+      "fibre100": 4.9,
+      "salt100": 295,
+      "sugar100": 0.7
+    },
+    {
       "id": "pasta",
       "canonicalName": "Pasta, white, dried, boiled in unsalted water",
       "dataSource": "cofid",
@@ -2117,50 +2378,6 @@
       "fibre100": 2.5,
       "sugar100": 1.1,
       "salt100": 3
-    },
-    {
-      "id": "paratha",
-      "canonicalName": "Paratha, homemade",
-      "aliases": [
-        "paratha",
-        "paratha bread",
-        "parantha"
-      ],
-      "dataSource": "cofid",
-      "sourceRecordId": "11-1104",
-      "verificationStatus": "verified",
-      "nutrition_basis": "verified_cofid",
-      "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-15",
-      "kcal100": 333,
-      "protein100": 7.8,
-      "carbs100": 45.8,
-      "fat100": 14.4,
-      "fibre100": 4.9,
-      "salt100": 295,
-      "sugar100": 0.7
-    },
-    {
-      "id": "pancakes",
-      "canonicalName": "Pancakes, sweet, made with semi skimmed milk, homemade",
-      "aliases": [
-        "pancakes",
-        "pancake",
-        "sweet pancakes"
-      ],
-      "dataSource": "cofid",
-      "sourceRecordId": "11-1143",
-      "verificationStatus": "verified",
-      "nutrition_basis": "verified_cofid",
-      "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-16",
-      "kcal100": 234,
-      "protein100": 6.3,
-      "carbs100": 37.9,
-      "fat100": 7.4,
-      "fibre100": 1,
-      "salt100": 128,
-      "sugar100": 17
     },
     {
       "id": "peach",
@@ -2273,7 +2490,7 @@
       "verificationStatus": "verified",
       "nutrition_basis": "verified_cofid",
       "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-15",
+      "lastReviewedAt": "2026-09-14",
       "kcal100": 255,
       "protein100": 13.2,
       "carbs100": 29.1,
@@ -2325,6 +2542,27 @@
       "salt100": 1
     },
     {
+      "id": "pistachios",
+      "canonicalName": "Pistachio nuts",
+      "aliases": [
+        "pistachio",
+        "pistachios",
+        "pista"
+      ],
+      "dataSource": "ifct",
+      "sourceRecordId": "H018",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_ifct",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 540,
+      "protein100": 23.35,
+      "carbs100": 15.82,
+      "fat100": 42.49,
+      "fibre100": 10.64,
+      "salt100": 2
+    },
+    {
       "id": "pizza",
       "canonicalName": "Pizza, cheese and tomato, retail",
       "aliases": [
@@ -2338,7 +2576,7 @@
       "verificationStatus": "verified",
       "nutrition_basis": "verified_cofid",
       "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-15",
+      "lastReviewedAt": "2026-09-14",
       "kcal100": 272,
       "protein100": 12.2,
       "carbs100": 36.1,
@@ -2361,7 +2599,7 @@
       "verificationStatus": "verified",
       "nutrition_basis": "verified_cofid",
       "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-15",
+      "lastReviewedAt": "2026-09-14",
       "kcal100": 216,
       "protein100": 10.8,
       "carbs100": 29.6,
@@ -2383,7 +2621,7 @@
       "verificationStatus": "verified",
       "nutrition_basis": "verified_cofid",
       "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-15",
+      "lastReviewedAt": "2026-09-14",
       "kcal100": 226,
       "protein100": 13.3,
       "carbs100": 28,
@@ -2391,27 +2629,6 @@
       "fibre100": null,
       "salt100": 1000,
       "sugar100": 2
-    },
-    {
-      "id": "pistachios",
-      "canonicalName": "Pistachio nuts",
-      "aliases": [
-        "pistachio",
-        "pistachios",
-        "pista"
-      ],
-      "dataSource": "ifct",
-      "sourceRecordId": "H018",
-      "verificationStatus": "verified",
-      "nutrition_basis": "verified_ifct",
-      "preparationState": "raw",
-      "lastReviewedAt": "2026-09-14",
-      "kcal100": 540,
-      "protein100": 23.35,
-      "carbs100": 15.82,
-      "fat100": 42.49,
-      "fibre100": 10.64,
-      "salt100": 2
     },
     {
       "id": "plain_rice",
@@ -2511,6 +2728,28 @@
       "salt100": 143
     },
     {
+      "id": "pork_chop",
+      "canonicalName": "Pork, loin chops, grilled, lean and fat",
+      "aliases": [
+        "pork chop",
+        "pork chops",
+        "grilled pork chop"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "18-535",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "grilled",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 237,
+      "protein100": 33.3,
+      "carbs100": 0,
+      "fat100": 11.5,
+      "fibre100": 0,
+      "salt100": 135,
+      "sugar100": 0
+    },
+    {
       "id": "porridge",
       "canonicalName": "Porridge, made with whole milk",
       "aliases": [
@@ -2605,6 +2844,27 @@
       "salt100": 18
     },
     {
+      "id": "quiche",
+      "canonicalName": "Quiche, Lorraine, shortcrust pastry, retail",
+      "aliases": [
+        "quiche",
+        "quiche lorraine"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "12-936",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 269,
+      "protein100": 9.1,
+      "carbs100": 19.7,
+      "fat100": 17.6,
+      "fibre100": 1.3,
+      "salt100": 848,
+      "sugar100": 3.2
+    },
+    {
       "id": "raisins",
       "canonicalName": "Raisins, dried, black",
       "aliases": [
@@ -2624,6 +2884,29 @@
       "fat100": 0.34,
       "fibre100": 3.92,
       "salt100": 8
+    },
+    {
+      "id": "raita",
+      "canonicalName": "Raita, homemade",
+      "aliases": [
+        "raita",
+        "yogurt raita",
+        "curd raita",
+        "cucumber raita"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "17-832",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 57,
+      "protein100": 4.4,
+      "carbs100": 5.8,
+      "fat100": 2.4,
+      "fibre100": 0.4,
+      "salt100": 173,
+      "sugar100": 5.8
     },
     {
       "id": "rajma",
@@ -2649,27 +2932,26 @@
       "salt100": 5
     },
     {
-      "id": "raita",
-      "canonicalName": "Raita, homemade",
+      "id": "roast_beef",
+      "canonicalName": "Beef, topside, roasted medium-rare, lean and fat",
       "aliases": [
-        "raita",
-        "yogurt raita",
-        "curd raita",
-        "cucumber raita"
+        "roast beef",
+        "roasted beef",
+        "topside beef"
       ],
       "dataSource": "cofid",
-      "sourceRecordId": "17-832",
+      "sourceRecordId": "18-089",
       "verificationStatus": "verified",
       "nutrition_basis": "verified_cofid",
-      "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-15",
-      "kcal100": 57,
-      "protein100": 4.4,
-      "carbs100": 5.8,
-      "fat100": 2.4,
-      "fibre100": 0.4,
-      "salt100": 173,
-      "sugar100": 5.8
+      "preparationState": "roasted",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 222,
+      "protein100": 29.9,
+      "carbs100": 0,
+      "fat100": 11.4,
+      "fibre100": 0,
+      "salt100": 155,
+      "sugar100": 0
     },
     {
       "id": "roast_chicken",
@@ -2686,28 +2968,6 @@
       "fat100": 7.5,
       "fibre100": 0,
       "salt100": 200,
-      "sugar100": 0
-    },
-    {
-      "id": "roast_beef",
-      "canonicalName": "Beef, topside, roasted medium-rare, lean and fat",
-      "aliases": [
-        "roast beef",
-        "roasted beef",
-        "topside beef"
-      ],
-      "dataSource": "cofid",
-      "sourceRecordId": "18-089",
-      "verificationStatus": "verified",
-      "nutrition_basis": "verified_cofid",
-      "preparationState": "roasted",
-      "lastReviewedAt": "2026-09-16",
-      "kcal100": 222,
-      "protein100": 29.9,
-      "carbs100": 0,
-      "fat100": 11.4,
-      "fibre100": 0,
-      "salt100": 155,
       "sugar100": 0
     },
     {
@@ -2757,7 +3017,7 @@
       "verificationStatus": "verified",
       "nutrition_basis": "verified_cofid",
       "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-15",
+      "lastReviewedAt": "2026-09-14",
       "kcal100": 49,
       "protein100": 3.1,
       "carbs100": 7.7,
@@ -2817,7 +3077,7 @@
       "verificationStatus": "verified",
       "nutrition_basis": "verified_cofid",
       "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-16",
+      "lastReviewedAt": "2026-09-14",
       "kcal100": 352,
       "protein100": 8.4,
       "carbs100": 27,
@@ -2883,6 +3143,28 @@
       "salt100": 3
     },
     {
+      "id": "shepherds_pie",
+      "canonicalName": "Shepherd's pie, homemade",
+      "aliases": [
+        "shepherd's pie",
+        "shepherds pie",
+        "shepherd pie"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "19-626",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 107,
+      "protein100": 5.9,
+      "carbs100": 9.5,
+      "fat100": 5.4,
+      "fibre100": 0.9,
+      "salt100": 583,
+      "sugar100": 0.9
+    },
+    {
       "id": "shish_kebab",
       "canonicalName": "Shish kebab in pitta bread with salad",
       "aliases": [
@@ -2895,7 +3177,7 @@
       "verificationStatus": "verified",
       "nutrition_basis": "verified_cofid",
       "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-15",
+      "lastReviewedAt": "2026-09-14",
       "kcal100": 149,
       "protein100": 13.6,
       "carbs100": 15.4,
@@ -3076,7 +3358,7 @@
       "nutrition_basis": "verified_cofid",
       "preparationState": "cooked",
       "lastReviewedAt": "2026-09-14",
-      "kcal100": 1,
+      "kcal100": 0,
       "protein100": 0.1,
       "carbs100": 0,
       "fat100": 0,
@@ -3150,7 +3432,7 @@
       "verificationStatus": "verified",
       "nutrition_basis": "verified_cofid",
       "preparationState": "cooked",
-      "lastReviewedAt": "2026-09-16",
+      "lastReviewedAt": "2026-09-14",
       "kcal100": 51,
       "protein100": 0.9,
       "carbs100": 7.8,
@@ -3175,6 +3457,27 @@
       "fibre100": 0,
       "sugar100": 0,
       "salt100": 733
+    },
+    {
+      "id": "waffle",
+      "canonicalName": "Waffles, homemade",
+      "aliases": [
+        "waffle",
+        "waffles"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "11-1130",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 335,
+      "protein100": 9,
+      "carbs100": 43,
+      "fat100": 15.3,
+      "fibre100": 1.9,
+      "salt100": 765,
+      "sugar100": 3.4
     },
     {
       "id": "walnuts",
@@ -3344,6 +3647,6 @@
       "salt100": 158
     }
   ],
-  "updated": "2026-09-16",
+  "updated": "2026-09-14",
   "importNote": "CoFID overlays through 2026-09-16: staples, pizza/kebab/burger/lasagne/naan, takeaway breakfast/Chinese, pancakes/soup/coleslaw/curry/roast/steak"
 }

@@ -185,4 +185,23 @@ assert('roast beef CoFID topside', getVerifiedRecord('roast_beef')?.sourceRecord
 assert('beef steak CoFID steakhouse', getVerifiedRecord('beef_steak')?.sourceRecordId === '18-051' && getVerifiedRecord('beef_steak')?.kcal100 === 213);
 assert('caesar salad not invented', !getVerifiedRecord('caesar_salad'));
 
+assert('cottage pie CoFID homemade', getVerifiedRecord('cottage_pie')?.sourceRecordId === '19-575' && getVerifiedRecord('cottage_pie')?.kcal100 === 126);
+assert('shepherds pie CoFID homemade', getVerifiedRecord('shepherds_pie')?.sourceRecordId === '19-626' && getVerifiedRecord('shepherds_pie')?.kcal100 === 107);
+assert('quiche CoFID lorraine retail', getVerifiedRecord('quiche')?.sourceRecordId === '12-936' && getVerifiedRecord('quiche')?.kcal100 === 269);
+assert('quiche lorraine aliases', enrichReferenceWithVerified({ id: 'quiche_lorraine' })?.kcal100 === 269);
+assert('croissant CoFID', getVerifiedRecord('croissant')?.sourceRecordId === '11-988' && getVerifiedRecord('croissant')?.kcal100 === 373);
+assert('bagel CoFID plain', getVerifiedRecord('bagel')?.sourceRecordId === '11-970' && getVerifiedRecord('bagel')?.kcal100 === 273);
+assert('doughnut CoFID iced ring', getVerifiedRecord('doughnut')?.sourceRecordId === '11-850' && getVerifiedRecord('doughnut')?.kcal100 === 413);
+assert('donut aliases to doughnut', enrichReferenceWithVerified({ id: 'donut' })?.kcal100 === 413);
+assert('muffin CoFID american retail', getVerifiedRecord('muffin')?.sourceRecordId === '11-738' && getVerifiedRecord('muffin')?.kcal100 === 375);
+assert('blueberry muffin aliases', enrichReferenceWithVerified({ id: 'blueberry_muffin' })?.kcal100 === 375);
+assert('waffle CoFID homemade', getVerifiedRecord('waffle')?.sourceRecordId === '11-1130' && getVerifiedRecord('waffle')?.kcal100 === 335);
+assert('garlic bread CoFID retail', getVerifiedRecord('garlic_bread')?.sourceRecordId === '11-937' && getVerifiedRecord('garlic_bread')?.kcal100 === 348);
+assert('apple juice CoFID clear', getVerifiedRecord('apple_juice')?.sourceRecordId === '14-331' && getVerifiedRecord('apple_juice')?.kcal100 === 37);
+assert('chicken soup CoFID cream canned', getVerifiedRecord('chicken_soup')?.sourceRecordId === '17-695' && getVerifiedRecord('chicken_soup')?.kcal100 === 58);
+assert('pork chop CoFID grilled', getVerifiedRecord('pork_chop')?.sourceRecordId === '18-535' && getVerifiedRecord('pork_chop')?.kcal100 === 237);
+assert('lamb chops CoFID grilled', getVerifiedRecord('lamb_chops')?.sourceRecordId === '18-477' && getVerifiedRecord('lamb_chops')?.kcal100 === 305);
+assert('fried egg CoFID sunflower oil', getVerifiedRecord('fried_egg')?.sourceRecordId === '12-944' && getVerifiedRecord('fried_egg')?.kcal100 === 200);
+assert('french toast not invented', !getVerifiedRecord('french_toast'));
+
 console.log('\nDone.');
