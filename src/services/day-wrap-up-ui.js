@@ -14,7 +14,7 @@ export function dayWrapUpCardHtml(wrapUp) {
   if (!wrapUp) return '';
 
   const details = (wrapUp.details || [])
-    .map((line) => `<p class="day-wrap-up__detail">${escapeHtml(line)}</p>`)
+    .map((line) => `<li class="day-wrap-up__detail">${escapeHtml(line)}</li>`)
     .join('');
 
   const stats = wrapUp.stats || {};
@@ -26,11 +26,11 @@ export function dayWrapUpCardHtml(wrapUp) {
           <span class="day-wrap-up__stat-label">kcal logged</span>
         </div>
         <div class="day-wrap-up__stat">
-          <span class="day-wrap-up__stat-value">${escapeHtml(String(stats.proteinLogged ?? '—'))}g</span>
+          <span class="day-wrap-up__stat-value">${escapeHtml(String(stats.proteinLogged ?? '—'))}<small>g</small></span>
           <span class="day-wrap-up__stat-label">protein</span>
         </div>
         <div class="day-wrap-up__stat">
-          <span class="day-wrap-up__stat-value">${escapeHtml(String(stats.proteinPct ?? '—'))}%</span>
+          <span class="day-wrap-up__stat-value">${escapeHtml(String(stats.proteinPct ?? '—'))}<small>%</small></span>
           <span class="day-wrap-up__stat-label">protein goal</span>
         </div>
       </div>
@@ -38,13 +38,13 @@ export function dayWrapUpCardHtml(wrapUp) {
     : '';
 
   const coach = wrapUp.coachLine
-    ? `<p class="day-wrap-up__coach"><span class="day-wrap-up__coach-label">Tip</span> ${escapeHtml(wrapUp.coachLine)}</p>`
+    ? `<p class="day-wrap-up__coach"><span class="day-wrap-up__coach-label">Tip</span>${escapeHtml(wrapUp.coachLine)}</p>`
     : '';
 
   return `
-    <section class="day-wrap-up muted-card" aria-label="How was today?" id="dayWrapUpCard">
+    <section class="day-wrap-up" aria-label="How was today?" id="dayWrapUpCard">
       <div class="day-wrap-up__head">
-        <div>
+        <div class="day-wrap-up__copy">
           <p class="day-wrap-up__eyebrow">Evening check-in</p>
           <h3 class="day-wrap-up__title">${escapeHtml(wrapUp.title)}</h3>
         </div>
@@ -52,7 +52,7 @@ export function dayWrapUpCardHtml(wrapUp) {
       </div>
       <p class="day-wrap-up__insight">${escapeHtml(wrapUp.insight)}</p>
       ${statsHtml}
-      ${details}
+      ${details ? `<ul class="day-wrap-up__details">${details}</ul>` : ''}
       <p class="day-wrap-up__suggestion">${escapeHtml(wrapUp.suggestion)}</p>
       ${coach}
     </section>

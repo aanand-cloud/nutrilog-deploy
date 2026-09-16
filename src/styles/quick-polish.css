@@ -390,30 +390,66 @@ html:has(#pwaUpdateBanner) .app-header {
 /* Today — remaining coach */
 .remaining-coach {
   margin-bottom: 14px;
-  padding: 16px 16px 14px;
-  border: 1px solid color-mix(in srgb, var(--teal) 18%, var(--border));
-  background: linear-gradient(165deg, #f0fdfa 0%, var(--surface) 100%);
+  padding: 16px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(13, 148, 136, 0.2);
+  background: linear-gradient(180deg, #f0fdfa 0%, #ffffff 70%);
+  box-shadow: 0 8px 24px rgba(15, 118, 110, 0.06);
+}
+
+.remaining-coach__head {
+  margin-bottom: 12px;
 }
 
 .remaining-coach__eyebrow {
-  margin: 0 0 6px;
-  font-size: 0.6875rem;
+  margin: 0 0 10px;
+  font-size: 0.68rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--teal);
 }
 
-.remaining-coach__headline {
-  margin: 0 0 8px;
-  font-size: 1.125rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+.remaining-coach__metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.remaining-coach__metric {
+  padding: 12px 12px 11px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+}
+
+.remaining-coach__metric--met {
+  background: rgba(13, 148, 136, 0.08);
+  border-color: rgba(13, 148, 136, 0.18);
+}
+
+.remaining-coach__metric-value {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
   color: var(--text);
+  line-height: 1.15;
+}
+
+.remaining-coach__metric-label {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text3);
 }
 
 .remaining-coach__lead {
-  margin: 0 0 10px;
+  margin: 0 0 12px;
   font-size: 0.875rem;
   line-height: 1.45;
   color: var(--text3);
@@ -421,7 +457,7 @@ html:has(#pwaUpdateBanner) .app-header {
 
 .remaining-coach__examples {
   list-style: none;
-  margin: 0 0 10px;
+  margin: 0 0 12px;
   padding: 0;
   display: grid;
   gap: 8px;
@@ -430,27 +466,54 @@ html:has(#pwaUpdateBanner) .app-header {
 .remaining-coach__example {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: var(--muted);
-  border: 1px solid var(--border-subtle);
+  gap: 8px;
+  padding: 12px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+}
+
+.remaining-coach__example-copy {
+  min-width: 0;
 }
 
 .remaining-coach__example-name {
-  font-size: 0.875rem;
-  font-weight: 600;
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--text);
 }
 
 .remaining-coach__example-meta {
-  font-size: 0.75rem;
+  display: block;
+  margin-top: 2px;
+  font-size: 0.72rem;
+  font-weight: 600;
   color: var(--text3);
+}
+
+.remaining-coach__example-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.remaining-coach__example-tags span {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(13, 148, 136, 0.08);
+  color: var(--teal);
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .remaining-coach__note {
   margin: 0;
-  font-size: 0.6875rem;
+  font-size: 0.68rem;
   line-height: 1.4;
   color: var(--text3);
 }
@@ -837,9 +900,11 @@ html:has(#pwaUpdateBanner) .app-header {
 /* Today — evening wrap-up */
 .day-wrap-up {
   margin-bottom: 14px;
-  padding: 16px 16px 14px;
-  border: 1px solid color-mix(in srgb, var(--teal) 14%, var(--border));
-  background: linear-gradient(165deg, #fafefe 0%, var(--surface) 100%);
+  padding: 16px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 68%);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
 }
 
 .day-wrap-up__head {
@@ -847,117 +912,148 @@ html:has(#pwaUpdateBanner) .app-header {
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+}
+
+.day-wrap-up__copy {
+  min-width: 0;
 }
 
 .day-wrap-up__eyebrow {
   margin: 0 0 4px;
-  font-size: 0.6875rem;
+  font-size: 0.68rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--teal);
+  color: #64748b;
 }
 
 .day-wrap-up__title {
   margin: 0;
-  font-size: 1.0625rem;
-  font-weight: 700;
+  font-size: 1.12rem;
+  font-weight: 800;
   line-height: 1.25;
   color: var(--text);
   letter-spacing: -0.02em;
 }
 
 .day-wrap-up__dismiss {
-  border: none;
-  background: transparent;
+  border: 1px solid #e2e8f0;
+  background: #fff;
   color: var(--text3);
-  font-size: 1.125rem;
+  font-size: 0.95rem;
   line-height: 1;
-  padding: 4px 6px;
-  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
   cursor: pointer;
+  flex: 0 0 auto;
 }
 
 .day-wrap-up__dismiss:active {
-  background: var(--muted);
+  background: #f1f5f9;
 }
 
 .day-wrap-up__insight {
-  margin: 0 0 8px;
-  font-size: 0.9375rem;
+  margin: 0 0 12px;
+  font-size: 0.95rem;
   line-height: 1.5;
   color: var(--text);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .day-wrap-up__stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
-  margin: 0 0 10px;
+  margin: 0 0 12px;
 }
 
 .day-wrap-up__stat {
-  padding: 10px 8px;
-  border-radius: 12px;
-  background: var(--muted);
-  border: 1px solid var(--border-subtle);
-  text-align: center;
+  padding: 11px 8px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  text-align: left;
 }
 
 .day-wrap-up__stat-value {
   display: block;
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 1.05rem;
+  font-weight: 800;
   color: var(--text);
   letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+
+.day-wrap-up__stat-value small {
+  margin-left: 1px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text3);
 }
 
 .day-wrap-up__stat-label {
   display: block;
-  margin-top: 2px;
-  font-size: 0.625rem;
-  font-weight: 600;
+  margin-top: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--text3);
 }
 
+.day-wrap-up__details {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
 .day-wrap-up__detail {
-  margin: 0 0 6px;
-  font-size: 0.8125rem;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  font-size: 0.82rem;
   line-height: 1.45;
-  color: var(--text2);
+  color: var(--text3);
 }
 
 .day-wrap-up__suggestion {
-  margin: 10px 0 0;
-  padding-top: 10px;
-  border-top: 1px solid var(--border-subtle);
-  font-size: 0.8125rem;
+  margin: 0;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(13, 148, 136, 0.08);
+  border: 1px solid rgba(13, 148, 136, 0.14);
+  font-size: 0.84rem;
   line-height: 1.45;
-  color: var(--text3);
+  color: var(--text);
+  font-weight: 600;
 }
 
 .day-wrap-up__coach {
   margin: 10px 0 0;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: var(--teal-dim);
-  font-size: 0.8125rem;
+  padding: 12px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  font-size: 0.82rem;
   line-height: 1.45;
-  color: var(--text2);
+  color: var(--text3);
 }
 
 .day-wrap-up__coach-label {
   display: block;
-  font-size: 0.6875rem;
+  margin-bottom: 4px;
+  font-size: 0.68rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   color: var(--teal);
-  margin-bottom: 4px;
 }
 
 /* Today — weekly habit score */
