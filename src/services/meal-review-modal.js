@@ -209,22 +209,34 @@ export function openMealReviewModal(analysis, { mealType = defaultMealType(), im
           <p class="fine-print">${escapeHtml(item.portion_estimate || '')}</p>
           <div class="meal-review-item-controls">
             ${visionMode && !item._visionOil && !drinkItem ? `
-            <div class="meal-review-stepper meal-review-stepper--grams">
+            <div class="meal-review-stepper meal-review-stepper--grams" role="group" aria-label="Adjust grams">
               <button type="button" class="btn btn-ghost btn-sm" data-gram-delta="${item.id}" data-step="-10" aria-label="Less ${escapeAttr(item.name)}">−</button>
               <button type="button" class="btn btn-ghost btn-sm" data-gram-delta="${item.id}" data-step="10" aria-label="More ${escapeAttr(item.name)}">+</button>
             </div>` : ''}
-            <label class="field meal-review-weight">
-              <span>Amount</span>
-              <input type="number" min="0.1" step="0.1" value="${roundDisplay(amount, 1)}" data-weight="${item.id}"/>
-            </label>
-            ${drinkItem && !sugarAddon ? `
-            <span class="meal-review-unit fine-print">ml</span>` : `
-            <label class="field meal-review-unit">
-              <span>Unit</span>
-              <select data-unit="${item.id}" aria-label="Portion unit for ${escapeAttr(item.name)}">
-                ${PORTION_UNITS.map((u) => `<option value="${u.id}" ${u.id === unitId ? 'selected' : ''}>${escapeHtml(u.label)}</option>`).join('')}
-              </select>
-            </label>`}
+            <div class="meal-review-qty" role="group" aria-labelledby="qty-label-${item.id}">
+              <span class="meal-review-qty__label" id="qty-label-${item.id}">Amount</span>
+              <div class="meal-review-qty__row">
+                <input
+                  class="meal-review-qty__input"
+                  type="number"
+                  min="0.1"
+                  step="0.1"
+                  inputmode="decimal"
+                  value="${roundDisplay(amount, 1)}"
+                  data-weight="${item.id}"
+                  aria-label="Amount for ${escapeAttr(item.name)}"
+                />
+                ${drinkItem && !sugarAddon ? `
+                <span class="meal-review-qty__unit meal-review-qty__unit--fixed" aria-hidden="true">ml</span>` : `
+                <select
+                  class="meal-review-qty__unit"
+                  data-unit="${item.id}"
+                  aria-label="Unit for ${escapeAttr(item.name)}"
+                >
+                  ${PORTION_UNITS.map((u) => `<option value="${u.id}" ${u.id === unitId ? 'selected' : ''}>${escapeHtml(u.label)}</option>`).join('')}
+                </select>`}
+              </div>
+            </div>
             <span class="meal-review-item-kcal">${formatEnergy(Math.round(item.calories_kcal), prefs)}</span>
           </div>
           <div class="meal-review-item-actions">

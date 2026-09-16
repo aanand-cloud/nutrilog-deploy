@@ -307,6 +307,19 @@ html.touch-ui .quick-action__hint {
   font-size: var(--t-base);
 }
 
+html.touch-ui .today-hero__title {
+  font-size: var(--t-title-xl);
+}
+
+html.touch-ui .usage-strip__count strong {
+  font-size: 1.85rem;
+}
+
+html.touch-ui .usage-strip__count span,
+html.touch-ui .usage-strip__detail {
+  font-size: var(--t-base);
+}
+
 html.touch-ui .day-date-nav__label {
   font-size: var(--t-body);
 }

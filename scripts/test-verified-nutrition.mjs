@@ -240,4 +240,19 @@ assert('sushi CoFID salmon nigiri', getVerifiedRecord('sushi')?.sourceRecordId =
 assert('caesar salad still not invented', !getVerifiedRecord('caesar_salad'));
 assert('shawarma still not invented', !getVerifiedRecord('shawarma'));
 
+assert('bombay mix CoFID', getVerifiedRecord('bombay_mix')?.sourceRecordId === '17-764' && getVerifiedRecord('bombay_mix')?.kcal100 === 503);
+assert('chevda CoFID homemade', getVerifiedRecord('chevda')?.sourceRecordId === '17-782' && getVerifiedRecord('chevda')?.kcal100 === 487);
+assert('sev CoFID ganthia', getVerifiedRecord('sev')?.sourceRecordId === '17-836' && getVerifiedRecord('sev')?.kcal100 === 478);
+assert('meat samosa CoFID takeaway', getVerifiedRecord('meat_samosa')?.sourceRecordId === '19-326' && getVerifiedRecord('meat_samosa')?.kcal100 === 272);
+assert('potato pakora CoFID', getVerifiedRecord('potato_pakora')?.sourceRecordId === '15-831' && getVerifiedRecord('potato_pakora')?.kcal100 === 315);
+assert('aloo pakora aliases', enrichReferenceWithVerified({ id: 'aloo_pakora' })?.kcal100 === 315);
+assert('spinach pakora CoFID', getVerifiedRecord('spinach_pakora')?.sourceRecordId === '15-832' && getVerifiedRecord('spinach_pakora')?.kcal100 === 360);
+assert('puri CoFID homemade', getVerifiedRecord('puri')?.sourceRecordId === '11-911' && getVerifiedRecord('puri')?.kcal100 === 366);
+assert('peshwari naan CoFID', getVerifiedRecord('peshwari_naan')?.sourceRecordId === '11-910' && getVerifiedRecord('peshwari_naan')?.kcal100 === 251);
+assert('mango chutney CoFID sweet', getVerifiedRecord('mango_chutney')?.sourceRecordId === '17-343' && getVerifiedRecord('mango_chutney')?.kcal100 === 189);
+assert('gulab jamun CoFID retail', getVerifiedRecord('gulab_jamun')?.sourceRecordId === '11-1083' && getVerifiedRecord('gulab_jamun')?.kcal100 === 306);
+assert('lassi CoFID sweetened', getVerifiedRecord('lassi')?.sourceRecordId === '12-373' && getVerifiedRecord('lassi')?.kcal100 === 65);
+assert('pani puri not invented', !getVerifiedRecord('pani_puri'));
+assert('bhel not invented', !getVerifiedRecord('bhel'));
+
 console.log('\nDone.');

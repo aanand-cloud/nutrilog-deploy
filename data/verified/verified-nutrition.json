@@ -462,6 +462,28 @@
       "sugar100": 1.8
     },
     {
+      "id": "bombay_mix",
+      "canonicalName": "Bombay mix",
+      "aliases": [
+        "bombay mix",
+        "bombaymix",
+        "chanachur"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "17-764",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "ready",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 503,
+      "protein100": 18.8,
+      "carbs100": 35.1,
+      "fat100": 32.9,
+      "fibre100": 8.8,
+      "salt100": 1600,
+      "sugar100": 2.3
+    },
+    {
       "id": "bread",
       "canonicalName": "Bread, wholemeal, average",
       "dataSource": "cofid",
@@ -736,6 +758,28 @@
       "fibre100": 0.6,
       "salt100": 665,
       "sugar100": 15.5
+    },
+    {
+      "id": "chevda",
+      "canonicalName": "Chevda/chevra/chewra, homemade",
+      "aliases": [
+        "chevda",
+        "chevra",
+        "chewra",
+        "chivda"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "17-782",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "ready",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 487,
+      "protein100": 18.6,
+      "carbs100": 35.5,
+      "fat100": 31.8,
+      "fibre100": 4.2,
+      "salt100": 285
     },
     {
       "id": "chia_seeds",
@@ -1748,6 +1792,29 @@
       "salt100": 3
     },
     {
+      "id": "gulab_jamun",
+      "canonicalName": "Gulab jamen/jambu, retail",
+      "aliases": [
+        "gulab jamun",
+        "gulab jamen",
+        "gulab jambu",
+        "gulabjamun"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "11-1083",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 306,
+      "protein100": 7.2,
+      "carbs100": 43.3,
+      "fat100": 12.8,
+      "fibre100": 0.2,
+      "salt100": 265,
+      "sugar100": 38.9
+    },
+    {
       "id": "hazelnuts",
       "canonicalName": "Nuts, hazelnuts or filberts, dry roasted, without salt added",
       "aliases": [
@@ -2078,6 +2145,28 @@
       "sugar100": 2.8
     },
     {
+      "id": "lassi",
+      "canonicalName": "Lassi, sweetened",
+      "aliases": [
+        "lassi",
+        "sweet lassi",
+        "sweetened lassi"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "12-373",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 65,
+      "protein100": 2.6,
+      "carbs100": 12.3,
+      "fat100": 0.9,
+      "fibre100": 0,
+      "salt100": 113,
+      "sugar100": 11.9
+    },
+    {
       "id": "lentils",
       "canonicalName": "Lentils, red, split, dried, boiled in unsalted water",
       "aliases": [
@@ -2184,6 +2273,27 @@
       "salt100": 1
     },
     {
+      "id": "mango_chutney",
+      "canonicalName": "Chutney, mango, sweet",
+      "aliases": [
+        "mango chutney",
+        "sweet mango chutney"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "17-343",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "ready",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 189,
+      "protein100": 0.7,
+      "carbs100": 48.3,
+      "fat100": 0.1,
+      "fibre100": null,
+      "salt100": 3250,
+      "sugar100": 45.7
+    },
+    {
       "id": "marmite",
       "canonicalName": "Yeast extract",
       "dataSource": "cofid",
@@ -2233,6 +2343,29 @@
       "fibre100": 0,
       "sugar100": 2.4,
       "salt100": 328
+    },
+    {
+      "id": "meat_samosa",
+      "canonicalName": "Meat samosas, takeaway",
+      "aliases": [
+        "meat samosa",
+        "meat samosas",
+        "lamb samosa",
+        "keema samosa"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "19-326",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 272,
+      "protein100": 11.4,
+      "carbs100": 18.9,
+      "fat100": 17.3,
+      "fibre100": 2.4,
+      "salt100": 1023,
+      "sugar100": 1.9
     },
     {
       "id": "minced_beef",
@@ -2866,6 +2999,28 @@
       "sugar100": 1.8
     },
     {
+      "id": "peshwari_naan",
+      "canonicalName": "Bread, naan, peshwari naan, takeaway and retail",
+      "aliases": [
+        "peshwari naan",
+        "peshwari nan",
+        "sweet naan"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "11-910",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "baked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 251,
+      "protein100": 7.6,
+      "carbs100": 39.8,
+      "fat100": 7.9,
+      "fibre100": 5.6,
+      "salt100": 975,
+      "sugar100": 1.6
+    },
+    {
       "id": "pine_nuts",
       "canonicalName": "Pine seed ( ) Pinus sp.",
       "aliases": [
@@ -3176,6 +3331,28 @@
       "salt100": 0
     },
     {
+      "id": "potato_pakora",
+      "canonicalName": "Pakora/bhajia, potato, fried in vegetable oil, homemade",
+      "aliases": [
+        "potato pakora",
+        "aloo pakora",
+        "potato bhajia"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "15-831",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "fried",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 315,
+      "protein100": 9.2,
+      "carbs100": 28.4,
+      "fat100": 19.6,
+      "fibre100": 5,
+      "salt100": 60,
+      "sugar100": 1.4
+    },
+    {
       "id": "potatoes",
       "canonicalName": "Potatoes, old, boiled in unsalted water, flesh only",
       "dataSource": "cofid",
@@ -3230,6 +3407,28 @@
       "fat100": 49.05,
       "fibre100": 6.5,
       "salt100": 18
+    },
+    {
+      "id": "puri",
+      "canonicalName": "Puri, homemade",
+      "aliases": [
+        "puri",
+        "poori",
+        "puri bread"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "11-911",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "fried",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 366,
+      "protein100": 7.2,
+      "carbs100": 36.5,
+      "fat100": 22.3,
+      "fibre100": 3.5,
+      "salt100": 698,
+      "sugar100": 1.2
     },
     {
       "id": "quiche",
@@ -3553,6 +3752,28 @@
       "salt100": 3
     },
     {
+      "id": "sev",
+      "canonicalName": "Sev/ganthia, homemade",
+      "aliases": [
+        "sev",
+        "ganthia",
+        "sev ganthia"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "17-836",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "ready",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 478,
+      "protein100": 18.8,
+      "carbs100": 47.1,
+      "fat100": 25.1,
+      "fibre100": 8.4,
+      "salt100": 5,
+      "sugar100": 1.9
+    },
+    {
       "id": "shepherds_pie",
       "canonicalName": "Shepherd's pie, homemade",
       "aliases": [
@@ -3687,6 +3908,28 @@
       "fat100": 0.7,
       "fibre100": 1.2,
       "salt100": 105
+    },
+    {
+      "id": "spinach_pakora",
+      "canonicalName": "Pakora/bhajia, spinach, fried in vegetable oil, homemade",
+      "aliases": [
+        "spinach pakora",
+        "palak pakora",
+        "spinach bhajia"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "15-832",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "fried",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 360,
+      "protein100": 14.6,
+      "carbs100": 30,
+      "fat100": 22.2,
+      "fibre100": 7,
+      "salt100": 228,
+      "sugar100": 1.9
     },
     {
       "id": "spring_roll",

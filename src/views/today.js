@@ -99,7 +99,7 @@ import {
   canAccessReports,
   canAccessMicroNutrients,
 } from '../services/subscription.js';
-import { PLANS, SCAN_PACKS, PAYG_PACK_ID, FREE_DAILY_SCANS, isCreditSubscriptionPlan, isUnlimitedPlan, topUpCreditUsageNote } from '../services/plans.js';
+import { PLANS, SCAN_PACKS, PAYG_PACK_ID, FREE_DAILY_SCANS, isCreditSubscriptionPlan, isProPlan, isUnlimitedPlan, topUpCreditUsageNote } from '../services/plans.js';
 import { validateAndRedeemVoucher } from '../services/voucher.js';
 import { MONETIZATION_PAUSED } from '../monetization.js';
 import { activityOptions, estimateDailyCalories } from '../services/calorie-wizard.js';
@@ -209,6 +209,63 @@ const ICON_EDIT = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" s
 const ICON_DELETE = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
 const ICON_CHART = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 5-6"/></svg>`;
 
+/** Structured copy for the Today scan-allowance card (keeps scansLabel for a11y). */
+function usageStripPresentation(budget, planId) {
+  const planName = planBadgeLabel(planId);
+  if (!budget) {
+    return { count: '—', unit: '', detail: '', planName };
+  }
+  if (isProPlan(planId)) {
+    if (!budget.allowed) {
+      return {
+        count: '0',
+        unit: 'left today',
+        detail: budget.reason === 'monthly_cap'
+          ? 'Monthly fair use reached · try again next month'
+          : 'Daily fair use reached · resets at midnight',
+        planName,
+      };
+    }
+    return {
+      count: String(budget.remaining),
+      unit: `of ${budget.limit} left today`,
+      detail: 'Pro fair use · resets at midnight',
+      planName,
+    };
+  }
+  if (budget.dailyFreeRemaining > 0 && budget.creditRemaining > 0) {
+    return {
+      count: String(budget.dailyFreeRemaining),
+      unit: budget.dailyFreeRemaining === 1 ? 'free photo today' : 'free photos today',
+      detail: `${budget.creditRemaining} credit${budget.creditRemaining === 1 ? '' : 's'} saved · barcode free`,
+      planName,
+    };
+  }
+  if (budget.dailyFreeRemaining > 0) {
+    return {
+      count: String(budget.dailyFreeRemaining),
+      unit: budget.dailyFreeRemaining === 1 ? 'free photo today' : 'free photos today',
+      detail: 'Resets at midnight · barcode free',
+      planName,
+    };
+  }
+  if (budget.creditRemaining > 0) {
+    const cap = getDailyFreeCap();
+    return {
+      count: String(budget.creditRemaining),
+      unit: budget.creditRemaining === 1 ? 'credit left' : 'credits left',
+      detail: `${cap} free tomorrow · barcode free`,
+      planName,
+    };
+  }
+  return {
+    count: '0',
+    unit: 'scans left today',
+    detail: 'Top up for more, or try after midnight · barcode free',
+    planName,
+  };
+}
+
 function todayLogPanelHtml({ isFutureDay, isPastDay, isViewingToday, dateKey }) {
   const photoLabel = isFutureDay ? 'Plan with photo' : isPastDay ? 'Add meal photo' : 'Log meal photo';
   const photoHint = isViewingToday ? 'Uses a scan' : formatDayShort(dateKey);
@@ -308,6 +365,12 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
   const scanMeterPct = scanBudget ? usageMeterRemainingPercent(planId) : 0;
   const scanMeterValueText = scanBudget ? `${scansLabel()}, ${scanMeterPct}% of allowance remaining` : '';
   const usageStripAlertRole = primaryCreditAlert?.tier >= 2 ? 'role="alert"' : '';
+  const usagePresent = scanBudget ? usageStripPresentation(scanBudget, planId) : null;
+  const todayHeroDate = new Date().toLocaleDateString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  });
   const cuisine = isViewingToday && weekMeals.length && canAccessAiTips(planId) ? await getCuisineTips(weekMeals) : { tips: [] };
   const dayHeading = formatDayHeading(dateKey);
   const mealsHeading = isViewingToday ? "Today's meals" : isFutureDay ? `Planned meals · ${dayHeading}` : `Meals · ${dayHeading}`;
@@ -381,20 +444,39 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
     <div class="view-page view-page--today${isGuest ? ' view-page--guest' : ''}">
       ${isGuest ? '' : `<h1 class="visually-hidden">${isViewingToday ? 'Today' : escapeHtml(dayHeading)}</h1>`}
       <div class="view-page__toolbar">
-        ${scanBudget ? `
+        ${!isGuest ? `
+        <header class="today-hero" aria-label="${isViewingToday ? 'Today' : escapeAttr(dayHeading)}">
+          <div class="today-hero__text">
+            <p class="today-hero__eyebrow">${isViewingToday ? 'Overview' : 'Day view'}</p>
+            <h2 class="today-hero__title">${isViewingToday ? 'Today' : escapeHtml(dayHeading)}</h2>
+          </div>
+          <p class="today-hero__date">${escapeHtml(isViewingToday ? todayHeroDate : formatDayShort(dateKey))}</p>
+        </header>
+        ` : ''}
+        ${scanBudget && usagePresent ? `
         <section class="usage-strip ${usageStripMod}" aria-label="Scan allowance" ${usageStripAlertRole}>
           <div class="usage-strip__main">
             <div class="usage-strip__copy">
-              <strong>${scansLabel()}</strong>
-              <p>${planSummaryHtml()}</p>
+              <div class="usage-strip__meta">
+                <span class="usage-strip__eyebrow">Photo scans</span>
+                <span class="usage-strip__plan">${escapeHtml(usagePresent.planName)}</span>
+              </div>
+              <p class="usage-strip__count">
+                <strong>${escapeHtml(usagePresent.count)}</strong>
+                <span>${escapeHtml(usagePresent.unit)}</span>
+              </p>
+              <p class="usage-strip__detail">${escapeHtml(usagePresent.detail)}</p>
               ${primaryCreditAlert ? `<p class="usage-strip__alert-line"${primaryCreditAlert.tier >= 2 ? ' role="alert"' : ''}><strong>${escapeHtml(primaryCreditAlert.title)}</strong> — ${escapeHtml(primaryCreditAlert.body)}</p>` : ''}
             </div>
             ${!scanBudget.allowed
-              ? `<button type="button" class="btn btn-primary btn-sm" id="todayUpgrade">View plans</button>`
-              : `<button type="button" class="btn btn-ghost btn-sm" id="todayViewPlans">Plans</button>`}
+              ? `<button type="button" class="btn btn-primary btn-sm usage-strip__cta" id="todayUpgrade">View plans</button>`
+              : `<button type="button" class="btn btn-ghost btn-sm usage-strip__cta" id="todayViewPlans">Plans</button>`}
           </div>
-          <div class="usage-strip__meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${scanMeterPct}" aria-valuetext="${escapeAttr(scanMeterValueText)}" aria-label="Scans remaining">
-            <div class="usage-strip__meter-fill ${scanMeterPct <= 20 ? 'usage-strip__meter-fill--low' : ''}" style="width:${scanMeterPct}%"></div>
+          <div class="usage-strip__meter-row">
+            <div class="usage-strip__meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${scanMeterPct}" aria-valuetext="${escapeAttr(scanMeterValueText)}" aria-label="Scans remaining">
+              <div class="usage-strip__meter-fill ${scanMeterPct <= 20 ? 'usage-strip__meter-fill--low' : ''}" style="width:${scanMeterPct}%"></div>
+            </div>
+            <span class="usage-strip__meter-pct" aria-hidden="true">${scanMeterPct}%</span>
           </div>
         </section>
         ` : ''}
