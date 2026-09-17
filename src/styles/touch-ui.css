@@ -312,11 +312,12 @@ html.touch-ui .quick-action__hint {
 }
 
 html.touch-ui .usage-strip__count strong {
-  font-size: 1.85rem;
+  font-size: 1.28rem;
 }
 
 html.touch-ui .usage-strip__count span,
-html.touch-ui .usage-strip__detail {
+html.touch-ui .usage-strip__detail,
+html.touch-ui .usage-strip__alert-line {
   font-size: var(--t-base);
 }
 
@@ -330,6 +331,14 @@ html.touch-ui .usage-strip__copy strong {
 
 html.touch-ui .usage-strip__copy p {
   font-size: var(--t-base);
+}
+
+html.touch-ui .usage-strip {
+  padding: 10px 12px;
+}
+
+html.touch-ui .usage-strip__cta {
+  min-height: 36px;
 }
 
 /* ── Settings / reports ── */

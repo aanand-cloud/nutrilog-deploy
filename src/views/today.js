@@ -440,22 +440,17 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
       ${isGuest ? '' : `<h1 class="visually-hidden">${isViewingToday ? 'Today' : escapeHtml(dayHeading)}</h1>`}
       <div class="view-page__toolbar">
         ${scanBudget && usagePresent ? `
-        <section class="usage-strip ${usageStripMod}" aria-label="Scan allowance" ${usageStripAlertRole}>
+        <section class="usage-strip usage-strip--compact ${usageStripMod}" aria-label="Scan allowance" ${usageStripAlertRole}>
           <div class="usage-strip__main">
             <div class="usage-strip__copy">
-              <div class="usage-strip__meta">
-                <span class="usage-strip__eyebrow">Photo scans</span>
-                <span class="usage-strip__plan">${escapeHtml(usagePresent.planName)}</span>
-              </div>
+              <span class="usage-strip__plan">${escapeHtml(usagePresent.planName)}</span>
               <p class="usage-strip__count">
                 <strong>${escapeHtml(usagePresent.count)}</strong>
                 <span>${escapeHtml(usagePresent.unit)}</span>
               </p>
-              <p class="usage-strip__detail">${escapeHtml(usagePresent.detail)}</p>
-              ${primaryCreditAlert ? `<p class="usage-strip__alert-line"${primaryCreditAlert.tier >= 2 ? ' role="alert"' : ''}><strong>${escapeHtml(primaryCreditAlert.title)}</strong> — ${escapeHtml(primaryCreditAlert.body)}</p>` : ''}
             </div>
             ${!scanBudget.allowed
-              ? `<button type="button" class="btn btn-primary btn-sm usage-strip__cta" id="todayUpgrade">View plans</button>`
+              ? `<button type="button" class="btn btn-primary btn-sm usage-strip__cta" id="todayUpgrade">Plans</button>`
               : `<button type="button" class="btn btn-ghost btn-sm usage-strip__cta" id="todayViewPlans">Plans</button>`}
           </div>
           <div class="usage-strip__meter-row">
@@ -464,6 +459,7 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
             </div>
             <span class="usage-strip__meter-pct" aria-hidden="true">${scanMeterPct}%</span>
           </div>
+          ${primaryCreditAlert ? `<p class="usage-strip__alert-line"${primaryCreditAlert.tier >= 2 ? ' role="alert"' : ''}><strong>${escapeHtml(primaryCreditAlert.title)}</strong> — ${escapeHtml(primaryCreditAlert.body)}</p>` : ''}
         </section>
         ` : ''}
         ${consistencyHtml}
