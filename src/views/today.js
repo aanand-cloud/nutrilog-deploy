@@ -366,11 +366,6 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
   const scanMeterValueText = scanBudget ? `${scansLabel()}, ${scanMeterPct}% of allowance remaining` : '';
   const usageStripAlertRole = primaryCreditAlert?.tier >= 2 ? 'role="alert"' : '';
   const usagePresent = scanBudget ? usageStripPresentation(scanBudget, planId) : null;
-  const todayHeroDate = new Date().toLocaleDateString(undefined, {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-  });
   const cuisine = isViewingToday && weekMeals.length && canAccessAiTips(planId) ? await getCuisineTips(weekMeals) : { tips: [] };
   const dayHeading = formatDayHeading(dateKey);
   const mealsHeading = isViewingToday ? "Today's meals" : isFutureDay ? `Planned meals · ${dayHeading}` : `Meals · ${dayHeading}`;
@@ -444,15 +439,6 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
     <div class="view-page view-page--today${isGuest ? ' view-page--guest' : ''}">
       ${isGuest ? '' : `<h1 class="visually-hidden">${isViewingToday ? 'Today' : escapeHtml(dayHeading)}</h1>`}
       <div class="view-page__toolbar">
-        ${!isGuest ? `
-        <header class="today-hero" aria-label="${isViewingToday ? 'Today' : escapeAttr(dayHeading)}">
-          <div class="today-hero__text">
-            <p class="today-hero__eyebrow">${isViewingToday ? 'Overview' : 'Day view'}</p>
-            <h2 class="today-hero__title">${isViewingToday ? 'Today' : escapeHtml(dayHeading)}</h2>
-          </div>
-          <p class="today-hero__date">${escapeHtml(isViewingToday ? todayHeroDate : formatDayShort(dateKey))}</p>
-        </header>
-        ` : ''}
         ${scanBudget && usagePresent ? `
         <section class="usage-strip ${usageStripMod}" aria-label="Scan allowance" ${usageStripAlertRole}>
           <div class="usage-strip__main">

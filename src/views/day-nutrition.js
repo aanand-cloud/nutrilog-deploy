@@ -85,12 +85,19 @@ export function dayDateNavHtml(dateKey, {
   const isToday = dateKey === today;
   const isFuture = dateKey > today;
   const mode = isToday ? 'today' : isFuture ? 'plan' : 'past';
-  const eyebrow = isToday ? 'Today' : isFuture ? 'Planning' : 'Past day';
+  const eyebrow = isToday ? 'Day planner' : isFuture ? 'Planning' : 'Past day';
   const lead = isToday
     ? 'Plan up to 3 weeks ahead.'
     : isFuture
       ? 'Saves to this day, not today.'
       : 'You can still add a meal.';
+  const title = isToday
+    ? parseDateKey(dateKey).toLocaleDateString(undefined, {
+        weekday: 'long',
+        month: 'short',
+        day: 'numeric',
+      })
+    : heading;
   const maxLabel = formatPlanDateLabel(maxDate);
   const weekKeys = planWeekDateKeys(dateKey);
   const chips = weekKeys.map((key) => {
@@ -117,7 +124,7 @@ export function dayDateNavHtml(dateKey, {
       <header class="today-plan__head">
         <div class="today-plan__copy">
           <p class="today-plan__eyebrow">${eyebrow}</p>
-          <h2 class="today-plan__title">${escapeHtml(heading)}</h2>
+          <h2 class="today-plan__title">${escapeHtml(title)}</h2>
           <p class="today-plan__lead">${lead}</p>
         </div>
         <div class="today-plan__tools">

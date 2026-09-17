@@ -311,10 +311,6 @@ html.touch-ui .quick-action__hint {
   font-size: var(--t-base);
 }
 
-html.touch-ui .today-hero__title {
-  font-size: var(--t-title-xl);
-}
-
 html.touch-ui .usage-strip__count strong {
   font-size: 1.85rem;
 }

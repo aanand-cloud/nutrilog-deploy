@@ -25,46 +25,6 @@ html:not(.is-guest) .view-page__toolbar {
   gap: 12px;
 }
 
-.today-hero {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 2px 2px 0;
-}
-
-.today-hero__text {
-  min-width: 0;
-}
-
-.today-hero__eyebrow {
-  margin: 0 0 2px;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--teal);
-}
-
-.today-hero__title {
-  margin: 0;
-  font-size: 1.55rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.15;
-  color: var(--text);
-}
-
-.today-hero__date {
-  margin: 0;
-  flex: 0 0 auto;
-  padding-bottom: 3px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--text3);
-  white-space: nowrap;
-}
-
 .usage-strip {
   display: flex;
   flex-direction: column;
