@@ -91,6 +91,20 @@ const wrongFood = scoreLevel24Case(dindigul, {
 assert('wrong food is classified', wrongFood.errors.includes('wrong_food'));
 assert('high-confidence wrong food is flagged', wrongFood.high_confidence_wrong_food);
 
+const platterWithTarget = scoreLevel24Case(
+  cases.find((row) => row.canonical_name === 'plain idli' && row.split === 'development'),
+  {
+    items: [
+      { name: 'Medu Vada', _refId: 'medu_vada', _hiddenGrams: 100, calories_kcal: 285, nutrition: { protein_g: 8, carbs_g: 31, fat_g: 14 } },
+      { name: 'Idli', _refId: 'idli', _hiddenGrams: 120, calories_kcal: 180, nutrition: { protein_g: 5, carbs_g: 36, fat_g: 1 } },
+    ],
+    total_calories_kcal: 465,
+    total_nutrition: { protein_g: 13, carbs_g: 67, fat_g: 15 },
+    confidence_band: 'high',
+  },
+);
+assert('food_ok uses family match even when a side has more calories', platterWithTarget.food_ok);
+
 const wrongVariant = scoreLevel24Case(dindigul, {
   items: [{ name: 'ambur mutton biryani', _refId: 'ambur_mutton_biryani', _hiddenGrams: 400, calories_kcal: 760 }],
   total_calories_kcal: 760,

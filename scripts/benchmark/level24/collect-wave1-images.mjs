@@ -11,6 +11,12 @@ import { fileURLToPath } from 'node:url';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { loadLevel24Spec, selectWave1Cases } from './lib.mjs';
+import {
+  classifyFood,
+  familyFallback,
+  normalizeTitle,
+  titleCompatibleWithFood,
+} from './image-classify.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const spec = loadLevel24Spec(root);
@@ -42,24 +48,34 @@ const CATEGORIES = [
   'Category:Rava_dosa',
   'Category:Idli',
   'Category:Sambar',
+  'Category:Ambur_biryani',
 ];
 
 const SEARCHES = [
   'Dindigul Thalappakatti Biryani',
+  'Dindigul mutton biryani',
+  'Dindigul chicken biryani',
   'Ambur Mutton Briyani',
   'Ambur Chicken Biryani',
+  'Ambur biryani',
   'Thalassery biryani',
+  'Thalassery mutton biryani',
   'Hyderabadi mutton biryani',
+  'Hyderabadi chicken biryani',
+  'Hydrabadi chicken biryani',
   'Paneer Biryani',
   'Vegetable Biryani',
   'Ghee roast dosa',
   'Set dosa',
+  'Set dosai',
   'Rava dosa',
   'Podi idli',
   'Ghee podi idli',
   'Sambar idli',
+  'Idli sambar',
   'Masala dosa',
   'Plain dosa',
+  'Plain idli',
 ];
 
 function sleep(ms) {
@@ -77,60 +93,6 @@ async function commonsJson(params) {
     await sleep(1500 * attempt);
   }
   throw new Error(`Commons rate-limited ${params.action}`);
-}
-
-function normalizeTitle(title = '') {
-  return String(title).replace(/^File:/i, '').toLowerCase();
-}
-
-function isRejectedTitle(title = '') {
-  return /stamp|logo|icon|map|video|webm|svg|gif|falooda|illustration|drawing|cartoon|poster|advert|recipe book|packaging|packet|wiki\s*love/i.test(title);
-}
-
-function classifyFood(title = '') {
-  const t = normalizeTitle(title);
-  if (isRejectedTitle(t)) return null;
-  if (!/(biryani|biriyani|briyani|dosa|dosai|idli|idly)/i.test(t)) return null;
-
-  if (/dindigul|thalappakatti/.test(t) && /biry|briy/.test(t)) {
-    return /chicken|murg/.test(t) ? 'dindigul chicken biryani' : 'dindigul mutton biryani';
-  }
-  if (/ambur/.test(t) && /biry|briy/.test(t)) {
-    return /chicken|murg/.test(t) ? 'ambur chicken biryani' : 'ambur mutton biryani';
-  }
-  if (/thalassery|thalassery|tellicherry/.test(t) && /biry|briy/.test(t)) {
-    return 'thalassery mutton biryani';
-  }
-  if (/hyderabad/.test(t) && /biry|briy/.test(t)) {
-    if (/veg|vegetable/.test(t)) return 'vegetable biryani';
-    if (/paneer|panner/.test(t)) return 'paneer biryani';
-    if (/chicken|murg/.test(t)) return 'hyderabadi chicken biryani';
-    if (/mutton|gosht|lamb|goat/.test(t)) return 'hyderabadi mutton biryani';
-    return 'hyderabadi mutton biryani';
-  }
-  if (/paneer|panner/.test(t) && /biry|briy/.test(t)) return 'paneer biryani';
-  if (/(vegetable|veg)\b/.test(t) && /biry|briy/.test(t)) return 'vegetable biryani';
-  if (/ghee\s*roast/.test(t) && /dosa/.test(t)) return 'ghee roast dosa';
-  if (/rava|rava\s*dosa|ravva/.test(t) && /dosa/.test(t)) return 'rava dosa';
-  if (/set\s*dosa/.test(t)) return 'set dosa';
-  if (/masala/.test(t) && /dosa/.test(t)) return 'masala dosa';
-  if (/podi/.test(t) && /idli|idly/.test(t)) return 'ghee podi idli';
-  if (/sambar|sambaar/.test(t) && /idli|idly/.test(t)) return 'sambar idli';
-  if (/idli|idly/.test(t) && !/dosa/.test(t)) return 'plain idli';
-  if (/dosa|dosai/.test(t)) return 'plain dosa';
-  if (/mutton|gosht|lamb|goat/.test(t) && /biry|briy/.test(t)) return 'family:mutton_biryani';
-  if (/chicken|murg/.test(t) && /biry|briy/.test(t)) return 'family:chicken_biryani';
-  if (/biry|briy/.test(t)) return 'family:biryani';
-  return null;
-}
-
-function familyFallback(food) {
-  if (/mutton biryani/.test(food)) return ['family:mutton_biryani', 'family:biryani'];
-  if (/chicken biryani/.test(food)) return ['family:chicken_biryani', 'family:biryani'];
-  if (food === 'vegetable biryani' || food === 'paneer biryani') return ['family:biryani'];
-  if (/idli/.test(food)) return ['plain idli'];
-  if (/dosa/.test(food)) return ['plain dosa', 'masala dosa'];
-  return [];
 }
 
 function scenarioScore(title, scenario) {
@@ -322,9 +284,10 @@ for (const row of mappings) {
   if (row.download_url) usedUrls.add(row.download_url);
 }
 
-function takeFrom(keys, scenario) {
+function takeFrom(keys, scenario, food) {
   const candidates = keys.flatMap((key) => (pools.get(key) || []).map((info) => ({ key, info })))
     .filter((row) => !usedUrls.has(row.info.url) && !usedUrls.has(row.info.title))
+    .filter((row) => titleCompatibleWithFood(food, row.info.title))
     .sort((a, b) => scenarioScore(b.info.title, scenario) - scenarioScore(a.info.title, scenario));
   const picked = candidates[0];
   if (!picked) return null;
@@ -358,7 +321,7 @@ for (const food of foods) {
     if (mappings.some((item) => item.case_id === row.case_id)) continue;
     let picked = null;
     for (let attempt = 0; attempt < 16 && !picked; attempt += 1) {
-      const candidate = takeFrom([food, ...familyFallback(food)], row.scenario);
+      const candidate = takeFrom([food, ...familyFallback(food)], row.scenario, food);
       if (!candidate) break;
       const ext = /png/i.test(candidate.mime || candidate.title) ? 'png' : 'jpg';
       const fileName = `${row.case_id}.${ext}`;

@@ -146,6 +146,15 @@ function primaryItem(items = []) {
   return ranked[0] || items[0] || null;
 }
 
+/** Prefer a family-matching solid over the highest-calorie side (vada/chutney/dosa on idli plates). */
+function selectScoreItem(row, items = []) {
+  const solids = items.filter((item) => !item._visionOil && !/cooking oil/i.test(item.name || ''));
+  const familyHits = solids
+    .filter((item) => foodMatch(row, item).foodOk)
+    .sort((a, b) => (num(b.calories_kcal) || 0) - (num(a.calories_kcal) || 0));
+  return familyHits[0] || primaryItem(items);
+}
+
 function gramsFromEstimate(value) {
   if (value == null) return null;
   if (typeof value === 'number') return num(value);
@@ -197,7 +206,7 @@ export function scoreLevel24Case(row, prediction = {}, { measuredPortionG = null
   const evals = row.evaluation || {};
   const truth = row.ground_truth || {};
   const items = prediction.items || [];
-  const item = primaryItem(items);
+  const item = selectScoreItem(row, items);
   const match = foodMatch(row, item);
   const portionTruth = num(measuredPortionG) ?? num(row.actual_portion_g) ?? num(row.portion_truth_g);
   const predGrams = predictionGrams(prediction, item);
