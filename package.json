@@ -29,6 +29,7 @@
     "test:level24": "node scripts/test-level24-benchmark.mjs",
     "bench:level24:score": "node scripts/benchmark/level24/score-run.mjs --split development",
     "bench:level24:compose": "node scripts/benchmark/level24/rescore-wave1-compose.mjs",
+    "bench:level24:portion": "node scripts/benchmark/level24/record-portion.mjs",
     "stripe:portal": "node scripts/setup-stripe-portal.mjs .env",
     "stripe:prices": "node scripts/list-stripe-prices.mjs .env",
     "sentry:push": "node scripts/push-sentry-env-vercel.mjs .env",

@@ -229,6 +229,44 @@ assert('legacy photo discards Gemini kcal', forced.items[0]?.calories_kcal !== 6
 assert('legacy photo attaches a food reference', Boolean(forced.items[0]?._refId), String(forced.items[0]?._refId));
 assert('already composed photos are not composed twice', normalizePhotoAnalysis(forced) === forced);
 
+const dosaPieces = normalizePhotoAnalysis({
+  meal_summary: 'Dosa',
+  confidence_score: 0.9,
+  items: [{ name: 'Dosa', portion_estimate: '2 pieces', confidence: 0.9 }],
+});
+assert(
+  'dosa piece counts use bread grams not generic 120g',
+  dosaPieces.items[0]?._hiddenGrams === 340,
+  String(dosaPieces.items[0]?._hiddenGrams),
+);
+assert(
+  'dosa piece counts mark photo_piece_count',
+  dosaPieces.items[0]?._portionSourceDetail === 'photo_piece_count',
+  String(dosaPieces.items[0]?._portionSourceDetail),
+);
+
+const idliPieces = normalizePhotoAnalysis({
+  meal_summary: 'Idli',
+  confidence_score: 0.9,
+  items: [{ name: 'Idli', portion_estimate: '3 idlis', confidence: 0.9 }],
+});
+assert(
+  'idli piece counts use 60g each',
+  idliPieces.items[0]?._hiddenGrams === 180,
+  String(idliPieces.items[0]?._hiddenGrams),
+);
+
+const hugeBiryani = normalizePhotoAnalysis({
+  meal_summary: 'Chicken Biryani',
+  confidence_score: 0.9,
+  items: [{ name: 'Chicken Biryani', portion_estimate: '1200g', confidence: 0.9 }],
+});
+assert(
+  'extreme biryani photo grams are clamped',
+  hugeBiryani.items[0]?._hiddenGrams === 700,
+  String(hugeBiryani.items[0]?._hiddenGrams),
+);
+
 const keepName = resolveVisionFoodMatch('Medu Vada', 'fritter, urad dal, deep fried');
 assert('usda term does not overwrite medu vada with dal', keepName.ref?.id === 'medu_vada', String(keepName.ref?.id));
 

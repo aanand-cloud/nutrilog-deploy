@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "description": "Copy to measured-portions.json (gitignored) and fill with kitchen-scale weights for development cases only. Never invent weights for web photos you did not weigh.",
+  "portions": {
+    "IN24A-0002": 400
+  },
+  "notes": {
+    "IN24A-0002": "Example — fixture / kitchen scale"
+  }
+}

@@ -21,6 +21,13 @@ import { scoreMealConfidence } from './nutrition-confidence.js';
 import { applyAuthoritativeNutritionToItem } from './authoritative-nutrition.js';
 import { normalizeCanonicalFoodText } from './canonical-food-identity.js';
 import { itemProvenanceSummary } from './nutrition-provenance.js';
+import {
+  canonicalPieceGrams,
+  isBreadItemText,
+  parseExplicitPieceCount,
+  resolveBreadReference,
+} from './bread-piece-grams.js';
+import { countToNutritionGrams } from './portion-models.js';
 
 const FALLBACK_PER100 = {
   kcal: 130,
@@ -149,17 +156,73 @@ const VISION_MASS_SCALE = {
 };
 
 const MAX_VISION_GRAMS = 15000;
+const BIRYANI_PHOTO_MIN_G = 160;
+const BIRYANI_PHOTO_MAX_G = 700;
+
+function looksLikeBiryaniPlate(name = '') {
+  return /\b(biryani|biriyani|pulao|pulav|pilau|pilaf)\b/i.test(String(name || ''));
+}
+
+/**
+ * When vision says "2 pieces" / "3 idlis", convert with food-specific piece grams
+ * instead of the generic 120 g/piece default from parseGramsFromText alone.
+ */
+function visionPieceCountGrams(item = {}) {
+  const name = String(item.name || '').trim();
+  const estimate = String(item.portion_estimate || '').trim();
+  const combined = `${name} ${estimate}`.trim();
+  if (!combined) return null;
+
+  const unit = String(item.unit || '').trim().toLowerCase();
+  const explicitAmt = Number(item.estimated_amount);
+  const countFromUnit = (unit === 'piece' || unit === 'pieces' || unit === 'pc' || unit === 'pcs')
+    && Number.isFinite(explicitAmt)
+    && explicitAmt > 0
+    && explicitAmt <= 12
+    ? Math.round(explicitAmt)
+    : 0;
+
+  const count = countFromUnit
+    || parseExplicitPieceCount(estimate)
+    || parseExplicitPieceCount(combined);
+  if (!count || count < 1 || count > 12) return null;
+
+  if (isBreadItemText(name) || isBreadItemText(estimate)) {
+    const breadRef = resolveBreadReference(name) || resolveBreadReference(estimate);
+    const per = canonicalPieceGrams(breadRef?.id || '', name || estimate);
+    if (per > 0) return Math.round(count * per);
+  }
+
+  return countToNutritionGrams(count, name || estimate);
+}
+
+function sanitizeBiryaniPhotoGrams(name, amount) {
+  if (!looksLikeBiryaniPlate(name) || !Number.isFinite(amount)) return { amount, adjusted: false };
+  if (amount > BIRYANI_PHOTO_MAX_G) {
+    return { amount: BIRYANI_PHOTO_MAX_G, adjusted: true, detail: 'photo_biryani_max_clamp' };
+  }
+  if (amount < BIRYANI_PHOTO_MIN_G) {
+    return { amount: BIRYANI_PHOTO_MIN_G, adjusted: true, detail: 'photo_biryani_min_clamp' };
+  }
+  return { amount, adjusted: false };
+}
 
 /** Convert vision estimated_amount + unit into grams or ml. Never keep kg as the stored unit. */
 export function normalizeVisionPortion(item = {}) {
   const drink = looksLikeDrink(item);
   const rawUnit = String(item.unit || '').trim().toLowerCase();
   const explicit = Number(item.estimated_amount);
+  const pieceGrams = visionPieceCountGrams(item);
   const parsed = parseGramsFromText(item.portion_estimate || '');
   let unit = drink ? 'ml' : 'g';
   let amount;
+  let portionDetail = null;
 
-  if (Number.isFinite(explicit) && explicit > 0) {
+  if (pieceGrams != null && !drink) {
+    unit = 'g';
+    amount = pieceGrams;
+    portionDetail = 'photo_piece_count';
+  } else if (Number.isFinite(explicit) && explicit > 0) {
     if (rawUnit === 'ml' || rawUnit === 'millilitre' || rawUnit === 'millilitres' || rawUnit === 'milliliter' || rawUnit === 'milliliters') {
       unit = 'ml';
       amount = explicit;
@@ -185,7 +248,16 @@ export function normalizeVisionPortion(item = {}) {
 
   amount = Math.max(1, Math.round(amount));
   if (amount > MAX_VISION_GRAMS) amount = MAX_VISION_GRAMS;
-  return { unit, amount };
+
+  if (unit === 'g') {
+    const clamped = sanitizeBiryaniPhotoGrams(item.name || '', amount);
+    if (clamped.adjusted) {
+      amount = clamped.amount;
+      portionDetail = clamped.detail;
+    }
+  }
+
+  return { unit, amount, portionDetail };
 }
 
 function visionTokens(text = '') {
@@ -274,7 +346,7 @@ export function toVisionIdentification(raw = {}) {
     clarification_questions: raw.clarification_questions || [],
     items: (raw.items || []).map((item = {}) => {
       const name = String(item.name || 'Food').trim() || 'Food';
-      const { unit, amount } = normalizeVisionPortion(item);
+      const { unit, amount, portionDetail } = normalizeVisionPortion(item);
       const oilTbsp = Number(item.estimated_oil_tbsp);
       return {
         name,
@@ -285,6 +357,9 @@ export function toVisionIdentification(raw = {}) {
         estimated_oil_tbsp: Number.isFinite(oilTbsp) ? oilTbsp : 0,
         visible_oil: Boolean(item.visible_oil),
         confidence: item.confidence,
+        ...(portionDetail ? { _portionSourceDetail: portionDetail } : {}),
+        // Keep original piece text so stub can re-derive food-specific grams if needed.
+        ...(item.portion_estimate && !item.estimated_amount ? { portion_estimate: item.portion_estimate } : {}),
       };
     }),
   };
@@ -379,6 +454,9 @@ function visionItemToStub(visionItem = {}) {
   const rawAmount = normalized.amount;
   const calibrated = calibratedVisionAmount(visionItem.name, rawAmount, unit);
   const amount = calibrated.amount;
+  const portionDetail = calibrated.capped
+    ? 'photo_small_accompaniment_cap'
+    : (normalized.portionDetail || visionItem._portionSourceDetail || null);
   return {
     name: String(visionItem.name || 'Food').trim() || 'Food',
     portion_estimate: unit === 'ml' ? `~${amount}ml` : `~${amount}g`,
@@ -402,10 +480,10 @@ function visionItemToStub(visionItem = {}) {
       usda_search_term: String(visionItem.usda_search_term || '').trim(),
     },
     _portionSource: 'photo_estimated',
+    ...(portionDetail ? { _portionSourceDetail: portionDetail } : {}),
     ...(calibrated.capped ? {
       _portionCapped: true,
       _visionOriginalAmount: calibrated.originalAmount,
-      _portionSourceDetail: 'photo_small_accompaniment_cap',
     } : {}),
     ...(visionItem._refId ? { _refId: visionItem._refId } : {}),
     ...(visionItem._visionDetectedName ? { _visionDetectedName: visionItem._visionDetectedName } : {}),
