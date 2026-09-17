@@ -255,4 +255,22 @@ assert('lassi CoFID sweetened', getVerifiedRecord('lassi')?.sourceRecordId === '
 assert('pani puri not invented', !getVerifiedRecord('pani_puri'));
 assert('bhel not invented', !getVerifiedRecord('bhel'));
 
+assert('roast potatoes CoFID rapeseed', getVerifiedRecord('roast_potatoes')?.sourceRecordId === '13-534' && getVerifiedRecord('roast_potatoes')?.kcal100 === 161);
+assert('roast potato aliases', enrichReferenceWithVerified({ id: 'roast_potato' })?.kcal100 === 161);
+assert('sweetcorn CoFID on cob', getVerifiedRecord('sweetcorn')?.sourceRecordId === '13-508' && getVerifiedRecord('sweetcorn')?.kcal100 === 67);
+assert('corn on cob aliases', enrichReferenceWithVerified({ id: 'corn_on_cob' })?.kcal100 === 67);
+assert('blue cheese CoFID stilton', getVerifiedRecord('blue_cheese')?.sourceRecordId === '12-367' && getVerifiedRecord('blue_cheese')?.kcal100 === 410);
+assert('stilton aliases', enrichReferenceWithVerified({ id: 'stilton' })?.kcal100 === 410);
+assert('brie CoFID', getVerifiedRecord('brie')?.sourceRecordId === '12-344' && getVerifiedRecord('brie')?.kcal100 === 343);
+assert('camembert CoFID', getVerifiedRecord('camembert')?.sourceRecordId === '12-345' && getVerifiedRecord('camembert')?.kcal100 === 290);
+assert('vegetable soup CoFID canned', getVerifiedRecord('vegetable_soup')?.sourceRecordId === '17-712' && getVerifiedRecord('vegetable_soup')?.kcal100 === 39);
+assert('cream cheese CoFID spreadable', getVerifiedRecord('cream_cheese')?.sourceRecordId === '12-551' && getVerifiedRecord('cream_cheese')?.kcal100 === 252);
+assert('black beans USDA boiled', getVerifiedRecord('black_beans')?.sourceRecordId === '173735' && getVerifiedRecord('black_beans')?.kcal100 === 132);
+assert('tempeh USDA cooked', getVerifiedRecord('tempeh')?.sourceRecordId === '172467' && getVerifiedRecord('tempeh')?.kcal100 === 195);
+assert('quinoa USDA cooked', getVerifiedRecord('quinoa')?.sourceRecordId === '168917' && getVerifiedRecord('quinoa')?.kcal100 === 120);
+assert('cooked quinoa aliases', enrichReferenceWithVerified({ id: 'cooked_quinoa' })?.kcal100 === 120);
+assert('idli still not invented', !getVerifiedRecord('idli'));
+assert('dosa still not invented', !getVerifiedRecord('dosa'));
+assert('shawarma still not invented after pack', !getVerifiedRecord('shawarma'));
+
 console.log('\nDone.');

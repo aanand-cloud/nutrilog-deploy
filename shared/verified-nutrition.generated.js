@@ -1,5 +1,5 @@
 /** AUTO-GENERATED — do not edit. Run: node scripts/build-verified-nutrition-index.mjs */
-export const VERIFIED_NUTRITION_STATS = {"count":223,"version":"1.0","updated":"2026-09-14"};
+export const VERIFIED_NUTRITION_STATS = {"count":233,"version":"1.0","updated":"2026-09-14"};
 
 export const VERIFIED_BY_ID = {
   "almonds": {
@@ -446,6 +446,32 @@ export const VERIFIED_BY_ID = {
     "salt100": 658,
     "dataQualityScore": 95
   },
+  "black_beans": {
+    "id": "black_beans",
+    "canonicalName": "Beans, black, mature seeds, cooked, boiled, without salt",
+    "aliases": [
+      "black beans",
+      "black bean",
+      "refried beans"
+    ],
+    "dataSource": "usda",
+    "sourceRecordId": "173735",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_usda",
+    "preparationState": "boiled",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-17",
+    "kcal100": 132,
+    "protein100": 8.86,
+    "carbs100": 23.71,
+    "fat100": 0.54,
+    "fibre100": 8.7,
+    "sugar100": 0.32,
+    "salt100": 1,
+    "dataQualityScore": 95
+  },
   "blt": {
     "id": "blt",
     "canonicalName": "Sandwich, white bread, bacon, lettuce and tomato",
@@ -470,6 +496,32 @@ export const VERIFIED_BY_ID = {
     "fibre100": 1.5,
     "sugar100": 2.4,
     "salt100": 1193,
+    "dataQualityScore": 95
+  },
+  "blue_cheese": {
+    "id": "blue_cheese",
+    "canonicalName": "Cheese, Stilton, blue",
+    "aliases": [
+      "blue cheese",
+      "stilton",
+      "blue stilton"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "12-367",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "raw",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-14",
+    "kcal100": 410,
+    "protein100": 23.7,
+    "carbs100": 0.1,
+    "fat100": 35,
+    "fibre100": 0,
+    "sugar100": 0.1,
+    "salt100": 1970,
     "dataQualityScore": 95
   },
   "blueberries": {
@@ -615,6 +667,30 @@ export const VERIFIED_BY_ID = {
     "salt100": 1000,
     "dataQualityScore": 95
   },
+  "brie": {
+    "id": "brie",
+    "canonicalName": "Cheese, Brie, with outer rind removed",
+    "aliases": [
+      "brie"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "12-344",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "raw",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-14",
+    "kcal100": 343,
+    "protein100": 20.3,
+    "carbs100": 0,
+    "fat100": 29.1,
+    "fibre100": 0,
+    "sugar100": null,
+    "salt100": 1390,
+    "dataQualityScore": 95
+  },
   "broccoli": {
     "id": "broccoli",
     "canonicalName": "Broccoli, green, boiled in unsalted water",
@@ -757,6 +833,30 @@ export const VERIFIED_BY_ID = {
     "fibre100": 0,
     "sugar100": 0.6,
     "salt100": 1825,
+    "dataQualityScore": 95
+  },
+  "camembert": {
+    "id": "camembert",
+    "canonicalName": "Cheese, Camembert",
+    "aliases": [
+      "camembert"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "12-345",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "raw",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-14",
+    "kcal100": 290,
+    "protein100": 21.5,
+    "carbs100": 0,
+    "fat100": 22.7,
+    "fibre100": 0,
+    "sugar100": null,
+    "salt100": 1513,
     "dataQualityScore": 95
   },
   "carrots": {
@@ -1519,6 +1619,32 @@ export const VERIFIED_BY_ID = {
     "fibre100": 6.5,
     "sugar100": null,
     "salt100": 10,
+    "dataQualityScore": 95
+  },
+  "cream_cheese": {
+    "id": "cream_cheese",
+    "canonicalName": "Cheese, spreadable, full fat, soft, white",
+    "aliases": [
+      "cream cheese",
+      "soft cheese",
+      "philadelphia"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "12-551",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "raw",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-14",
+    "kcal100": 252,
+    "protein100": 5.3,
+    "carbs100": 3,
+    "fat100": 24.4,
+    "fibre100": 0,
+    "sugar100": 3,
+    "salt100": 650,
     "dataQualityScore": 95
   },
   "crisps": {
@@ -4238,6 +4364,31 @@ export const VERIFIED_BY_ID = {
     "salt100": 848,
     "dataQualityScore": 95
   },
+  "quinoa": {
+    "id": "quinoa",
+    "canonicalName": "Quinoa, cooked",
+    "aliases": [
+      "quinoa",
+      "cooked quinoa"
+    ],
+    "dataSource": "usda",
+    "sourceRecordId": "168917",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_usda",
+    "preparationState": "boiled",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-17",
+    "kcal100": 120,
+    "protein100": 4.4,
+    "carbs100": 21.3,
+    "fat100": 1.92,
+    "fibre100": 2.8,
+    "sugar100": 0.87,
+    "salt100": 7,
+    "dataQualityScore": 95
+  },
   "raisins": {
     "id": "raisins",
     "canonicalName": "Raisins, dried, black",
@@ -4365,6 +4516,32 @@ export const VERIFIED_BY_ID = {
     "fibre100": 0,
     "sugar100": 0,
     "salt100": 200,
+    "dataQualityScore": 95
+  },
+  "roast_potatoes": {
+    "id": "roast_potatoes",
+    "canonicalName": "Potatoes, old, roasted in rapeseed oil",
+    "aliases": [
+      "roast potatoes",
+      "roasted potatoes",
+      "roast potato"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "13-534",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "roasted",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-14",
+    "kcal100": 161,
+    "protein100": 2.6,
+    "carbs100": 26.4,
+    "fat100": 5.7,
+    "fibre100": 2.7,
+    "sugar100": 1.2,
+    "salt100": 8,
     "dataQualityScore": 95
   },
   "roti": {
@@ -5045,6 +5222,33 @@ export const VERIFIED_BY_ID = {
     "salt100": 130,
     "dataQualityScore": 95
   },
+  "sweetcorn": {
+    "id": "sweetcorn",
+    "canonicalName": "Sweetcorn, kernels, boiled 'on the cob' in unsalted water",
+    "aliases": [
+      "sweetcorn",
+      "sweet corn",
+      "corn on the cob",
+      "corn cob"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "13-508",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "boiled",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-14",
+    "kcal100": 67,
+    "protein100": 3.6,
+    "carbs100": 9.5,
+    "fat100": 1.9,
+    "fibre100": 5.1,
+    "sugar100": 2.5,
+    "salt100": 0,
+    "dataQualityScore": 95
+  },
   "tea": {
     "id": "tea",
     "canonicalName": "Tea, black, infusion, average",
@@ -5065,6 +5269,30 @@ export const VERIFIED_BY_ID = {
     "fibre100": 0,
     "sugar100": null,
     "salt100": 0,
+    "dataQualityScore": 95
+  },
+  "tempeh": {
+    "id": "tempeh",
+    "canonicalName": "Tempeh, cooked",
+    "aliases": [
+      "tempeh"
+    ],
+    "dataSource": "usda",
+    "sourceRecordId": "172467",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_usda",
+    "preparationState": "cooked",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-17",
+    "kcal100": 195,
+    "protein100": 19.91,
+    "carbs100": 7.62,
+    "fat100": 11.38,
+    "fibre100": null,
+    "sugar100": null,
+    "salt100": 14,
     "dataQualityScore": 95
   },
   "thai_green_curry": {
@@ -5260,6 +5488,31 @@ export const VERIFIED_BY_ID = {
     "fibre100": 1.8,
     "sugar100": 3.4,
     "salt100": 500,
+    "dataQualityScore": 95
+  },
+  "vegetable_soup": {
+    "id": "vegetable_soup",
+    "canonicalName": "Soup, vegetable, canned",
+    "aliases": [
+      "vegetable soup",
+      "veg soup"
+    ],
+    "dataSource": "cofid",
+    "sourceRecordId": "17-712",
+    "verificationStatus": "verified",
+    "nutrition_basis": "verified_cofid",
+    "preparationState": "cooked",
+    "standardPortionGrams": null,
+    "standardPortions": [],
+    "dataVersion": "1.0",
+    "lastReviewedAt": "2026-09-14",
+    "kcal100": 39,
+    "protein100": 1.4,
+    "carbs100": 7.4,
+    "fat100": 0.6,
+    "fibre100": 1.5,
+    "sugar100": 2.6,
+    "salt100": 575,
     "dataQualityScore": 95
   },
   "waffle": {
@@ -5578,9 +5831,17 @@ export const VERIFIED_ALIAS_TO_ID = {
   "beets": "beetroot",
   "beet root": "beetroot",
   "biryani": "biryani",
+  "black_beans": "black_beans",
+  "black beans": "black_beans",
+  "black bean": "black_beans",
+  "refried beans": "black_beans",
   "blt": "blt",
   "bacon lettuce tomato sandwich": "blt",
   "blt sandwich": "blt",
+  "blue_cheese": "blue_cheese",
+  "blue cheese": "blue_cheese",
+  "stilton": "blue_cheese",
+  "blue stilton": "blue_cheese",
   "blueberries": "blueberries",
   "blueberry": "blueberries",
   "boiled_egg": "boiled_egg",
@@ -5595,6 +5856,7 @@ export const VERIFIED_ALIAS_TO_ID = {
   "bombaymix": "bombay_mix",
   "chanachur": "bombay_mix",
   "bread": "bread",
+  "brie": "brie",
   "broccoli": "broccoli",
   "brown_bread": "brown_bread",
   "brown bread": "brown_bread",
@@ -5609,6 +5871,7 @@ export const VERIFIED_ALIAS_TO_ID = {
   "hamburger": "burger",
   "beef hamburger": "burger",
   "butter": "butter",
+  "camembert": "camembert",
   "carrots": "carrots",
   "carrot": "carrots",
   "gajar": "carrots",
@@ -5694,6 +5957,10 @@ export const VERIFIED_ALIAS_TO_ID = {
   "black eyed peas": "cowpeas",
   "black-eyed peas": "cowpeas",
   "black eyed pea": "cowpeas",
+  "cream_cheese": "cream_cheese",
+  "cream cheese": "cream_cheese",
+  "soft cheese": "cream_cheese",
+  "philadelphia": "cream_cheese",
   "crisps": "crisps",
   "croissant": "croissant",
   "croissants": "croissant",
@@ -6037,6 +6304,8 @@ export const VERIFIED_ALIAS_TO_ID = {
   "puri bread": "puri",
   "quiche": "quiche",
   "quiche lorraine": "quiche",
+  "quinoa": "quinoa",
+  "cooked quinoa": "quinoa",
   "raisins": "raisins",
   "raisin": "raisins",
   "kishmish": "raisins",
@@ -6055,6 +6324,10 @@ export const VERIFIED_ALIAS_TO_ID = {
   "topside beef": "roast_beef",
   "roast_chicken": "roast_chicken",
   "roast chicken": "roast_chicken",
+  "roast_potatoes": "roast_potatoes",
+  "roast potatoes": "roast_potatoes",
+  "roasted potatoes": "roast_potatoes",
+  "roast potato": "roast_potatoes",
   "roti": "roti",
   "salmon": "salmon",
   "sambar": "sambar",
@@ -6125,7 +6398,12 @@ export const VERIFIED_ALIAS_TO_ID = {
   "sweet & sour chicken": "sweet_and_sour_chicken",
   "sweet_potato": "sweet_potato",
   "sweet potato": "sweet_potato",
+  "sweetcorn": "sweetcorn",
+  "sweet corn": "sweetcorn",
+  "corn on the cob": "sweetcorn",
+  "corn cob": "sweetcorn",
   "tea": "tea",
+  "tempeh": "tempeh",
   "thai_green_curry": "thai_green_curry",
   "thai green curry": "thai_green_curry",
   "green thai curry": "thai_green_curry",
@@ -6147,6 +6425,9 @@ export const VERIFIED_ALIAS_TO_ID = {
   "veg curry": "veg_curry",
   "vegetable curry": "veg_curry",
   "veggie curry": "veg_curry",
+  "vegetable_soup": "vegetable_soup",
+  "vegetable soup": "vegetable_soup",
+  "veg soup": "vegetable_soup",
   "waffle": "waffle",
   "waffles": "waffle",
   "walnuts": "walnuts",

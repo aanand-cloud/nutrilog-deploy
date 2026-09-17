@@ -364,6 +364,28 @@
       "sugar100": 0.9
     },
     {
+      "id": "black_beans",
+      "canonicalName": "Beans, black, mature seeds, cooked, boiled, without salt",
+      "aliases": [
+        "black beans",
+        "black bean",
+        "refried beans"
+      ],
+      "dataSource": "usda",
+      "sourceRecordId": "173735",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_usda",
+      "preparationState": "boiled",
+      "lastReviewedAt": "2026-09-17",
+      "kcal100": 132,
+      "protein100": 8.86,
+      "carbs100": 23.71,
+      "fat100": 0.54,
+      "fibre100": 8.7,
+      "sugar100": 0.32,
+      "salt100": 1
+    },
+    {
       "id": "blt",
       "canonicalName": "Sandwich, white bread, bacon, lettuce and tomato",
       "aliases": [
@@ -384,6 +406,28 @@
       "fibre100": 1.5,
       "salt100": 1193,
       "sugar100": 2.4
+    },
+    {
+      "id": "blue_cheese",
+      "canonicalName": "Cheese, Stilton, blue",
+      "aliases": [
+        "blue cheese",
+        "stilton",
+        "blue stilton"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "12-367",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 410,
+      "protein100": 23.7,
+      "carbs100": 0.1,
+      "fat100": 35,
+      "fibre100": 0,
+      "salt100": 1970,
+      "sugar100": 0.1
     },
     {
       "id": "blueberries",
@@ -501,6 +545,25 @@
       "sugar100": 2.8
     },
     {
+      "id": "brie",
+      "canonicalName": "Cheese, Brie, with outer rind removed",
+      "aliases": [
+        "brie"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "12-344",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 343,
+      "protein100": 20.3,
+      "carbs100": 0,
+      "fat100": 29.1,
+      "fibre100": 0,
+      "salt100": 1390
+    },
+    {
       "id": "broccoli",
       "canonicalName": "Broccoli, green, boiled in unsalted water",
       "dataSource": "cofid",
@@ -616,6 +679,25 @@
       "fibre100": 0,
       "salt100": 1825,
       "sugar100": 0.6
+    },
+    {
+      "id": "camembert",
+      "canonicalName": "Cheese, Camembert",
+      "aliases": [
+        "camembert"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "12-345",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 290,
+      "protein100": 21.5,
+      "carbs100": 0,
+      "fat100": 22.7,
+      "fibre100": 0,
+      "salt100": 1513
     },
     {
       "id": "carrots",
@@ -1234,6 +1316,28 @@
       "fat100": 0.53,
       "fibre100": 6.5,
       "salt100": 10
+    },
+    {
+      "id": "cream_cheese",
+      "canonicalName": "Cheese, spreadable, full fat, soft, white",
+      "aliases": [
+        "cream cheese",
+        "soft cheese",
+        "philadelphia"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "12-551",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "raw",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 252,
+      "protein100": 5.3,
+      "carbs100": 3,
+      "fat100": 24.4,
+      "fibre100": 0,
+      "salt100": 650,
+      "sugar100": 3
     },
     {
       "id": "crisps",
@@ -3452,6 +3556,27 @@
       "sugar100": 3.2
     },
     {
+      "id": "quinoa",
+      "canonicalName": "Quinoa, cooked",
+      "aliases": [
+        "quinoa",
+        "cooked quinoa"
+      ],
+      "dataSource": "usda",
+      "sourceRecordId": "168917",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_usda",
+      "preparationState": "boiled",
+      "lastReviewedAt": "2026-09-17",
+      "kcal100": 120,
+      "protein100": 4.4,
+      "carbs100": 21.3,
+      "fat100": 1.92,
+      "fibre100": 2.8,
+      "sugar100": 0.87,
+      "salt100": 7
+    },
+    {
       "id": "raisins",
       "canonicalName": "Raisins, dried, black",
       "aliases": [
@@ -3556,6 +3681,28 @@
       "fibre100": 0,
       "salt100": 200,
       "sugar100": 0
+    },
+    {
+      "id": "roast_potatoes",
+      "canonicalName": "Potatoes, old, roasted in rapeseed oil",
+      "aliases": [
+        "roast potatoes",
+        "roasted potatoes",
+        "roast potato"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "13-534",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "roasted",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 161,
+      "protein100": 2.6,
+      "carbs100": 26.4,
+      "fat100": 5.7,
+      "fibre100": 2.7,
+      "salt100": 8,
+      "sugar100": 1.2
     },
     {
       "id": "roti",
@@ -4109,6 +4256,29 @@
       "salt100": 130
     },
     {
+      "id": "sweetcorn",
+      "canonicalName": "Sweetcorn, kernels, boiled 'on the cob' in unsalted water",
+      "aliases": [
+        "sweetcorn",
+        "sweet corn",
+        "corn on the cob",
+        "corn cob"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "13-508",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "boiled",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 67,
+      "protein100": 3.6,
+      "carbs100": 9.5,
+      "fat100": 1.9,
+      "fibre100": 5.1,
+      "salt100": 0,
+      "sugar100": 2.5
+    },
+    {
       "id": "tea",
       "canonicalName": "Tea, black, infusion, average",
       "dataSource": "cofid",
@@ -4123,6 +4293,24 @@
       "fat100": 0,
       "fibre100": 0,
       "salt100": 0
+    },
+    {
+      "id": "tempeh",
+      "canonicalName": "Tempeh, cooked",
+      "aliases": [
+        "tempeh"
+      ],
+      "dataSource": "usda",
+      "sourceRecordId": "172467",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_usda",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-17",
+      "kcal100": 195,
+      "protein100": 19.91,
+      "carbs100": 7.62,
+      "fat100": 11.38,
+      "salt100": 14
     },
     {
       "id": "thai_green_curry",
@@ -4282,6 +4470,27 @@
       "fibre100": 1.8,
       "salt100": 500,
       "sugar100": 3.4
+    },
+    {
+      "id": "vegetable_soup",
+      "canonicalName": "Soup, vegetable, canned",
+      "aliases": [
+        "vegetable soup",
+        "veg soup"
+      ],
+      "dataSource": "cofid",
+      "sourceRecordId": "17-712",
+      "verificationStatus": "verified",
+      "nutrition_basis": "verified_cofid",
+      "preparationState": "cooked",
+      "lastReviewedAt": "2026-09-14",
+      "kcal100": 39,
+      "protein100": 1.4,
+      "carbs100": 7.4,
+      "fat100": 0.6,
+      "fibre100": 1.5,
+      "salt100": 575,
+      "sugar100": 2.6
     },
     {
       "id": "waffle",
@@ -4495,5 +4704,5 @@
     }
   ],
   "updated": "2026-09-14",
-  "importNote": "CoFID overlays through 2026-09-16: staples, pizza/kebab/burger/lasagne/naan, takeaway breakfast/Chinese, pancakes/soup/coleslaw/curry/roast/steak"
+  "importNote": "CoFID overlays through 2026-09-17: staples, pizza/kebab/burger/lasagne/naan, takeaway breakfast/Chinese, pancakes/soup/coleslaw/curry/roast/steak, roast potatoes/sweetcorn/cheeses/veg soup; USDA black beans/tempeh/quinoa"
 }
