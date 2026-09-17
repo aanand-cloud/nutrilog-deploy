@@ -1,0 +1,12 @@
+{
+  "meal_summary": "Dindigul mutton biryani",
+  "confidence_score": 0.86,
+  "items": [
+    {
+      "name": "dindigul mutton biryani",
+      "estimated_amount": 400,
+      "unit": "g",
+      "confidence": 0.86
+    }
+  ]
+}

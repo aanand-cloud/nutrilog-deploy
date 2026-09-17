@@ -83,6 +83,7 @@ export function matchFoodReferenceTier1(text = '') {
     if (ref.id === 'milk' && /\b(coffee|tea|latte|cappuccino|chai|karak|mocha|hot\s+chocolate|white\s+coffee|flat\s+white|americano)\b/i.test(t)) continue;
     if (ref.id === 'coffee_black' && /\b(white\s+coffee|with\s+milk|condensed\s+milk|evaporated\s+milk|flat\s+white|latte|cappuccino|mocha|milky)\b/i.test(t)) continue;
     if (ref.id === 'chicken' && /\bcurry\b/i.test(t)) continue;
+    if (ref.id === 'chicken' && /\b(biryani|biriyani|pulao|pulav|pilau|pilaf)\b/i.test(t)) continue;
     if (ref.id === 'chicken_tikka' && /\bmasala\b/.test(t)) continue;
     if (ref.id === 'rice' && /\b(biryani|pilau|pilaf|fried\s+rice|jollof|risotto|paella|congee|kedgeree)\b/i.test(t)) continue;
     if (ref.id === 'beef' && /\bcurry\b/i.test(t)) continue;

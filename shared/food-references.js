@@ -15,7 +15,7 @@ import { EVERYDAY_FOODS_PRIORITY } from './everyday-foods-catalog.js';
 /** @type {FoodRef[]} */
 export const FOOD_REFERENCES = [
   // ── Proteins (specific cuts / dishes first) ──────────────────────────────
-  { id: 'chicken_biryani', re: /\bchicken\s+biryani\b|\bmutton\s+biryani\b|\blamb\s+biryani\b/i, kcal100: 185, protein100: 9, carbs100: 22, fat100: 8, fibre100: 1.2, salt100: 540 },
+  { id: 'chicken_biryani', re: /\b(?:chicken|mutton|lamb)\s+(?:biryani|biriyani|pulao|pulav|pilau|pilaf)\b/i, kcal100: 185, protein100: 9, carbs100: 22, fat100: 8, fibre100: 1.2, salt100: 540 },
   ...INDIAN_STARTER_FOOD_REFERENCES,
   { id: 'sausage_roll', re: /\bsausage\s+roll\b|\bgreggs\s+sausage\s+roll\b|\bsteak\s+bake\b|\bchicken\s+bake\b|\bgreggs\b/i, kcal100: 310, protein100: 9, carbs100: 26, fat100: 18, fibre100: 1.5, salt100: 680 },
   { id: 'bacon_sandwich', re: /\bbacon\s+sandwich\b|\bbacon\s+bap\b|\bbacon\s+butty\b|\bblt\b|\bbacon\s+lettuce\b/i, kcal100: 245, protein100: 12, carbs100: 22, fat100: 12, fibre100: 1.5, salt100: 720 },
