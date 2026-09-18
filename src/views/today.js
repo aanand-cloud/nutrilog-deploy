@@ -219,49 +219,33 @@ function usageStripPresentation(budget, planId) {
     if (!budget.allowed) {
       return {
         count: '0',
-        unit: 'left today',
-        detail: budget.reason === 'monthly_cap'
-          ? 'Monthly fair use reached · try again next month'
-          : 'Daily fair use reached · resets at midnight',
+        unit: 'scans left',
+        detail: budget.reason === 'monthly_cap' ? 'Monthly fair use reached' : 'Daily fair use reached',
         planName,
       };
     }
     return {
       count: String(budget.remaining),
-      unit: `of ${budget.limit} left today`,
-      detail: 'Pro fair use · resets at midnight',
+      unit: budget.remaining === 1 ? 'scan left' : 'scans left',
+      detail: '',
       planName,
     };
   }
-  if (budget.dailyFreeRemaining > 0 && budget.creditRemaining > 0) {
+  const remaining = Math.max(0, Number(budget.remaining) || 0);
+  if (remaining > 0) {
     return {
-      count: String(budget.dailyFreeRemaining),
-      unit: budget.dailyFreeRemaining === 1 ? 'free photo today' : 'free photos today',
-      detail: `${budget.creditRemaining} credit${budget.creditRemaining === 1 ? '' : 's'} saved · barcode free`,
-      planName,
-    };
-  }
-  if (budget.dailyFreeRemaining > 0) {
-    return {
-      count: String(budget.dailyFreeRemaining),
-      unit: budget.dailyFreeRemaining === 1 ? 'free photo today' : 'free photos today',
-      detail: 'Resets at midnight · barcode free',
-      planName,
-    };
-  }
-  if (budget.creditRemaining > 0) {
-    const cap = getDailyFreeCap();
-    return {
-      count: String(budget.creditRemaining),
-      unit: budget.creditRemaining === 1 ? 'credit left' : 'credits left',
-      detail: `${cap} free tomorrow · barcode free`,
+      count: String(remaining),
+      unit: remaining === 1 ? 'scan left' : 'scans left',
+      detail: budget.dailyFreeRemaining <= 0 && budget.creditRemaining > 0
+        ? "Today's free scan used"
+        : '',
       planName,
     };
   }
   return {
     count: '0',
-    unit: 'scans left today',
-    detail: 'Top up for more, or try after midnight · barcode free',
+    unit: 'scans left',
+    detail: "Today's free scan used",
     planName,
   };
 }
@@ -448,6 +432,7 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
                 <strong>${escapeHtml(usagePresent.count)}</strong>
                 <span>${escapeHtml(usagePresent.unit)}</span>
               </p>
+              ${usagePresent.detail ? `<p class="usage-strip__detail">${escapeHtml(usagePresent.detail)}</p>` : ''}
             </div>
             ${!scanBudget.allowed
               ? `<button type="button" class="btn btn-primary btn-sm usage-strip__cta" id="todayUpgrade">Plans</button>`

@@ -464,9 +464,7 @@ export function planSummaryHtml(planId = getPlan()) {
 }
 
 export function planBadgeLabel(planId = getPlan()) {
-  if (isProPlan(planId)) return planLabel(planId);
-  if (getTopUpBalance() > 0) return `${PLANS.free.name} + credits`;
-  return PLANS.free.name;
+  return planLabel(planId);
 }
 
 export function scansLabel(planId = getPlan()) {
