@@ -229,6 +229,25 @@ html:not(.is-guest) .view-page__extra {
   min-width: 0;
 }
 
+.consistency-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+}
+
+.consistency-strip__icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.consistency-strip__text {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text2);
+}
+
 .today-plan {
   display: flex;
   flex-direction: column;
@@ -655,6 +674,7 @@ html:not(.is-guest) .view-page__extra {
     grid-template-areas:
       'log log'
       'aside main'
+      'consistency consistency'
       'plan plan'
       'extra extra';
     gap: 20px 24px;
@@ -675,6 +695,10 @@ html:not(.is-guest) .view-page__extra {
 
   html:not(.is-guest) .view-page__main {
     grid-area: main;
+  }
+
+  html:not(.is-guest) .view-page__consistency {
+    grid-area: consistency;
   }
 
   html:not(.is-guest) .view-page__extra {

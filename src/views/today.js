@@ -441,7 +441,6 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
           </div>
         </section>
         ` : ''}
-        ${consistencyHtml}
         ${offlineQueueBannerHtml}
       </div>
 
@@ -475,6 +474,8 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
           })}
           ${mealTypeBreakdownHtml(foodMeals, prefs)}
         </aside>
+
+        ${consistencyHtml ? `<div class="view-page__consistency">${consistencyHtml}</div>` : ''}
 
         <div class="view-page__main">
           <section class="section section--meals">
@@ -520,11 +521,11 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
         })() : ''}
 
         <div class="view-page__extra">
+          ${referralHtml}
+          ${logAgainHtml}
           ${remainingCoachCard}
           ${dayWrapUpHtml}
           ${habitScoreCard}
-          ${logAgainHtml}
-          ${referralHtml}
           ${!isGuest && !showMicros ? microsTeaserHtml() : ''}
           ${!isGuest ? `
             <section class="supplements-teaser muted-card" aria-label="Supplement log">
