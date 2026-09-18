@@ -1,5 +1,5 @@
 /** AUTO-GENERATED — do not edit. Run: node scripts/build-recipe-catalog-index.mjs */
-export const RECIPE_CATALOG_STATS = {"count":40,"aliases":133,"version":"1.2"};
+export const RECIPE_CATALOG_STATS = {"count":41,"aliases":138,"version":"1.2"};
 
 export const RECIPE_ALIAS_TO_ID = {
   "fish and chips": "fish_and_chips",
@@ -39,7 +39,12 @@ export const RECIPE_ALIAS_TO_ID = {
   "biryani raita": "biryani_raita",
   "masala dosa plate": "masala_dosa_plate",
   "masala dosa with sambar and chutney": "masala_dosa_plate",
-  "dosa with sambar and chutney": "masala_dosa_plate",
+  "masala dosa with sambar": "masala_dosa_plate",
+  "dosa plate": "dosa_plate",
+  "dosa with sambar and chutney": "dosa_plate",
+  "plain dosa with sambar and chutney": "dosa_plate",
+  "plain dosa with sambar": "dosa_plate",
+  "dosa with sambar": "dosa_plate",
   "chapati dal sabzi": "chapati_dal_sabzi",
   "chapatis with dal and sabzi": "chapati_dal_sabzi",
   "roti dal sabzi": "chapati_dal_sabzi",
@@ -570,7 +575,7 @@ export const RECIPE_BY_ID = {
     "aliases": [
       "masala dosa plate",
       "masala dosa with sambar and chutney",
-      "dosa with sambar and chutney"
+      "masala dosa with sambar"
     ],
     "displayName": "Masala dosa plate",
     "defaultServingGrams": 400,
@@ -587,9 +592,52 @@ export const RECIPE_BY_ID = {
     },
     "components": [
       {
-        "refId": "dosa",
+        "refId": "masala_dosa",
         "grams": 170,
         "label": "Masala dosa",
+        "role": "main"
+      },
+      {
+        "refId": "sambar",
+        "grams": 200,
+        "label": "Sambar",
+        "role": "side"
+      },
+      {
+        "refId": "coconut_chutney",
+        "grams": 30,
+        "label": "Coconut chutney",
+        "role": "side"
+      }
+    ]
+  },
+  "dosa_plate": {
+    "id": "dosa_plate",
+    "aliases": [
+      "dosa plate",
+      "dosa with sambar and chutney",
+      "plain dosa with sambar and chutney",
+      "plain dosa with sambar",
+      "dosa with sambar"
+    ],
+    "displayName": "Dosa with sambar",
+    "defaultServingGrams": 400,
+    "cuisine": "Indian",
+    "cookingFat": {
+      "refId": "butter",
+      "label": "Dosa griddle oil",
+      "gramsByOil": {
+        "light": 3,
+        "normal": 8,
+        "generous": 16,
+        "deep_fried": 10
+      }
+    },
+    "components": [
+      {
+        "refId": "plain_dosa",
+        "grams": 150,
+        "label": "Plain dosa",
         "role": "main"
       },
       {

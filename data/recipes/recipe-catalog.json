@@ -191,7 +191,7 @@
     },
     {
       "id": "masala_dosa_plate",
-      "aliases": ["masala dosa plate", "masala dosa with sambar and chutney", "dosa with sambar and chutney"],
+      "aliases": ["masala dosa plate", "masala dosa with sambar and chutney", "masala dosa with sambar"],
       "displayName": "Masala dosa plate",
       "defaultServingGrams": 400,
       "cuisine": "Indian",
@@ -201,7 +201,24 @@
         "gramsByOil": { "light": 3, "normal": 8, "generous": 16, "deep_fried": 10 }
       },
       "components": [
-        { "refId": "dosa", "grams": 170, "label": "Masala dosa", "role": "main" },
+        { "refId": "masala_dosa", "grams": 170, "label": "Masala dosa", "role": "main" },
+        { "refId": "sambar", "grams": 200, "label": "Sambar", "role": "side" },
+        { "refId": "coconut_chutney", "grams": 30, "label": "Coconut chutney", "role": "side" }
+      ]
+    },
+    {
+      "id": "dosa_plate",
+      "aliases": ["dosa plate", "dosa with sambar and chutney", "plain dosa with sambar and chutney", "plain dosa with sambar", "dosa with sambar"],
+      "displayName": "Dosa with sambar",
+      "defaultServingGrams": 400,
+      "cuisine": "Indian",
+      "cookingFat": {
+        "refId": "butter",
+        "label": "Dosa griddle oil",
+        "gramsByOil": { "light": 3, "normal": 8, "generous": 16, "deep_fried": 10 }
+      },
+      "components": [
+        { "refId": "plain_dosa", "grams": 150, "label": "Plain dosa", "role": "main" },
         { "refId": "sambar", "grams": 200, "label": "Sambar", "role": "side" },
         { "refId": "coconut_chutney", "grams": 30, "label": "Coconut chutney", "role": "side" }
       ]
