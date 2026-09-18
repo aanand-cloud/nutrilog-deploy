@@ -505,6 +505,8 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
               </ul>
             `}
           </section>
+          ${remainingCoachCard}
+          ${logAgainHtml}
         </div>
 
         ${!isGuest ? (() => {
@@ -521,9 +523,6 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
         })() : ''}
 
         <div class="view-page__extra">
-          ${referralHtml}
-          ${logAgainHtml}
-          ${remainingCoachCard}
           ${dayWrapUpHtml}
           ${habitScoreCard}
           ${!isGuest && !showMicros ? microsTeaserHtml() : ''}
@@ -557,6 +556,7 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
               ${disclaimerBlock(DISCLAIMERS.aiCoach, 'fine-print health-disclaimer health-disclaimer--inline')}
             </section>
           ` : ''}
+          ${referralHtml}
         </div>
       </div>
       `}

@@ -67,6 +67,10 @@ export function buildRemainingCoach({ totals = {}, goals = {}, mealCount = 0 } =
     examples,
     calRemaining,
     proteinRemaining,
+    calGoal,
+    proteinGoal,
+    calUsed: Math.round(Number(totals.calories_kcal) || 0),
+    proteinUsed: Math.round(Number(totals.protein_g) || 0),
   };
 }
 

@@ -626,6 +626,15 @@ html:not(.is-guest) .view-page__extra {
 }
 
 @media (max-width: 379px) {
+  .remaining-coach__metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .remaining-coach__summary {
+    max-width: none;
+    text-align: left;
+  }
+
   .today-log__grid {
     grid-template-columns: 1fr;
     gap: 8px;

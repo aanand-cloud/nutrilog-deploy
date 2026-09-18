@@ -12,10 +12,10 @@ export function referralCardHtml({ code, shareUrl } = {}) {
   if (!code) return '';
 
   return `
-    <section class="referral-card muted-card" aria-label="Refer a friend">
-      <p class="referral-card__eyebrow">Refer a friend</p>
-      <h3 class="referral-card__title">Share ${escapeHtml(APP_NAME)}</h3>
-      <p class="referral-card__text">Send your link — friends get a free account, you get bonus scan credits.</p>
+    <section class="referral-card" aria-label="Refer a friend">
+      <p class="referral-card__eyebrow">Invite</p>
+      <h3 class="referral-card__title">Refer a friend</h3>
+      <p class="referral-card__text">Share ${escapeHtml(APP_NAME)} — friends get a free account, you get bonus scan credits.</p>
       <div class="referral-card__link-wrap">
         <input class="referral-card__link" type="text" readonly value="${escapeHtml(shareUrl)}" aria-label="Your referral link"/>
       </div>
