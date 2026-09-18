@@ -73,7 +73,6 @@ import {
 } from '../services/notifications.js';
 import {
   getScanBudget,
-  scansLabel,
   scanPackPriceLabel,
   planPriceLabel,
   startScanPackCheckout,
@@ -209,7 +208,7 @@ const ICON_EDIT = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" s
 const ICON_DELETE = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
 const ICON_CHART = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 5-6"/></svg>`;
 
-/** Structured copy for the Today scan-allowance card (keeps scansLabel for a11y). */
+/** Short Today scan status: “N scans left” + free-scan line. */
 function usageStripPresentation(budget, planId) {
   const planName = planBadgeLabel(planId);
   if (!budget) {
@@ -231,17 +230,23 @@ function usageStripPresentation(budget, planId) {
       planName,
     };
   }
-  const remaining = Math.max(0, Number(budget.remaining) || 0);
-  if (remaining > 0) {
+
+  const freeLeft = Math.max(0, Number(budget.dailyFreeRemaining) || 0);
+  const credits = Math.max(0, Number(budget.creditRemaining) || 0);
+  // Prefer credit balance when free is used — matches “30 scans left · Today's free scan used”.
+  const displayCount = freeLeft > 0 ? (freeLeft + credits) : credits;
+  const remaining = Math.max(0, Number(budget.remaining) || displayCount);
+
+  if (remaining > 0 || displayCount > 0) {
+    const n = freeLeft > 0 ? remaining : displayCount;
     return {
-      count: String(remaining),
-      unit: remaining === 1 ? 'scan left' : 'scans left',
-      detail: budget.dailyFreeRemaining <= 0 && budget.creditRemaining > 0
-        ? "Today's free scan used"
-        : '',
+      count: String(n),
+      unit: n === 1 ? 'scan left' : 'scans left',
+      detail: freeLeft > 0 ? 'Free scan available' : "Today's free scan used",
       planName,
     };
   }
+
   return {
     count: '0',
     unit: 'scans left',
@@ -346,8 +351,6 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
   const showWeeklyInsightTeaser = isViewingToday && profile?.loggedIn && !hasReports && weekMeals.length >= 2;
   const consistencyStats = !isGuest && isViewingToday ? loggingConsistencyStats(weekMeals, dateKey) : null;
   const consistencyHtml = consistencyStats ? consistencyStripHtml(consistencyStats) : '';
-  const scanMeterPct = scanBudget ? usageMeterRemainingPercent(planId) : 0;
-  const scanMeterValueText = scanBudget ? `${scansLabel()}, ${scanMeterPct}% of allowance remaining` : '';
   const usageStripAlertRole = primaryCreditAlert?.tier >= 2 ? 'role="alert"' : '';
   const usagePresent = scanBudget ? usageStripPresentation(scanBudget, planId) : null;
   const cuisine = isViewingToday && weekMeals.length && canAccessAiTips(planId) ? await getCuisineTips(weekMeals) : { tips: [] };
@@ -424,10 +427,9 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
       ${isGuest ? '' : `<h1 class="visually-hidden">${isViewingToday ? 'Today' : escapeHtml(dayHeading)}</h1>`}
       <div class="view-page__toolbar">
         ${scanBudget && usagePresent ? `
-        <section class="usage-strip usage-strip--compact ${usageStripMod}" aria-label="Scan allowance" ${usageStripAlertRole}>
+        <section class="usage-strip usage-strip--compact usage-strip--minimal ${usageStripMod}" aria-label="Scan allowance" ${usageStripAlertRole}>
           <div class="usage-strip__main">
             <div class="usage-strip__copy">
-              <span class="usage-strip__plan">${escapeHtml(usagePresent.planName)}</span>
               <p class="usage-strip__count">
                 <strong>${escapeHtml(usagePresent.count)}</strong>
                 <span>${escapeHtml(usagePresent.unit)}</span>
@@ -438,13 +440,6 @@ export async function renderToday(root, { onLog, onRefresh, onReports, onSetting
               ? `<button type="button" class="btn btn-primary btn-sm usage-strip__cta" id="todayUpgrade">Plans</button>`
               : `<button type="button" class="btn btn-ghost btn-sm usage-strip__cta" id="todayViewPlans">Plans</button>`}
           </div>
-          <div class="usage-strip__meter-row">
-            <div class="usage-strip__meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${scanMeterPct}" aria-valuetext="${escapeAttr(scanMeterValueText)}" aria-label="Scans remaining">
-              <div class="usage-strip__meter-fill ${scanMeterPct <= 20 ? 'usage-strip__meter-fill--low' : ''}" style="width:${scanMeterPct}%"></div>
-            </div>
-            <span class="usage-strip__meter-pct" aria-hidden="true">${scanMeterPct}%</span>
-          </div>
-          ${primaryCreditAlert ? `<p class="usage-strip__alert-line"${primaryCreditAlert.tier >= 2 ? ' role="alert"' : ''}><strong>${escapeHtml(primaryCreditAlert.title)}</strong> — ${escapeHtml(primaryCreditAlert.body)}</p>` : ''}
         </section>
         ` : ''}
         ${consistencyHtml}

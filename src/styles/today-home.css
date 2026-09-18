@@ -37,7 +37,29 @@ html:not(.is-guest) .view-page__toolbar {
 }
 
 .usage-strip--compact {
-  gap: 8px;
+  gap: 0;
+}
+
+.usage-strip--minimal {
+  padding: 10px 12px;
+}
+
+.usage-strip--minimal .usage-strip__copy {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.usage-strip--minimal .usage-strip__count {
+  gap: 6px;
+}
+
+.usage-strip--minimal .usage-strip__detail {
+  flex: 0 0 auto;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text2);
 }
 
 .usage-strip--info {
