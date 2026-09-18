@@ -63,15 +63,15 @@ let activeLogState = null;
 let analyzeStatusCleanup = null;
 let speechInputCleanup = null;
 
-function speechMicButton(id, labelIdle = 'Speak your answer') {
+function speechMicButton(id, labelIdle = 'Talk') {
   const supported = isSpeechInputSupported();
   const title = supported
-    ? 'Tap to speak · tap again to stop'
+    ? 'Tap to talk · tap again to stop'
     : speechInputUnavailableMessage();
   return `
     <button
       type="button"
-      class="speech-mic-btn${supported ? '' : ' speech-mic-btn--unsupported'}"
+      class="speech-mic-btn speech-mic-btn--pill${supported ? '' : ' speech-mic-btn--unsupported'}"
       id="${id}"
       data-label-idle="${escapeAttr(labelIdle)}"
       aria-label="${escapeAttr(labelIdle)}"
@@ -79,14 +79,14 @@ function speechMicButton(id, labelIdle = 'Speak your answer') {
       title="${escapeAttr(title)}"
     >
       <span class="speech-mic-btn__icon" aria-hidden="true">🎤</span>
-      <span class="speech-mic-btn__text">Speak</span>
+      <span class="speech-mic-btn__text">Talk</span>
     </button>
   `;
 }
 
 function speechHintHtml() {
   if (isSpeechInputSupported()) {
-    return '<p class="speech-field-hint fine-print">Voice is turned into text on your device — check it before continuing.</p>';
+    return '<p class="speech-field-hint fine-print">Tap Talk, then speak</p>';
   }
   return `<p class="speech-field-hint fine-print">${escapeHtml(speechInputUnavailableMessage())}</p>`;
 }
@@ -327,14 +327,16 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
             <p class="log-section__desc">Works for plates, cups and glasses. Barcode, describe and food search are on the previous screen and stay free.</p>
           </header>
           ${!needsSignIn ? `<p class="scan-badge ${scan.allowed ? '' : 'scan-badge--limit'}">${scansLabel()}</p>` : ''}
-          <label class="field full meal-hints-field">
+          <label class="field full meal-hints-field" for="photoNotesInput">
             <span>Notes <em class="optional-tag">optional</em></span>
-            <div class="speech-field">
-              <textarea id="photoNotesInput" rows="2" maxlength="280" placeholder="Add anything the photo may not show — e.g. &quot;half portion&quot;, &quot;oat latte no sugar&quot;, &quot;diet cola&quot;">${escapeHtml(state.mealNotes)}</textarea>
-              ${speechMicButton('photoNotesMic', 'Speak meal notes')}
-            </div>
-            ${speechHintHtml()}
           </label>
+          <div class="speech-field speech-field--compose">
+            <textarea id="photoNotesInput" rows="2" maxlength="280" placeholder="Add anything the photo may not show — e.g. &quot;half portion&quot;, &quot;oat latte no sugar&quot;, &quot;diet cola&quot;">${escapeHtml(state.mealNotes)}</textarea>
+            <div class="speech-field__bar">
+              ${speechHintHtml()}
+              ${speechMicButton('photoNotesMic', 'Talk')}
+            </div>
+          </div>
           ${photoControlsHtml({
             ...photoOpts,
             cameraHint: 'Include the full plate, cup, or glass',
@@ -470,14 +472,16 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
         <button type="button" class="back-link" id="backMethod">← Back</button>
         <h2>Describe your meal</h2>
         <p class="log-screen__lead">Type or dictate what you ate. This is free and does not use photo-scan credits.</p>
-        <label class="field full">
+        <label class="field full" for="describeInput">
           <span>Meal description</span>
-          <div class="speech-field">
-            <textarea id="describeInput" rows="4" maxlength="500" placeholder="e.g. 3 medium idlis, sambar and coconut chutney">${escapeHtml(state.describeText || '')}</textarea>
-            ${speechMicButton('describeMic', 'Speak your meal')}
-          </div>
-          ${speechHintHtml()}
         </label>
+        <div class="speech-field speech-field--compose">
+          <textarea id="describeInput" rows="4" maxlength="500" placeholder="e.g. 3 medium idlis, sambar and coconut chutney">${escapeHtml(state.describeText || '')}</textarea>
+          <div class="speech-field__bar">
+            ${speechHintHtml()}
+            ${speechMicButton('describeMic', 'Talk')}
+          </div>
+        </div>
         <button type="button" class="btn btn-primary full" id="describeContinue">Review estimate</button>
         ${disclaimerBlock(DISCLAIMERS.nutritionEstimate, 'fine-print health-disclaimer')}
       </section>
@@ -933,14 +937,16 @@ export function renderLog(root, { onSaved, onCancel, showToast, onUpgrade, profi
         <div class="option-grid" id="optionGrid">
           ${optionHtml}
         </div>
-        <label class="field">
+        <label class="field" for="customAnswer">
           <span>${escapeHtml(ui.inputLabel)}</span>
-          <div class="speech-field">
-            <input type="text" id="customAnswer" inputmode="${escapeAttr(ui.inputMode)}" placeholder="${escapeAttr(ui.inputPlaceholder)}"/>
-            ${speechMicButton('customAnswerMic', 'Speak your answer')}
-          </div>
-          ${speechHintHtml()}
         </label>
+        <div class="speech-field speech-field--compose">
+          <input type="text" id="customAnswer" inputmode="${escapeAttr(ui.inputMode)}" placeholder="${escapeAttr(ui.inputPlaceholder)}"/>
+          <div class="speech-field__bar">
+            ${speechHintHtml()}
+            ${speechMicButton('customAnswerMic', 'Talk')}
+          </div>
+        </div>
         <button type="button" class="btn btn-primary full" id="submitAnswer">Continue</button>
         <button type="button" class="btn btn-ghost full" id="skipClarify">Skip and review meal</button>
         ${disclaimerBlock(DISCLAIMERS.nutritionEstimate, 'fine-print health-disclaimer')}

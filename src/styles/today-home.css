@@ -451,12 +451,11 @@ html:not(.is-guest) .view-page__extra {
 .today-log {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 16px;
+  gap: 14px;
+  padding: 16px 16px 18px;
   border-radius: var(--radius);
-  background: linear-gradient(180deg, #ffffff 0%, #f0fdfa 100%);
+  background: var(--surface);
   border: 1px solid var(--border);
-  box-shadow: 0 8px 28px rgba(15, 118, 110, 0.08);
 }
 
 .today-log__head {
@@ -467,7 +466,7 @@ html:not(.is-guest) .view-page__extra {
 
 .today-log__title {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1.02rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--text);
@@ -475,33 +474,34 @@ html:not(.is-guest) .view-page__extra {
 
 .today-log__lead {
   margin: 0;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   line-height: 1.4;
   color: var(--text3);
 }
 
 .today-log__grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .today-log__btn {
   position: relative;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
   gap: 12px;
-  min-height: 76px;
-  padding: 14px 14px 14px 12px;
-  border: 1px solid rgba(13, 107, 100, 0.18);
+  min-height: 112px;
+  padding: 14px 12px;
+  border: 1px solid rgba(15, 118, 110, 0.14);
   border-radius: 14px;
-  background: #fff;
+  background: #f8fafc;
   color: var(--text);
   font: inherit;
   text-align: left;
   cursor: pointer;
-  box-shadow: 0 2px 10px rgba(15, 118, 110, 0.06);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
 
 .today-log__btn:active {
@@ -514,33 +514,29 @@ html:not(.is-guest) .view-page__extra {
 }
 
 .today-log__btn--photo {
-  grid-column: 1 / -1;
-  min-height: 88px;
-  border: none;
-  background: linear-gradient(135deg, #0a5c56 0%, var(--teal) 55%, var(--teal2) 100%);
+  background: var(--teal);
+  border-color: transparent;
   color: #fff;
-  box-shadow: 0 10px 24px rgba(13, 107, 100, 0.28);
 }
 
 .today-log__btn--free {
-  background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 72%);
-  border-color: rgba(13, 107, 100, 0.22);
+  background: #fff;
 }
 
 .today-log__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   flex-shrink: 0;
-  background: var(--teal-dim);
+  background: rgba(15, 118, 110, 0.1);
   color: var(--teal);
 }
 
 .today-log__btn--photo .today-log__icon {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.16);
   color: #fff;
 }
 
@@ -548,37 +544,29 @@ html:not(.is-guest) .view-page__extra {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
+  margin-top: auto;
 }
 
 .today-log__label {
-  font-size: 0.98rem;
+  font-size: 0.92rem;
   font-weight: 700;
   line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 
 .today-log__hint {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   line-height: 1.35;
   color: var(--text3);
 }
 
 .today-log__btn--photo .today-log__hint {
-  color: rgba(255, 255, 255, 0.86);
+  color: rgba(255, 255, 255, 0.82);
 }
 
 .today-log__badge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  padding: 3px 7px;
-  border-radius: 999px;
-  background: var(--teal);
-  color: #fff;
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
+  display: none;
 }
 
 .empty-state--meals {
@@ -618,13 +606,45 @@ html:not(.is-guest) .view-page__extra {
   margin-top: 6px;
 }
 
-@media (min-width: 720px) {
-  .today-log {
-    padding: 18px 20px;
+@media (max-width: 379px) {
+  .today-log__grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
   }
 
-  .today-log__btn--free {
-    min-height: 88px;
+  .today-log__btn {
+    flex-direction: row;
+    align-items: center;
+    min-height: 64px;
+    padding: 12px 14px;
+    gap: 12px;
+  }
+
+  .today-log__copy {
+    margin-top: 0;
+  }
+}
+
+@media (min-width: 720px) {
+  .today-log {
+    padding: 18px 20px 20px;
+  }
+
+  .today-log__grid {
+    gap: 10px;
+  }
+
+  .today-log__btn {
+    min-height: 120px;
+    padding: 16px 14px;
+  }
+
+  .today-log__label {
+    font-size: 0.98rem;
+  }
+
+  .today-log__hint {
+    font-size: 0.76rem;
   }
 }
 
@@ -662,12 +682,12 @@ html:not(.is-guest) .view-page__extra {
   }
 
   .today-log__btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 20px rgba(15, 118, 110, 0.12);
+    border-color: rgba(15, 118, 110, 0.28);
+    background: #f0fdfa;
   }
 
   .today-log__btn--photo:hover {
-    filter: brightness(1.04);
-    box-shadow: 0 12px 28px rgba(13, 107, 100, 0.32);
+    background: #0d5f59;
+    border-color: transparent;
   }
 }

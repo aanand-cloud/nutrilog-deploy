@@ -134,7 +134,7 @@ import {
   bindCreditAlertActions,
   trialBannerExtraHtml,
 } from '../services/credit-alerts.js';
-import { BARCODE_COPY, DESCRIBE_COPY, FREEMIUM_TAGLINE } from '../services/product-copy.js';
+import { BARCODE_COPY, FREEMIUM_TAGLINE } from '../services/product-copy.js';
 import { isDateInCalendarRange } from '../services/meal-calendar.js';
 import {
   landingHeroSectionHtml,
@@ -256,14 +256,15 @@ function usageStripPresentation(budget, planId) {
 }
 
 function todayLogPanelHtml({ isFutureDay, isPastDay, isViewingToday, dateKey }) {
-  const photoLabel = isFutureDay ? 'Plan with photo' : isPastDay ? 'Add meal photo' : 'Log meal photo';
+  const photoLabel = isFutureDay ? 'Plan with photo' : isPastDay ? 'Add photo' : 'Photo';
   const photoHint = isViewingToday ? 'Uses a scan' : formatDayShort(dateKey);
   return `
     <section class="today-log" aria-label="Log a meal">
       <header class="today-log__head">
         <h2 class="today-log__title">Log a meal</h2>
+        <p class="today-log__lead">Choose how you want to add this meal</p>
       </header>
-      <div class="today-log__grid">
+      <div class="today-log__grid" role="group" aria-label="Logging options">
         <button type="button" class="today-log__btn today-log__btn--photo" id="quickLogMeal" data-log-focus="photo">
           <span class="today-log__icon" aria-hidden="true">${ICON_CAMERA}</span>
           <span class="today-log__copy">
@@ -272,19 +273,17 @@ function todayLogPanelHtml({ isFutureDay, isPastDay, isViewingToday, dateKey }) 
           </span>
         </button>
         <button type="button" class="today-log__btn today-log__btn--free" id="homeLogPackagedBtn" data-log-focus="barcode">
-          <span class="today-log__badge">${BARCODE_COPY.badge}</span>
           <span class="today-log__icon" aria-hidden="true">${ICON_BARCODE}</span>
           <span class="today-log__copy">
             <span class="today-log__label">Barcode</span>
-            <span class="today-log__hint">Packaged food</span>
+            <span class="today-log__hint">Packaged · free</span>
           </span>
         </button>
         <button type="button" class="today-log__btn today-log__btn--free" id="quickLogDescribe" data-log-focus="describe">
-          <span class="today-log__badge">${DESCRIBE_COPY.badge}</span>
           <span class="today-log__icon" aria-hidden="true">${ICON_DESCRIBE}</span>
           <span class="today-log__copy">
             <span class="today-log__label">Describe</span>
-            <span class="today-log__hint">Type or voice</span>
+            <span class="today-log__hint">Type or talk · free</span>
           </span>
         </button>
       </div>
@@ -1098,7 +1097,7 @@ export async function renderSettings(root, { onSave, onGoToday, showToast, profi
                     <button type="submit" class="btn btn-ghost" id="promoCodeApplyBtn">Apply</button>
                   </div>
                 </label>
-                <p class="fine-print">Sign in with a confirmed email before applying. <strong>VIP100</strong> adds 100 bonus AI meal scans to your account.</p>
+                <p class="fine-print">Sign in with a confirmed email before applying. <strong>VIP100</strong> or <strong>INDIA100</strong> adds 100 bonus AI meal scans to your account.</p>
               </form>
 
               <details class="settings-details settings-details--nested" id="discountSection">

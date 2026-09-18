@@ -291,6 +291,7 @@ html:has(#pwaUpdateBanner) .app-header {
   border-radius: 12px;
   overflow: hidden;
   background: var(--surface);
+  margin-bottom: 14px;
 }
 
 .speech-field--compose textarea,

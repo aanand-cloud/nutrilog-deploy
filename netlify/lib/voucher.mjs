@@ -49,6 +49,7 @@ export function getVoucherCodes(env = process.env) {
     { code: 'TRIAL7', expires: '2026-12-31', type: 'trial', trialPlan: 'daily10', trialDays: 7, topupScans: 100 },
     { code: 'TRYPLUS', expires: '2026-12-31', type: 'trial', trialPlan: 'daily25', trialDays: 14, topupScans: 100 },
     { code: 'VIP100', expires: '2027-12-31', type: 'topup', trialPlan: 'daily10', trialDays: 365, topupScans: 100 },
+    { code: 'INDIA100', expires: '2027-12-31', type: 'topup', trialPlan: 'daily10', trialDays: 365, topupScans: 100 },
   ];
 }
 

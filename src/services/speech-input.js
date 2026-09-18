@@ -47,7 +47,11 @@ export function attachSpeechInput({
 
   if (!input || !button) return () => {};
   if (!isSpeechInputSupported()) {
-    const onUnsupported = () => onMessage?.(speechInputUnavailableMessage());
+    const onUnsupported = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      onMessage?.(speechInputUnavailableMessage());
+    };
     button.addEventListener('click', onUnsupported);
     return () => button.removeEventListener('click', onUnsupported);
   }
@@ -61,35 +65,53 @@ export function attachSpeechInput({
     listening = value;
     button.classList.toggle('speech-mic-btn--active', value);
     button.setAttribute('aria-pressed', value ? 'true' : 'false');
-    button.setAttribute('aria-label', value ? 'Stop listening' : button.dataset.labelIdle || 'Speak your answer');
+    button.setAttribute('aria-label', value ? 'Stop listening' : button.dataset.labelIdle || 'Talk');
+    const label = button.querySelector('.speech-mic-btn__text');
+    if (label) label.textContent = value ? 'Listening…' : 'Talk';
     onListeningChange?.(value);
   }
 
-  function ensureRecognition() {
-    if (recognition) return recognition;
-    recognition = new SpeechRecognition();
-    recognition.lang = lang;
-    recognition.interimResults = true;
-    recognition.continuous = false;
-    recognition.maxAlternatives = 1;
+  function disposeRecognition() {
+    if (!recognition) return;
+    recognition.onstart = null;
+    recognition.onend = null;
+    recognition.onerror = null;
+    recognition.onresult = null;
+    try {
+      recognition.abort();
+    } catch (_) {
+      /* ignore */
+    }
+    recognition = null;
+  }
 
-    recognition.onstart = () => setListening(true);
+  function createRecognition() {
+    disposeRecognition();
+    const rec = new SpeechRecognition();
+    rec.lang = lang;
+    rec.interimResults = true;
+    rec.continuous = false;
+    rec.maxAlternatives = 1;
 
-    recognition.onend = () => {
+    rec.onstart = () => setListening(true);
+
+    rec.onend = () => {
       setListening(false);
-      if (activeCtrl?.recognition === recognition) activeCtrl = null;
+      if (activeCtrl?.recognition === rec) activeCtrl = null;
+      // Drop the instance — Chrome often refuses start() after abort/end on the same object.
+      if (recognition === rec) recognition = null;
     };
 
-    recognition.onerror = (event) => {
+    rec.onerror = (event) => {
       setListening(false);
-      if (activeCtrl?.recognition === recognition) activeCtrl = null;
+      if (activeCtrl?.recognition === rec) activeCtrl = null;
       const code = event.error || '';
       if (code === 'aborted') return;
       if (code === 'no-speech') {
         onMessage?.('Did not catch that — try again or type');
         return;
       }
-      if (code === 'not-allowed') {
+      if (code === 'not-allowed' || code === 'service-not-allowed') {
         onMessage?.('Microphone blocked — allow mic in browser settings');
         return;
       }
@@ -100,7 +122,7 @@ export function attachSpeechInput({
       onMessage?.('Could not use voice — type your answer');
     };
 
-    recognition.onresult = (event) => {
+    rec.onresult = (event) => {
       let interim = '';
       let finalText = '';
       for (let i = event.resultIndex; i < event.results.length; i += 1) {
@@ -121,42 +143,60 @@ export function attachSpeechInput({
       input.value = baseText ? `${baseText} ${interim.trim()}` : interim.trim();
     };
 
-    return recognition;
+    recognition = rec;
+    return rec;
   }
 
   function stopActive() {
-    if (!recognition) return;
-    try {
-      recognition.stop();
-    } catch (_) {
-      /* ignore */
+    const rec = recognition;
+    if (!rec) {
+      setListening(false);
+      return;
     }
     try {
-      recognition.abort();
+      rec.stop();
     } catch (_) {
-      /* ignore */
+      try {
+        rec.abort();
+      } catch (__) {
+        /* ignore */
+      }
     }
     setListening(false);
   }
 
-  function toggle() {
+  function startListening() {
+    baseText = append ? input.value.trim() : '';
+    const rec = createRecognition();
+    activeCtrl = { abort: stopActive, recognition: rec };
+
+    try {
+      rec.start();
+    } catch (err) {
+      // Retry once with a fresh instance (handles InvalidStateError after prior abort).
+      try {
+        const retry = createRecognition();
+        activeCtrl = { abort: stopActive, recognition: retry };
+        retry.start();
+      } catch (_) {
+        setListening(false);
+        activeCtrl = null;
+        onMessage?.('Could not start microphone — try again');
+      }
+    }
+  }
+
+  function toggle(event) {
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+
     if (listening) {
       stopSpeechInput();
       return;
     }
 
     stopSpeechInput();
-    baseText = append ? input.value.trim() : '';
-    const rec = ensureRecognition();
-    activeCtrl = { abort: stopActive, recognition: rec };
-
-    try {
-      rec.start();
-    } catch (_) {
-      setListening(false);
-      activeCtrl = null;
-      onMessage?.('Could not start microphone — try again');
-    }
+    startListening();
   }
 
   button.addEventListener('click', toggle);
@@ -164,5 +204,6 @@ export function attachSpeechInput({
   return () => {
     button.removeEventListener('click', toggle);
     if (activeCtrl?.recognition === recognition) stopSpeechInput();
+    disposeRecognition();
   };
 }

@@ -10,11 +10,15 @@ assert('VIP100 is configured', Boolean(vip));
 assert('VIP100 is a topup code', vip?.type === 'topup');
 assert('VIP100 grants 100 scans', vip?.topupScans === 100);
 
-const valid = validateVoucherCode('vip100');
-assert('vip100 validates case-insensitively', valid.ok && valid.type === 'topup');
+const india = codes.find((entry) => entry.code === 'INDIA100');
+assert('INDIA100 is configured', Boolean(india));
+assert('INDIA100 is a topup code', india?.type === 'topup');
+assert('INDIA100 grants 100 scans', india?.topupScans === 100);
 
-const merged = getVoucherCodes({ VOUCHER_CODES: 'CUSTOM:2027-12-31:discount' });
-assert('custom env codes merge with built-ins', merged.some((entry) => entry.code === 'VIP100'));
-assert('custom env code is present', merged.some((entry) => entry.code === 'CUSTOM'));
+const valid = validateVoucherCode('india100');
+assert('india100 validates case-insensitively', valid.ok && valid.type === 'topup' && valid.topupScans === 100);
+
+const customOnly = getVoucherCodes({ VOUCHER_CODES: 'CUSTOM:2027-12-31:discount' });
+assert('VOUCHER_CODES env replaces built-ins', customOnly.length === 1 && customOnly[0].code === 'CUSTOM');
 
 console.log('check-voucher: ok');
