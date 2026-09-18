@@ -1,5 +1,67 @@
 /* Quick polish — disclaimer strip, guest CTA, confirm modals, onboarding skip */
 
+/* Guest upgrade gates (Reports, Supplements, etc.) */
+.upgrade-gate {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 24px 16px 32px;
+}
+
+.view-page__gate-copy {
+  padding: 22px 18px;
+  border-radius: var(--radius);
+  border: 1px solid #e2e8f0;
+  background: linear-gradient(180deg, #f0fdfa 0%, #ffffff 55%);
+  box-shadow: 0 8px 24px rgba(15, 118, 110, 0.06);
+}
+
+.upgrade-gate__head {
+  margin-bottom: 14px;
+}
+
+.upgrade-gate__eyebrow {
+  margin: 0 0 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+.upgrade-gate__title {
+  margin: 0 0 8px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  line-height: 1.25;
+}
+
+.upgrade-gate__lead {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text3);
+}
+
+.upgrade-gate__features {
+  margin: 0 0 18px;
+  padding-left: 1.15rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.upgrade-gate__features li + li {
+  margin-top: 6px;
+}
+
+.upgrade-gate__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .app-disclaimer-strip {
   color: var(--text3);
   text-align: center;

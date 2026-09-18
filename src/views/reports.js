@@ -6,8 +6,44 @@ import { DISCLAIMERS, disclaimerBlock } from '../services/disclaimers.js';
 import { computeAdaptiveTdee } from '../../shared/adaptive-tdee.js';
 import { listWeighIns } from '../services/weigh-ins.js';
 import { getActiveEnergyForDate } from '../services/health-sync.js';
+import { APP_NAME } from '../services/brand.js';
 
-export async function renderReports(root, { profile, onLog } = {}) {
+export async function renderReports(root, { profile, onLog, onSignIn, onUpgrade } = {}) {
+  const isGuest = !profile?.loggedIn;
+
+  if (isGuest) {
+    root.innerHTML = `
+      <section class="upgrade-gate view-page view-page--gate reports-guest" aria-label="Reports">
+        <h1 class="visually-hidden">Reports</h1>
+        <div class="view-page__gate-copy">
+          <div class="upgrade-gate__head">
+            <p class="upgrade-gate__eyebrow">${APP_NAME} reports</p>
+            <h2 class="upgrade-gate__title">See how your week is going</h2>
+            <p class="upgrade-gate__lead">Weekly averages, energy charts and goal insights unlock with a free account. Deeper reports come with Essential and above.</p>
+          </div>
+          <ul class="upgrade-gate__features">
+            <li>Weekly calorie and macro averages</li>
+            <li>Energy chart and goal insights</li>
+            <li>Barcode, Describe and Food Search stay free when signed in</li>
+          </ul>
+          <div class="upgrade-gate__actions">
+            <button type="button" class="btn btn-primary full" id="reportsGuestSignUp">Create free account</button>
+            <button type="button" class="btn btn-ghost full" id="reportsGuestViewPlans">View plans</button>
+            <button type="button" class="btn btn-ghost full" id="reportsGuestSignIn">Sign in</button>
+          </div>
+          ${disclaimerBlock(DISCLAIMERS.goalInsights, 'fine-print health-disclaimer')}
+        </div>
+      </section>
+    `;
+    root.querySelector('#reportsGuestSignUp')?.addEventListener('click', () => onSignIn?.('signup'));
+    root.querySelector('#reportsGuestSignIn')?.addEventListener('click', () => onSignIn?.('signin'));
+    root.querySelector('#reportsGuestViewPlans')?.addEventListener('click', () => {
+      if (onUpgrade) onUpgrade();
+      else onSignIn?.('signup');
+    });
+    return;
+  }
+
   const displayName = profile?.displayName || '';
   const end = new Date();
   const weekStart = new Date(end);
